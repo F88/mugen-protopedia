@@ -33,16 +33,22 @@ export interface NotableHighlights {
  * @param prototype 判定対象のPrototype
  * @returns 特筆すべきハイライトの有無を示すフラグ一覧
  */
-export const checkNotableHighlights = (prototype: Prototype): NotableHighlights => {
+export const checkNotableHighlights = (
+  prototype: Prototype,
+): NotableHighlights => {
   const hasAwards = Array.isArray(prototype.awards)
-    ? prototype.awards.some((award) => typeof award === 'string' && award.trim().length > 0)
+    ? prototype.awards.some(
+        (award) => typeof award === 'string' && award.trim().length > 0,
+      )
     : false;
 
   const hasViewMilestone = prototype.viewCount >= 1_000;
   const hasGoodMilestone = prototype.goodCount >= 10;
   const hasCommentMilestone = prototype.commentCount >= 5;
 
-  const isReleaseBirthday = Boolean(prototype.releaseDate && isBirthDay(prototype.releaseDate));
+  const isReleaseBirthday = Boolean(
+    prototype.releaseDate && isBirthDay(prototype.releaseDate),
+  );
 
   return {
     hasAwards,

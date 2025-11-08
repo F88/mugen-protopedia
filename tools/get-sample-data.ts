@@ -26,7 +26,8 @@ const durationFormatter = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
 });
 
-const formatDurationMs = (durationMs: number) => durationFormatter.format(Math.round(durationMs));
+const formatDurationMs = (durationMs: number) =>
+  durationFormatter.format(Math.round(durationMs));
 
 const buildOutputPath = (timestamp: string, extension: 'json' | 'tsv') => {
   const filename = `${timestamp}-prototypes-${PROTOTYPE_SAMPLE_COUNT}.${extension}`;
@@ -65,7 +66,9 @@ export async function savePrototypesJsonToFile({
     // logLevel: 'debug',
   });
 
-  console.info(`Fetching up to ${limit} prototypes (JSON) starting at offset ${offset}...`);
+  console.info(
+    `Fetching up to ${limit} prototypes (JSON) starting at offset ${offset}...`,
+  );
   const start = performance.now();
   const res = await protopedia.listPrototypes({ limit, offset });
   const durationMs = performance.now() - start;
@@ -104,7 +107,9 @@ export async function savePrototypesTSVToFile({
     // logLevel: 'debug',
   });
 
-  console.info(`Fetching up to ${limit} prototypes (TSV) starting at offset ${offset}...`);
+  console.info(
+    `Fetching up to ${limit} prototypes (TSV) starting at offset ${offset}...`,
+  );
   const start = performance.now();
   const res = await protopedia.downloadPrototypesTsv({ limit, offset });
   const durationMs = performance.now() - start;

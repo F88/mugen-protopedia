@@ -6,9 +6,13 @@ type PrototypeMainImageProps = {
   maxHeight?: 'sm' | 'md' | 'lg' | 'xl' | 'none';
 };
 
-export const PrototypeMainImage = ({ prototype, maxHeight = 'md' }: PrototypeMainImageProps) => {
+export const PrototypeMainImage = ({
+  prototype,
+  maxHeight = 'md',
+}: PrototypeMainImageProps) => {
   const imageUrl = (prototype.mainUrl ?? '').trim();
-  const altText = (prototype.prototypeNm ?? '').trim() || 'Prototype main image';
+  const altText =
+    (prototype.prototypeNm ?? '').trim() || 'Prototype main image';
 
   const heightClasses = {
     sm: 'max-h-48', // 192px

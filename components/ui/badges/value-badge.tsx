@@ -3,7 +3,11 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type ValueBadgeSize = 'small' | 'normal' | 'responsive';
 
@@ -17,7 +21,10 @@ export type ValueBadgeProps = {
   tooltip?: ReactNode;
 };
 
-const sizeStyles: Record<ValueBadgeSize, { badge: string; content: string; icon: string }> = {
+const sizeStyles: Record<
+  ValueBadgeSize,
+  { badge: string; content: string; icon: string }
+> = {
   small: {
     badge: 'gap-1 px-3 py-1 text-xs',
     content: 'gap-1',
@@ -44,7 +51,8 @@ export function ValueBadge({
   nowrap = false,
   tooltip,
 }: ValueBadgeProps) {
-  const displayValue = typeof value === 'number' ? value.toLocaleString() : value;
+  const displayValue =
+    typeof value === 'number' ? value.toLocaleString() : value;
   const sizeConfig = sizeStyles[size];
   const shouldWrap = !nowrap;
 
@@ -55,7 +63,9 @@ export function ValueBadge({
     : 'whitespace-nowrap';
 
   const contentClassName = cn(
-    shouldWrap ? 'flex flex-wrap items-center text-left min-w-0' : 'inline-flex items-center',
+    shouldWrap
+      ? 'flex flex-wrap items-center text-left min-w-0'
+      : 'inline-flex items-center',
     sizeConfig.content,
     shouldWrap ? 'gap-x-2 gap-y-1' : null,
   );
@@ -66,7 +76,11 @@ export function ValueBadge({
     shouldWrap ? 'break-words break-all text-left min-w-0' : null,
   );
 
-  const iconClassName = cn('flex items-center', sizeConfig.icon, shouldWrap ? 'flex-none' : null);
+  const iconClassName = cn(
+    'flex items-center',
+    sizeConfig.icon,
+    shouldWrap ? 'flex-none' : null,
+  );
 
   const linkEnhancements = isLink
     ? 'group cursor-pointer transition-[color,box-shadow] hover:bg-[hsl(var(--secondary))] [a&]:hover:bg-[hsl(var(--secondary))] hover:ring-1 hover:ring-[hsl(var(--ring))] hover:ring-offset-1 hover:ring-offset-[hsl(var(--background))] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[hsl(var(--ring))]'
@@ -84,7 +98,12 @@ export function ValueBadge({
       )}
     >
       {isLink ? (
-        <a href={href} target="_blank" rel="noreferrer" className={contentClassName}>
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className={contentClassName}
+        >
           {icon ? (
             <span className={iconClassName} aria-hidden>
               {icon}

@@ -61,7 +61,9 @@ export const WithIcon: Story = {
   args: {
     value: 'Studio team',
   },
-  render: (args) => <ValueBadge {...args} icon={<Users className="h-4 w-4" />} />,
+  render: (args) => (
+    <ValueBadge {...args} icon={<Users className="h-4 w-4" />} />
+  ),
 };
 
 export const AsLink: Story = {
@@ -69,7 +71,9 @@ export const AsLink: Story = {
     value: 'View prototype',
     href: 'https://example.com/prototype',
   },
-  render: (args) => <ValueBadge {...args} icon={<Link2 className="h-4 w-4" />} />,
+  render: (args) => (
+    <ValueBadge {...args} icon={<Link2 className="h-4 w-4" />} />
+  ),
 };
 
 export const WithTooltip: Story = {
@@ -77,7 +81,9 @@ export const WithTooltip: Story = {
     value: 'Role: Environment designer',
     tooltip: 'Shows detailed info about this responsibility',
   },
-  render: (args) => <ValueBadge {...args} icon={<Castle className="h-4 w-4" />} />,
+  render: (args) => (
+    <ValueBadge {...args} icon={<Castle className="h-4 w-4" />} />
+  ),
 };
 
 export const WrappingContent: Story = {

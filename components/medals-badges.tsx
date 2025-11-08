@@ -18,7 +18,8 @@ export const MedalBadges = ({ prototype }: MedalBadgesProps) => {
     return null;
   }
 
-  const { viewMedals, goodMedals, commentMedals, cakeMedals } = calculateMedalCounts(prototype);
+  const { viewMedals, goodMedals, commentMedals, cakeMedals } =
+    calculateMedalCounts(prototype);
 
   const medals: ReactNode[] = [];
 
@@ -44,7 +45,9 @@ export const MedalBadges = ({ prototype }: MedalBadgesProps) => {
     if (trimmedAward.length === 0) {
       return;
     }
-    medals.push(<ValueBadge key={`award-${index}`} value={`🎖️ ${trimmedAward}`} />);
+    medals.push(
+      <ValueBadge key={`award-${index}`} value={`🎖️ ${trimmedAward}`} />,
+    );
   });
 
   return <div className="mt-2 flex flex-wrap items-center gap-2">{medals}</div>;

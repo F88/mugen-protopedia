@@ -5,8 +5,8 @@ import { Analytics } from '@vercel/analytics/next';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ppv25',
-  description: 'Viewer app for ProtoPedia 25',
+  title: '無限ProtoPedia',
+  description: '無限ProtoPediaでよふかし',
 };
 
 export default function RootLayout({

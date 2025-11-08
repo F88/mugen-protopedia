@@ -5,7 +5,11 @@ type Logger = {
   error: (obj: unknown, msg?: string) => void;
 };
 
-export function handleApiError(logger: Logger, error: unknown, context: string) {
+export function handleApiError(
+  logger: Logger,
+  error: unknown,
+  context: string,
+) {
   const status = (error as { status?: number }).status;
   const body = (error as { body?: string }).body;
 

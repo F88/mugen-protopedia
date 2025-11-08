@@ -2,7 +2,10 @@ import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { SimpleBadge, SimpleBadgeProps } from '@/components/ui/badges/simple-badge';
+import {
+  SimpleBadge,
+  SimpleBadgeProps,
+} from '@/components/ui/badges/simple-badge';
 import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 
 export type StatusBadgeProps = {

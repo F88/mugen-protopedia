@@ -8,7 +8,10 @@ interface HeaderProps {
   dashboard: DashboardProps;
 }
 
-export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header({ dashboard }, ref) {
+export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
+  { dashboard },
+  ref,
+) {
   // const longTitle = 'ProtoPedia Viewer 25';
   // const longTitle = '無限 ProtoPedia';
   const mugenLong = '無限';

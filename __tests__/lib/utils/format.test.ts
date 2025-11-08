@@ -1,4 +1,12 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { formatAgeFromDate, formatDateForDisplay } from '@/lib/utils/format';
 
 const fixedNow = new Date('2000-01-01T00:00:00Z');
@@ -51,6 +59,8 @@ describe('formatAgeFromDate', () => {
   });
 
   it('omits months when includeMonths option is false', () => {
-    expect(formatAgeFromDate('1980-04-10', { includeMonths: false })).toBe('19歳');
+    expect(formatAgeFromDate('1980-04-10', { includeMonths: false })).toBe(
+      '19歳',
+    );
   });
 });

@@ -12,7 +12,9 @@ export const ThemeIcon: FC<ThemeIconProps> = ({ theme, mounted }) => {
       {/* 常にMoonを表示（サーバー側との整合性保持） */}
       <Moon
         className={`absolute w-4 h-4 text-gray-700 dark:text-gray-200 transition-all duration-200 ${
-          mounted && theme === 'dark' ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
+          mounted && theme === 'dark'
+            ? 'opacity-0 scale-75'
+            : 'opacity-100 scale-100'
         }`}
       />
       {/* Sunは mounted かつ dark の時のみ表示 */}

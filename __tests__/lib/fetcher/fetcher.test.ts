@@ -46,7 +46,9 @@ describe('getPrototypes', () => {
     repo.setTsv('');
   });
 
-  const createPrototype = (overrides: Partial<NormalizedPrototype> = {}): NormalizedPrototype => ({
+  const createPrototype = (
+    overrides: Partial<NormalizedPrototype> = {},
+  ): NormalizedPrototype => ({
     id: 1,
     prototypeNm: 'Prototype 1',
     teamNm: 'Team A',

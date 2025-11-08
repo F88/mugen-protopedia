@@ -37,7 +37,12 @@ export const fullfilledPrototype: Prototype = {
   thanksFlg: 0,
   events: ['Maker Faire Tokyo 2023', 'Tech Expo 2024'],
   officialLink: 'https://protopedia.net/prototype/7627',
-  materials: ['ARM Cortex Controller', '3D Printed Chassis', 'LIDAR Sensor', 'Li-Po Battery Pack'],
+  materials: [
+    'ARM Cortex Controller',
+    '3D Printed Chassis',
+    'LIDAR Sensor',
+    'Li-Po Battery Pack',
+  ],
 };
 
 export const minimalPrototype: Prototype = {
@@ -73,10 +78,19 @@ const generateAnniversaryDate = () => {
   const currentDay = currentDate.getDate(); // 6
 
   // Generate a random year between 2020 and 2024 (past years)
-  const randomYear = faker.date.between({ from: '2008-01-01', to: '2024-12-31' }).getFullYear();
+  const randomYear = faker.date
+    .between({ from: '2008-01-01', to: '2024-12-31' })
+    .getFullYear();
 
   // Create date with same day (6th) but random past year/month
-  const anniversaryDate = new Date(randomYear, currentMonth, currentDay, 9, 0, 0);
+  const anniversaryDate = new Date(
+    randomYear,
+    currentMonth,
+    currentDay,
+    9,
+    0,
+    0,
+  );
 
   return anniversaryDate.toISOString();
 };

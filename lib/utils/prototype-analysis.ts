@@ -61,7 +61,9 @@ export type PrototypeAnalysis = {
  * }
  * ```
  */
-export function analyzePrototypes(prototypes: NormalizedPrototype[]): PrototypeAnalysis {
+export function analyzePrototypes(
+  prototypes: NormalizedPrototype[],
+): PrototypeAnalysis {
   const logger = baseLogger.child({ action: 'analyzePrototypes' });
   const startTime = performance.now();
 
@@ -147,7 +149,9 @@ export function analyzePrototypes(prototypes: NormalizedPrototype[]): PrototypeA
 
   // Anniversary analysis - check for birthday prototypes
   const birthdayPrototypes = prototypes
-    .filter((prototype) => prototype.releaseDate && isBirthDay(prototype.releaseDate))
+    .filter(
+      (prototype) => prototype.releaseDate && isBirthDay(prototype.releaseDate),
+    )
     .map((prototype) => {
       const age = calculateAge(prototype.releaseDate);
       return {

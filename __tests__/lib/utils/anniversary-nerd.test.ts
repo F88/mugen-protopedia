@@ -1,4 +1,12 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { calculateAge, isBirthDay } from '@/lib/utils/anniversary-nerd';
 
 const fixedNow = new Date('2000-01-01T00:00:00Z');
@@ -19,24 +27,44 @@ afterAll(() => {
 
 describe('calculateAge', () => {
   it('returns years, months, and days for a past date', () => {
-    expect(calculateAge('1995-06-15')).toStrictEqual({ years: 4, months: 6, days: 17 });
+    expect(calculateAge('1995-06-15')).toStrictEqual({
+      years: 4,
+      months: 6,
+      days: 17,
+    });
   });
 
   it('adjusts when current day is before the birth day in the month', () => {
-    expect(calculateAge('1999-12-30')).toStrictEqual({ years: 0, months: 0, days: 2 });
+    expect(calculateAge('1999-12-30')).toStrictEqual({
+      years: 0,
+      months: 0,
+      days: 2,
+    });
   });
 
   it('returns zeros when date is invalid', () => {
-    expect(calculateAge('invalid')).toStrictEqual({ years: 0, months: 0, days: 0 });
+    expect(calculateAge('invalid')).toStrictEqual({
+      years: 0,
+      months: 0,
+      days: 0,
+    });
   });
 
   it('supports numeric timestamps', () => {
     const timestamp = new Date('1988-08-20T00:00:00Z').valueOf();
-    expect(calculateAge(timestamp)).toStrictEqual({ years: 11, months: 4, days: 12 });
+    expect(calculateAge(timestamp)).toStrictEqual({
+      years: 11,
+      months: 4,
+      days: 12,
+    });
   });
 
   it('handles leap day birthdays correctly', () => {
-    expect(calculateAge('1996-02-29')).toStrictEqual({ years: 3, months: 10, days: 3 });
+    expect(calculateAge('1996-02-29')).toStrictEqual({
+      years: 3,
+      months: 10,
+      days: 3,
+    });
   });
 });
 

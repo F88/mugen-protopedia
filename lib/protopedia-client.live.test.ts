@@ -24,7 +24,10 @@ describeIf('ProtoPedia live API', () => {
       // Fetch a tiny page to keep it fast and deterministic
       const data = await client.listPrototypes({ limit: 1, offset: 0 });
       // Output the raw payload for manual inspection (kept small)
-      console.log('Live listPrototypes payload:', JSON.stringify(data, null, 2));
+      console.log(
+        'Live listPrototypes payload:',
+        JSON.stringify(data, null, 2),
+      );
 
       expect(Array.isArray(data?.results)).toBe(true);
     } catch (error) {

@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { cn } from '@/lib/utils';
-import { buildMedalString, calculateMedalCounts } from '@/lib/utils/medal-utils';
+import {
+  buildMedalString,
+  calculateMedalCounts,
+} from '@/lib/utils/medal-utils';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
 
 type MedalsProps = {
@@ -24,10 +27,19 @@ const DISPLAY_INTERVAL_MS = 500;
 
 export const Medals: MedalsComponent = ({ prototype, className }) => {
   const highlights = checkNotableHighlights(prototype);
-  const hasAnyHighlight = useMemo(() => Object.values(highlights).some(Boolean), [highlights]);
+  const hasAnyHighlight = useMemo(
+    () => Object.values(highlights).some(Boolean),
+    [highlights],
+  );
 
-  const medalCounts = useMemo(() => calculateMedalCounts(prototype), [prototype]);
-  const medalString = useMemo(() => buildMedalString(medalCounts), [medalCounts]);
+  const medalCounts = useMemo(
+    () => calculateMedalCounts(prototype),
+    [prototype],
+  );
+  const medalString = useMemo(
+    () => buildMedalString(medalCounts),
+    [medalCounts],
+  );
 
   if (!hasAnyHighlight || medalString.length === 0) {
     return null;
@@ -36,12 +48,17 @@ export const Medals: MedalsComponent = ({ prototype, className }) => {
   return <AnimatedMedalString value={medalString} className={className} />;
 };
 
-const AnimatedMedalString = ({ value, className }: AnimatedMedalStringProps) => {
+const AnimatedMedalString = ({
+  value,
+  className,
+}: AnimatedMedalStringProps) => {
   const [visibleCount, setVisibleCount] = useState(0);
 
   const segments = useMemo(() => {
     if ('Segmenter' in Intl) {
-      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+      const segmenter = new Intl.Segmenter(undefined, {
+        granularity: 'grapheme',
+      });
       return Array.from(segmenter.segment(value), (entry) => entry.segment);
     }
 
@@ -82,10 +99,16 @@ const AnimatedMedalString = ({ value, className }: AnimatedMedalStringProps) => 
     };
   }, [segments]);
 
-  const displayed = segments.slice(0, Math.min(visibleCount, segments.length)).join('');
+  const displayed = segments
+    .slice(0, Math.min(visibleCount, segments.length))
+    .join('');
 
   return (
-    <span className={cn('text-lg leading-none', className)} aria-label={value} aria-live="polite">
+    <span
+      className={cn('text-lg leading-none', className)}
+      aria-label={value}
+      aria-live="polite"
+    >
       {displayed}
     </span>
   );

@@ -39,21 +39,24 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<RandomPrototypeError>(null);
 
-  const getRandomPrototype = useCallback(async (): Promise<NormalizedPrototype | null> => {
-    setIsLoading(true);
-    setError(null);
+  const getRandomPrototype =
+    useCallback(async (): Promise<NormalizedPrototype | null> => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      return await getRandomPrototypeData();
-    } catch (caught) {
-      const message =
-        caught instanceof Error ? caught.message : 'Failed to fetch random prototype.';
-      setError(message);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      try {
+        return await getRandomPrototypeData();
+      } catch (caught) {
+        const message =
+          caught instanceof Error
+            ? caught.message
+            : 'Failed to fetch random prototype.';
+        setError(message);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    }, []);
 
   return {
     getRandomPrototype,

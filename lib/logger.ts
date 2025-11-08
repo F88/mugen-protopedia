@@ -1,13 +1,17 @@
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
 
-import { logger as clientLogger, type Logger as ClientLogger } from './logger.client';
+import {
+  logger as clientLogger,
+  type Logger as ClientLogger,
+} from './logger.client';
 
 type ServerLogger = pino.Logger;
 
 function createServerLogger(): ServerLogger {
   const level =
-    process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'debug' : 'info');
+    process.env.LOG_LEVEL ||
+    (process.env.NODE_ENV === 'development' ? 'debug' : 'info');
 
   const prettyEnv = process.env.LOG_PRETTY;
   const prettyEnabled =
@@ -36,5 +40,7 @@ function createServerLogger(): ServerLogger {
 
 const isBrowser = typeof window !== 'undefined';
 
-export const logger: ServerLogger | ClientLogger = isBrowser ? clientLogger : createServerLogger();
+export const logger: ServerLogger | ClientLogger = isBrowser
+  ? clientLogger
+  : createServerLogger();
 export type Logger = ServerLogger | ClientLogger;

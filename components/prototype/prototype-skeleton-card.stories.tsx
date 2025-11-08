@@ -20,7 +20,9 @@ export const WithExpectedIdAndNoError: Story = {
 };
 
 export const WithoutExpectedIdAndError: Story = {
-  render: () => <PrototypeSkeletonCard errorMessage="Failed to load prototype." />,
+  render: () => (
+    <PrototypeSkeletonCard errorMessage="Failed to load prototype." />
+  ),
 };
 
 export const WithExpectedIdAndError: Story = {

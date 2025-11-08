@@ -10,7 +10,9 @@ export const calculateAge = (
   }
 
   const now = new Date();
-  let months = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
+  let months =
+    (now.getFullYear() - date.getFullYear()) * 12 +
+    (now.getMonth() - date.getMonth());
   let days = now.getDate() - date.getDate();
 
   if (days < 0) {

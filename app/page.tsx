@@ -70,7 +70,9 @@ export default function Home() {
   );
 
   const FALLBACK_MAX_PROTOTYPE_ID = 7_777;
-  const [maxPrototypeId, setMaxPrototypeId] = useState<number>(FALLBACK_MAX_PROTOTYPE_ID);
+  const [maxPrototypeId, setMaxPrototypeId] = useState<number>(
+    FALLBACK_MAX_PROTOTYPE_ID,
+  );
 
   const {
     getRandomPrototype,
@@ -78,7 +80,8 @@ export default function Home() {
     error: randomPrototypeError,
   } = useRandomPrototype();
 
-  const clonePrototype = (prototype: Prototype): Prototype => JSON.parse(JSON.stringify(prototype));
+  const clonePrototype = (prototype: Prototype): Prototype =>
+    JSON.parse(JSON.stringify(prototype));
 
   useEffect(() => {
     let isMounted = true;
@@ -86,13 +89,21 @@ export default function Home() {
     const resolveMaxPrototypeId = async () => {
       try {
         const maxId = await getMaxPrototypeId();
-        if (isMounted && typeof maxId === 'number' && Number.isFinite(maxId) && maxId > 0) {
+        if (
+          isMounted &&
+          typeof maxId === 'number' &&
+          Number.isFinite(maxId) &&
+          maxId > 0
+        ) {
           setMaxPrototypeId(maxId);
         } else if (isMounted) {
           setMaxPrototypeId(FALLBACK_MAX_PROTOTYPE_ID);
         }
       } catch (error) {
-        console.warn('Failed to resolve max prototype id, using fallback', error);
+        console.warn(
+          'Failed to resolve max prototype id, using fallback',
+          error,
+        );
         if (isMounted) {
           setMaxPrototypeId(FALLBACK_MAX_PROTOTYPE_ID);
         }
@@ -155,29 +166,40 @@ export default function Home() {
     [],
   );
 
-  const replacePrototypeInSlot = useCallback(async (slotId: number, prototype: Prototype) => {
-    const minDelayMs = 500;
-    const maxDelayMs = 3_000;
-    const randomDelayMs = Math.random() * (maxDelayMs - minDelayMs) + minDelayMs;
-    // const msg = `Simulating network delay of ${Math.round(randomDelayMs).toLocaleString()}ms before replacing prototype in slot ${slotId}`;
-    // console.debug(msg);
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, randomDelayMs);
-    });
+  const replacePrototypeInSlot = useCallback(
+    async (slotId: number, prototype: Prototype) => {
+      const minDelayMs = 500;
+      const maxDelayMs = 3_000;
+      const randomDelayMs =
+        Math.random() * (maxDelayMs - minDelayMs) + minDelayMs;
+      // const msg = `Simulating network delay of ${Math.round(randomDelayMs).toLocaleString()}ms before replacing prototype in slot ${slotId}`;
+      // console.debug(msg);
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, randomDelayMs);
+      });
 
-    setPrototypeSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === slotId ? { ...slot, prototype, errorMessage: null, isLoading: false } : slot,
-      ),
-    );
-    // logNotableHighlights(prototype);
-  }, []);
+      setPrototypeSlots((prev) =>
+        prev.map((slot) =>
+          slot.id === slotId
+            ? { ...slot, prototype, errorMessage: null, isLoading: false }
+            : slot,
+        ),
+      );
+      // logNotableHighlights(prototype);
+    },
+    [],
+  );
 
   const setSlotError = (slotId: number, message: string) => {
     setPrototypeSlots((prev) =>
       prev.map((slot) =>
         slot.id === slotId
-          ? { ...slot, prototype: undefined, errorMessage: message, isLoading: false }
+          ? {
+              ...slot,
+              prototype: undefined,
+              errorMessage: message,
+              isLoading: false,
+            }
           : slot,
       ),
     );
@@ -187,19 +209,22 @@ export default function Home() {
     setPrototypeSlots((prev) => prev.filter((slot) => slot.id !== slotId));
   }, []);
 
-  const getRandomPrototypeFromResults = useCallback(async (): Promise<Prototype | null> => {
-    const prototype = await getRandomPrototype();
+  const getRandomPrototypeFromResults =
+    useCallback(async (): Promise<Prototype | null> => {
+      const prototype = await getRandomPrototype();
 
-    if (!prototype) {
-      return null;
-    }
+      if (!prototype) {
+        return null;
+      }
 
-    const clonedPrototype = clonePrototype(prototype);
-    console.debug('Selected random prototype', { clonedPrototype });
-    return clonedPrototype;
-  }, [getRandomPrototype]);
+      const clonedPrototype = clonePrototype(prototype);
+      console.debug('Selected random prototype', { clonedPrototype });
+      return clonedPrototype;
+    }, [getRandomPrototype]);
 
-  const handlePrototypeIdInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handlePrototypeIdInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
     setPrototypeIdInput(event.target.value);
   };
 
@@ -274,7 +299,8 @@ export default function Home() {
       const clonedPrototype = clonePrototype(prototype);
       await replacePrototypeInSlot(slotId, clonedPrototype);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch prototype.';
+      const message =
+        err instanceof Error ? err.message : 'Failed to fetch prototype.';
       setPrototypeIdError(message);
       setSlotError(slotId, message);
     } finally {
@@ -290,7 +316,10 @@ export default function Home() {
 
     const updateOffset = () => {
       const height = element.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--header-offset', `${Math.ceil(height + 16)}px`);
+      document.documentElement.style.setProperty(
+        '--header-offset',
+        `${Math.ceil(height + 16)}px`,
+      );
     };
 
     updateOffset();
@@ -320,7 +349,9 @@ export default function Home() {
       requestAnimationFrame(() => {
         setTimeout(() => {
           // Find the last prototype element (newly added)
-          const prototypeElements = container.querySelectorAll('[data-prototype-id]');
+          const prototypeElements = container.querySelectorAll(
+            '[data-prototype-id]',
+          );
           if (prototypeElements.length > 0) {
             const lastElement = prototypeElements[prototypeElements.length - 1];
 
@@ -335,7 +366,8 @@ export default function Home() {
             });
           } else {
             // Fallback: scroll to bottom if elements not found
-            container.scrollTop = container.scrollHeight - container.clientHeight;
+            container.scrollTop =
+              container.scrollHeight - container.clientHeight;
           }
         }, 200);
       });
@@ -351,7 +383,9 @@ export default function Home() {
       if (!scrollContainerRef.current) return;
 
       const container = scrollContainerRef.current;
-      const prototypeElements = container.querySelectorAll('[data-prototype-id]');
+      const prototypeElements = container.querySelectorAll(
+        '[data-prototype-id]',
+      );
 
       if (prototypeElements[index]) {
         prototypeElements[index].scrollIntoView({
@@ -378,14 +412,19 @@ export default function Home() {
       if (!scrollContainerRef.current || prototypeSlots.length === 0) return;
 
       const container = scrollContainerRef.current;
-      const prototypeElements = container.querySelectorAll('[data-prototype-id]');
+      const prototypeElements = container.querySelectorAll(
+        '[data-prototype-id]',
+      );
 
       if (prototypeElements.length === 0) return;
 
       let nextIndex;
 
       if (direction === 'next') {
-        nextIndex = Math.min(currentFocusIndex + 1, prototypeElements.length - 1);
+        nextIndex = Math.min(
+          currentFocusIndex + 1,
+          prototypeElements.length - 1,
+        );
       } else {
         nextIndex = Math.max(currentFocusIndex - 1, 0);
       }
@@ -431,7 +470,9 @@ export default function Home() {
         </p>
       )}
       {(isLoadingPrototype || isLoadingRandomPrototype) && (
-        <p className="text-center py-8 text-gray-600 dark:text-gray-300">Loading...</p>
+        <p className="text-center py-8 text-gray-600 dark:text-gray-300">
+          Loading...
+        </p>
       )}
 
       {/* Prototypes display area - Takes available space */}

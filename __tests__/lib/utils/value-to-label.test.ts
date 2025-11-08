@@ -15,9 +15,12 @@ describe('value-to-label utilities', () => {
       { value: 4, label: '供養' },
     ];
 
-    it.each(statusCases)('returns label $label for status $value', ({ value, label }) => {
-      expect(getPrototypeStatusLabel(value)).toBe(label);
-    });
+    it.each(statusCases)(
+      'returns label $label for status $value',
+      ({ value, label }) => {
+        expect(getPrototypeStatusLabel(value)).toBe(label);
+      },
+    );
 
     it('returns fallback for unknown status', () => {
       expect(getPrototypeStatusLabel(999)).toBe('999');
@@ -46,9 +49,12 @@ describe('value-to-label utilities', () => {
       { value: 2, label: '表示しない' },
     ];
 
-    it.each(licenseCases)('returns label $label for license type $value', ({ value, label }) => {
-      expect(getPrototypeLicenseTypeLabel(value)).toBe(label);
-    });
+    it.each(licenseCases)(
+      'returns label $label for license type $value',
+      ({ value, label }) => {
+        expect(getPrototypeLicenseTypeLabel(value)).toBe(label);
+      },
+    );
 
     it('returns fallback for unknown license type', () => {
       expect(getPrototypeLicenseTypeLabel(99)).toBe('99');

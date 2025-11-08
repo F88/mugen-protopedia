@@ -37,7 +37,10 @@ export function PrototypeGrid({
         */}
       <div className="grid gap-6 p-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-3 4xl:grid-cols-6">
         {prototypeSlots.map(
-          ({ id, prototype, isLoading, expectedPrototypeId, errorMessage }, index) => (
+          (
+            { id, prototype, isLoading, expectedPrototypeId, errorMessage },
+            index,
+          ) => (
             <PrototypeContainer
               key={id}
               data-prototype-id={id}

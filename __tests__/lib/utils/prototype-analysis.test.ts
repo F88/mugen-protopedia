@@ -269,8 +269,14 @@ describe('analyzePrototypes', () => {
         2023: 2,
         2024: 1,
       });
-      expect(result.topTeams).toContainEqual({ team: 'Innovation Team', count: 2 });
-      expect(result.topTeams).toContainEqual({ team: 'Hardware Team', count: 1 });
+      expect(result.topTeams).toContainEqual({
+        team: 'Innovation Team',
+        count: 2,
+      });
+      expect(result.topTeams).toContainEqual({
+        team: 'Hardware Team',
+        count: 1,
+      });
       expect(result.averageAgeInDays).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
     });
@@ -488,7 +494,11 @@ describe('analyzePrototypes', () => {
       ];
 
       // Generate 1000 unique tags by combining categories with numbers
-      for (let i = 0; i < tagCategories.length && tagOptions.length < 1000; i++) {
+      for (
+        let i = 0;
+        i < tagCategories.length && tagOptions.length < 1000;
+        i++
+      ) {
         tagOptions.push(tagCategories[i]);
         // Add numbered variants for popular categories
         if (i < 50) {
@@ -507,7 +517,8 @@ describe('analyzePrototypes', () => {
 
       // Generate 1000 diverse prototypes
       for (let i = 0; i < 1000; i++) {
-        const year = startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+        const year =
+          startYear + Math.floor(Math.random() * (endYear - startYear + 1));
         const month = Math.floor(Math.random() * 12) + 1;
         const day = Math.floor(Math.random() * 28) + 1;
         const releaseDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T00:00:00Z`;
@@ -527,7 +538,8 @@ describe('analyzePrototypes', () => {
         if (Math.random() < 0.3) {
           const awardCount = Math.floor(Math.random() * 4);
           for (let a = 0; a < awardCount; a++) {
-            const award = awardOptions[Math.floor(Math.random() * awardOptions.length)];
+            const award =
+              awardOptions[Math.floor(Math.random() * awardOptions.length)];
             if (!awards.includes(award)) {
               awards.push(award);
             }
@@ -538,7 +550,8 @@ describe('analyzePrototypes', () => {
           createMockPrototype({
             id: i + 1,
             prototypeNm: `Prototype ${i + 1}`,
-            status: statusOptions[Math.floor(Math.random() * statusOptions.length)],
+            status:
+              statusOptions[Math.floor(Math.random() * statusOptions.length)],
             releaseDate,
             teamNm: `Team ${Math.floor(i / 50) + 1}`, // 20 different teams
             tags,
@@ -827,7 +840,11 @@ describe('analyzePrototypes', () => {
       ];
 
       // Generate 10000 unique tags by combining categories with numbers
-      for (let i = 0; i < tagCategories.length && tagOptions.length < 10000; i++) {
+      for (
+        let i = 0;
+        i < tagCategories.length && tagOptions.length < 10000;
+        i++
+      ) {
         tagOptions.push(tagCategories[i]);
         // Add numbered variants
         const maxVariants = Math.min(
@@ -853,7 +870,8 @@ describe('analyzePrototypes', () => {
 
       // Generate 10000 diverse prototypes
       for (let i = 0; i < 10000; i++) {
-        const year = startYear + Math.floor(Math.random() * (endYear - startYear + 1));
+        const year =
+          startYear + Math.floor(Math.random() * (endYear - startYear + 1));
         const month = Math.floor(Math.random() * 12) + 1;
         const day = Math.floor(Math.random() * 28) + 1;
         const releaseDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}T00:00:00Z`;
@@ -873,7 +891,8 @@ describe('analyzePrototypes', () => {
         if (Math.random() < 0.25) {
           const awardCount = Math.floor(Math.random() * 5);
           for (let a = 0; a < awardCount; a++) {
-            const award = awardOptions[Math.floor(Math.random() * awardOptions.length)];
+            const award =
+              awardOptions[Math.floor(Math.random() * awardOptions.length)];
             if (!awards.includes(award)) {
               awards.push(award);
             }
@@ -884,7 +903,8 @@ describe('analyzePrototypes', () => {
           createMockPrototype({
             id: i + 1,
             prototypeNm: `Prototype ${i + 1}`,
-            status: statusOptions[Math.floor(Math.random() * statusOptions.length)],
+            status:
+              statusOptions[Math.floor(Math.random() * statusOptions.length)],
             releaseDate,
             teamNm: `Team ${Math.floor(i / 100) + 1}`, // 100 different teams
             tags,
@@ -919,17 +939,25 @@ describe('analyzePrototypes', () => {
       expect(result.topTeams.length).toBeLessThanOrEqual(10);
 
       // Check that counts are reasonable
-      const totalTagCount = result.topTags.reduce((sum, tag) => sum + tag.count, 0);
+      const totalTagCount = result.topTags.reduce(
+        (sum, tag) => sum + tag.count,
+        0,
+      );
       expect(totalTagCount).toBeGreaterThan(0);
 
-      const totalTeamCount = result.topTeams.reduce((sum, team) => sum + team.count, 0);
+      const totalTeamCount = result.topTeams.reduce(
+        (sum, team) => sum + team.count,
+        0,
+      );
       expect(totalTeamCount).toBe(1000); // Top 10 teams (100 prototypes each = 1000 total)
     });
   });
 });
 
 // Helper function to create mock prototype data
-function createMockPrototype(overrides: Partial<NormalizedPrototype> = {}): NormalizedPrototype {
+function createMockPrototype(
+  overrides: Partial<NormalizedPrototype> = {},
+): NormalizedPrototype {
   return {
     id: 1,
     prototypeNm: 'Test Prototype',
@@ -987,8 +1015,12 @@ describe('Anniversary Analysis', () => {
     expect(result.anniversaries.birthdayCount).toBe(2);
     expect(result.anniversaries.birthdayPrototypes).toHaveLength(2);
 
-    const birthdayProto1 = result.anniversaries.birthdayPrototypes.find((p) => p.id === 1);
-    const birthdayProto2 = result.anniversaries.birthdayPrototypes.find((p) => p.id === 2);
+    const birthdayProto1 = result.anniversaries.birthdayPrototypes.find(
+      (p) => p.id === 1,
+    );
+    const birthdayProto2 = result.anniversaries.birthdayPrototypes.find(
+      (p) => p.id === 2,
+    );
 
     expect(birthdayProto1).toBeDefined();
     expect(birthdayProto1?.title).toBe('Birthday Prototype 1');
@@ -1002,7 +1034,8 @@ describe('Anniversary Analysis', () => {
   it('should handle leap year birthdays correctly', () => {
     const currentYear = new Date().getFullYear();
     const isCurrentLeapYear =
-      (currentYear % 4 === 0 && currentYear % 100 !== 0) || currentYear % 400 === 0;
+      (currentYear % 4 === 0 && currentYear % 100 !== 0) ||
+      currentYear % 400 === 0;
 
     // Create a prototype with Feb 29 birthday from a leap year
     const leapYearBirthday = createMockPrototype({
@@ -1016,7 +1049,8 @@ describe('Anniversary Analysis', () => {
 
     // If today is Feb 29 (leap year) or Feb 28 (non-leap year), it should be detected
     const today = new Date();
-    const isLeapDayToday = today.getMonth() === 1 && today.getDate() === 29 && isCurrentLeapYear;
+    const isLeapDayToday =
+      today.getMonth() === 1 && today.getDate() === 29 && isCurrentLeapYear;
     const isLeapDayTodayInNonLeapYear =
       today.getMonth() === 1 && today.getDate() === 28 && !isCurrentLeapYear;
 

@@ -38,7 +38,11 @@ export const useKeyboardShortcuts = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check if user is typing in an input field
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
         return;
       }
 
@@ -51,12 +55,22 @@ export const useKeyboardShortcuts = ({
         if (canTrigger('random')) {
           onGetRandomPrototype();
         }
-      } else if (key === 'j' || key === 'J' || key === 'ArrowDown' || key === 'ArrowRight') {
+      } else if (
+        key === 'j' ||
+        key === 'J' ||
+        key === 'ArrowDown' ||
+        key === 'ArrowRight'
+      ) {
         e.preventDefault();
         if (canTrigger('scroll-next')) {
           onScrollNext();
         }
-      } else if (key === 'k' || key === 'K' || key === 'ArrowUp' || key === 'ArrowLeft') {
+      } else if (
+        key === 'k' ||
+        key === 'K' ||
+        key === 'ArrowUp' ||
+        key === 'ArrowLeft'
+      ) {
         e.preventDefault();
         if (canTrigger('scroll-prev')) {
           onScrollPrev();
@@ -76,5 +90,11 @@ export const useKeyboardShortcuts = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onGetRandomPrototype, onClear, onScrollNext, onScrollPrev, onOpenPrototype]);
+  }, [
+    onGetRandomPrototype,
+    onClear,
+    onScrollNext,
+    onScrollPrev,
+    onOpenPrototype,
+  ]);
 };
