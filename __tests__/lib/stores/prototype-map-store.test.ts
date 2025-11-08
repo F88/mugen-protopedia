@@ -21,7 +21,9 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
-const createPrototype = (overrides: Partial<NormalizedPrototype> = {}): NormalizedPrototype => ({
+const createPrototype = (
+  overrides: Partial<NormalizedPrototype> = {},
+): NormalizedPrototype => ({
   id: overrides.id ?? 1,
   prototypeNm: 'Prototype 1',
   teamNm: 'Team A',
@@ -54,14 +56,19 @@ describe('PrototypeMapStore', () => {
   });
 
   it('throws when configuring payloads larger than 30 MiB', () => {
-    expect(() => new PrototypeMapStore({ maxPayloadSizeBytes: 31 * 1024 * 1024 })).toThrow(
+    expect(
+      () => new PrototypeMapStore({ maxPayloadSizeBytes: 31 * 1024 * 1024 }),
+    ).toThrow(
       'PrototypeMapStore maxPayloadSizeBytes must be <= 30 MiB to prevent oversized payloads',
     );
   });
 
   it('stores prototypes when payload fits within limits', () => {
     const store = new PrototypeMapStore({ maxPayloadSizeBytes: 1024 * 1024 });
-    const result = store.setAll([createPrototype({ id: 1 }), createPrototype({ id: 2 })]);
+    const result = store.setAll([
+      createPrototype({ id: 1 }),
+      createPrototype({ id: 2 }),
+    ]);
 
     expect(result).not.toBeNull();
     expect(store.size).toBe(2);
@@ -87,7 +94,9 @@ describe('PrototypeMapStore', () => {
 
   it('skips storing when payload exceeds limit', () => {
     const store = new PrototypeMapStore({ maxPayloadSizeBytes: 50 });
-    const prototypes = [createPrototype({ id: 7, freeComment: 'x'.repeat(200) })];
+    const prototypes = [
+      createPrototype({ id: 7, freeComment: 'x'.repeat(200) }),
+    ];
 
     const result = store.setAll(prototypes);
     expect(result).toBeNull();
@@ -97,7 +106,10 @@ describe('PrototypeMapStore', () => {
   it('reports expiration based on TTL', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
-    const store = new PrototypeMapStore({ ttlMs: 1_000, maxPayloadSizeBytes: 1024 * 1024 });
+    const store = new PrototypeMapStore({
+      ttlMs: 1_000,
+      maxPayloadSizeBytes: 1024 * 1024,
+    });
     store.setAll([createPrototype({ id: 5 })]);
 
     expect(store.isExpired()).toBe(false);

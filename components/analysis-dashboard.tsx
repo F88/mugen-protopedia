@@ -26,21 +26,37 @@ type SummaryBarProps = {
   density?: 'normal' | 'compact';
 };
 
-function SummaryBar({ children, actions, tone = 'default', density = 'normal' }: SummaryBarProps) {
+function SummaryBar({
+  children,
+  actions,
+  tone = 'default',
+  density = 'normal',
+}: SummaryBarProps) {
   const baseClass = 'flex flex-wrap items-center justify-between rounded-lg';
   const spacingClass =
-    density === 'compact' ? 'gap-2 px-2 py-1.5 text-xs' : 'gap-3 px-3 py-2 text-sm';
-  const minHeightClass = density === 'compact' ? 'min-h-[32px]' : 'min-h-[48px]';
+    density === 'compact'
+      ? 'gap-2 px-2 py-1.5 text-xs'
+      : 'gap-3 px-3 py-2 text-sm';
+  const minHeightClass =
+    density === 'compact' ? 'min-h-[32px]' : 'min-h-[48px]';
   const toneClass =
-    tone === 'error' ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-200';
+    tone === 'error'
+      ? 'text-red-700 dark:text-red-300'
+      : 'text-gray-700 dark:text-gray-200';
 
   return (
-    <div className={`${baseClass} ${spacingClass} ${minHeightClass} ${toneClass}`}>
-      <div className={`flex flex-wrap items-center ${density === 'compact' ? 'gap-2' : 'gap-3'}`}>
+    <div
+      className={`${baseClass} ${spacingClass} ${minHeightClass} ${toneClass}`}
+    >
+      <div
+        className={`flex flex-wrap items-center ${density === 'compact' ? 'gap-2' : 'gap-3'}`}
+      >
         {children}
       </div>
       {actions && (
-        <div className={`flex items-center ${density === 'compact' ? 'gap-1.5' : 'gap-2'}`}>
+        <div
+          className={`flex items-center ${density === 'compact' ? 'gap-1.5' : 'gap-2'}`}
+        >
           {actions}
         </div>
       )}
@@ -63,8 +79,14 @@ function AnalysisStat({
   return (
     <div className="flex flex-col space-y-1 text-center">
       <div className="text-sm text-gray-600 dark:text-gray-400">{label}</div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
-      {description && <div className="text-xs text-gray-500 dark:text-gray-500">{description}</div>}
+      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        {value}
+      </div>
+      {description && (
+        <div className="text-xs text-gray-500 dark:text-gray-500">
+          {description}
+        </div>
+      )}
     </div>
   );
 }
@@ -77,15 +99,21 @@ function StatusDistribution({
 }: {
   statusDistribution: Record<string, number>;
 }) {
-  const entries = Object.entries(statusDistribution).sort(([, a], [, b]) => b - a);
+  const entries = Object.entries(statusDistribution).sort(
+    ([, a], [, b]) => b - a,
+  );
 
   if (entries.length === 0) {
-    return <div className="text-sm text-gray-500">No status data available</div>;
+    return (
+      <div className="text-sm text-gray-500">No status data available</div>
+    );
   }
 
   return (
     <div className="space-y-3">
-      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Status Distribution</h4>
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Status Distribution
+      </h4>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {entries.map(([status, count]) => (
           <div
@@ -93,7 +121,9 @@ function StatusDistribution({
             className="flex items-center justify-between rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
           >
             <StatusBadge status={parseInt(status)} />
-            <span className="text-sm font-medium">{count.toLocaleString()}</span>
+            <span className="text-sm font-medium">
+              {count.toLocaleString()}
+            </span>
           </div>
         ))}
       </div>
@@ -104,17 +134,28 @@ function StatusDistribution({
 /**
  * Component to display top tags
  */
-function TopTags({ topTags }: { topTags: Array<{ tag: string; count: number }> }) {
+function TopTags({
+  topTags,
+}: {
+  topTags: Array<{ tag: string; count: number }>;
+}) {
   if (topTags.length === 0) {
     return <div className="text-sm text-gray-500">No tags available</div>;
   }
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Popular Tags</h4>
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Popular Tags
+      </h4>
       <div className="flex flex-wrap justify-center gap-1 sm:justify-start">
         {topTags.slice(0, 6).map(({ tag, count }) => (
-          <StatBadge key={tag} label={tag} value={count} wrapValueWithParens={true} />
+          <StatBadge
+            key={tag}
+            label={tag}
+            value={count}
+            wrapValueWithParens={true}
+          />
         ))}
       </div>
     </div>
@@ -131,7 +172,9 @@ function BirthdayPrototypes({
 }) {
   const { birthdayCount, birthdayPrototypes } = anniversaries;
 
-  const sortedBirthdayPrototypes = [...birthdayPrototypes].sort((a, b) => a.id - b.id);
+  const sortedBirthdayPrototypes = [...birthdayPrototypes].sort(
+    (a, b) => a.id - b.id,
+  );
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -163,7 +206,9 @@ function BirthdayPrototypes({
             </div>
           ))}
           {birthdayCount > 3 && (
-            <div className="text-xs text-gray-500">+{birthdayCount - 3} more prototypes</div>
+            <div className="text-xs text-gray-500">
+              +{birthdayCount - 3} more prototypes
+            </div>
           )}
         </div>
       )}
@@ -209,7 +254,12 @@ export function AnalysisDashboard({
         tone="error"
         density="compact"
         actions={
-          <Button type="button" onClick={refresh} variant="destructive" size="sm">
+          <Button
+            type="button"
+            onClick={refresh}
+            variant="destructive"
+            size="sm"
+          >
             Retry
           </Button>
         }
@@ -251,7 +301,12 @@ export function AnalysisDashboard({
         actions={
           <>
             <DialogTrigger asChild>
-              <Button type="button" variant="outline" size="sm" className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
                 🔍
               </Button>
             </DialogTrigger>
@@ -266,11 +321,15 @@ export function AnalysisDashboard({
           </>
         }
       >
-        <span className="hidden sm:inline text-sm">🧪 {analysis.totalCount.toLocaleString()}</span>
+        <span className="hidden sm:inline text-sm">
+          🧪 {analysis.totalCount.toLocaleString()}
+        </span>
         <span className="hidden sm:inline text-sm">
           🎖️ {analysis.prototypesWithAwards.toLocaleString()}
         </span>
-        <span className="text-sm sm:text-base">🎉 {birthdayCount.toLocaleString()}</span>
+        <span className="text-sm sm:text-base">
+          🎉 {birthdayCount.toLocaleString()}
+        </span>
       </SummaryBar>
 
       <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-4xl">
@@ -291,7 +350,10 @@ export function AnalysisDashboard({
 
         <div className="space-y-6 pb-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <AnalysisStat label="Total Prototypes" value={analysis.totalCount.toLocaleString()} />
+            <AnalysisStat
+              label="Total Prototypes"
+              value={analysis.totalCount.toLocaleString()}
+            />
             <AnalysisStat
               label="With Awards"
               value={analysis.prototypesWithAwards}
@@ -316,13 +378,17 @@ export function AnalysisDashboard({
           )}
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <StatusDistribution statusDistribution={analysis.statusDistribution} />
+            <StatusDistribution
+              statusDistribution={analysis.statusDistribution}
+            />
             <TopTags topTags={analysis.topTags} />
           </div>
 
           {analysis.topTeams.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Teams</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Active Teams
+              </h4>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {analysis.topTeams.slice(0, 6).map(({ team, count }) => (
                   <div

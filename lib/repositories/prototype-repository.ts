@@ -28,10 +28,13 @@ export const prototypeRepository: PrototypeRepository = {
       return mapResult.data;
     }
 
-    logger.warn('prototypeRepository.getAll map store unavailable, attempting fallback', {
-      status: mapResult.status,
-      error: mapResult.error,
-    });
+    logger.warn(
+      'prototypeRepository.getAll map store unavailable, attempting fallback',
+      {
+        status: mapResult.status,
+        error: mapResult.error,
+      },
+    );
 
     const fallback = await getPrototypesFromCacheOrFetch({
       limit: MAX_MAP_THRESHOLD,
@@ -39,7 +42,9 @@ export const prototypeRepository: PrototypeRepository = {
     });
 
     if (!fallback.ok) {
-      throw new Error(`Error fetching prototypes: ${fallback.status} ${fallback.error}`);
+      throw new Error(
+        `Error fetching prototypes: ${fallback.status} ${fallback.error}`,
+      );
     }
 
     if (fallback.data.length === 0) {
@@ -63,11 +68,17 @@ export const prototypeRepository: PrototypeRepository = {
     // Log input parameters at info level (browser-safe)
     // logger.info('prototypeRepository.list called', { limit, offset, prototypeId });
 
-    if (prototypeId === undefined && limit >= MAX_MAP_THRESHOLD && offset === 0) {
+    if (
+      prototypeId === undefined &&
+      limit >= MAX_MAP_THRESHOLD &&
+      offset === 0
+    ) {
       const mapResult = await getAllPrototypesFromMapOrFetch();
 
       if (!mapResult.ok) {
-        throw new Error(`Error fetching prototypes: ${mapResult.status} ${mapResult.error}`);
+        throw new Error(
+          `Error fetching prototypes: ${mapResult.status} ${mapResult.error}`,
+        );
       }
 
       if (mapResult.data.length === 0) {
@@ -89,10 +100,16 @@ export const prototypeRepository: PrototypeRepository = {
       return sliced;
     }
 
-    const result = await getPrototypesFromCacheOrFetch({ limit, offset, prototypeId });
+    const result = await getPrototypesFromCacheOrFetch({
+      limit,
+      offset,
+      prototypeId,
+    });
 
     if (!result.ok) {
-      throw new Error(`Error fetching prototypes: ${result.status} ${result.error}`);
+      throw new Error(
+        `Error fetching prototypes: ${result.status} ${result.error}`,
+      );
     }
 
     logger.debug('PrototypeRepository.list fetched data', {
@@ -116,24 +133,33 @@ export const prototypeRepository: PrototypeRepository = {
     const mapResult = await getPrototypeByIdFromMapOrFetch(stringId);
 
     if (mapResult.ok) {
-      logger.debug('PrototypeRepository.getByPrototypeId served from map store', {
-        id,
-        hasImage: Boolean(mapResult.data.mainUrl),
-      });
+      logger.debug(
+        'PrototypeRepository.getByPrototypeId served from map store',
+        {
+          id,
+          hasImage: Boolean(mapResult.data.mainUrl),
+        },
+      );
       return mapResult.data;
     }
 
     if (mapResult.status === 404) {
-      logger.warn('prototypeRepository.getByPrototypeId not found in map store', {
-        id,
-      });
+      logger.warn(
+        'prototypeRepository.getByPrototypeId not found in map store',
+        {
+          id,
+        },
+      );
       return undefined;
     }
 
     if (mapResult.status === 503) {
-      logger.warn('prototypeRepository.getByPrototypeId map store unavailable, falling back', {
-        id,
-      });
+      logger.warn(
+        'prototypeRepository.getByPrototypeId map store unavailable, falling back',
+        {
+          id,
+        },
+      );
     } else {
       logger.warn('prototypeRepository.getByPrototypeId map lookup failed', {
         id,
@@ -155,13 +181,18 @@ export const prototypeRepository: PrototypeRepository = {
         return undefined;
       }
 
-      throw new Error(`Error fetching prototype by ID: ${result.status} ${result.error}`);
+      throw new Error(
+        `Error fetching prototype by ID: ${result.status} ${result.error}`,
+      );
     }
 
-    logger.debug('PrototypeRepository.getByPrototypeId fetched data (fallback)', {
-      id,
-      hasImage: Boolean(result.data.mainUrl),
-    });
+    logger.debug(
+      'PrototypeRepository.getByPrototypeId fetched data (fallback)',
+      {
+        id,
+        hasImage: Boolean(result.data.mainUrl),
+      },
+    );
 
     return result.data;
   },
@@ -183,7 +214,9 @@ export const prototypeRepository: PrototypeRepository = {
       },
     });
     if (!res.ok) {
-      throw new Error(`Error fetching prototypes TSV: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `Error fetching prototypes TSV: ${res.status} ${res.statusText}`,
+      );
     }
     const tsvData = await res.text();
     logger.debug('PrototypeRepository.getTsv fetched data', {

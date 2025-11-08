@@ -61,10 +61,17 @@ const formatBytes = (bytes: number): string => {
   }
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const index = Math.max(0, Math.min(Math.floor(Math.log10(absoluteValue) / 3), units.length - 1));
+  const index = Math.max(
+    0,
+    Math.min(Math.floor(Math.log10(absoluteValue) / 3), units.length - 1),
+  );
   const scaled = absoluteValue / 1000 ** index;
   const formatted =
-    scaled >= 100 ? scaled.toFixed(0) : scaled >= 10 ? scaled.toFixed(1) : scaled.toFixed(2);
+    scaled >= 100
+      ? scaled.toFixed(0)
+      : scaled >= 10
+        ? scaled.toFixed(1)
+        : scaled.toFixed(2);
   return `${sign}${formatted} ${units[index]}`;
 };
 
@@ -151,13 +158,18 @@ const localSortPrototypesById = <T extends PrototypeWithId>(
   records: T[],
   direction: SortDirection = 'asc',
 ): T[] => {
-  return records.slice().sort((left, right) => comparePrototypeIds(left, right, direction));
+  return records
+    .slice()
+    .sort((left, right) => comparePrototypeIds(left, right, direction));
 };
 
 type SortStrategy = {
   name: string;
   description: string;
-  run: (records: PrototypeRecord[], direction: SortDirection) => PrototypeRecord[];
+  run: (
+    records: PrototypeRecord[],
+    direction: SortDirection,
+  ) => PrototypeRecord[];
 };
 
 type BenchmarkResult = {
@@ -183,16 +195,20 @@ const durationFormatter = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
 });
 
-const formatDurationMs = (durationMs: number) => durationFormatter.format(Math.round(durationMs));
+const formatDurationMs = (durationMs: number) =>
+  durationFormatter.format(Math.round(durationMs));
 
 const formatCount = (count: number) => countFormatter.format(count);
 
 const strategies: SortStrategy[] = [
   {
     name: 'nativeSort',
-    description: 'In-place Array.prototype.sort on a shallow copy using comparePrototypeIds',
+    description:
+      'In-place Array.prototype.sort on a shallow copy using comparePrototypeIds',
     run: (records, direction) => {
-      records.sort((left, right) => comparePrototypeIds(left, right, direction));
+      records.sort((left, right) =>
+        comparePrototypeIds(left, right, direction),
+      );
       return records;
     },
   },
@@ -200,23 +216,31 @@ const strategies: SortStrategy[] = [
     name: 'spreadSort',
     description: 'Clone via spread before sorting to emphasize copy cost',
     run: (records, direction) => {
-      return [...records].sort((left, right) => comparePrototypeIds(left, right, direction));
+      return [...records].sort((left, right) =>
+        comparePrototypeIds(left, right, direction),
+      );
     },
   },
   {
     name: 'toSorted',
-    description: 'Use Array.prototype.toSorted when available (falls back to slice+sort)',
+    description:
+      'Use Array.prototype.toSorted when available (falls back to slice+sort)',
     run: (records, direction) => {
       if (typeof records.toSorted === 'function') {
-        return records.toSorted((left, right) => comparePrototypeIds(left, right, direction));
+        return records.toSorted((left, right) =>
+          comparePrototypeIds(left, right, direction),
+        );
       }
 
-      return records.slice().sort((left, right) => comparePrototypeIds(left, right, direction));
+      return records
+        .slice()
+        .sort((left, right) => comparePrototypeIds(left, right, direction));
     },
   },
   {
     name: 'decorateSortUndecorate',
-    description: 'Schwartzian transform: decorate with normalized ids, sort, then undecorate',
+    description:
+      'Schwartzian transform: decorate with normalized ids, sort, then undecorate',
     run: (records, direction) => {
       const directionFactor = direction === 'asc' ? 1 : -1;
       const decorated = records.map((record, index) => ({
@@ -239,7 +263,8 @@ const strategies: SortStrategy[] = [
   },
   {
     name: 'localSortPrototypesById',
-    description: 'Local helper that clones before sorting with comparePrototypeIds',
+    description:
+      'Local helper that clones before sorting with comparePrototypeIds',
     run: (records, direction) => {
       return localSortPrototypesById(records, direction);
     },
@@ -248,7 +273,10 @@ const strategies: SortStrategy[] = [
     name: 'appSortPrototypesById',
     description: 'sort-utils implementation used in the application',
     run: (records, direction) => {
-      return appSortPrototypesById<ResultOfListPrototypesApiResponse>(records, direction);
+      return appSortPrototypesById<ResultOfListPrototypesApiResponse>(
+        records,
+        direction,
+      );
     },
   },
 ];
@@ -318,7 +346,9 @@ const parseIterations = (value: string): number => {
 };
 
 const printUsage = () => {
-  console.log('Usage: node benchmark-prototype-sort.js <path-to-json> [--iterations <count>]');
+  console.log(
+    'Usage: node benchmark-prototype-sort.js <path-to-json> [--iterations <count>]',
+  );
 };
 
 /**
@@ -365,7 +395,8 @@ const assertSortedById = (
   for (let index = 1; index < records.length; index += 1) {
     const previousId = normalizePrototypeId(records[index - 1].id);
     const currentId = normalizePrototypeId(records[index].id);
-    const isOutOfOrder = direction === 'asc' ? previousId > currentId : previousId < currentId;
+    const isOutOfOrder =
+      direction === 'asc' ? previousId > currentId : previousId < currentId;
     if (isOutOfOrder) {
       throw new Error(
         `${strategyName} (${direction}) produced an unsorted result at positions ${index - 1} and ${index}`,
@@ -473,9 +504,12 @@ const main = async () => {
     throw new Error('JSON file path is required.');
   }
 
-  const gcAvailable = typeof (globalThis as { gc?: () => void }).gc === 'function';
+  const gcAvailable =
+    typeof (globalThis as { gc?: () => void }).gc === 'function';
   if (!gcAvailable) {
-    console.warn('GC is not exposed; memory stats may be noisy. Use NODE_OPTIONS=--expose-gc.');
+    console.warn(
+      'GC is not exposed; memory stats may be noisy. Use NODE_OPTIONS=--expose-gc.',
+    );
   }
 
   const resolvedPath = resolve(process.cwd(), args.filePath);
@@ -485,11 +519,15 @@ const main = async () => {
   try {
     parsed = JSON.parse(raw);
   } catch (error) {
-    throw new Error(`Failed to parse JSON from ${args.filePath}: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to parse JSON from ${args.filePath}: ${(error as Error).message}`,
+    );
   }
 
   if (!Array.isArray(parsed)) {
-    throw new Error('Expected the JSON file to contain an array of prototypes.');
+    throw new Error(
+      'Expected the JSON file to contain an array of prototypes.',
+    );
   }
 
   const prototypes = parsed as PrototypeRecord[];
@@ -511,7 +549,12 @@ const main = async () => {
     let expectedSignature: number[] | undefined;
 
     for (const strategy of strategies) {
-      const result = runBenchmark(strategy, prototypes, direction, args.iterations);
+      const result = runBenchmark(
+        strategy,
+        prototypes,
+        direction,
+        args.iterations,
+      );
 
       assertSortedById(result.sortedSample, strategy.name, direction);
 

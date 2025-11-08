@@ -7,11 +7,17 @@ describe('splitPipeSeparatedString', () => {
   });
 
   it('returns single value when no delimiter present', () => {
-    expect(splitPipeSeparatedString('Solo Award')).toStrictEqual(['Solo Award']);
+    expect(splitPipeSeparatedString('Solo Award')).toStrictEqual([
+      'Solo Award',
+    ]);
   });
 
   it('preserves empty segments', () => {
-    expect(splitPipeSeparatedString('First||Third')).toStrictEqual(['First', '', 'Third']);
+    expect(splitPipeSeparatedString('First||Third')).toStrictEqual([
+      'First',
+      '',
+      'Third',
+    ]);
   });
 
   it('splits pipe separated values', () => {

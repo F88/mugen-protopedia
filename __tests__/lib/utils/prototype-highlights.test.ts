@@ -3,7 +3,9 @@ import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
 import type { NotableHighlights } from '@/lib/utils/prototype-highlights';
 
-const createPrototype = (overrides: Partial<NormalizedPrototype> = {}): NormalizedPrototype => ({
+const createPrototype = (
+  overrides: Partial<NormalizedPrototype> = {},
+): NormalizedPrototype => ({
   id: 1,
   prototypeNm: 'Prototype',
   teamNm: 'Team',
@@ -40,7 +42,9 @@ describe('checkNotableHighlights', () => {
 
   it('returns false when prototype lacks highlights', () => {
     const prototype = createPrototype();
-    expect(checkNotableHighlights(prototype)).toStrictEqual(createDefaultHighlights());
+    expect(checkNotableHighlights(prototype)).toStrictEqual(
+      createDefaultHighlights(),
+    );
   });
 
   it('returns true when awards include non-empty entry', () => {
@@ -88,6 +92,8 @@ describe('checkNotableHighlights', () => {
 
   it('ignores empty awards after trimming', () => {
     const prototype = createPrototype({ awards: ['   '] });
-    expect(checkNotableHighlights(prototype)).toStrictEqual(createDefaultHighlights());
+    expect(checkNotableHighlights(prototype)).toStrictEqual(
+      createDefaultHighlights(),
+    );
   });
 });

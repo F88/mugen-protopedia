@@ -22,9 +22,15 @@ function normalizeCount(value: number) {
 export function calculateMedalCounts(prototype: Prototype): MedalCounts {
   const highlights = checkNotableHighlights(prototype);
 
-  const viewMedals = Math.floor(normalizeCount(prototype.viewCount) / VIEW_DIVISOR);
-  const goodMedals = Math.floor(normalizeCount(prototype.goodCount) / GOOD_DIVISOR);
-  const commentMedals = Math.floor(normalizeCount(prototype.commentCount) / COMMENT_DIVISOR);
+  const viewMedals = Math.floor(
+    normalizeCount(prototype.viewCount) / VIEW_DIVISOR,
+  );
+  const goodMedals = Math.floor(
+    normalizeCount(prototype.goodCount) / GOOD_DIVISOR,
+  );
+  const commentMedals = Math.floor(
+    normalizeCount(prototype.commentCount) / COMMENT_DIVISOR,
+  );
 
   const awardMedals = (prototype.awards ?? []).length;
 
@@ -47,7 +53,14 @@ export function calculateMedalCounts(prototype: Prototype): MedalCounts {
 }
 
 export function buildMedalString(counts: MedalCounts): string {
-  const { cakeMedals, awardMedals, viewMedals, goodMedals, commentMedals, candleMedals } = counts;
+  const {
+    cakeMedals,
+    awardMedals,
+    viewMedals,
+    goodMedals,
+    commentMedals,
+    candleMedals,
+  } = counts;
 
   return [
     '🎂'.repeat(cakeMedals),

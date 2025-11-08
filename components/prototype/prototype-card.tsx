@@ -17,14 +17,23 @@ import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { StatusBadge } from '@/components/ui/badges/status-badge';
 import { ValueBadge } from '@/components/ui/badges/value-badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 type PrototypeCardProps = {
   prototype: Prototype;
   isFocused?: boolean;
 };
 
-export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardProps) => {
+export const PrototypeCard = ({
+  prototype,
+  isFocused = false,
+}: PrototypeCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
   // Highlights
@@ -50,16 +59,20 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
 
   const summary = (prototype.summary ?? '').trim();
   const isLongSummary = summary.length > 100;
-  const displayedSummary = expanded || !isLongSummary ? summary : summary.slice(0, 100);
+  const displayedSummary =
+    expanded || !isLongSummary ? summary : summary.slice(0, 100);
 
   const formattedDate = formatDateForDisplay(prototype.releaseDate);
   const elapsed = formatAgeFromDate(prototype.releaseDate);
 
   const officialLink =
-    typeof prototype.officialLink === 'string' ? prototype.officialLink.trim() : '';
+    typeof prototype.officialLink === 'string'
+      ? prototype.officialLink.trim()
+      : '';
 
   const videoUrls: { label: string; url?: string }[] = [];
-  const videoUrl = typeof prototype.videoUrl === 'string' ? prototype.videoUrl.trim() : '';
+  const videoUrl =
+    typeof prototype.videoUrl === 'string' ? prototype.videoUrl.trim() : '';
   if (videoUrl.length > 0) {
     videoUrls.push({ label: 'Video Link', url: videoUrl });
   }
@@ -135,7 +148,11 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
       : [];
 
   const materialBadges = (prototype.materials ?? []).map((material, index) => (
-    <ValueBadge key={`material-${material}-${index}`} value={`📦 ${material}`} size="responsive" />
+    <ValueBadge
+      key={`material-${material}-${index}`}
+      value={`📦 ${material}`}
+      size="responsive"
+    />
   ));
 
   const badgeElements = [
@@ -228,8 +245,12 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
           <PrototypeStats prototype={prototype} />
 
           {/* Badges */}
-          {metaBadges.length > 0 && <div className="flex flex-wrap gap-2">{metaBadges}</div>}
-          {badgeElements.length > 0 && <div className="flex flex-wrap gap-2">{badgeElements}</div>}
+          {metaBadges.length > 0 && (
+            <div className="flex flex-wrap gap-2">{metaBadges}</div>
+          )}
+          {badgeElements.length > 0 && (
+            <div className="flex flex-wrap gap-2">{badgeElements}</div>
+          )}
         </CardContent>
       </Card>
     </div>

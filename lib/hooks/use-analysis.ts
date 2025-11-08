@@ -81,7 +81,8 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
       setState({
         data: null,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }, []);
@@ -147,7 +148,8 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
       setState({
         data: null,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }, []);

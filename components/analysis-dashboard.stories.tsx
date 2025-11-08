@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { analyzePrototypes, type PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import {
+  analyzePrototypes,
+  type PrototypeAnalysis,
+} from '@/lib/utils/prototype-analysis';
 import {
   anniversaryMinimalPrototype,
   fullfilledPrototype,
@@ -58,8 +61,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const renderStory: Story['render'] = (_args, context) => {
-  const { mockState } = (context.parameters ?? {}) as { mockState?: MockAnalysisState };
-  return <AnalysisDashboard useLatestAnalysisHook={withMockState(mockState ?? {})} />;
+  const { mockState } = (context.parameters ?? {}) as {
+    mockState?: MockAnalysisState;
+  };
+  return (
+    <AnalysisDashboard useLatestAnalysisHook={withMockState(mockState ?? {})} />
+  );
 };
 
 export const Default: Story = {
@@ -70,7 +77,8 @@ export const Default: Story = {
     },
     docs: {
       description: {
-        story: 'Default analysis dashboard showing prototype statistics and insights.',
+        story:
+          'Default analysis dashboard showing prototype statistics and insights.',
       },
     },
   },
@@ -125,18 +133,22 @@ export const ManyBirthdays: Story = {
   parameters: {
     mockState: {
       data: makeAnalysis((draft) => {
-        draft.anniversaries.birthdayPrototypes = Array.from({ length: 6 }).map((_, index) => ({
-          id: 1000 + index,
-          title: `Celebration Prototype ${index + 1} with a very long descriptive title to wrap`,
-          years: 5 + index,
-          releaseDate: new Date(2015 + index, 0, 1).toISOString(),
-        }));
-        draft.anniversaries.birthdayCount = draft.anniversaries.birthdayPrototypes.length;
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 6 }).map(
+          (_, index) => ({
+            id: 1000 + index,
+            title: `Celebration Prototype ${index + 1} with a very long descriptive title to wrap`,
+            years: 5 + index,
+            releaseDate: new Date(2015 + index, 0, 1).toISOString(),
+          }),
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
       }),
     },
     docs: {
       description: {
-        story: 'Displays multiple birthday entries to verify wrapping and overflow handling.',
+        story:
+          'Displays multiple birthday entries to verify wrapping and overflow handling.',
       },
     },
   },
@@ -160,14 +172,17 @@ export const LongTeamNames: Story = {
     },
     docs: {
       description: {
-        story: 'Use long team labels to ensure the Active Teams list wraps correctly.',
+        story:
+          'Use long team labels to ensure the Active Teams list wraps correctly.',
       },
     },
   },
 };
 
 const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
-  const teams = faker.helpers.multiple(() => faker.company.name(), { count: 50 });
+  const teams = faker.helpers.multiple(() => faker.company.name(), {
+    count: 50,
+  });
 
   const birthdays = faker.helpers.multiple(
     (_value, index) => ({
@@ -185,11 +200,18 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       '1': Math.round(count * 0.2),
       '2': Math.round(count * 0.35),
       '3': Math.round(count * 0.25),
-      '4': count - Math.round(count * 0.2) - Math.round(count * 0.35) - Math.round(count * 0.25),
+      '4':
+        count -
+        Math.round(count * 0.2) -
+        Math.round(count * 0.35) -
+        Math.round(count * 0.25),
     },
     prototypesWithAwards: Math.round(count * 0.42),
     topTags: faker.helpers.multiple(
-      () => ({ tag: faker.commerce.department(), count: faker.number.int({ min: 20, max: 120 }) }),
+      () => ({
+        tag: faker.commerce.department(),
+        count: faker.number.int({ min: 20, max: 120 }),
+      }),
       { count: 10 },
     ),
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
@@ -218,7 +240,8 @@ export const LargeDataset_10000: Story = {
     },
     docs: {
       description: {
-        story: 'Synthetic analysis generated from 10,000 prototypes to test scaling and layout.',
+        story:
+          'Synthetic analysis generated from 10,000 prototypes to test scaling and layout.',
       },
     },
   },

@@ -22,7 +22,8 @@ export const PrototypeSkeletonCard = ({
   isFocused = false,
 }: PrototypeSkeletonCardProps) => {
   const showErrorOnImage = typeof errorMessage === 'string';
-  const showPrototypeIdOnImage = !showErrorOnImage && typeof expectedPrototypeId === 'number';
+  const showPrototypeIdOnImage =
+    !showErrorOnImage && typeof expectedPrototypeId === 'number';
 
   const getBorderClass = () => {
     if (isFocused) {

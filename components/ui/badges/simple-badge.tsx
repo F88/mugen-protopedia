@@ -3,7 +3,11 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type SimpleBadgeSize = 'small' | 'normal' | 'responsive';
 

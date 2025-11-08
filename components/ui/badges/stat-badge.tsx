@@ -32,7 +32,9 @@ export function StatBadge({
       )}
     >
       {label}
-      {wrapValueWithParens ? ` (${value.toLocaleString()})` : ` ${value.toLocaleString()}`}
+      {wrapValueWithParens
+        ? ` (${value.toLocaleString()})`
+        : ` ${value.toLocaleString()}`}
     </Badge>
   );
 }

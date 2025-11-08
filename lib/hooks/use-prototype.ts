@@ -32,7 +32,9 @@ type UsePrototypeResult = {
    *
    * 请求した ID が現在の ID と一致する場合は SWR キャッシュも更新する。
    */
-  fetchPrototype: (prototypeId: number) => Promise<NormalizedPrototype | undefined>;
+  fetchPrototype: (
+    prototypeId: number,
+  ) => Promise<NormalizedPrototype | undefined>;
 };
 
 /**

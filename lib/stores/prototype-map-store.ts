@@ -46,7 +46,9 @@ type Snapshot = {
  * {@link runExclusive} to avoid redundant upstream calls.
  */
 export class PrototypeMapStore {
-  private readonly logger = baseLogger.child({ component: 'PrototypeMapStore' });
+  private readonly logger = baseLogger.child({
+    component: 'PrototypeMapStore',
+  });
 
   private readonly ttlMs: number;
 
@@ -97,7 +99,9 @@ export class PrototypeMapStore {
    * Performs size estimation, replaces both the backing map and ordered array,
    * and refreshes metadata used for TTL enforcement.
    */
-  setAll(prototypes: NormalizedPrototype[]): { approxSizeBytes: number } | null {
+  setAll(
+    prototypes: NormalizedPrototype[],
+  ): { approxSizeBytes: number } | null {
     const approxSizeBytes = this.estimateSize(prototypes);
 
     if (approxSizeBytes > this.maxPayloadSizeBytes) {
@@ -112,7 +116,9 @@ export class PrototypeMapStore {
       return null;
     }
 
-    this.prototypeMap = new Map(prototypes.map((prototype) => [prototype.id, prototype]));
+    this.prototypeMap = new Map(
+      prototypes.map((prototype) => [prototype.id, prototype]),
+    );
     this.prototypes = prototypes;
     this.cachedAt = new Date();
     this.approxSizeBytes = approxSizeBytes;
@@ -258,7 +264,10 @@ export class PrototypeMapStore {
         return new TextEncoder().encode(serialized).length;
       }
     } catch (error) {
-      this.logger.warn({ error }, 'Failed to estimate payload size, defaulting to 0');
+      this.logger.warn(
+        { error },
+        'Failed to estimate payload size, defaulting to 0',
+      );
     }
     return 0;
   }

@@ -93,6 +93,8 @@ describe('buildTagLink', () => {
   });
 
   it('handles values requiring encoding and preserves base', () => {
-    expect(buildTagLink('foo bar')).toBe('https://protopedia.net/tag?tag=foo+bar');
+    expect(buildTagLink('foo bar')).toBe(
+      'https://protopedia.net/tag?tag=foo+bar',
+    );
   });
 });

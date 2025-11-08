@@ -51,7 +51,11 @@ class AnalysisCache {
   /**
    * Generate a cache key from analysis parameters
    */
-  private generateKey(params: { limit: number; offset: number; totalCount: number }): string {
+  private generateKey(params: {
+    limit: number;
+    offset: number;
+    totalCount: number;
+  }): string {
     return `analysis:${params.limit}:${params.offset}:${params.totalCount}`;
   }
 
@@ -144,7 +148,11 @@ class AnalysisCache {
   /**
    * Retrieve an analysis result from cache
    */
-  get(params: { limit: number; offset: number; totalCount: number }): CachedAnalysis | null {
+  get(params: {
+    limit: number;
+    offset: number;
+    totalCount: number;
+  }): CachedAnalysis | null {
     const key = this.generateKey(params);
     const entry = this.cache.get(key);
 
@@ -217,8 +225,14 @@ class AnalysisCache {
       size: this.cache.size,
       maxEntries: this.maxEntries,
       ttlMs: this.ttlMs,
-      oldestEntry: dates.length > 0 ? new Date(Math.min(...dates.map((d) => d.getTime()))) : null,
-      newestEntry: dates.length > 0 ? new Date(Math.max(...dates.map((d) => d.getTime()))) : null,
+      oldestEntry:
+        dates.length > 0
+          ? new Date(Math.min(...dates.map((d) => d.getTime())))
+          : null,
+      newestEntry:
+        dates.length > 0
+          ? new Date(Math.max(...dates.map((d) => d.getTime())))
+          : null,
     };
   }
 }

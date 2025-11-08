@@ -15,7 +15,8 @@ const logLevel =
 // console.debug('process.env.PROTOPEDIA_API_V2_TOKEN', process.env.PROTOPEDIA_API_V2_TOKEN);
 
 // Check if token is set and valid (not a placeholder)
-const validToken = accessToken && accessToken !== 'your_token_here' ? accessToken : undefined;
+const validToken =
+  accessToken && accessToken !== 'your_token_here' ? accessToken : undefined;
 
 if (!validToken) {
   baseLogger.warn(
@@ -52,7 +53,10 @@ export async function getPrototypeById(id: number): Promise<{
   freeComment?: string;
   teamNm?: string;
 } | null> {
-  const resolvedBaseUrl = (baseUrl || 'https://protopedia.net/v2/api').replace(/\/$/, '');
+  const resolvedBaseUrl = (baseUrl || 'https://protopedia.net/v2/api').replace(
+    /\/$/,
+    '',
+  );
   const url = `${resolvedBaseUrl}/prototypes/${id}`;
 
   const headers: Record<string, string> = { Accept: 'application/json' };

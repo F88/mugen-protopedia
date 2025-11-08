@@ -34,7 +34,8 @@ const samplePrototypes: Prototype[] = [
     id: 1001,
     prototypeNm: 'Smart Garden Monitor',
     teamNm: 'GreenTech Solutions',
-    summary: 'IoT-based plant monitoring system with automated watering capabilities.',
+    summary:
+      'IoT-based plant monitoring system with automated watering capabilities.',
     mainUrl: 'https://placehold.co/600x360',
     tags: ['IoT', 'Agriculture', 'Sustainability'],
   },
@@ -43,7 +44,8 @@ const samplePrototypes: Prototype[] = [
     id: 1002,
     prototypeNm: 'AR Learning Platform',
     teamNm: 'EduVision',
-    summary: 'Augmented reality platform for interactive educational experiences.',
+    summary:
+      'Augmented reality platform for interactive educational experiences.',
     mainUrl: 'https://placehold.co/1080x2400',
     tags: ['AR', 'Education', 'Interactive'],
   },
@@ -91,7 +93,10 @@ export const SinglePrototype: Story = {
 // Two prototypes (mobile layout)
 export const TwoPrototypes: Story = {
   args: {
-    prototypeSlots: [createMockSlot(1, fullfilledPrototype), createMockSlot(2, minimalPrototype)],
+    prototypeSlots: [
+      createMockSlot(1, fullfilledPrototype),
+      createMockSlot(2, minimalPrototype),
+    ],
     currentFocusIndex: 0,
     onCardClick: (index) => console.log('Card clicked:', index),
   },
@@ -125,7 +130,9 @@ export const FullGrid: Story = {
 export const LargeGrid: Story = {
   args: {
     prototypeSlots: [
-      ...samplePrototypes.map((prototype, index) => createMockSlot(index + 1, prototype)),
+      ...samplePrototypes.map((prototype, index) =>
+        createMockSlot(index + 1, prototype),
+      ),
       ...samplePrototypes.map((prototype, index) =>
         createMockSlot(index + 6, {
           ...prototype,
@@ -163,7 +170,10 @@ export const LoadingStates: Story = {
   args: {
     prototypeSlots: [
       createMockSlot(1, undefined, { isLoading: true }),
-      createMockSlot(2, undefined, { isLoading: true, expectedPrototypeId: 1002 }),
+      createMockSlot(2, undefined, {
+        isLoading: true,
+        expectedPrototypeId: 1002,
+      }),
       createMockSlot(3, undefined, {
         isLoading: true,
         errorMessage: 'Failed to fetch prototype',

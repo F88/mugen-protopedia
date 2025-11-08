@@ -14,7 +14,13 @@ export const ThemeToggle: React.FC = () => {
       size="sm"
       onClick={mounted ? toggleTheme : undefined}
       aria-label="Toggle theme"
-      title={mounted ? (resolvedTheme === 'light' ? 'Dark' : 'Light') : 'Toggle theme'}
+      title={
+        mounted
+          ? resolvedTheme === 'light'
+            ? 'Dark'
+            : 'Light'
+          : 'Toggle theme'
+      }
       className={`h-9 w-9 p-0 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-opacity duration-200 ${
         mounted ? 'opacity-100' : 'opacity-50'
       }`}

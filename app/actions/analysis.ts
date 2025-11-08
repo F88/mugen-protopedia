@@ -9,7 +9,10 @@
 
 import { getAllPrototypesFromMapOrFetch } from '@/app/actions/prototypes';
 import { logger as baseLogger } from '@/lib/logger';
-import { analysisCache, type CachedAnalysis } from '@/lib/stores/analysis-cache';
+import {
+  analysisCache,
+  type CachedAnalysis,
+} from '@/lib/stores/analysis-cache';
 import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
 import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
 
@@ -106,10 +109,13 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
 
   if (!cached) {
     const hydrationStart = performance.now();
-    logger.debug('No cached analysis found, attempting to hydrate from prototype map');
+    logger.debug(
+      'No cached analysis found, attempting to hydrate from prototype map',
+    );
 
     const hydrateResult = await getAllPrototypesFromMapOrFetch();
-    const hydrationElapsedMs = Math.round((performance.now() - hydrationStart) * 100) / 100;
+    const hydrationElapsedMs =
+      Math.round((performance.now() - hydrationStart) * 100) / 100;
 
     if (!hydrateResult.ok) {
       logger.warn(
@@ -132,7 +138,8 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
       if (hydrateResult.data.length > 0) {
         const analysisStart = performance.now();
         const analysis = analyzePrototypes(hydrateResult.data);
-        const analysisElapsedMs = Math.round((performance.now() - analysisStart) * 100) / 100;
+        const analysisElapsedMs =
+          Math.round((performance.now() - analysisStart) * 100) / 100;
 
         analysisCache.set(analysis, {
           limit: hydrateResult.data.length,
@@ -305,7 +312,10 @@ export async function getAllAnalyses(): Promise<GetAllAnalysesResult> {
  * console.log('Cache cleared successfully');
  * ```
  */
-export async function clearAnalysisCache(): Promise<{ ok: true; message: string }> {
+export async function clearAnalysisCache(): Promise<{
+  ok: true;
+  message: string;
+}> {
   const logger = baseLogger.child({ action: 'clearAnalysisCache' });
 
   logger.info('Clearing analysis cache');
