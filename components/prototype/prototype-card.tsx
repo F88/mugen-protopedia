@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { cn } from '@/lib/utils';
@@ -13,25 +13,15 @@ import { Castle, SquarePlay, UserRound } from 'lucide-react';
 import { Medals } from '@/components/medals';
 import { PrototypeMainImage } from '@/components/prototype/prototype-main-image';
 import { PrototypeStats } from '@/components/prototype/prototype-stats';
-import { PrototypeIdBadge, PrototypeIdBadgeProps } from '@/components/ui/badges/prototype-id-badge';
-import { StatusBadge, StatusBadgeProps } from '@/components/ui/badges/status-badge';
-import { ValueBadge, ValueBadgeProps } from '@/components/ui/badges/value-badge';
+import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
+import { StatusBadge } from '@/components/ui/badges/status-badge';
+import { ValueBadge } from '@/components/ui/badges/value-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 type PrototypeCardProps = {
   prototype: Prototype;
   isFocused?: boolean;
-};
-
-const BADGE_MEDIA_QUERY = '(min-width: 1280px)';
-
-const isLargeScreen = (): boolean => {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  return window.matchMedia(BADGE_MEDIA_QUERY).matches;
 };
 
 export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardProps) => {
@@ -74,45 +64,13 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
     videoUrls.push({ label: 'Video Link', url: videoUrl });
   }
 
-  const [sizeForValueBadge, setSizeForValueBadge] = useState<ValueBadgeProps['size']>(() =>
-    isLargeScreen() ? 'normal' : 'small',
-  );
-  const [sizeForPrototypeIdBadge, setSizeForPrototypeIdBadge] = useState<
-    PrototypeIdBadgeProps['size']
-  >(() => (isLargeScreen() ? 'normal' : 'small'));
-  const [sizeForStatusBadge, setSizeForStatusBadge] = useState<StatusBadgeProps['size']>(() =>
-    isLargeScreen() ? 'normal' : 'small',
-  );
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const mediaQuery = window.matchMedia(BADGE_MEDIA_QUERY);
-    const updateSize = (event: MediaQueryList | MediaQueryListEvent) => {
-      const matches = 'matches' in event ? event.matches : mediaQuery.matches;
-      const nextSize = matches ? 'normal' : 'small';
-      setSizeForValueBadge(nextSize);
-      setSizeForPrototypeIdBadge(nextSize);
-      setSizeForStatusBadge(nextSize);
-    };
-
-    updateSize(mediaQuery);
-
-    mediaQuery.addEventListener('change', updateSize);
-    return () => {
-      mediaQuery.removeEventListener('change', updateSize);
-    };
-  }, []);
-
   // console.log(prototype);
 
   const awardBadges = (prototype.awards ?? []).map((award, index) => (
     <ValueBadge
       key={`award-${award}-${index}`}
       value={`🎖️ ${award}`}
-      size={sizeForValueBadge}
+      size="responsive"
       className="bg-linear-to-r from-amber-300 via-amber-200 to-amber-400 text-amber-950 shadow-[0_0_8px_rgba(251,191,36,0.35)] border border-amber-300/70 dark:from-amber-500/80 dark:via-amber-400/80 dark:to-amber-600/80 dark:text-slate-900 dark:border-amber-400/60"
     />
   ));
@@ -122,7 +80,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
       //
       key={`event-${event}-${index}`}
       value={`🎪 ${event}`}
-      size={sizeForValueBadge}
+      size="responsive"
     />
   ));
 
@@ -130,7 +88,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
     <ValueBadge
       key={`tag-${tag}-${index}`}
       value={`🏷️ ${tag}`}
-      size={sizeForValueBadge}
+      size="responsive"
       href={buildTagLink(tag)}
     />
   ));
@@ -141,7 +99,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
           key="team-name"
           icon={<Castle aria-hidden className="h-4 w-4" />}
           value={prototype.teamNm}
-          size={sizeForValueBadge}
+          size="responsive"
         />,
       ]
     : [];
@@ -150,7 +108,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
       key={`user-${user}-${index}`}
       icon={<UserRound aria-hidden className="h-4 w-4" />}
       value={user}
-      size={sizeForValueBadge}
+      size="responsive"
     />
   ));
 
@@ -160,7 +118,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
       value={`🎉 ${formattedDate} (${elapsed})`}
       className="w-full justify-center text-center"
       nowrap
-      size={sizeForValueBadge}
+      size="responsive"
     />,
   ];
 
@@ -171,17 +129,13 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
             key="video"
             icon={<SquarePlay aria-hidden className="h-4 w-4" />}
             value={`️1`}
-            size={sizeForValueBadge}
+            size="responsive"
           />,
         ]
       : [];
 
   const materialBadges = (prototype.materials ?? []).map((material, index) => (
-    <ValueBadge
-      key={`material-${material}-${index}`}
-      value={`📦 ${material}`}
-      size={sizeForValueBadge}
-    />
+    <ValueBadge key={`material-${material}-${index}`} value={`📦 ${material}`} size="responsive" />
   ));
 
   const badgeElements = [
@@ -209,9 +163,9 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
         <CardHeader className="">
           {/* ID, status, and medals */}
           <div className="flex w-full items-start gap-2">
-            <PrototypeIdBadge id={prototype.id} size={sizeForPrototypeIdBadge} />
+            <PrototypeIdBadge id={prototype.id} />
             <Medals prototype={prototype} className="self-center" />
-            <StatusBadge status={prototype.status} className="ml-auto" size={sizeForStatusBadge} />
+            <StatusBadge status={prototype.status} className="ml-auto" />
           </div>
           <CardTitle className="text-xl">
             <a
@@ -263,7 +217,7 @@ export const PrototypeCard = ({ prototype, isFocused = false }: PrototypeCardPro
               </a> */}
               <ValueBadge
                 value={`🔗 ${officialLink}`}
-                size={sizeForValueBadge}
+                size="responsive"
                 href={officialLink}
                 className="w-full"
               />

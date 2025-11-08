@@ -5,18 +5,21 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+type SimpleBadgeSize = 'small' | 'normal' | 'responsive';
+
 export type SimpleBadgeProps = {
   label: string;
-  size?: 'small' | 'normal';
+  size?: SimpleBadgeSize;
   nowrap?: boolean;
   className?: string;
   tooltip?: ReactNode;
 };
 
-const sizeStyles = {
+const sizeStyles: Record<SimpleBadgeSize, string> = {
   small: 'gap-1 px-3 py-1 text-xs',
   normal: 'gap-2 px-4 py-1.5 text-sm',
-} satisfies Record<'small' | 'normal', string>;
+  responsive: 'gap-1 px-3 py-1 text-xs xl:gap-2 xl:px-4 xl:py-1.5 xl:text-sm',
+};
 
 export function SimpleBadge({
   label,

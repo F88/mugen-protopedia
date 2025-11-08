@@ -5,17 +5,19 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+type ValueBadgeSize = 'small' | 'normal' | 'responsive';
+
 export type ValueBadgeProps = {
   value: string | number;
   className?: string;
   href?: string;
   icon?: ReactNode;
-  size?: 'small' | 'normal';
+  size?: ValueBadgeSize;
   nowrap?: boolean;
   tooltip?: ReactNode;
 };
 
-const sizeStyles = {
+const sizeStyles: Record<ValueBadgeSize, { badge: string; content: string; icon: string }> = {
   small: {
     badge: 'gap-1 px-3 py-1 text-xs',
     content: 'gap-1',
@@ -26,7 +28,12 @@ const sizeStyles = {
     content: 'gap-2',
     icon: 'h-4 w-4',
   },
-} satisfies Record<'small' | 'normal', { badge: string; content: string; icon: string }>;
+  responsive: {
+    badge: 'gap-1 px-3 py-1 text-xs xl:gap-2 xl:px-4 xl:py-1.5 xl:text-sm',
+    content: 'gap-1 xl:gap-2',
+    icon: 'h-3.5 w-3.5 xl:h-4 xl:w-4',
+  },
+};
 
 export function ValueBadge({
   value,

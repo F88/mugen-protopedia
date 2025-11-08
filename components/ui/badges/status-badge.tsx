@@ -30,7 +30,12 @@ const statusColorClasses: Record<number, string> = {
 const fallbackStatusClasses =
   'bg-[color:var(--status-fallback-bg,#0f172a)] text-[color:var(--status-fallback-fg,#ffffff)]';
 
-export const StatusBadge = ({ status, size, className, tooltip }: StatusBadgeProps) => {
+export const StatusBadge = ({
+  status,
+  size = 'responsive',
+  className,
+  tooltip,
+}: StatusBadgeProps) => {
   const statusLabel = getPrototypeStatusLabel(status);
 
   const resolvedClasses =

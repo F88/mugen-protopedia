@@ -5,7 +5,7 @@ export type PrototypeIdBadgeProps = {
   size?: SimpleBadgeProps['size'];
 };
 
-export const PrototypeIdBadge = ({ id, size = 'normal' }: PrototypeIdBadgeProps) => {
+export const PrototypeIdBadge = ({ id, size = 'responsive' }: PrototypeIdBadgeProps) => {
   return (
     <SimpleBadge
       label={String(id)}
