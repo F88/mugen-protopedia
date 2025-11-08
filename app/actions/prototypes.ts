@@ -1,0 +1,1054 @@
+'use server';
+
+/**
+ * @fileoverview Server actions for fetching prototype data from the ProtoPedia API.
+ *
+ * This module provides server functions for retrieving prototypes with various filtering options:
+ * - Fetch multiple prototypes with pagination
+ * - Fetch a random prototype from available results
+ * - Fetch a specific prototype by ID
+ *
+ * All functions return standardized result objects with success/failure indicators
+ * and include comprehensive logging for performance monitoring and debugging.
+ */
+
+import { normalizePrototype, type NormalizedPrototype } from '@/lib/api/prototypes';
+import { parsePositiveId } from '@/lib/api/validation';
+import { logger as baseLogger } from '@/lib/logger';
+import { protopedia } from '@/lib/protopedia-client';
+import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import { analysisCache } from '@/lib/stores/analysis-cache';
+import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
+
+/**
+ * Parameters for fetching prototypes from the API.
+ */
+type FetchPrototypesParams = {
+  /** Maximum number of prototypes to fetch (default: 50, max: 100) */
+  limit?: number;
+  /** Number of prototypes to skip for pagination (default: 0) */
+  offset?: number;
+  /** Specific prototype ID to fetch (if provided, returns only that prototype) */
+  prototypeId?: number;
+};
+
+/**
+ * Successful response from fetchPrototypes containing an array of prototypes.
+ */
+type FetchPrototypesSuccess = {
+  ok: true;
+  data: NormalizedPrototype[];
+};
+
+/**
+ * Failed response from fetchPrototypes with error details.
+ */
+type FetchPrototypesFailure = {
+  ok: false;
+  status: number;
+  error: string;
+};
+
+/**
+ * Result type for fetchPrototypes function - either success with data or failure with error.
+ */
+export type FetchPrototypesResult = FetchPrototypesSuccess | FetchPrototypesFailure;
+
+/**
+ * Successful response from fetchRandomPrototype containing a single prototype.
+ */
+type FetchRandomPrototypeSuccess = {
+  ok: true;
+  data: NormalizedPrototype;
+};
+
+/**
+ * Failed response from fetchRandomPrototype (same as FetchPrototypesFailure).
+ */
+type FetchRandomPrototypeFailure = FetchPrototypesFailure;
+
+/**
+ * Result type for fetchRandomPrototype function - either success with single prototype or failure.
+ */
+export type FetchRandomPrototypeResult = FetchRandomPrototypeSuccess | FetchRandomPrototypeFailure;
+
+/**
+ * Result type for fetchPrototypeById function - either success with single prototype or failure.
+ */
+export type FetchPrototypeByIdResult =
+  | { ok: true; data: NormalizedPrototype }
+  | FetchPrototypesFailure;
+
+/** Default limit for prototype fetching from environment variable or fallback to 100 */
+const DEFAULT_LIMIT = Number.parseInt(process.env.PROTOTYPE_PAGE_LIMIT ?? '100', 10);
+
+/** Maximum allowed limit to prevent excessive API calls */
+const MAX_LIMIT = 10_000;
+
+const CANONICAL_FETCH_PARAMS: FetchPrototypesParams = {
+  limit: MAX_LIMIT,
+  offset: 0,
+};
+
+/**
+ * Clamps the limit parameter to a valid range.
+ *
+ * @param limit - The requested limit (optional)
+ * @returns A valid limit between 1 and MAX_LIMIT, or DEFAULT_LIMIT if invalid
+ */
+const clampLimit = (limit?: number) => {
+  if (typeof limit !== 'number' || Number.isNaN(limit)) {
+    return DEFAULT_LIMIT;
+  }
+  const integerLimit = Math.floor(limit);
+  if (integerLimit <= 0) {
+    return DEFAULT_LIMIT;
+  }
+  return Math.min(integerLimit, MAX_LIMIT);
+};
+
+/**
+ * Clamps the offset parameter to a valid range.
+ *
+ * @param offset - The requested offset for pagination (optional)
+ * @returns A valid offset >= 0, or 0 if invalid
+ */
+const clampOffset = (offset?: number) => {
+  if (typeof offset !== 'number' || Number.isNaN(offset)) {
+    return 0;
+  }
+  return Math.max(0, Math.floor(offset));
+};
+
+/**
+ * Validates a prototype ID parameter.
+ *
+ * @param prototypeId - The prototype ID to validate (optional)
+ * @returns Validation result with either the valid ID or an error message
+ */
+const validatePrototypeId = (prototypeId?: number) => {
+  if (prototypeId === undefined) {
+    return { ok: true as const, value: undefined };
+  }
+  if (!Number.isInteger(prototypeId) || prototypeId <= 0) {
+    return { ok: false as const, error: 'Prototype ID must be a positive integer' };
+  }
+  return { ok: true as const, value: prototypeId };
+};
+
+/**
+ * Fetches prototypes from the ProtoPedia API with optional filtering and pagination.
+ *
+ * This is the core server function for retrieving prototype data. It supports:
+ * - Pagination via limit/offset parameters
+ * - Filtering by specific prototype ID
+ * - Comprehensive logging and performance monitoring
+ * - Automatic parameter validation and clamping
+ *
+ * @param params - Configuration object for the fetch operation
+ * @param params.limit - Maximum number of prototypes to fetch (clamped to 1-10,000, default: 100)
+ * @param params.offset - Number of prototypes to skip for pagination (minimum: 0, default: 0)
+ * @param params.prototypeId - Specific prototype ID to fetch (if provided, returns only that prototype)
+ * @returns Promise resolving to either success with prototype data or failure with error details
+ *
+ * @see Data Cache for Next.js https://vercel.com/docs/data-cache
+ *
+ * @remarks
+ * ProtoPedia responses can be sizeable. Recent exports (as of 2025/11/01) measured approximately:
+ * - 220 KB for 100 prototypes in JSON (TSV ≈ 41 KB)
+ * - 2.7 MB for 1,000 prototypes in JSON (TSV ≈ 0.44 MB)
+ * - 16.5 MB for 10,000 prototypes in JSON (TSV ≈ 3.3 MB)
+ * Consider these sizes when choosing limits for client calls.
+ *
+ * Next.js data cache only persists payloads up to roughly 2 MB. Requests such as
+ * `https://protopedia.net/v2/api/prototype/list?limit=1000&offset=0` exceed that
+ * boundary and therefore bypass caching. Favor smaller page sizes when caching is
+ * desired.
+ * Upstream performance (2025/11/01): the provider returns 100, 1,000, and 10,000 prototype
+ * pages in under 10 seconds each; responses for 10,000 items are only ~2–3 seconds slower than
+ * those for 1,000 items, indicating sufficient capacity for current usage.
+ *
+ * @example
+ * ```typescript
+ * // Fetch first 10 prototypes
+ * const result = await fetchPrototypes({ limit: 10, offset: 0 });
+ * if (result.ok) {
+ *   console.log('Fetched prototypes:', result.data);
+ * }
+ *
+ * // Fetch specific prototype by ID
+ * const specific = await fetchPrototypes({ prototypeId: 3877 });
+ * if (specific.ok && specific.data.length > 0) {
+ *   console.log('Found prototype:', specific.data[0]);
+ * }
+ * ```
+ */
+export async function fetchPrototypes(
+  params: FetchPrototypesParams = {},
+): Promise<FetchPrototypesResult> {
+  const logger = baseLogger.child({ action: 'fetchPrototypes' });
+  const startTime = performance.now();
+
+  logger.debug({ params }, 'fetchPrototypes called');
+
+  const limit = clampLimit(params.limit);
+  const offset = clampOffset(params.offset);
+  const prototypeIdValidation = validatePrototypeId(params.prototypeId);
+
+  if (!prototypeIdValidation.ok) {
+    logger.debug(
+      { prototypeId: params.prototypeId, error: prototypeIdValidation.error },
+      'Prototype ID validation failed',
+    );
+    return {
+      ok: false,
+      status: 400,
+      error: prototypeIdValidation.error,
+    };
+  }
+
+  const prototypeId = prototypeIdValidation.value;
+  logger.debug({ limit, offset, prototypeId }, 'Calling protopedia.listPrototypes');
+
+  try {
+    const apiCallStart = performance.now();
+    const upstream = await protopedia.listPrototypes({
+      limit,
+      offset,
+      prototypeId,
+    });
+    const apiCallEnd = performance.now();
+    const apiElapsedMs = Math.round((apiCallEnd - apiCallStart) * 100) / 100;
+    const approxResponseSizeBytes = Buffer.byteLength(JSON.stringify(upstream), 'utf8');
+
+    logger.debug(
+      {
+        apiElapsedMs,
+        upstreamResultsCount: Array.isArray(upstream.results) ? upstream.results.length : 0,
+        hasResults: Array.isArray(upstream.results),
+        approxResponseSizeBytes,
+      },
+      'API call completed',
+    );
+
+    const normalizeStart = performance.now();
+    const normalized = Array.isArray(upstream.results)
+      ? upstream.results.map(normalizePrototype)
+      : [];
+    const normalizeEnd = performance.now();
+    const normalizeElapsedMs = Math.round((normalizeEnd - normalizeStart) * 100) / 100;
+
+    // logger.debug(
+    //   {
+    //     normalizeElapsedMs,
+    //     normalizedCount: normalized.length,
+    //   },
+    //   'Data normalization completed',
+    // );
+
+    if (prototypeId !== undefined && normalized.length === 0) {
+      logger.debug({ prototypeId }, 'Specific prototype ID requested but not found');
+      return {
+        ok: false,
+        status: 404,
+        error: 'Not found',
+      };
+    }
+
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.info(
+      {
+        params,
+        totalElapsedMs,
+        apiElapsedMs,
+        normalizeElapsedMs,
+        resultCount: normalized.length,
+        approxResponseSizeBytes,
+      },
+      'fetchPrototypes completed successfully',
+    );
+
+    return {
+      ok: true,
+      data: normalized,
+    };
+  } catch (error) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.error(
+      { limit, offset, prototypeId, error, totalElapsedMs },
+      'Failed to fetch prototypes',
+    );
+
+    if (typeof error === 'object' && error !== null && 'status' in error) {
+      const status = Number((error as { status?: number }).status ?? 500);
+      logger.debug({ status, errorType: 'HTTP error' }, 'Returning HTTP error response');
+      return {
+        ok: false,
+        status,
+        error: error instanceof Error ? error.message : 'Failed to fetch prototypes',
+      };
+    }
+
+    logger.debug({ errorType: 'General error' }, 'Returning general error response');
+    return {
+      ok: false,
+      status: 500,
+      error: error instanceof Error ? error.message : 'Failed to fetch prototypes',
+    };
+  }
+}
+
+export async function getPrototypesFromCacheOrFetch(
+  params: FetchPrototypesParams = {},
+): Promise<FetchPrototypesResult> {
+  const logger = baseLogger.child({ action: 'getPrototypesFromCacheOrFetch' });
+
+  logger.info({ params }, 'getPrototypesFromCacheOrFetch called');
+
+  const limit = clampLimit(params.limit);
+  const offset = clampOffset(params.offset);
+  const prototypeIdValidation = validatePrototypeId(params.prototypeId);
+
+  if (!prototypeIdValidation.ok) {
+    logger.debug(
+      { prototypeId: params.prototypeId, error: prototypeIdValidation.error },
+      'Prototype ID validation failed',
+    );
+    return {
+      ok: false,
+      status: 400,
+      error: prototypeIdValidation.error,
+    };
+  }
+
+  const prototypeId = prototypeIdValidation.value;
+
+  const result = await fetchPrototypes({ limit, offset, prototypeId });
+
+  if (result.ok && prototypeId === undefined) {
+    const snapshot = prototypeMapStore.getSnapshot();
+    const shouldBootstrap = snapshot.data.length === 0;
+    const shouldRefresh = shouldBootstrap || snapshot.isExpired;
+
+    if (shouldRefresh && !prototypeMapStore.isRefreshInFlight()) {
+      const reason = shouldBootstrap ? 'bootstrap-after-page-fetch' : 'ttl-expired-on-page-fetch';
+      schedulePrototypeMapRefresh(logger, reason);
+    }
+  }
+
+  if (result.ok) {
+    logger.info(
+      {
+        params,
+        resultCount: result.data.length,
+      },
+      'Fetched prototypes directly from upstream',
+    );
+  }
+
+  return result;
+}
+
+const populatePrototypeMap = async (
+  logger: ReturnType<typeof baseLogger.child>,
+  reason: string,
+): Promise<FetchPrototypesResult> => {
+  logger.info({ reason }, 'Refreshing prototype map store');
+
+  const result = await fetchPrototypes(CANONICAL_FETCH_PARAMS);
+
+  if (!result.ok) {
+    logger.warn({ reason, status: result.status, error: result.error }, 'Map refresh failed');
+    return result;
+  }
+
+  const analysisStart = performance.now();
+  const analysis = analyzePrototypes(result.data);
+  const analysisElapsedMs = Math.round((performance.now() - analysisStart) * 100) / 100;
+
+  analysisCache.set(analysis, {
+    limit: CANONICAL_FETCH_PARAMS.limit ?? MAX_LIMIT,
+    offset: CANONICAL_FETCH_PARAMS.offset ?? 0,
+    totalCount: result.data.length,
+  });
+
+  logger.info(
+    {
+      reason,
+      analysisElapsedMs,
+      analysisTotalCount: analysis.totalCount,
+    },
+    'Prototype analysis refreshed from canonical snapshot',
+  );
+
+  if (result.data.length === 0) {
+    prototypeMapStore.clear();
+    logger.info({ reason }, 'Prototype map cleared because snapshot was empty');
+    return result;
+  }
+
+  const metadata = prototypeMapStore.setAll(result.data);
+
+  if (!metadata) {
+    logger.warn({ reason }, 'Prototype map snapshot skipped due to payload size limit');
+    return result;
+  }
+
+  logger.info(
+    {
+      reason,
+      count: result.data.length,
+      approxSizeBytes: metadata.approxSizeBytes,
+      analysisElapsedMs,
+    },
+    'Prototype map snapshot populated',
+  );
+
+  return result;
+};
+
+async function runPrototypeMapRefresh(
+  logger: ReturnType<typeof baseLogger.child>,
+  reason: string,
+): Promise<FetchPrototypesResult | null> {
+  logger.info({ reason }, 'Attempting prototype map refresh');
+
+  let outcome: FetchPrototypesResult | null = null;
+
+  await prototypeMapStore
+    .runExclusive(async () => {
+      outcome = await populatePrototypeMap(logger, reason);
+    })
+    .catch((error) => {
+      logger.error({ reason, error }, 'Prototype map refresh task threw');
+    });
+
+  return outcome;
+}
+
+function schedulePrototypeMapRefresh(
+  logger: ReturnType<typeof baseLogger.child>,
+  reason: string,
+): void {
+  void runPrototypeMapRefresh(logger, reason);
+}
+
+/**
+ * Fetches a random prototype from the ProtoPedia API.
+ *
+ * This function leverages fetchPrototypes to retrieve a set of prototypes and then
+ * randomly selects one from the results. This approach ensures fairness in random
+ * selection while allowing for filtering parameters to be applied to the candidate pool.
+ *
+ * The random selection is performed server-side for better performance compared to
+ * fetching all prototypes and selecting client-side.
+ *
+ * @param params - Configuration object for the fetch operation
+ * @param params.limit - Maximum number of prototypes to consider for random selection (default: 10)
+ * @param params.offset - Starting offset for the candidate pool (default: 0)
+ * @returns Promise resolving to either success with a single random prototype or failure
+ *
+ * @example
+ * ```typescript
+ * // Get a random prototype from first 50 available
+ * const result = await fetchRandomPrototype({ limit: 50 });
+ * if (result.ok) {
+ *   console.log('Random prototype:', result.data);
+ * }
+ *
+ * // Get a random prototype from a different offset range
+ * const offsetResult = await fetchRandomPrototype({ limit: 20, offset: 100 });
+ * ```
+ */
+export async function fetchRandomPrototype(
+  params: FetchPrototypesParams = {},
+): Promise<FetchRandomPrototypeResult> {
+  const logger = baseLogger.child({ action: 'fetchRandomPrototype' });
+  const startTime = performance.now();
+
+  logger.info({ params }, 'fetchRandomPrototype called');
+
+  const fetchStart = performance.now();
+  const result = await fetchPrototypes(params);
+  const fetchEnd = performance.now();
+  const fetchElapsedMs = Math.round((fetchEnd - fetchStart) * 100) / 100;
+
+  logger.debug(
+    {
+      fetchElapsedMs,
+      resultOk: result.ok,
+      resultDataLength: result.ok ? result.data.length : 0,
+    },
+    'fetchPrototypes completed',
+  );
+
+  if (!result.ok) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.warn(
+      { params, status: result.status, error: result.error, totalElapsedMs },
+      'Failed to fetch list',
+    );
+    return result;
+  }
+
+  if (result.data.length === 0) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.warn({ params, totalElapsedMs }, 'No prototypes available for random selection');
+    return {
+      ok: false,
+      status: 404,
+      error: 'No prototypes available',
+    };
+  }
+  const randomSelectionStart = performance.now();
+  const randomIndex = Math.floor(Math.random() * result.data.length);
+  const prototype = result.data[randomIndex];
+  const randomSelectionEnd = performance.now();
+  const randomSelectionElapsedMs =
+    Math.round((randomSelectionEnd - randomSelectionStart) * 100) / 100;
+
+  const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+
+  logger.debug(
+    {
+      randomIndex,
+      selectedPrototypeId: prototype.id,
+      selectedPrototypeName: prototype.prototypeNm,
+      randomSelectionElapsedMs,
+      hasMainUrl: Boolean(prototype.mainUrl),
+    },
+    'Random prototype selected',
+  );
+
+  logger.info(
+    {
+      params,
+      count: result.data.length,
+      randomIndex,
+      prototypeId: prototype.id,
+      totalElapsedMs,
+      fetchElapsedMs,
+      randomSelectionElapsedMs,
+    },
+    'Selected random prototype',
+  );
+
+  return {
+    ok: true,
+    data: prototype,
+  };
+}
+
+export async function getRandomPrototypeFromCacheOrFetch(
+  params: FetchPrototypesParams = {},
+): Promise<FetchRandomPrototypeResult> {
+  const logger = baseLogger.child({ action: 'getRandomPrototypeFromCacheOrFetch' });
+  const startTime = performance.now();
+
+  logger.info({ params }, 'getRandomPrototypeFromCacheOrFetch called');
+
+  const fetchStart = performance.now();
+  const result = await getPrototypesFromCacheOrFetch(params);
+  const fetchElapsedMs = Math.round((performance.now() - fetchStart) * 100) / 100;
+
+  logger.debug(
+    {
+      fetchElapsedMs,
+      resultOk: result.ok,
+      resultDataLength: result.ok ? result.data.length : 0,
+    },
+    'Cached prototype lookup completed',
+  );
+
+  if (!result.ok) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.warn(
+      { params, status: result.status, error: result.error, totalElapsedMs },
+      'Failed to resolve cached list',
+    );
+    return result;
+  }
+
+  if (result.data.length === 0) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.warn({ params, totalElapsedMs }, 'No prototypes available for random selection');
+    return {
+      ok: false,
+      status: 404,
+      error: 'No prototypes available',
+    };
+  }
+
+  const randomSelectionStart = performance.now();
+  const randomIndex = Math.floor(Math.random() * result.data.length);
+  const prototype = result.data[randomIndex];
+  const randomSelectionElapsedMs =
+    Math.round((performance.now() - randomSelectionStart) * 100) / 100;
+
+  const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+
+  logger.debug(
+    {
+      randomIndex,
+      selectedPrototypeId: prototype.id,
+      selectedPrototypeName: prototype.prototypeNm,
+      randomSelectionElapsedMs,
+      hasMainUrl: Boolean(prototype.mainUrl),
+    },
+    'Random prototype selected from cache-aware path',
+  );
+
+  logger.info(
+    {
+      params,
+      count: result.data.length,
+      randomIndex,
+      prototypeId: prototype.id,
+      totalElapsedMs,
+      fetchElapsedMs,
+      randomSelectionElapsedMs,
+    },
+    'Selected random prototype from cache-aware path',
+  );
+
+  return {
+    ok: true,
+    data: prototype,
+  };
+}
+
+/**
+ * Fetches a specific prototype by its ID from the ProtoPedia API.
+ *
+ * This function provides a convenient way to retrieve a single prototype using its
+ * unique identifier. It includes comprehensive input validation, error handling,
+ * and performance monitoring.
+ *
+ * The function performs the following operations:
+ * 1. Validates and parses the input ID parameter
+ * 2. Calls fetchPrototypes with the specific ID filter
+ * 3. Extracts and returns the single prototype from results
+ * 4. Provides detailed logging for debugging and monitoring
+ *
+ * @param idParam - String representation of the prototype ID to fetch
+ * @returns Promise resolving to either success with the prototype data or failure with error details
+ *
+ * @throws Returns error result for invalid ID formats or if prototype is not found
+ *
+ * @example
+ * ```typescript
+ * // Fetch prototype with ID 3877
+ * const result = await fetchPrototypeById('3877');
+ * if (result.ok) {
+ *   console.log('Found prototype:', result.data);
+ * } else {
+ *   console.error('Error:', result.error);
+ * }
+ *
+ * // Handle invalid ID
+ * const invalid = await fetchPrototypeById('invalid');
+ * // Returns { ok: false, status: 400, error: 'Invalid prototype id' }
+ * ```
+ */
+export async function fetchPrototypeById(idParam: string): Promise<FetchPrototypeByIdResult> {
+  const logger = baseLogger.child({ action: 'fetchPrototypeById' });
+  const startTime = performance.now();
+
+  logger.info({ idParam }, 'Fetching prototype by id via server function');
+
+  const parsed = parsePositiveId(idParam, logger);
+  if (!parsed.ok) {
+    logger.warn({ idParam }, 'Prototype id parameter is invalid');
+    return {
+      ok: false,
+      status: parsed.response.status,
+      error: 'Invalid prototype id',
+    };
+  }
+
+  const id = parsed.value;
+
+  const fetchStart = performance.now();
+  const result = await fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 });
+  const fetchEnd = performance.now();
+  const fetchElapsedMs = Math.round((fetchEnd - fetchStart) * 100) / 100;
+
+  if (!result.ok) {
+    const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    logger.warn(
+      { id, status: result.status, error: result.error, totalElapsedMs, fetchElapsedMs },
+      'Failed to fetch by id',
+    );
+    return result;
+  }
+
+  const prototype = result.data[0];
+
+  if (!prototype) {
+    logger.info({ id }, 'Prototype not found');
+    return {
+      ok: false,
+      status: 404,
+      error: 'Not found',
+    };
+  }
+
+  const totalElapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+
+  logger.info(
+    {
+      id,
+      totalElapsedMs,
+      fetchElapsedMs,
+    },
+    'Prototype fetched',
+  );
+
+  return {
+    ok: true,
+    data: prototype,
+  };
+}
+
+export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesResult> {
+  const logger = baseLogger.child({ action: 'getAllPrototypesFromMapOrFetch' });
+
+  const snapshot = prototypeMapStore.getSnapshot();
+
+  logger.info(
+    {
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+      refreshInFlight: prototypeMapStore.isRefreshInFlight(),
+    },
+    'Attempting full prototype lookup from map store',
+  );
+
+  if (snapshot.data.length > 0) {
+    if (snapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired');
+    }
+    logger.info(
+      {
+        snapshotCount: snapshot.data.length,
+        snapshotExpired: snapshot.isExpired,
+      },
+      'Returning prototype list from snapshot',
+    );
+    return {
+      ok: true,
+      data: snapshot.data,
+    };
+  }
+
+  const refreshResult = await runPrototypeMapRefresh(logger, 'initial-load');
+
+  if (refreshResult !== null) {
+    if (!refreshResult.ok) {
+      logger.warn(
+        {
+          status: refreshResult.status,
+          error: refreshResult.error,
+        },
+        'Map refresh failed while resolving prototype list',
+      );
+      return refreshResult;
+    }
+    logger.info(
+      {
+        resultCount: refreshResult.data.length,
+      },
+      'Returning prototype list from refresh result',
+    );
+    return refreshResult;
+  }
+
+  const refreshedSnapshot = prototypeMapStore.getSnapshot();
+  if (refreshedSnapshot.data.length > 0) {
+    if (refreshedSnapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-after-populate');
+    }
+    logger.info(
+      {
+        snapshotCount: refreshedSnapshot.data.length,
+        snapshotExpired: refreshedSnapshot.isExpired,
+      },
+      'Returning prototype list from refreshed snapshot',
+    );
+    return {
+      ok: true,
+      data: refreshedSnapshot.data,
+    };
+  }
+
+  logger.error('Prototype map unavailable after refresh attempts for full list');
+  return {
+    ok: false,
+    status: 503,
+    error: 'Prototype map unavailable',
+  };
+}
+
+export async function getPrototypeByIdFromMapOrFetch(
+  idParam: string,
+): Promise<FetchPrototypeByIdResult> {
+  const logger = baseLogger.child({ action: 'getPrototypeByIdFromMapOrFetch' });
+
+  const parsed = parsePositiveId(idParam, logger);
+  if (!parsed.ok) {
+    return {
+      ok: false,
+      status: parsed.response.status,
+      error: 'Invalid prototype id',
+    };
+  }
+
+  const id = parsed.value;
+
+  const cached = prototypeMapStore.getById(id);
+  const snapshot = prototypeMapStore.getSnapshot();
+
+  logger.info(
+    {
+      id,
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+      hasCachedEntry: Boolean(cached),
+    },
+    'Attempting prototype lookup by id from map store',
+  );
+
+  if (cached) {
+    if (snapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-on-id-hit');
+    }
+    logger.info(
+      {
+        id,
+        prototypeName: cached.prototypeNm,
+        snapshotExpired: snapshot.isExpired,
+      },
+      'Returning cached prototype from snapshot',
+    );
+    return {
+      ok: true,
+      data: cached,
+    };
+  }
+
+  const refreshResult = await runPrototypeMapRefresh(logger, 'id-miss');
+
+  if (refreshResult !== null && !refreshResult.ok) {
+    logger.warn(
+      {
+        id,
+        status: refreshResult.status,
+        error: refreshResult.error,
+      },
+      'Map refresh failed while resolving prototype by id',
+    );
+    return refreshResult;
+  }
+
+  const refreshed = prototypeMapStore.getById(id);
+  if (refreshed) {
+    const refreshedSnapshot = prototypeMapStore.getSnapshot();
+    if (refreshedSnapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-after-id-refresh');
+    }
+    logger.info(
+      {
+        id,
+        prototypeName: refreshed.prototypeNm,
+        snapshotExpired: refreshedSnapshot.isExpired,
+      },
+      'Returning cached prototype after refresh',
+    );
+    return {
+      ok: true,
+      data: refreshed,
+    };
+  }
+
+  if (refreshResult !== null && refreshResult.ok) {
+    logger.info(
+      {
+        id,
+        totalCount: refreshResult.data.length,
+      },
+      'Prototype not found in refreshed snapshot',
+    );
+    return {
+      ok: false,
+      status: 404,
+      error: 'Not found',
+    };
+  }
+
+  const latestSnapshot = prototypeMapStore.getSnapshot();
+  if (latestSnapshot.data.length > 0) {
+    logger.info(
+      {
+        id,
+        snapshotCount: latestSnapshot.data.length,
+      },
+      'Prototype missing from populated snapshot',
+    );
+    return {
+      ok: false,
+      status: 404,
+      error: 'Not found',
+    };
+  }
+
+  logger.error({ id }, 'Prototype map unavailable while resolving by id');
+  return {
+    ok: false,
+    status: 503,
+    error: 'Prototype map unavailable',
+  };
+}
+
+export async function getRandomPrototypeFromMapOrFetch(): Promise<FetchRandomPrototypeResult> {
+  const logger = baseLogger.child({ action: 'getRandomPrototypeFromMapOrFetch' });
+
+  const snapshot = prototypeMapStore.getSnapshot();
+  const cached = prototypeMapStore.getRandom();
+
+  logger.info(
+    {
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+      hasCachedCandidate: Boolean(cached),
+    },
+    'Attempting random prototype lookup from map store',
+  );
+
+  if (cached) {
+    if (snapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-on-random-hit');
+    }
+    logger.info(
+      {
+        prototypeId: cached.id,
+        prototypeName: cached.prototypeNm,
+        snapshotExpired: snapshot.isExpired,
+      },
+      'Returning cached random prototype from snapshot',
+    );
+    return {
+      ok: true,
+      data: cached,
+    };
+  }
+
+  logger.warn('No cached candidate available; refreshing snapshot');
+  const refreshResult = await runPrototypeMapRefresh(logger, 'random-miss');
+
+  if (refreshResult !== null && !refreshResult.ok) {
+    logger.warn(
+      {
+        status: refreshResult.status,
+        error: refreshResult.error,
+      },
+      'Map refresh failed while resolving random prototype',
+    );
+    return refreshResult;
+  }
+
+  const refreshed = prototypeMapStore.getRandom();
+  if (refreshed) {
+    const refreshedSnapshot = prototypeMapStore.getSnapshot();
+    if (refreshedSnapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-after-random-refresh');
+    }
+    logger.info(
+      {
+        prototypeId: refreshed.id,
+        prototypeName: refreshed.prototypeNm,
+        snapshotExpired: refreshedSnapshot.isExpired,
+      },
+      'Returning cached random prototype after refresh',
+    );
+    return {
+      ok: true,
+      data: refreshed,
+    };
+  }
+
+  if (refreshResult !== null && refreshResult.ok) {
+    if (refreshResult.data.length === 0) {
+      logger.warn('Map refresh succeeded but returned no prototypes for random selection');
+      return {
+        ok: false,
+        status: 404,
+        error: 'No prototypes available',
+      };
+    }
+
+    const randomIndex = Math.floor(Math.random() * refreshResult.data.length);
+    const fallbackPrototype = refreshResult.data[randomIndex];
+
+    logger.info(
+      {
+        prototypeId: fallbackPrototype.id,
+        prototypeName: fallbackPrototype.prototypeNm,
+        randomIndex,
+        totalCount: refreshResult.data.length,
+      },
+      'Returning random prototype from direct refresh result',
+    );
+
+    return {
+      ok: true,
+      data: fallbackPrototype,
+    };
+  }
+
+  logger.error('Prototype map unavailable after refresh attempts');
+  return {
+    ok: false,
+    status: 503,
+    error: 'Prototype map unavailable',
+  };
+}
+
+/**
+ * Return the highest prototype identifier currently cached, or null when unavailable.
+ */
+export async function getMaxPrototypeId(): Promise<number | null> {
+  const logger = baseLogger.child({ action: 'getMaxPrototypeId' });
+
+  const snapshot = prototypeMapStore.getSnapshot();
+
+  logger.info(
+    {
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+    },
+    'Resolving max prototype id from map snapshot',
+  );
+
+  const maxId = prototypeMapStore.getMaxId();
+
+  if (maxId !== null) {
+    logger.info(
+      {
+        maxId,
+        snapshotExpired: snapshot.isExpired,
+        snapshotCount: snapshot.data.length,
+      },
+      'Returning max prototype id from snapshot',
+    );
+    return maxId;
+  }
+
+  logger.warn(
+    {
+      snapshotExpired: snapshot.isExpired,
+      snapshotCount: snapshot.data.length,
+    },
+    'Prototype map empty, max prototype id unavailable',
+  );
+  return null;
+}

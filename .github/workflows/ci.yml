@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: 'npm'
+
+      - name: Show npm config
+        run: npm config list
+
+      - name: Install dependencies
+        # run: npm install
+        run: npm ci
+
+      - name: List dependencies
+        run: npm --loglevel notice list #default level
+        # run: npm --loglevel debug list
+        # run: npm --loglevel silly list
+
+      - name: Run format check
+        run: npm run format:check
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      # - name: Run tests for Codecov Test Analytics
+      #   run: npm run test:codecov
+
+      # - name: Upload test results to Codecov
+      #   if: ${{ !cancelled() }}
+      #   uses: codecov/test-results-action@v1
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+
+      # # - name: Run tests
+      # #   run: npm run test:coverage
+
+      # - name: Upload coverage reports to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
