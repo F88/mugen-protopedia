@@ -5,7 +5,7 @@
  * 素直な `useState` と `useEffect` を使ってサーバーアクションを直接叩いている。
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 import {
   getAllAnalyses,
@@ -52,11 +52,15 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  const performFetchLatest = async (signal?: AbortSignal) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       const result = await getLatestAnalysis();
+
+      if (signal?.aborted) {
+        return;
+      }
 
       if (result.ok) {
         setState({
@@ -72,27 +76,37 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
         });
       }
     } catch (error) {
+      if (signal?.aborted) {
+        return;
+      }
+
       setState({
         data: null,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
-  }, []);
+  };
 
-  const refresh = useCallback(() => {
-    fetchData();
-  }, [fetchData]);
+  const fetchLatestAnalysis = useEffectEvent((signal?: AbortSignal) => {
+    void performFetchLatest(signal);
+  });
 
   useEffect(() => {
-    fetchData();
+    const controller = new AbortController();
+    fetchLatestAnalysis(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   return {
     data: state.data,
     isLoading: state.isLoading,
     error: state.error,
-    refresh,
+    refresh: () => {
+      void performFetchLatest();
+    },
   };
 }
 
@@ -114,37 +128,52 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  const performFetchAll = async (signal?: AbortSignal) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
       const result = await getAllAnalyses();
+
+      if (signal?.aborted) {
+        return;
+      }
+
       setState({
         data: result,
         isLoading: false,
         error: null,
       });
     } catch (error) {
+      if (signal?.aborted) {
+        return;
+      }
+
       setState({
         data: null,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
-  }, []);
+  };
 
-  const refresh = useCallback(() => {
-    fetchData();
-  }, [fetchData]);
+  const fetchAnalyses = useEffectEvent((signal?: AbortSignal) => {
+    void performFetchAll(signal);
+  });
 
   useEffect(() => {
-    fetchData();
+    const controller = new AbortController();
+    fetchAnalyses(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   return {
     data: state.data,
     isLoading: state.isLoading,
     error: state.error,
-    refresh,
+    refresh: () => {
+      void performFetchAll();
+    },
   };
 }
