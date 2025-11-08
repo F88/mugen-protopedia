@@ -50,7 +50,7 @@
 
 ### API Client
 
-- [protopedia\-api\-v2\-client \- npm](https://www.npmjs.com/package/protopedia-api-v2-client)
+- [protopedia-api-v2-client - npm](https://www.npmjs.com/package/protopedia-api-v2-client)
 
 ### Tooling
 
