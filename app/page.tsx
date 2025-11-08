@@ -382,7 +382,7 @@ export default function Home() {
 
       if (prototypeElements.length === 0) return;
 
-      let nextIndex = currentFocusIndex;
+      let nextIndex;
 
       if (direction === 'next') {
         nextIndex = Math.min(currentFocusIndex + 1, prototypeElements.length - 1);
