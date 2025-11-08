@@ -34,7 +34,7 @@
 - 協調的に活用できる共有リンク付きプロトタイプコレクション機能を追加する。
 - デモを円滑に行えるよう、取得済みプロトタイプのオフラインスナップショットを提供する。
 
-## Technologies Used
+## Tech Stack
 
 ### Frontend
 
@@ -57,6 +57,7 @@
 - TypeScript 5.x
 - ESLint (with `eslint-config-next`)
 - Storybook 10
+- GitHub Actions (CI)
 
 ### Logging
 
@@ -72,3 +73,7 @@
 ### Runtime
 
 - Node.js 20+
+
+### Hosting / Deployment
+
+- Vercel
