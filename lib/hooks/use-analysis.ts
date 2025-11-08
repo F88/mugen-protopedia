@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * @fileoverview React hooks for accessing cached prototype analysis data.
  *
