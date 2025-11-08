@@ -1,0 +1,339 @@
+@import './tailwind.css';
+
+@theme {
+  --breakpoint-3xl: 120rem; /* 1920px */
+  --breakpoint-4xl: 160rem; /* 2560px */
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+
+  --radius: 0.5rem;
+  --header-offset: 256px;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.header-offset-padding {
+  padding-top: var(--header-offset, 256px);
+}
+
+.card-border {
+  border-color: hsl(var(--border)) !important; /* Theme-aware border color */
+}
+
+.transparent-border {
+  border-color: transparent !important; /* Transparent border */
+}
+
+/* Custom border colors for prototype highlighting */
+.focus-border {
+  border: 3px solid #3b82f6 !important; /* Thicker blue border */
+  box-shadow:
+    0 0 0 2px rgba(59, 130, 246, 0.2),
+    0 0 10px rgba(59, 130, 246, 0.3),
+    0 4px 20px rgba(59, 130, 246, 0.15) !important;
+  transform: translateY(-2px) !important;
+  transition: all 0.2s ease-in-out !important;
+  animation: focus-pulse 2s ease-in-out infinite !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.highlight-border {
+  position: relative;
+  /* Tunable legendary effect variables */
+  --legendary-speed: 8s; /* animation duration */
+  --legendary-alpha: 1; /* border gradient opacity (0..1) */
+  --legendary-glow-alpha: 0.35; /* box-shadow/glow opacity (0..1) */
+  --legendary-sparkle-opacity: 0.35; /* overlay sparkle opacity (0..1) */
+  --legendary-sparkle-blur: 0.3px; /* overlay sparkle blur */
+  border-width: 4px; /* same as anniversary-border */
+  border-style: solid;
+  border-color: transparent !important; /* we draw border via background */
+  /* Layered background: solid card bg in padding box + animated conic gradient in border box */
+  background:
+    linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+    conic-gradient(
+        from var(--shine-angle, 0deg),
+        /* multicolor holographic palette for higher contrast */
+          hsl(200 95% 60% / var(--legendary-alpha)),
+        /* cyan */ hsl(280 100% 70% / var(--legendary-alpha)),
+        /* violet */ hsl(330 95% 65% / var(--legendary-alpha)),
+        /* pink */ hsl(140 90% 60% / var(--legendary-alpha)),
+        /* green */ hsl(50 100% 65% / var(--legendary-alpha)),
+        /* amber */ hsl(200 95% 60% / var(--legendary-alpha)) /* loop */
+      )
+      border-box !important;
+  background-clip: padding-box, border-box;
+  animation:
+    shimmer-border linear infinite,
+    legendary-glow ease-in-out infinite !important;
+  animation-duration: var(--legendary-speed), 3s !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--card-foreground) / var(--legendary-glow-alpha)) inset,
+    0 6px 18px -6px hsl(230 95% 65% / var(--legendary-glow-alpha)),
+    0 0 15px hsl(200 95% 60% / 0.4),
+    0 0 25px hsl(280 100% 70% / 0.3) !important;
+}
+
+@keyframes shimmer-border {
+  0% {
+    --shine-angle: 0deg;
+  }
+  100% {
+    --shine-angle: 360deg;
+  }
+}
+
+@keyframes legendary-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / var(--legendary-glow-alpha)) inset,
+      0 6px 18px -6px hsl(230 95% 65% / var(--legendary-glow-alpha)),
+      0 0 15px hsl(200 95% 60% / 0.4),
+      0 0 25px hsl(280 100% 70% / 0.3),
+      0 0 35px hsl(330 95% 65% / 0.2);
+    transform: scale(1);
+  }
+  25% {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / var(--legendary-glow-alpha)) inset,
+      0 6px 18px -6px hsl(230 95% 65% / var(--legendary-glow-alpha)),
+      0 0 20px hsl(280 100% 70% / 0.5),
+      0 0 35px hsl(140 90% 60% / 0.4),
+      0 0 50px hsl(50 100% 65% / 0.3);
+    transform: scale(1.01);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / var(--legendary-glow-alpha)) inset,
+      0 6px 18px -6px hsl(230 95% 65% / var(--legendary-glow-alpha)),
+      0 0 25px hsl(200 95% 60% / 0.6),
+      0 0 40px hsl(280 100% 70% / 0.5),
+      0 0 60px hsl(330 95% 65% / 0.4),
+      0 0 80px hsl(140 90% 60% / 0.3);
+    transform: scale(1);
+  }
+  75% {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / var(--legendary-glow-alpha)) inset,
+      0 6px 18px -6px hsl(230 95% 65% / var(--legendary-glow-alpha)),
+      0 0 20px hsl(140 90% 60% / 0.5),
+      0 0 35px hsl(50 100% 65% / 0.4),
+      0 0 50px hsl(200 95% 60% / 0.3);
+    transform: scale(1.005);
+  }
+}
+
+.anniversary-border {
+  position: relative;
+  border: 4px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+    repeating-linear-gradient(
+        45deg,
+        #dc2626,
+        #dc2626 10px,
+        hsl(var(--card-foreground)) 10px,
+        hsl(var(--card-foreground)) 20px
+      )
+      border-box !important;
+  background-clip: padding-box, border-box;
+  animation: anniversary-glow 2s ease-in-out infinite alternate !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--card-foreground) / 0.4) inset,
+    0 4px 12px -4px #dc2626;
+}
+
+@keyframes anniversary-glow {
+  from {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / 0.5) inset,
+      0 4px 12px -4px #dc2626,
+      0 0 10px #dc2626,
+      0 0 20px #dc2626,
+      0 0 30px rgba(220, 38, 38, 0.7),
+      0 0 40px rgba(220, 38, 38, 0.5);
+    transform: scale(1);
+  }
+  to {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / 0.7) inset,
+      0 4px 12px -4px #dc2626,
+      0 0 20px #dc2626,
+      0 0 40px #dc2626,
+      0 0 60px rgba(220, 38, 38, 0.9),
+      0 0 80px rgba(220, 38, 38, 0.6),
+      0 0 100px rgba(220, 38, 38, 0.4);
+    transform: scale(1.02);
+  }
+}
+
+.focus-anniversary-border {
+  position: relative;
+  border: 4px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+    repeating-linear-gradient(
+        45deg,
+        #3b82f6,
+        #3b82f6 10px,
+        #dc2626 10px,
+        #dc2626 20px,
+        hsl(var(--card-foreground)) 20px,
+        hsl(var(--card-foreground)) 30px
+      )
+      border-box !important;
+  background-clip: padding-box, border-box;
+  animation: focus-anniversary-glow 1.5s ease-in-out infinite alternate !important;
+  box-shadow:
+    0 0 0 1px hsl(var(--card-foreground) / 0.5) inset,
+    0 4px 12px -4px #3b82f6;
+}
+
+@keyframes focus-anniversary-glow {
+  from {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / 0.5) inset,
+      0 4px 12px -4px #3b82f6,
+      0 0 8px #3b82f6,
+      0 0 16px #3b82f6,
+      0 0 24px #dc2626,
+      0 0 32px rgba(59, 130, 246, 0.6);
+    transform: scale(1);
+  }
+  to {
+    box-shadow:
+      0 0 0 1px hsl(var(--card-foreground) / 0.7) inset,
+      0 4px 12px -4px #3b82f6,
+      0 0 15px #3b82f6,
+      0 0 30px #3b82f6,
+      0 0 45px #dc2626,
+      0 0 60px rgba(59, 130, 246, 0.8),
+      0 0 75px rgba(220, 38, 38, 0.4);
+    transform: scale(1.02);
+  }
+}
+
+.focus-highlight-border {
+  border: 4px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+    linear-gradient(45deg, #3b82f6, #fbbf24, #f59e0b, #3b82f6, #d97706, #3b82f6) border-box !important;
+  background-clip: padding-box, border-box;
+  animation: focus-award-celebration 2.5s ease-in-out infinite !important;
+  position: relative !important;
+}
+
+.focus-highlight-border::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  /* background: linear-gradient(45deg, transparent, #3b82f6, transparent, #fbbf24, transparent); */
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+@keyframes focus-award-celebration {
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px #3b82f6,
+      0 0 20px #fbbf24,
+      0 0 30px #f59e0b;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px #3b82f6,
+      0 0 40px #fbbf24,
+      0 0 60px #f59e0b,
+      0 0 80px #d97706;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes focus-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgba(59, 130, 246, 0.2),
+      0 0 10px rgba(59, 130, 246, 0.3),
+      0 4px 20px rgba(59, 130, 246, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(59, 130, 246, 0.3),
+      0 0 20px rgba(59, 130, 246, 0.5),
+      0 4px 25px rgba(59, 130, 246, 0.25);
+  }
+}
