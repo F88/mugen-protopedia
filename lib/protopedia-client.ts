@@ -31,7 +31,9 @@ export const protopedia = createProtoPediaClient({
     globalThis.fetch(url, {
       ...init,
       cache: 'force-cache',
-      next: { revalidate: 10 },
+      next: {
+        revalidate: 60,
+      },
     }),
   // Reduce noisy logs in development; can be overridden via env
   logLevel,
@@ -61,13 +63,9 @@ export async function getPrototypeById(id: number): Promise<{
   const res = await fetch(url, {
     headers,
     method: 'GET',
-    //
-    // cache: 'no-store',
-    // cache: 'force-cache',
-    // cache: 'default',
     cache: 'force-cache',
     next: {
-      revalidate: 30,
+      revalidate: 60,
     },
   });
 
