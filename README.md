@@ -1,0 +1,2 @@
+# mugen-protopedia
+Infinitely ProtoPedia
