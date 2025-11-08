@@ -7,12 +7,13 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+
 import {
   getAllAnalyses,
-  getAnalysisForParams,
   getLatestAnalysis,
   type GetAllAnalysesResult,
 } from '@/app/actions/analysis';
+
 import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
 
 /**
