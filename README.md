@@ -16,7 +16,7 @@
 - Responsive design for optimal viewing on various devices.
 - User-friendly interface for easy navigation.
 
-## Roadmap(ja)
+## Roadmap (ja)
 
 ### 優先度: 高
 
