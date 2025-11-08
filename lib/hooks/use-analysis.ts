@@ -5,7 +5,7 @@
  * 素直な `useState` と `useEffect` を使ってサーバーアクションを直接叩いている。
  */
 
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   getAllAnalyses,
@@ -52,9 +52,7 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     error: null,
   });
 
-  const performFetchLatest = async (signal?: AbortSignal) => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
+  const performFetchLatest = useCallback(async (signal?: AbortSignal) => {
     try {
       const result = await getLatestAnalysis();
 
@@ -86,27 +84,27 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
-  };
-
-  const fetchLatestAnalysis = useEffectEvent((signal?: AbortSignal) => {
-    void performFetchLatest(signal);
-  });
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchLatestAnalysis(controller.signal);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void performFetchLatest(controller.signal);
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [performFetchLatest]);
+
+  const refresh = useCallback(() => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    void performFetchLatest();
+  }, [performFetchLatest]);
 
   return {
     data: state.data,
     isLoading: state.isLoading,
     error: state.error,
-    refresh: () => {
-      void performFetchLatest();
-    },
+    refresh,
   };
 }
 
@@ -128,9 +126,7 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
     error: null,
   });
 
-  const performFetchAll = async (signal?: AbortSignal) => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
+  const performFetchAll = useCallback(async (signal?: AbortSignal) => {
     try {
       const result = await getAllAnalyses();
 
@@ -154,26 +150,26 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
-  };
-
-  const fetchAnalyses = useEffectEvent((signal?: AbortSignal) => {
-    void performFetchAll(signal);
-  });
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchAnalyses(controller.signal);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void performFetchAll(controller.signal);
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [performFetchAll]);
+
+  const refresh = useCallback(() => {
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    void performFetchAll();
+  }, [performFetchAll]);
 
   return {
     data: state.data,
     isLoading: state.isLoading,
     error: state.error,
-    refresh: () => {
-      void performFetchAll();
-    },
+    refresh,
   };
 }
