@@ -7,6 +7,26 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: '無限ProtoPedia',
   description: '無限ProtoPediaでよふかし',
+  applicationName: '無限ProtoPedia',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '無限ProtoPedia',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: '無限ProtoPedia',
+    title: '無限ProtoPedia',
+    description: '無限ProtoPediaでよふかし',
+  },
+  twitter: {
+    card: 'summary',
+    title: '無限ProtoPedia',
+    description: '無限ProtoPediaでよふかし',
+  },
 };
 
 export default function RootLayout({
@@ -17,6 +37,8 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#000000" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
