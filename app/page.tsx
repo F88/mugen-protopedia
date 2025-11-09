@@ -465,16 +465,17 @@ export default function Home() {
         }}
       />
 
-      {(prototypeError || randomPrototypeError) && (
+      {/* {(prototypeError || randomPrototypeError) && (
         <p className="text-center text-red-500 dark:text-red-400 py-8">
           {prototypeError ?? randomPrototypeError}
         </p>
-      )}
-      {(isLoadingPrototype || isLoadingRandomPrototype) && (
+      )} */}
+
+      {/* {(isLoadingPrototype || isLoadingRandomPrototype) && (
         <p className="text-center py-8 text-gray-600 dark:text-gray-300">
           Loading...
         </p>
-      )}
+      )} */}
 
       {/* Prototypes display area - Takes available space */}
       <div

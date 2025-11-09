@@ -172,6 +172,8 @@ function SubPanel({
       >
         <BsFillDice3Fill className="size-6" />
       </Button>
+
+      {/* Prototype ID input */}
       <input
         type="number"
         inputMode="numeric"
@@ -182,12 +184,14 @@ function SubPanel({
         className={`${PANEL_BORDER} w-24 rounded p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200`}
         placeholder="ID"
       />
+
+      {/* Show button */}
       <Button
         onClick={onGetPrototypeById}
         className="gap-2"
         title="Show specified Prototype"
         aria-label="Show Prototype with specified ID"
-        disabled={!canFetchMorePrototypes}
+        disabled={prototypeIdInput === '' || !canFetchMorePrototypes}
       >
         SHOW
       </Button>
@@ -278,11 +282,11 @@ export function ControlPanel({
         )}
       </div>
 
-      {prototypeIdError && (
+      {/* {prototypeIdError && (
         <p className="text-sm text-red-500 dark:text-red-400 mt-2">
           {prototypeIdError}
         </p>
-      )}
+      )} */}
     </div>
   );
 }
