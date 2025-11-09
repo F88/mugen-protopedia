@@ -60,4 +60,23 @@ describe('PWA Manifest', () => {
 
     expect(manifestData.scope).toBe('/');
   });
+
+  it('should include screenshots for richer install UI', () => {
+    const manifestData = manifest();
+
+    expect(Array.isArray(manifestData.screenshots)).toBe(true);
+    const screenshots = manifestData.screenshots ?? [];
+
+    type Screenshot = (typeof screenshots)[number];
+    const formFactor = (s: Screenshot): 'narrow' | 'wide' | undefined =>
+      (s as { form_factor?: 'narrow' | 'wide' }).form_factor;
+
+    // at least one wide (desktop)
+    const hasWide = screenshots.some((s) => formFactor(s) === 'wide');
+    // and at least one that is not wide (mobile)
+    const hasNonWide = screenshots.some((s) => formFactor(s) !== 'wide');
+
+    expect(hasWide).toBe(true);
+    expect(hasNonWide).toBe(true);
+  });
 });

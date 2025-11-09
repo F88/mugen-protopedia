@@ -80,5 +80,33 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+    // Add screenshots to enable Richer PWA Install UI on desktop and mobile
+    // Ref: https://developer.chrome.com/docs/web-platform/web-app-install-banners/#add-screenshots
+    screenshots: [
+      // Mobile (narrow) screenshot
+      {
+        src: '/screenshots/ss-mobile-dark.png',
+        sizes: '780x1682',
+        type: 'image/png',
+        form_factor: 'narrow',
+        label: 'Random prototype list on mobile (dark mode)',
+      },
+      // Desktop wide screenshot (light mode)
+      {
+        src: '/screenshots/ss-fhd-light.png',
+        sizes: '2300x1294',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: 'Prototype dashboard on desktop (light mode)',
+      },
+      // Additional wide screenshot (dark mode)
+      {
+        src: '/screenshots/ss-4k-dark.png',
+        sizes: '2300x1294',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: 'Prototype dashboard on desktop (dark mode)',
+      },
+    ],
   };
 }
