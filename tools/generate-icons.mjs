@@ -82,7 +82,9 @@ async function generateIcons() {
       await access(inputImage, constants.R_OK);
     } catch {
       console.error(`Error: Input image not found at ${inputImage}`);
-      console.error('Please ensure the file exists before running this script.');
+      console.error(
+        'Please ensure the file exists before running this script.',
+      );
       process.exit(1);
     }
 
