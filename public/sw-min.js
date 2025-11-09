@@ -8,8 +8,8 @@ const APP_SHELL = ['/'];
 function extractStaticAssets(html) {
   const assets = new Set();
   const origin = self.location.origin;
-  const cssRegex = /href="([^" ]+\.css)"/g;
-  const jsRegex = /src="([^" ]+\.js)"/g;
+  const cssRegex = /href="([^\"]+\.css)"/g;
+  const jsRegex = /src="([^\"]+\.js)"/g;
   for (const m of html.matchAll(cssRegex)) {
     const u = m[1];
     if (u.startsWith('/_next/static/'))
