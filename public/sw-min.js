@@ -12,11 +12,13 @@ function extractStaticAssets(html) {
   const jsRegex = /src="([^" ]+\.js)"/g;
   for (const m of html.matchAll(cssRegex)) {
     const u = m[1];
-    if (u.startsWith('/_next/static/')) assets.add(new URL(u, origin).toString());
+    if (u.startsWith('/_next/static/'))
+      assets.add(new URL(u, origin).toString());
   }
   for (const m of html.matchAll(jsRegex)) {
     const u = m[1];
-    if (u.startsWith('/_next/static/')) assets.add(new URL(u, origin).toString());
+    if (u.startsWith('/_next/static/'))
+      assets.add(new URL(u, origin).toString());
   }
   return Array.from(assets);
 }
@@ -32,7 +34,8 @@ self.addEventListener('install', (event) => {
       // 2. Fetch '/' and parse out critical hashed CSS/JS assets
       try {
         const res = await fetch('/');
-        if (!res.ok) throw new Error('Failed to fetch root HTML for asset discovery');
+        if (!res.ok)
+          throw new Error('Failed to fetch root HTML for asset discovery');
         const html = await res.text();
         const assets = extractStaticAssets(html);
         if (assets.length > 0) {
@@ -82,9 +85,10 @@ self.addEventListener('fetch', (event) => {
   // Static assets: stale-while-revalidate
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
-  const isAsset = /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|woff2|woff|ttf|eot|webmanifest)$/.test(
-    url.pathname,
-  );
+  const isAsset =
+    /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|woff2|woff|ttf|eot|webmanifest)$/.test(
+      url.pathname,
+    );
   if (isSameOrigin && isAsset) {
     event.respondWith(
       (async () => {
@@ -92,7 +96,11 @@ self.addEventListener('fetch', (event) => {
         const cached = await cache.match(req);
         const networkPromise = fetch(req)
           .then((res) => {
-            cache.put(req, res.clone()).catch((err) => console.error(`[sw] Failed to cache ${req.url}:`, err));
+            cache
+              .put(req, res.clone())
+              .catch((err) =>
+                console.error(`[sw] Failed to cache ${req.url}:`, err),
+              );
             return res;
           })
           .catch(() => undefined);
