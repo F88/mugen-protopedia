@@ -23,18 +23,18 @@ function MainPanel({
   isClearDisabled,
 }: MainPanelProps) {
   return (
-    <div className="flex w-fit mx-auto justify-center items-center gap-4 bg-white/60 dark:bg-gray-900/60 p-2 rounded-lg transition-colors duration-200">
+    <div className="flex w-fit mx-auto justify-center items-center gap-6 md:gap-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 md:p-3 rounded-xl shadow-lg transition-colors duration-200">
       {/* Reset block */}
       <div className="flex flex-col items-center gap-1">
         <Button
           variant="destructive"
           onClick={onClear}
-          className="gap-2"
+          className="gap-2 h-12 min-w-[120px] md:h-10 md:min-w-[100px] text-base md:text-sm"
           title="Reset (R)"
           aria-label="Reset"
           disabled={isClearDisabled}
         >
-          <Square className="h-4 w-4" />
+          <Square className="h-5 w-5 md:h-4 md:w-4" />
           RESET
         </Button>
         <span id="kbd-reset-hint" className="sr-only">
@@ -85,14 +85,14 @@ function MainPanel({
       <div className="flex flex-col items-center gap-1">
         <Button
           onClick={onGetRandomPrototype}
-          className="gap-2"
+          className="gap-2 h-12 min-w-[140px] md:h-10 md:min-w-[120px] text-base md:text-sm"
           title="Battle (Enter or B)"
           aria-label="Battle"
           aria-describedby="kbd-battle-hint"
           disabled={!canFetchMorePrototypes}
         >
           {/* <GiInvertedDice3 className="h-5 w-5" /> */}
-          <BsFillDice3Fill className="h-5 w-5" />
+          <BsFillDice3Fill className="h-6 w-6 md:h-5 md:w-5" />
           {/* 🎲 */}
           PROTOTYPE
         </Button>
@@ -149,11 +149,11 @@ function SubPanel({
           const randomId = Math.floor(Math.random() * maxPrototypeId) + 1;
           onPrototypeIdInputSet(randomId);
         }}
-        className="gap-2 h-auto"
+        className="gap-2 h-12 w-12 md:h-10 md:w-10 p-0"
         title="Fill with random prototype ID"
         aria-label="Fill input with random prototype ID"
       >
-        <BsFillDice3Fill className="size-6" />
+        <BsFillDice3Fill className="size-7 md:size-6" />
       </Button>
       <input
         type="number"
@@ -162,12 +162,12 @@ function SubPanel({
         max={99999}
         value={prototypeIdInput}
         onChange={onPrototypeIdInputChange}
-        className="w-24 rounded border border-slate-300 dark:border-gray-600 p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200"
+        className="w-24 h-12 md:h-10 rounded border border-slate-300 dark:border-gray-600 p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200"
         placeholder="ID"
       />
       <Button
         onClick={onGetPrototypeById}
-        className="gap-2"
+        className="gap-2 h-12 min-w-[80px] md:h-10 md:min-w-[70px] text-base md:text-sm"
         title="Show specified Prototype"
         aria-label="Show Prototype with specified ID"
         aria-describedby="kbd-battle-hint"
@@ -245,7 +245,7 @@ export function ControlPanel({
 
       {/* Sub Panel (Collapsible) */}
       <div
-        className={`border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-800 p-1 transition-all duration-200 ${
+        className={`border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-800 p-2 md:p-1 transition-all duration-200 ${
           isSubPanelExpanded ? 'w-fit mx-auto' : 'w-fit mx-auto'
         }`}
       >
@@ -253,17 +253,17 @@ export function ControlPanel({
           variant="ghost"
           size="sm"
           onClick={() => setIsSubPanelExpanded(!isSubPanelExpanded)}
-          className="flex items-center justify-center gap-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-colors w-full h-6 py-0 px-2"
+          className="flex items-center justify-center gap-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-colors w-full h-8 md:h-6 py-0 px-2"
         >
           {isSubPanelExpanded ? (
-            <ChevronUp className="h-4 w-4" />
+            <ChevronUp className="h-5 w-5 md:h-4 md:w-4" />
           ) : (
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="h-5 w-5 md:h-4 md:w-4" />
           )}
           More
         </Button>
         {isSubPanelExpanded && (
-          <div className="mt-0 p-0 bg-white dark:bg-gray-800 rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200">
+          <div className="mt-0 p-2 md:p-0 bg-white dark:bg-gray-800 rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200">
             <SubPanel
               prototypeIdInput={prototypeIdInput}
               onPrototypeIdInputChange={onPrototypeIdInputChange}
