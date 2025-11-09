@@ -15,6 +15,7 @@ Endless prototypes. Instant inspiration. Explore a new ProtoPedia prototype on e
 - View detailed information about each prototype, including images, descriptions, and specifications.
 - Responsive design for optimal viewing on various devices.
 - User-friendly interface for easy navigation.
+- **PWA Support**: Install as a desktop or mobile app (A2HS: Add to Home screen) for enhanced user experience ([Learn more](./docs/pwa-implementation.md))
 
 ## Roadmap (ja)
 

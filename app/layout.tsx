@@ -1,12 +1,54 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
+
 import { Analytics } from '@vercel/analytics/next';
+
+import './globals.css';
+
+import { ServiceWorkerRegister } from '@/components/sw-register';
+
 const inter = Inter({ subsets: ['latin'] });
 
+// Centralized metadata constants to avoid duplication and ease future updates.
+const APP_TITLE = '無限ProtoPedia';
+const APP_DESCRIPTION = '無限ProtoPediaでよふかし';
+
 export const metadata: Metadata = {
-  title: '無限ProtoPedia',
-  description: '無限ProtoPediaでよふかし',
+  title: APP_TITLE,
+  description: APP_DESCRIPTION,
+  applicationName: APP_TITLE,
+  icons: {
+    // Generic icons (optional but useful for some platforms)
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    // Apple touch icon generated in <head> automatically by Next.js
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: APP_TITLE,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: APP_TITLE,
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary',
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
@@ -17,6 +59,7 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        {/** Apple touch icon will be injected by Next.js metadata (icons.apple) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -46,6 +89,7 @@ export default function RootLayout({
         className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors`}
       >
         {children}
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>
