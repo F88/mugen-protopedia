@@ -479,7 +479,8 @@ export default function Home() {
       {/* Prototypes display area - Takes available space */}
       <div
         ref={scrollContainerRef}
-        className="w-full overflow-auto p-4 pb-48 md:pb-40 min-h-screen header-offset-padding"
+        className="w-full overflow-auto p-4 pb-40 min-h-screen header-offset-padding"
+        // className="w-full overflow-auto p-4 pb-48 md:pb-40 min-h-screen header-offset-padding"
       >
         <PrototypeGrid
           prototypeSlots={prototypeSlots}

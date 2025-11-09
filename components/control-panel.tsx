@@ -90,7 +90,8 @@ function MainPanel({
       <div className="flex flex-col items-center gap-1">
         <Button
           onClick={onGetRandomPrototype}
-          className="gap-2 h-12 min-w-[140px] md:h-10 md:min-w-[120px] text-base md:text-sm"
+          className="gap-2"
+          // className="gap-2 h-12 min-w-[140px] md:h-10 md:min-w-[120px] text-base md:text-sm"
           title="Battle (Enter or B)"
           aria-label="Battle"
           aria-describedby="kbd-battle-hint"
