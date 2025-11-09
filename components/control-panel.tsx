@@ -1,15 +1,30 @@
 'use client';
 
-import { useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent, type ReactNode } from 'react';
 
 import { ChevronDown, ChevronUp, Square } from 'lucide-react';
-// import { GiInvertedDice3 } from 'react-icons/gi';
 import { BsFillDice3Fill } from 'react-icons/bs';
 import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-type MainPanelProps = {
+// Shared styles
+const PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+const PANEL_BORDER = 'border border-slate-200 dark:border-gray-700';
+// Reusable class tokens
+const KBD_CLASS =
+  'px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white';
+const KBD_ROW_CLASS =
+  'hidden items-center gap-1 text-xs text-muted-foreground sm:flex';
+const MUTED_XS = 'text-xs text-muted-foreground';
+
+function Kbd({ children }: { children: ReactNode }) {
+  return <kbd className={KBD_CLASS}>{children}</kbd>;
+}
+
+// Main (top) panel
+export type MainPanelProps = {
   onClear: () => void;
   onGetRandomPrototype: () => void;
   canFetchMorePrototypes: boolean;
@@ -22,126 +37,128 @@ function MainPanel({
   canFetchMorePrototypes,
   isClearDisabled,
 }: MainPanelProps) {
+  const navigationHintContent = (
+    <>
+      <div className={MUTED_XS}>Navigate</div>
+      <div className={cn('flex items-center gap-1', MUTED_XS)}>
+        <Kbd>↑</Kbd>
+        <Kbd>←</Kbd>
+        <Kbd>k</Kbd>
+        <span className="mx-2">|</span>
+        <Kbd>j</Kbd>
+        <Kbd>→</Kbd>
+        <Kbd>↓</Kbd>
+      </div>
+      <div className={cn('flex items-center gap-1', MUTED_XS)}>
+        <Kbd>o</Kbd>
+        Open in ProtoPedia
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex w-fit mx-auto justify-center items-center gap-4 bg-white/60 dark:bg-gray-900/60 p-2 rounded-lg transition-colors duration-200">
-      {/* Reset block */}
-      <div className="flex flex-col items-center gap-1">
-        <Button
-          variant="destructive"
-          onClick={onClear}
-          className="gap-2"
-          title="Reset (R)"
-          aria-label="Reset"
-          disabled={isClearDisabled}
-        >
-          <Square className="h-4 w-4" />
-          RESET
-        </Button>
-        <span id="kbd-reset-hint" className="sr-only">
-          Shortcut: Reset
-        </span>
-        <div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            R
-          </kbd>
+    // Responsive layout spec:
+    // - Small screens (default):
+    //   * Container spans full width (w-full)
+    //   * Left block aligns left, right block aligns right
+    //   * Middle column shrinks to minimal width via auto track
+    //   * Navigation hint is hidden; 1px placeholder keeps 3-column grid
+    // - Wide screens (sm+):
+    //   * Container fits content width (sm:w-fit) and is horizontally centered (mx-auto)
+    //   * Left block aligns right, right block aligns left to balance the row
+    //   * Middle column stays minimal width (auto)
+    //   * Navigation hint becomes visible in the middle
+    <div
+      className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
+    >
+      {/* Reset block (left)
+      - Narrow: items-start -> left aligned
+      - Wide  : sm:items-end -> right aligned
+      - Hint ("R") stays centered under the button */}
+      <div className="w-full flex flex-col items-start sm:items-end gap-1 justify-self-start">
+        <div className="flex flex-col items-center w-fit">
+          <Button
+            variant="destructive"
+            onClick={onClear}
+            className="gap-2"
+            title="Reset (R)"
+            aria-label="Reset"
+            disabled={isClearDisabled}
+          >
+            <Square className="h-4 w-4" />
+            RESET
+          </Button>
+          <span id="kbd-reset-hint" className="sr-only">
+            Shortcut: Reset
+          </span>
+          <div className={KBD_ROW_CLASS}>
+            <Kbd>R</Kbd>
+          </div>
         </div>
       </div>
 
-      {/* Navigation hint block */}
-      <div className="hidden sm:flex flex-col items-center justify-center gap-1">
-        <div className="text-xs text-muted-foreground">Navigate</div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            ↑
-          </kbd>
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            ←
-          </kbd>
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            k
-          </kbd>
-          {/* <span className="mx-1">prev</span> */}
-          <span className="mx-2">|</span>
-          {/* <span className="mx-1">next</span> */}
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            j
-          </kbd>
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            →
-          </kbd>
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            ↓
-          </kbd>
+      {/* Navigation hint block (center)
+      - Column width is minimal (auto) at all breakpoints
+      - Narrow: content hidden, 1px placeholder keeps 3 columns
+      - Wide  : content visible */}
+      <div className="flex flex-col items-center justify-center">
+        <div className="hidden sm:flex flex-col items-center justify-center gap-1">
+          {navigationHintContent}
         </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            o
-          </kbd>
-          Open in ProtoPedia
-        </div>
+        {/* Minimal placeholder (1px) on narrow screens */}
+        <div className="sm:hidden w-px h-px" aria-hidden="true" />
       </div>
 
-      {/* Get Prototype block */}
-      <div className="flex flex-col items-center gap-1">
-        <Button
-          onClick={onGetRandomPrototype}
-          className="gap-2"
-          title="Battle (Enter or B)"
-          aria-label="Battle"
-          aria-describedby="kbd-battle-hint"
-          disabled={!canFetchMorePrototypes}
-        >
-          {/* <GiInvertedDice3 className="h-5 w-5" /> */}
-          <BsFillDice3Fill className="h-5 w-5" />
-          {/* 🎲 */}
-          PROTOTYPE
-        </Button>
-        <span id="kbd-prototype-hint" className="sr-only">
-          Shortcut: Enter
-        </span>
-        <div className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-          <kbd className="px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white">
-            Enter
-          </kbd>
+      {/* Get Prototype block (right)
+      - Narrow: items-end -> right aligned
+      - Wide  : sm:items-start -> left aligned
+      - Hint ("Enter") stays centered under the button */}
+      <div className="w-full flex flex-col items-end sm:items-start gap-1 justify-self-end">
+        <div className="flex flex-col items-center w-fit">
+          <Button
+            onClick={onGetRandomPrototype}
+            className="gap-2"
+            title="Battle (Enter or B)"
+            aria-label="Battle"
+            aria-describedby="kbd-prototype-hint"
+            disabled={!canFetchMorePrototypes}
+          >
+            <BsFillDice3Fill className="h-5 w-5" />
+            PROTOTYPE
+          </Button>
+          <span id="kbd-prototype-hint" className="sr-only">
+            Shortcut: Enter
+          </span>
+          <div className={KBD_ROW_CLASS}>
+            <Kbd>Enter</Kbd>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-type SubPanelProps = {
+// Sub panel (collapsible) below main panel
+export type SubPanelProps = {
   prototypeIdInput: string;
   onPrototypeIdInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onPrototypeIdInputSet: (value: number) => void;
   onGetPrototypeById: () => void;
   canFetchMorePrototypes: boolean;
-  onPrototypeIdInputSet: (value: number) => void;
   maxPrototypeId: number;
 };
 
 function SubPanel({
   prototypeIdInput,
   onPrototypeIdInputChange,
+  onPrototypeIdInputSet,
   onGetPrototypeById,
   canFetchMorePrototypes,
-  onPrototypeIdInputSet,
   maxPrototypeId,
 }: SubPanelProps) {
-  const notes = [
-    '3 /* おしゃべりパパ人形 */',
-    '12 /* DrunkenMaster byDrunker5 */',
-    '5916 /* クロとシロ */',
-    '2345 /* スタックチャン */',
-    '3877 /* Type-C 危機一発 */',
-    '7595 /* よのこまえ */',
-    '7627 /* ProtoPedia API Ver 2.0 Client for Javascript | ProtoPedia */',
-    '7759 /* 無限ProtoPedia */',
-  ];
-
-  // console.debug('Max Prototype ID:', maxPrototypeId);
-
   return (
     <div className="flex gap-3 items-center justify-center">
-      {/* DICE BUTTON */}
+      {/* Random fill button */}
       <Button
         type="button"
         variant="ghost"
@@ -162,7 +179,7 @@ function SubPanel({
         max={99999}
         value={prototypeIdInput}
         onChange={onPrototypeIdInputChange}
-        className="w-24 rounded border border-slate-300 dark:border-gray-600 p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200"
+        className={`${PANEL_BORDER} w-24 rounded p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200`}
         placeholder="ID"
       />
       <Button
@@ -170,20 +187,10 @@ function SubPanel({
         className="gap-2"
         title="Show specified Prototype"
         aria-label="Show Prototype with specified ID"
-        aria-describedby="kbd-battle-hint"
         disabled={!canFetchMorePrototypes}
       >
         SHOW
       </Button>
-
-      {/* Development notes */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="text-xs text-muted-foreground">
-          {notes.map((note, index) => (
-            <div key={index}>{note}</div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -220,9 +227,7 @@ export function ControlPanel({
   onOpenPrototype,
   maxPrototypeId,
 }: ControlPanelProps) {
-  const [isSubPanelExpanded, setIsSubPanelExpanded] = useState(
-    process.env.NODE_ENV === 'development',
-  );
+  const [isSubPanelExpanded, setIsSubPanelExpanded] = useState(false);
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -234,8 +239,7 @@ export function ControlPanel({
   });
 
   return (
-    <div className="w-full space-y-2">
-      {/* Main panel */}
+    <div className="space-y-1">
       <MainPanel
         onClear={onClear}
         onGetRandomPrototype={onGetRandomPrototype}
@@ -243,11 +247,9 @@ export function ControlPanel({
         isClearDisabled={isClearDisabled}
       />
 
-      {/* Sub Panel (Collapsible) */}
+      {/* Collapsible sub panel */}
       <div
-        className={`border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-800 p-1 transition-all duration-200 ${
-          isSubPanelExpanded ? 'w-fit mx-auto' : 'w-fit mx-auto'
-        }`}
+        className={`${PANEL_BG} ${PANEL_BORDER} p-2 px-4 w-fit mx-auto rounded-lg transition-all duration-200`}
       >
         <Button
           variant="ghost"
@@ -263,7 +265,7 @@ export function ControlPanel({
           More
         </Button>
         {isSubPanelExpanded && (
-          <div className="mt-0 p-0 bg-white dark:bg-gray-800 rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200">
+          <div className="p-2 rounded transition-colors duration-200">
             <SubPanel
               prototypeIdInput={prototypeIdInput}
               onPrototypeIdInputChange={onPrototypeIdInputChange}
@@ -276,7 +278,6 @@ export function ControlPanel({
         )}
       </div>
 
-      {/* Prototype ID Error (Collapsible) */}
       {prototypeIdError && (
         <p className="text-sm text-red-500 dark:text-red-400 mt-2">
           {prototypeIdError}

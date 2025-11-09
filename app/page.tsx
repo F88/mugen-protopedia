@@ -59,14 +59,15 @@ export default function Home() {
   );
 
   const [prototypeIdInput, setPrototypeIdInput] = useState(
-    // ''
+    '',
     // '3' /* おしゃべりパパ人形 */,
     // '12' /* DrunkenMaster byDrunker5 */,
     // '5916' /* クロとシロ */,
     // '2345' /* スタックチャン */,
-    '3877' /* Type-C 危機一発 */,
+    // '3877' /* Type-C 危機一発 */,
     // '7595' /* よのこまえ */,
     // '7627' /* ProtoPedia API Ver 2.0 Client for Javascript | ProtoPedia */,
+    // '7759' /* 無限ProtoPedia */,
   );
 
   const FALLBACK_MAX_PROTOTYPE_ID = 7_777;
