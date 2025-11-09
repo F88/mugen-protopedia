@@ -19,7 +19,7 @@ export function ServiceWorkerRegister() {
           updateViaCache: 'none',
         });
         // Optionally, listen for updates and prompt reloads, etc.
-        reg.addEventListener?.('updatefound', () => {
+        reg.addEventListener('updatefound', () => {
           // Could surface an update UI here.
         });
       } catch (err) {
