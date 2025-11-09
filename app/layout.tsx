@@ -19,6 +19,8 @@ const APP_KEYWORDS = [
   'ProtoPedia',
   'プロトタイプ',
   'プロトタイピング',
+  '無限',
+  '無限Viewer',
   'IoT',
   'Maker',
   'メイカー',
