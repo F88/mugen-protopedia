@@ -31,7 +31,7 @@ const nextConfig = {
       },
       {
         // Service worker specific hardening (native SW)
-        source: '/sw-min.js',
+        source: '/sw.js',
         headers: [
           {
             key: 'Content-Type',
