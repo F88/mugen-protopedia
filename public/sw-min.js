@@ -30,10 +30,8 @@ self.addEventListener('install', (event) => {
       const cache = await caches.open(STATIC_CACHE);
       // 1. Precache base shell (root HTML)
       await cache.addAll(APP_SHELL);
-
-        const res = await fetch('/', { cache: 'no-store' });
       try {
-        const res = await fetch('/');
+        const res = await fetch('/', { cache: 'no-store' });
         if (!res.ok)
           throw new Error('Failed to fetch root HTML for asset discovery');
         const html = await res.text();
