@@ -11,7 +11,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 // Centralized metadata constants to avoid duplication and ease future updates.
 const APP_TITLE = '無限ProtoPedia';
-const APP_DESCRIPTION = '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ';
+const APP_DESCRIPTION =
+  '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ';
 const APP_URL = 'https://mugen-protopedia.vercel.app';
 const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
 const APP_KEYWORDS = [
