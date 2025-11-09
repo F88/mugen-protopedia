@@ -47,8 +47,12 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/icons/icon-192x192.png',
         sizes: '192x192',
         type: 'image/png',
-        // Mark as maskable so Android launchers can safely crop within the safe area.
-        // Replace this asset with a true dedicated maskable icon (with safe area padding) when available.
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-192x192-maskable.png',
+        sizes: '192x192',
+        type: 'image/png',
         purpose: 'maskable',
       },
       {
@@ -67,8 +71,12 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/icons/icon-512x512.png',
         sizes: '512x512',
         type: 'image/png',
-        // Mark as maskable so Android launchers can safely crop within the safe area.
-        // Replace this asset with a true dedicated maskable icon (with safe area padding) when available.
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-512x512-maskable.png',
+        sizes: '512x512',
+        type: 'image/png',
         purpose: 'maskable',
       },
     ],
