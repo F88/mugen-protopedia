@@ -212,7 +212,8 @@ export function ControlPanel({
   maxPrototypeId,
 }: ControlPanelProps) {
   const [isSubPanelExpanded, setIsSubPanelExpanded] = useState(
-    process.env.NODE_ENV === 'development',
+    // process.env.NODE_ENV === 'development',
+    false,
   );
 
   // Keyboard shortcuts
