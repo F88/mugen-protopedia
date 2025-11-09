@@ -21,9 +21,11 @@ Endless prototypes. Instant inspiration. Explore a new ProtoPedia prototype on e
 
 ### 優先度: 高
 
-- プレイモードの追加
-    - 未知との遭遇モード（星が曲がる演出や音楽再生など）を追加する。
-    - 巡り会いプロトタイプモード（宇宙的な演出を伴う閲覧体験）を検討する。
+- 無限度を向上させる目的としてプレイモードの追加
+    - 未知との遭遇モード (音と光を使ったコミュニケーション)
+    - プロトタイプ・おぼえていますか モード (唐突にアイドルが歌い出す)
+    - 巡り会いプロトタイプモード (ニュータイプ専用)
+    - 他
 
 ### 優先度: 中
 
@@ -34,6 +36,16 @@ Endless prototypes. Instant inspiration. Explore a new ProtoPedia prototype on e
 
 - 協調的に活用できる共有リンク付きプロトタイプコレクション機能を追加する。
 - デモを円滑に行えるよう、取得済みプロトタイプのオフラインスナップショットを提供する。
+
+## CHNAGELOG
+
+### 2025-11-08
+
+- 🎊 リリース
+
+### 2025-11-09
+
+- PWA 対応（A2HS）: Web App Manifest と Service Worker を整備し、デスクトップ/モバイルでインストール可能になりました。
 
 ## Tech Stack
 
