@@ -1,6 +1,7 @@
 'use client';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
 
 type PrototypeSkeletonCardProps = {
   expectedPrototypeId?: number;
@@ -44,7 +45,11 @@ export const PrototypeSkeletonCard = ({
         <CardHeader>
           {/* ID */}
           <div className="grid grid-cols-2 gap-3">
-            <SkeletonBlock className="h-6 w-2/4" />
+            {typeof expectedPrototypeId === 'number' ? (
+              <PrototypeIdBadge id={expectedPrototypeId} />
+            ) : (
+              <SkeletonBlock className="h-6 w-2/4" />
+            )}
             <div className="flex items-center justify-end">
               <SkeletonBlock className="h-4 w-2/4" />
             </div>
