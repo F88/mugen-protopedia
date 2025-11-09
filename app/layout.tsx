@@ -84,6 +84,10 @@ export default function RootLayout({
             `,
           }}
         />
+        <meta
+          name="google-site-verification"
+          content="ckJ1voI88zNBAjtlK8f95TD0IbKpRLCtbHlBAgr-diE"
+        />
       </head>
       <body
         className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors`}
