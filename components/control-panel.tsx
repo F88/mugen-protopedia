@@ -259,6 +259,8 @@ export function ControlPanel({
           variant="ghost"
           size="sm"
           onClick={() => setIsSubPanelExpanded(!isSubPanelExpanded)}
+          aria-expanded={isSubPanelExpanded}
+          aria-controls="control-sub-panel"
           className="flex items-center justify-center gap-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-colors w-full h-6 py-0 px-2"
         >
           {isSubPanelExpanded ? (
@@ -266,10 +268,13 @@ export function ControlPanel({
           ) : (
             <ChevronDown className="h-4 w-4" />
           )}
-          More
+          {isSubPanelExpanded ? 'Less' : 'More'}
         </Button>
         {isSubPanelExpanded && (
-          <div className="p-2 rounded transition-colors duration-200">
+          <div
+            id="control-sub-panel"
+            className="p-2 rounded transition-colors duration-200"
+          >
             <SubPanel
               prototypeIdInput={prototypeIdInput}
               onPrototypeIdInputChange={onPrototypeIdInputChange}
