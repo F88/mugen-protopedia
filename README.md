@@ -7,7 +7,7 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-'MUGEN ProtoPedia' is a web application that securely connects to the ProtoPedia API (v2) to retrieve and display a single, randomly selected prototype whenever the user requests one.
+Endless prototypes. Instant inspiration. Explore a new ProtoPedia prototype on every tap.
 
 ## Features
 
