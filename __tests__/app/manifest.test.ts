@@ -73,10 +73,10 @@ describe('PWA Manifest', () => {
 
     // at least one wide (desktop)
     const hasWide = screenshots.some((s) => formFactor(s) === 'wide');
-    // and at least one that is not wide (mobile)
-    const hasNonWide = screenshots.some((s) => formFactor(s) !== 'wide');
+    // and at least one that is narrow (mobile)
+    const hasNarrow = screenshots.some((s) => formFactor(s) === 'narrow');
 
     expect(hasWide).toBe(true);
-    expect(hasNonWide).toBe(true);
+    expect(hasNarrow).toBe(true);
   });
 });
