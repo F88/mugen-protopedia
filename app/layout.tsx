@@ -9,10 +9,14 @@ import { ServiceWorkerRegister } from '@/components/sw-register';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// Centralized metadata constants to avoid duplication and ease future updates.
+const APP_TITLE = '無限ProtoPedia';
+const APP_DESCRIPTION = '無限ProtoPediaでよふかし';
+
 export const metadata: Metadata = {
-  title: '無限ProtoPedia',
-  description: '無限ProtoPediaでよふかし',
-  applicationName: '無限ProtoPedia',
+  title: APP_TITLE,
+  description: APP_DESCRIPTION,
+  applicationName: APP_TITLE,
   icons: {
     // Generic icons (optional but useful for some platforms)
     icon: [
@@ -25,21 +29,21 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: '無限ProtoPedia',
+    title: APP_TITLE,
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: 'website',
-    siteName: '無限ProtoPedia',
-    title: '無限ProtoPedia',
-    description: '無限ProtoPediaでよふかし',
+    siteName: APP_TITLE,
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
   },
   twitter: {
     card: 'summary',
-    title: '無限ProtoPedia',
-    description: '無限ProtoPediaでよふかし',
+    title: APP_TITLE,
+    description: APP_DESCRIPTION,
   },
 };
 
