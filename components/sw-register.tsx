@@ -14,7 +14,7 @@ export function ServiceWorkerRegister() {
 
     const register = async () => {
       try {
-        const reg = await navigator.serviceWorker.register('/sw-min.js', {
+        const reg = await navigator.serviceWorker.register('/sw.js', {
           scope: '/',
           updateViaCache: 'none',
         });
