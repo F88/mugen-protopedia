@@ -134,6 +134,7 @@ function SubPanel({
     '3877 /* Type-C 危機一発 */',
     '7595 /* よのこまえ */',
     '7627 /* ProtoPedia API Ver 2.0 Client for Javascript | ProtoPedia */',
+    '7759 /* 無限ProtoPedia */',
   ];
 
   // console.debug('Max Prototype ID:', maxPrototypeId);
