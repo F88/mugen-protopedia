@@ -26,6 +26,10 @@ export const metadata: Metadata = {
     // Apple touch icon generated in <head> automatically by Next.js
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
   },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -55,8 +59,6 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        {/* Theme color primarily affects Chrome/Edge/Android; unsupported browsers will ignore it. */}
-        <meta name="theme-color" content="#000000" />
         {/** Apple touch icon will be injected by Next.js metadata (icons.apple) */}
         <script
           dangerouslySetInnerHTML={{
