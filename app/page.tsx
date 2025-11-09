@@ -346,31 +346,45 @@ export default function Home() {
     if (scrollContainerRef.current && prototypeSlots.length > 0) {
       const container = scrollContainerRef.current;
 
-      // Use requestAnimationFrame to ensure DOM is updated
+      // Use double requestAnimationFrame to ensure DOM is fully updated and rendered
       requestAnimationFrame(() => {
-        setTimeout(() => {
-          // Find the last prototype element (newly added)
-          const prototypeElements = container.querySelectorAll(
-            '[data-prototype-id]',
-          );
-          if (prototypeElements.length > 0) {
-            const lastElement = prototypeElements[prototypeElements.length - 1];
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            // Find the last prototype element (newly added)
+            const prototypeElements = container.querySelectorAll(
+              '[data-prototype-id]',
+            );
+            if (prototypeElements.length > 0) {
+              const lastElement =
+                prototypeElements[prototypeElements.length - 1];
 
-            // Update focus index to the last element
-            setCurrentFocusIndex(prototypeElements.length - 1);
+              // Update focus index to the last element
+              setCurrentFocusIndex(prototypeElements.length - 1);
 
-            // Scroll to the last element
-            lastElement.scrollIntoView({
-              behavior: 'smooth',
-              // behavior: 'instant',
-              block: 'center',
-            });
-          } else {
-            // Fallback: scroll to bottom if elements not found
-            container.scrollTop =
-              container.scrollHeight - container.clientHeight;
-          }
-        }, 200);
+              // Get header offset from CSS variable
+              const headerOffsetStr = getComputedStyle(
+                document.documentElement,
+              ).getPropertyValue('--header-offset');
+              const headerOffset = Number.parseInt(headerOffsetStr, 10) || 0;
+
+              // Calculate the target scroll position
+              const elementRect = lastElement.getBoundingClientRect();
+              const absoluteElementTop = elementRect.top + window.scrollY;
+              const targetScrollPosition =
+                absoluteElementTop - headerOffset - 16; // 16px extra padding
+
+              // Scroll to the calculated position
+              window.scrollTo({
+                top: targetScrollPosition,
+                behavior: 'smooth',
+              });
+            } else {
+              // Fallback: scroll to bottom if elements not found
+              container.scrollTop =
+                container.scrollHeight - container.clientHeight;
+            }
+          }, 100);
+        });
       });
     }
   }, [prototypeSlots.length]);
@@ -389,9 +403,23 @@ export default function Home() {
       );
 
       if (prototypeElements[index]) {
-        prototypeElements[index].scrollIntoView({
+        const element = prototypeElements[index];
+
+        // Get header offset from CSS variable
+        const headerOffsetStr = getComputedStyle(
+          document.documentElement,
+        ).getPropertyValue('--header-offset');
+        const headerOffset = Number.parseInt(headerOffsetStr, 10) || 0;
+
+        // Calculate the target scroll position
+        const elementRect = element.getBoundingClientRect();
+        const absoluteElementTop = elementRect.top + window.scrollY;
+        const targetScrollPosition = absoluteElementTop - headerOffset - 16; // 16px extra padding
+
+        // Scroll to the calculated position
+        window.scrollTo({
+          top: targetScrollPosition,
           behavior,
-          block: 'center',
         });
       }
     },
