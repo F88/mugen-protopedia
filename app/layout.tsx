@@ -12,6 +12,7 @@ const inter = Inter({ subsets: ['latin'] });
 // Centralized metadata constants to avoid duplication and ease future updates.
 const APP_TITLE = '無限ProtoPedia';
 const APP_DESCRIPTION = '無限ProtoPediaでよふかし';
+const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION_TOKEN;
 
 export const metadata: Metadata = {
   title: APP_TITLE,
@@ -49,6 +50,14 @@ export const metadata: Metadata = {
     title: APP_TITLE,
     description: APP_DESCRIPTION,
   },
+  // Add site verification meta via Next.js Metadata API when the token is provided.
+  ...(GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
 };
 
 export default function RootLayout({
@@ -83,10 +92,6 @@ export default function RootLayout({
               })();
             `,
           }}
-        />
-        <meta
-          name="google-site-verification"
-          content="ckJ1voI88zNBAjtlK8f95TD0IbKpRLCtbHlBAgr-diE"
         />
       </head>
       <body
