@@ -19,10 +19,10 @@ describe('PWA Manifest', () => {
     const manifestData = manifest();
 
     const icon192 = manifestData.icons?.find((icon) =>
-      icon.sizes?.includes('192x192')
+      icon.sizes?.includes('192x192'),
     );
     const icon512 = manifestData.icons?.find((icon) =>
-      icon.sizes?.includes('512x512')
+      icon.sizes?.includes('512x512'),
     );
 
     expect(icon192).toBeTruthy();
@@ -33,7 +33,7 @@ describe('PWA Manifest', () => {
     const manifestData = manifest();
 
     const maskableIcons = manifestData.icons?.filter((icon) =>
-      icon.purpose?.includes('maskable')
+      icon.purpose?.includes('maskable'),
     );
 
     expect(maskableIcons).toBeTruthy();

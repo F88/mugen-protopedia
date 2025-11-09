@@ -29,6 +29,7 @@ Powered by `next-pwa`, the application automatically generates a service worker 
 ### 3. App Icons
 
 The application includes icons in the following sizes:
+
 - 72x72 pixels
 - 96x96 pixels
 - 128x128 pixels
@@ -45,6 +46,7 @@ Icons support both `any` and `maskable` purposes for better integration with dif
 ### 4. Apple Web App Support
 
 Additional metadata for iOS devices:
+
 - Apple Touch Icon (180x180)
 - Apple Web App capable mode
 - Status bar styling
@@ -95,27 +97,28 @@ This script uses the image at `public/img/P-640x640.png` as the source and gener
 ### Testing PWA
 
 1. **Build the application**:
-   ```bash
-   npm run build
-   npm run start
-   ```
+
+    ```bash
+    npm run build
+    npm run start
+    ```
 
 2. **Test with Lighthouse**:
-   - Open Chrome DevTools
-   - Go to the Lighthouse tab
-   - Run a PWA audit
-   - Target: 100% PWA score
+    - Open Chrome DevTools
+    - Go to the Lighthouse tab
+    - Run a PWA audit
+    - Target: 100% PWA score
 
 3. **Verify Manifest**:
-   - Open Chrome DevTools
-   - Go to Application tab
-   - Check "Manifest" section
-   - Verify all icons and metadata are correct
+    - Open Chrome DevTools
+    - Go to Application tab
+    - Check "Manifest" section
+    - Verify all icons and metadata are correct
 
 4. **Test Installation**:
-   - Try installing the app on desktop
-   - Try installing on mobile devices (Android/iOS)
-   - Verify the app works in standalone mode
+    - Try installing the app on desktop
+    - Try installing on mobile devices (Android/iOS)
+    - Verify the app works in standalone mode
 
 ## Configuration
 
@@ -125,15 +128,16 @@ The PWA configuration is set up in `next.config.mjs`:
 
 ```javascript
 const pwaConfig = withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  buildExcludes: [/middleware-manifest\.json$/],
+    dest: 'public',
+    register: true,
+    skipWaiting: true,
+    disable: process.env.NODE_ENV === 'development',
+    buildExcludes: [/middleware-manifest\.json$/],
 });
 ```
 
 Key settings:
+
 - `dest`: Service worker files are generated in the `public` directory
 - `register`: Automatically register the service worker
 - `skipWaiting`: Immediately activate new service worker versions
