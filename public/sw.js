@@ -1,7 +1,14 @@
 // Minimal service worker for Mugen ProtoPedia
 // Network-first for navigations + stale-while-revalidate for static assets.
 
-const STATIC_CACHE = 'mp-static-v2'; // bump version due to shell strategy change
+/*
+ * STATIC_CACHE version history:
+ * v1: Only precached the base shell (root HTML) for offline.
+ * v2: Now also precaches static assets (/_next/static/*.css|.js) discovered from the root HTML,
+ *     enabling offline access to styles and scripts. This change required a cache version bump
+ *     to ensure clients receive the updated shell and assets.
+ */
+const STATIC_CACHE = 'mp-static-v2';
 const APP_SHELL = ['/'];
 
 // Extract /_next/static/*.css|.js asset URLs from HTML string
