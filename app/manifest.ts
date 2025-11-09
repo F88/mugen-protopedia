@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: '無限ProtoPedia',
     short_name: '∞PP',
     description:
-      '無限ProtoPediaでよふかし - ProtoPedia APIからランダムにプロトタイプを表示するWebアプリケーション',
+      '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
