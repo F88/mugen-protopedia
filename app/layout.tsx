@@ -13,6 +13,15 @@ export const metadata: Metadata = {
   title: '無限ProtoPedia',
   description: '無限ProtoPediaでよふかし',
   applicationName: '無限ProtoPedia',
+  icons: {
+    // Generic icons (optional but useful for some platforms)
+    icon: [
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    // Apple touch icon generated in <head> automatically by Next.js
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -42,8 +51,9 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        {/* Theme color primarily affects Chrome/Edge/Android; unsupported browsers will ignore it. */}
         <meta name="theme-color" content="#000000" />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        {/** Apple touch icon will be injected by Next.js metadata (icons.apple) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
