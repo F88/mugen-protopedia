@@ -102,7 +102,7 @@ export default function manifest(): MetadataRoute.Manifest {
       // Additional wide screenshot (dark mode)
       {
         src: '/screenshots/ss-4k-dark.png',
-        sizes: '3840x2160',
+        sizes: '2300x1294',
         type: 'image/png',
         form_factor: 'wide',
         label: 'Prototype dashboard on desktop (dark mode)',
