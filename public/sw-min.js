@@ -82,7 +82,7 @@ self.addEventListener('fetch', (event) => {
   // Static assets: stale-while-revalidate
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
-  const isAsset = /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js)$/.test(
+  const isAsset = /\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|woff2|woff|ttf|eot|webmanifest)$/.test(
     url.pathname,
   );
   if (isSameOrigin && isAsset) {
