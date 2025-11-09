@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
         const cached = await cache.match(req);
         const networkPromise = fetch(req)
           .then((res) => {
-            cache.put(req, res.clone()).catch(() => undefined);
+            cache.put(req, res.clone()).catch((err) => console.error(`[sw] Failed to cache ${req.url}:`, err));
             return res;
           })
           .catch(() => undefined);
