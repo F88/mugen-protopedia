@@ -1,24 +1,50 @@
 // Minimal service worker for Mugen ProtoPedia
 // Network-first for navigations + stale-while-revalidate for static assets.
 
-const STATIC_CACHE = 'mp-static-v1';
+const STATIC_CACHE = 'mp-static-v2'; // bump version due to shell strategy change
 const APP_SHELL = ['/'];
+
+// Extract /_next/static/*.css|.js asset URLs from HTML string
+function extractStaticAssets(html) {
+  const assets = new Set();
+  const origin = self.location.origin;
+  const cssRegex = /href="([^" ]+\.css)"/g;
+  const jsRegex = /src="([^" ]+\.js)"/g;
+  for (const m of html.matchAll(cssRegex)) {
+    const u = m[1];
+    if (u.startsWith('/_next/static/')) assets.add(new URL(u, origin).toString());
+  }
+  for (const m of html.matchAll(jsRegex)) {
+    const u = m[1];
+    if (u.startsWith('/_next/static/')) assets.add(new URL(u, origin).toString());
+  }
+  return Array.from(assets);
+}
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(STATIC_CACHE).then(async (cache) => {
+    (async () => {
+      const cache = await caches.open(STATIC_CACHE);
+      // 1. Precache base shell (root HTML)
+      await cache.addAll(APP_SHELL);
+
+      // 2. Fetch '/' and parse out critical hashed CSS/JS assets
       try {
-        // Fail fast if any critical shell asset can't be cached; browser will retry install later.
-        await cache.addAll(APP_SHELL);
+        const res = await fetch('/');
+        if (!res.ok) throw new Error('Failed to fetch root HTML for asset discovery');
+        const html = await res.text();
+        const assets = extractStaticAssets(html);
+        if (assets.length > 0) {
+          await cache.addAll(assets);
+        }
       } catch (err) {
-        console.error(
-          '[sw] failed to pre-cache app shell; aborting install',
-          err,
-        );
-        // Rethrow so install rejects and SW does not activate with a broken offline state.
-        throw err;
+        // Failing to discover static assets is non-fatal; offline will still show basic shell.
+        console.warn('[sw] asset discovery skipped', err);
       }
+    })().catch((err) => {
+      console.error('[sw] install failed; aborting activation', err);
+      throw err; // Abort install so browser retries later
     }),
   );
 });
