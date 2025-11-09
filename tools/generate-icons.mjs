@@ -1,8 +1,9 @@
 import sharp from 'sharp';
-import { mkdir } from 'fs/promises';
+import { mkdir, access } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { constants } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -76,6 +77,15 @@ async function generateMaskable(size, name) {
 
 async function generateIcons() {
   try {
+    // Validate input image exists
+    try {
+      await access(inputImage, constants.R_OK);
+    } catch {
+      console.error(`Error: Input image not found at ${inputImage}`);
+      console.error('Please ensure the file exists before running this script.');
+      process.exit(1);
+    }
+
     // Create icons directory
     await mkdir(outputDir, { recursive: true });
     console.log(`Created directory: ${outputDir}`);
