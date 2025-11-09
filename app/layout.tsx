@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css';
+
 import { Analytics } from '@vercel/analytics/next';
+
+import './globals.css';
+
+import { ServiceWorkerRegister } from '@/components/sw-register';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -68,6 +73,7 @@ export default function RootLayout({
         className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors`}
       >
         {children}
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>

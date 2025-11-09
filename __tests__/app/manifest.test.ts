@@ -7,7 +7,7 @@ describe('PWA Manifest', () => {
 
     // Check essential fields
     expect(manifestData.name).toBe('無限ProtoPedia');
-    expect(manifestData.short_name).toBe('無限ProtoPedia');
+    expect(manifestData.short_name).toBe('∞PP');
     expect(manifestData.description).toBeTruthy();
     expect(manifestData.start_url).toBe('/');
     expect(manifestData.display).toBe('standalone');

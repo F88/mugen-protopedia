@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: '無限ProtoPedia',
-    short_name: '無限ProtoPedia',
+    short_name: '∞PP',
     description:
       '無限ProtoPediaでよふかし - ProtoPedia APIからランダムにプロトタイプを表示するWebアプリケーション',
     start_url: '/',
