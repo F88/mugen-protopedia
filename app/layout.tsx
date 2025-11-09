@@ -11,8 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 // Centralized metadata constants to avoid duplication and ease future updates.
 const APP_TITLE = '無限ProtoPedia';
-const APP_DESCRIPTION =
-  'ProtoPediaに登録された魅力的なプロトタイプ作品をランダムに表示するWebアプリケーション。タップするだけで新しい発見と出会える、エンドレスなプロトタイプ探索体験。';
+const APP_DESCRIPTION = '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ';
 const APP_URL = 'https://mugen-protopedia.vercel.app';
 const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
 const APP_KEYWORDS = [
@@ -27,6 +26,7 @@ const APP_KEYWORDS = [
   'コンテスト',
   '電子工作',
 ];
+const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION_TOKEN;
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -84,6 +84,14 @@ export const metadata: Metadata = {
     images: [APP_OG_IMAGE],
     creator: '@F88',
   },
+  // Add site verification meta via Next.js Metadata API when the token is provided.
+  ...(GOOGLE_SITE_VERIFICATION
+    ? {
+        verification: {
+          google: GOOGLE_SITE_VERIFICATION,
+        },
+      }
+    : {}),
 };
 
 export default function RootLayout({
