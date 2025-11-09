@@ -9,6 +9,10 @@ import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 
 import { Button } from '@/components/ui/button';
 
+// Shared background style for main and sub panels.
+// Adjust here to change both consistently.
+const PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+
 type MainPanelProps = {
   onClear: () => void;
   onGetRandomPrototype: () => void;
@@ -24,8 +28,8 @@ function MainPanel({
 }: MainPanelProps) {
   return (
     <div
-      // className="flex w-fit mx-auto justify-center items-center gap-4 bg-white/60 dark:bg-gray-900/60 p-2 rounded-lg transition-colors duration-200"
-      className="flex w-fit mx-auto justify-center items-center gap-6 md:gap-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 md:p-3 rounded-xl shadow-lg transition-colors duration-200"
+      className={`flex w-fit mx-auto justify-center items-center gap-4 ${PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
+      // className="flex w-fit mx-auto justify-center items-center gap-6 md:gap-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 md:p-3 rounded-xl shadow-lg transition-colors duration-200"
     >
       {/* Reset block */}
       <div className="flex flex-col items-center gap-1">
@@ -237,8 +241,7 @@ export function ControlPanel({
 
       {/* Sub Panel (Collapsible) */}
       <div
-        className={`border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-800 p-1 transition-all duration-200 ${
-          // className={`border border-slate-200 dark:border-gray-700 rounded-lg bg-slate-50 dark:bg-gray-800 p-2 md:p-1 transition-all duration-200 ${
+        className={`border border-slate-200 dark:border-gray-700 rounded-lg ${PANEL_BG} p-1 transition-all duration-200 ${
           isSubPanelExpanded ? 'w-fit mx-auto' : 'w-fit mx-auto'
         }`}
       >
@@ -259,7 +262,9 @@ export function ControlPanel({
           More
         </Button>
         {isSubPanelExpanded && (
-          <div className="mt-0 p-0 bg-white dark:bg-gray-800 rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200">
+          <div
+            className={`mt-0 p-0 ${PANEL_BG} rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200`}
+          >
             {/* <div className="mt-0 p-2 md:p-0 bg-white dark:bg-gray-800 rounded border border-slate-200 dark:border-gray-700 transition-colors duration-200"> */}
             <SubPanel
               prototypeIdInput={prototypeIdInput}
