@@ -7,10 +7,19 @@ const APP_SHELL = ['/'];
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .catch(() => undefined),
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      try {
+        // Fail fast if any critical shell asset can't be cached; browser will retry install later.
+        await cache.addAll(APP_SHELL);
+      } catch (err) {
+        console.error(
+          '[sw] failed to pre-cache app shell; aborting install',
+          err,
+        );
+        // Rethrow so install rejects and SW does not activate with a broken offline state.
+        throw err;
+      }
+    }),
   );
 });
 
@@ -61,7 +70,8 @@ self.addEventListener('fetch', (event) => {
             return res;
           })
           .catch(() => undefined);
-        return cached ?? (await networkPromise) ?? fetch(req);
+        // Avoid issuing a duplicate network request; surface a network error if both cache and network miss.
+        return cached ?? (await networkPromise) ?? Response.error();
       })(),
     );
   }
