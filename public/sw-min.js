@@ -31,7 +31,7 @@ self.addEventListener('install', (event) => {
       // 1. Precache base shell (root HTML)
       await cache.addAll(APP_SHELL);
 
-      // 2. Fetch '/' and parse out critical hashed CSS/JS assets
+        const res = await fetch('/', { cache: 'no-store' });
       try {
         const res = await fetch('/');
         if (!res.ok)
