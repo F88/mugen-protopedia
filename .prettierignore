@@ -13,3 +13,4 @@ storybook-static/
 
 # Misc
 package-lock.json
+renovate.json
