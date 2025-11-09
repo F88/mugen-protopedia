@@ -11,12 +11,35 @@ const inter = Inter({ subsets: ['latin'] });
 
 // Centralized metadata constants to avoid duplication and ease future updates.
 const APP_TITLE = '無限ProtoPedia';
-const APP_DESCRIPTION = '無限ProtoPediaでよふかし';
+const APP_DESCRIPTION =
+  'ProtoPediaに登録された魅力的なプロトタイプ作品をランダムに表示するWebアプリケーション。タップするだけで新しい発見と出会える、エンドレスなプロトタイプ探索体験。';
+const APP_URL = 'https://mugen-protopedia.vercel.app';
+const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
+const APP_KEYWORDS = [
+  'ProtoPedia',
+  'プロトタイプ',
+  'プロトタイピング',
+  'IoT',
+  'Maker',
+  'メイカー',
+  'ものづくり',
+  'ハッカソン',
+  'コンテスト',
+  '電子工作',
+];
 
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: APP_TITLE,
   description: APP_DESCRIPTION,
+  keywords: APP_KEYWORDS,
   applicationName: APP_TITLE,
+  authors: [{ name: 'F88', url: 'https://github.com/F88' }],
+  creator: 'F88',
+  publisher: 'F88',
+  alternates: {
+    canonical: APP_URL,
+  },
   icons: {
     // Generic icons (optional but useful for some platforms)
     icon: [
@@ -40,14 +63,26 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
+    url: APP_URL,
     siteName: APP_TITLE,
     title: APP_TITLE,
     description: APP_DESCRIPTION,
+    images: [
+      {
+        url: APP_OG_IMAGE,
+        width: 2300,
+        height: 1294,
+        alt: `${APP_TITLE} - ProtoPediaのプロトタイプをランダムに表示`,
+      },
+    ],
+    locale: 'ja_JP',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: APP_TITLE,
     description: APP_DESCRIPTION,
+    images: [APP_OG_IMAGE],
+    creator: '@F88',
   },
 };
 
@@ -56,10 +91,50 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${APP_URL}/#website`,
+        url: APP_URL,
+        name: APP_TITLE,
+        description: APP_DESCRIPTION,
+        inLanguage: 'ja',
+      },
+      {
+        '@type': 'WebApplication',
+        '@id': `${APP_URL}/#webapplication`,
+        url: APP_URL,
+        name: APP_TITLE,
+        description: APP_DESCRIPTION,
+        applicationCategory: 'EntertainmentApplication',
+        operatingSystem: 'Any',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'JPY',
+        },
+        author: {
+          '@type': 'Person',
+          name: 'F88',
+          url: 'https://github.com/F88',
+        },
+        inLanguage: 'ja',
+      },
+    ],
+  };
+
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
         {/** Apple touch icon will be injected by Next.js metadata (icons.apple) */}
+        {/** JSON-LD structured data for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
