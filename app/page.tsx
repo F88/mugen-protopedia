@@ -22,6 +22,7 @@ import { Header } from '@/components/header';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
+// const SIMULATED_DELAY_RANGE = null;
 
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
@@ -150,11 +151,16 @@ export default function Home() {
     currentFocusIndex,
     onCardClick: handleCardClick,
     scrollTo: scrollToPrototype,
-  } = useScrollingBehavior({
-    headerRef,
-    scrollContainerRef,
-    prototypeSlots,
-  });
+  } = useScrollingBehavior(
+    {
+      headerRef,
+      scrollContainerRef,
+      prototypeSlots,
+    },
+    {
+      // extraOffset: 16,
+    },
+  );
 
   /**
    * Fetch a random prototype from the API and return a cloned instance.
@@ -328,7 +334,7 @@ export default function Home() {
       {/* Prototypes display area - Takes available space */}
       <div
         ref={scrollContainerRef}
-        className="w-full overflow-auto p-4 pb-40 min-h-screen header-offset-padding"
+        className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
       >
         <PrototypeGrid
           prototypeSlots={prototypeSlots}
