@@ -1,5 +1,11 @@
 'use client';
 
+/**
+ * @file Home page component providing an infinite prototype browsing surface.
+ *
+ * @see docs/slot-and-scroll-behavior.md for a formal model of slot lifecycle and scroll triggers.
+ */
+
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -363,26 +369,65 @@ export default function Home() {
     [],
   );
 
-  // Auto-scroll to the newly added prototype
-  // 共通スクロール関数を前方で定義するため、このエフェクトより上に移動された scrollToPrototypeByIndex を利用
-  useEffect(() => {
-    if (!scrollContainerRef.current || prototypeSlots.length === 0) {
-      return;
-    }
-    // 新しく追加された最後の要素へフォーカスしスクロール
-    const lastIndex = prototypeSlots.length - 1;
-    setCurrentFocusIndex(lastIndex);
-    // レイアウト安定後にスクロール（従来の二重 rAF + timeout を抽象化）
-    scrollToPrototypeByIndex(lastIndex, 'smooth', {
-      waitForLayout: true,
-      layoutWaitRafRounds: 2, // default behavior
-      layoutWaitTimeoutMs: 100, // default behavior
-      extraOffset: 16,
-    });
-  }, [prototypeSlots.length, scrollToPrototypeByIndex]);
+  // Track previous loading count (defined once). Used later in effect after focus state.
+  const previousLoadingCountRef = useRef(0);
 
   // Current focused prototype index for keyboard navigation
   const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
+
+  // When a new slot is appended, select the last element.
+  // This preserves the behavior that newly added items become the current selection,
+  // while avoiding automatic scrolling (scroll is handled by separate effects/logic).
+  const previousSlotsLengthRef = useRef(0);
+  useEffect(() => {
+    const prevLen = previousSlotsLengthRef.current;
+    const len = prototypeSlots.length;
+    if (len > prevLen && len > 0) {
+      // Select the last card immediately
+      setCurrentFocusIndex(len - 1);
+      // And scroll to it right away with a short layout wait to ensure DOM is ready
+      scrollToPrototypeByIndex(len - 1, 'smooth', {
+        waitForLayout: true,
+        layoutWaitRafRounds: 1,
+        layoutWaitTimeoutMs: 50,
+        extraOffset: 16,
+      });
+    }
+    previousSlotsLengthRef.current = len;
+  }, [prototypeSlots.length, scrollToPrototypeByIndex]);
+
+  // Scroll to currently selected card after any loading slot finishes.
+  // Detect completion by observing a transition of isLoading -> false for any slot.
+  useEffect(() => {
+    const loadingCount = prototypeSlots.reduce(
+      (acc, s) => (s.isLoading ? acc + 1 : acc),
+      0,
+    );
+    const prev = previousLoadingCountRef.current;
+    previousLoadingCountRef.current = loadingCount;
+    // Re-scroll logic:
+    // 1. A loading slot finished (loadingCount decreased)
+    // 2. The focused card is the LAST card (ユーザーが末尾を見ている意図)
+    // 3. Focus index still valid
+    // -> Re-scroll to keep last card top pinned under header after earlier layout shifts.
+    if (loadingCount < prev) {
+      const lastIndex = prototypeSlots.length - 1;
+      const isLastFocused = currentFocusIndex === lastIndex;
+      if (
+        scrollContainerRef.current &&
+        isLastFocused &&
+        currentFocusIndex >= 0 &&
+        currentFocusIndex < prototypeSlots.length
+      ) {
+        scrollToPrototypeByIndex(currentFocusIndex, 'smooth', {
+          waitForLayout: true,
+          layoutWaitRafRounds: 1, // quicker re-alignment for incremental shifts
+          layoutWaitTimeoutMs: 50,
+          extraOffset: 16,
+        });
+      }
+    }
+  }, [prototypeSlots, currentFocusIndex, scrollToPrototypeByIndex]);
 
   // Handle card tap/click to set focus
   const handleCardClick = useCallback(
@@ -439,6 +484,9 @@ export default function Home() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
+  /**
+   * Main application layout
+   */
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
