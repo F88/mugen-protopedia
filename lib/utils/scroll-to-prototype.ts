@@ -67,13 +67,13 @@ export function scrollToPrototypeByIndex(
     headerOffsetProvider,
   }: ScrollToPrototypeOptions = {},
 ): void {
-  console.debug(`Scrolling to prototype index ${index} with options:`, {
-    behavior,
-    waitForLayout,
-    layoutWaitRafRounds,
-    layoutWaitTimeoutMs,
-    extraOffset,
-  });
+  // console.debug(`Scrolling to prototype index ${index} with options:`, {
+  //   behavior,
+  //   waitForLayout,
+  //   layoutWaitRafRounds,
+  //   layoutWaitTimeoutMs,
+  //   extraOffset,
+  // });
 
   const doScroll = () => {
     if (!container) return;
