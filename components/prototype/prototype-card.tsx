@@ -6,7 +6,7 @@ import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { cn } from '@/lib/utils';
 import { formatAgeFromDate, formatDateForDisplay } from '@/lib/utils/format';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
-import { buildTagLink } from '@/lib/utils/prototype-utils';
+import { buildMaterialLink, buildTagLink } from '@/lib/utils/prototype-utils';
 
 import { Castle, SquarePlay, UserRound } from 'lucide-react';
 
@@ -154,6 +154,7 @@ export const PrototypeCard = ({
       key={`material-${material}-${index}`}
       value={`📦 ${material}`}
       size="responsive"
+      href={buildMaterialLink(material)}
     />
   ));
 
