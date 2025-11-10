@@ -92,20 +92,34 @@ body {
 /* Custom border colors for prototype highlighting */
 .focus-border {
   /* Base color variables allow theme-specific overrides */
-  --focus-border-color: 217 92% 60%;
+  --focus-border-color: 220 100% 47%;
+  --focus-border-inner-alpha: 0.45; /* 内側のくっきりライン（明度アップ） */
+  --focus-border-mid-alpha: 0.4; /* 中間の柔らかいグロー（明度アップ） */
+  --focus-border-outer-alpha: 0.3; /* 外側の拡散グロー（明度アップ） */
+  --focus-border-outer-blur: 16px; /* 遠層を削除した分、ぼかしを拡大 */
   /* Do NOT change border width; rely on existing base border size to avoid layout shift */
   border-color: hsl(var(--focus-border-color)) !important;
   /* Simple, subtle outer glow (no dash, no animation) */
   box-shadow:
-    0 0 0 1px hsl(var(--focus-border-color) / 0.25),
-    0 0 10px hsl(var(--focus-border-color) / 0.25) !important;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    /* 1: 内側ライン (視認性) */
+    0 0 0 1px hsl(var(--focus-border-color) / var(--focus-border-inner-alpha)),
+    /* 2: 中間ソフトグロー */ 0 0 10px
+      hsl(var(--focus-border-color) / var(--focus-border-mid-alpha)),
+    /* 3: 外側拡散グロー（3層に制限） */ 0 0 20px var(--focus-border-outer-blur)
+      hsl(var(--focus-border-color) / var(--focus-border-outer-alpha)) !important;
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
   position: relative !important;
   z-index: 10 !important;
   transform: none !important; /* avoid layout shift */
 }
 .dark .focus-border {
   --focus-border-color: 217 95% 70%;
+  --focus-border-inner-alpha: 0.5;
+  --focus-border-mid-alpha: 0.45;
+  --focus-border-outer-alpha: 0.34; /* 3層化の補正でやや増加 */
+  --focus-border-outer-blur: 6px; /* 遠層削除の代替 */
 }
 
 .highlight-border {
