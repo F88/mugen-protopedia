@@ -6,9 +6,19 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Instant inspiration. Tap (or press Enter) for a fresh prototype — infinite discovery awaits.
+Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
 
-[ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを API 経由で延々と探索。即座のインスピレーション。タップ（または Enter キー）で新しいプロトタイプを表示 — 無限の発見があなたを待っています。
+[ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを無限探索。予測不能な出会いが、創造性を刺激する。偶然の発見を楽しもう。
+
+## Key Features / 特徴
+
+- 📱 Enjoy Anywhere / どこでも楽しめる
+    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
+    - スマートフォンなどの狭い画面でも快適に操作できるレスポンシブデザイン。通勤中や移動中でも、いつでもどこでもプロトタイプ探索を楽しめます。
+
+- ⌨️ Premium Experience / 最高の体験を
+    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
+    - 大きなスクリーンとキーボードショートカット（`Enter`, `j/k`, `r` など）で、デスクトップ環境でも最高の体験を提供。効率的なブラウジングで、より多くのプロトタイプに出会えます。
 
 ## About ProtoPedia
 
@@ -27,18 +37,6 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 - **ハードウェア**: 電子工作、ロボティクス、ウェアラブル、IoT
 - **デザイン/アート**: ビジュアライゼーション、インタラクティブデザイン、メディアアート
 - **Making/DIY**: デジタルファブリケーション、木工、アップサイクル
-
-このアプリは ProtoPedia API を活用して、活気あるメイカーコミュニティから生まれた刺激的なプロトタイプを無限に配信します。
-
-## 特徴 / Key Features
-
-- 📱 どこでも楽しめる / Enjoy Anywhere
-    - スマートフォンなどの狭い画面でも快適に操作できるレスポンシブデザイン。通勤中や移動中でも、いつでもどこでもプロトタイプ探索を楽しめます。
-    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
-
-- ⌨️ 最高の体験を / Premium Experience
-    - 大きなスクリーンとキーボードショートカット（`Enter`, `j/k`, `r` など）で、デスクトップ環境でも最高の体験を提供。効率的なブラウジングで、より多くのプロトタイプに出会えます。
-    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
 
 ## Roadmap / 今後の方針
 
@@ -59,45 +57,11 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 - オフラインスナップショットエクスポート (デモ用)
 - コラボレーション向け共有リンク生成
 
-## Features
-
-### Core (ja)
-
-- 無限のランダム探索 (`fetchRandomPrototype`、キャッシュ考慮のフォールバック)
-- リスト取得・単一ID取得・ランダム選択のための決定的なサーバーアクション（`app/actions/prototypes.ts`）
-- プロトタイプの正規化とメタデータ拡充 (タグ、メダル、バッジ、ハイライト)
-
-### Core (en)
-
-- Infinite random exploration (`fetchRandomPrototype`, cache-aware fallbacks)
-- Deterministic server actions for list, single ID, random selection (`app/actions/prototypes.ts`)
-- Prototype normalization & metadata enrichment (tags, medals, badges, highlights)
-
-### Performance & Caching
-
-Data fetch paths prefer cached snapshots; TTL expiry schedules async refresh without blocking response rendering.
-
-## Performance & Fetch Strategy
-
-Refer to [`docs/data-fetching-strategy.md`](./docs/data-fetching-strategy.md) for deeper rationale. Highlights:
-
-- Large page responses exceed Next.js data cache ≈2 MB; strategy adapts page size to stay cacheable where beneficial.
-- Response size + elapsed ms metrics logged for proactive capacity tuning.
-- Random selection performed server-side to minimize client payload & preserve fairness.
-
-## Keyboard Shortcuts
-
-| Key                          | Action                         |
-| ---------------------------- | ------------------------------ |
-| `Enter`                      | Fetch random prototype         |
-| `j / ArrowDown / ArrowRight` | Scroll next                    |
-| `k / ArrowUp / ArrowLeft`    | Scroll previous                |
-| `r`                          | Reset / clear list             |
-| `o`                          | Open selected prototype detail |
-
-Cooldown gating prevents rapid accidental repeats (`ACTION_COOLDOWN_MS`).
-
 ## Changelog
+
+### 2025-11-10
+
+- 自動スクロール処理の改善
 
 ### 2025-11-09
 
