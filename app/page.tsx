@@ -8,6 +8,7 @@ import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { usePrototype } from '@/lib/hooks/use-prototype';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
+import { scrollToPrototypeByIndex as baseScrollToPrototypeByIndex } from '@/lib/utils/scroll-to-prototype';
 
 import { ControlPanel } from '@/components/control-panel';
 import { Header } from '@/components/header';
@@ -43,9 +44,9 @@ export default function Home() {
 
   // data
   const {
-    isLoading: isLoadingPrototype,
-    error: prototypeError,
     fetchPrototype,
+    // isLoading: isLoadingPrototype,
+    // error: prototypeError,
   } = usePrototype(
     {},
     {
@@ -77,8 +78,8 @@ export default function Home() {
 
   const {
     getRandomPrototype,
-    isLoading: isLoadingRandomPrototype,
-    error: randomPrototypeError,
+    // isLoading: isLoadingRandomPrototype,
+    // error: randomPrototypeError,
   } = useRandomPrototype();
 
   const clonePrototype = (prototype: Prototype): Prototype =>
@@ -341,90 +342,40 @@ export default function Home() {
     };
   }, []);
 
-  // Auto-scroll to the newly added prototype
-  useEffect(() => {
-    if (scrollContainerRef.current && prototypeSlots.length > 0) {
-      const container = scrollContainerRef.current;
-
-      // Use double requestAnimationFrame to ensure DOM is fully updated and rendered
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            // Find the last prototype element (newly added)
-            const prototypeElements = container.querySelectorAll(
-              '[data-prototype-id]',
-            );
-            if (prototypeElements.length > 0) {
-              const lastElement =
-                prototypeElements[prototypeElements.length - 1];
-
-              // Update focus index to the last element
-              setCurrentFocusIndex(prototypeElements.length - 1);
-
-              // Get header offset from CSS variable
-              const headerOffsetStr = getComputedStyle(
-                document.documentElement,
-              ).getPropertyValue('--header-offset');
-              const headerOffset = Number.parseInt(headerOffsetStr, 10) || 0;
-
-              // Calculate the target scroll position
-              const elementRect = lastElement.getBoundingClientRect();
-              const absoluteElementTop = elementRect.top + window.scrollY;
-              const targetScrollPosition =
-                absoluteElementTop - headerOffset - 16; // 16px extra padding
-
-              // Scroll to the calculated position
-              window.scrollTo({
-                top: targetScrollPosition,
-                behavior: 'smooth',
-              });
-            } else {
-              // Fallback: scroll to bottom if elements not found
-              container.scrollTop =
-                container.scrollHeight - container.clientHeight;
-            }
-          }, 100);
-        });
-      });
-    }
-  }, [prototypeSlots.length]);
-
-  // Current focused prototype index for keyboard navigation
-  const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
-
-  // Common scroll to prototype function
+  // Wrapper around extracted utility to bind current container ref
   const scrollToPrototypeByIndex = useCallback(
-    (index: number, behavior: ScrollBehavior = 'smooth') => {
-      if (!scrollContainerRef.current) return;
-
-      const container = scrollContainerRef.current;
-      const prototypeElements = container.querySelectorAll(
-        '[data-prototype-id]',
-      );
-
-      if (prototypeElements[index]) {
-        const element = prototypeElements[index];
-
-        // Get header offset from CSS variable
-        const headerOffsetStr = getComputedStyle(
-          document.documentElement,
-        ).getPropertyValue('--header-offset');
-        const headerOffset = Number.parseInt(headerOffsetStr, 10) || 0;
-
-        // Calculate the target scroll position
-        const elementRect = element.getBoundingClientRect();
-        const absoluteElementTop = elementRect.top + window.scrollY;
-        const targetScrollPosition = absoluteElementTop - headerOffset - 16; // 16px extra padding
-
-        // Scroll to the calculated position
-        window.scrollTo({
-          top: targetScrollPosition,
-          behavior,
-        });
-      }
+    (
+      index: number,
+      behavior: ScrollBehavior = 'smooth',
+      options?: { waitForLayout?: boolean; extraOffset?: number },
+    ) => {
+      baseScrollToPrototypeByIndex(scrollContainerRef.current, index, {
+        behavior,
+        waitForLayout: options?.waitForLayout,
+        extraOffset: options?.extraOffset,
+      });
     },
     [],
   );
+
+  // Auto-scroll to the newly added prototype
+  // 共通スクロール関数を前方で定義するため、このエフェクトより上に移動された scrollToPrototypeByIndex を利用
+  useEffect(() => {
+    if (!scrollContainerRef.current || prototypeSlots.length === 0) {
+      return;
+    }
+    // 新しく追加された最後の要素へフォーカスしスクロール
+    const lastIndex = prototypeSlots.length - 1;
+    setCurrentFocusIndex(lastIndex);
+    // レイアウト安定後にスクロール（従来の二重 rAF + timeout を抽象化）
+    scrollToPrototypeByIndex(lastIndex, 'smooth', {
+      waitForLayout: true,
+      extraOffset: 16,
+    });
+  }, [prototypeSlots.length, scrollToPrototypeByIndex]);
+
+  // Current focused prototype index for keyboard navigation
+  const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
 
   // Handle card tap/click to set focus
   const handleCardClick = useCallback(
