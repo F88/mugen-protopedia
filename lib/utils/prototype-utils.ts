@@ -98,8 +98,8 @@ const PROTOPEDIA_MATERIAL_BASE_URL = 'https://protopedia.net/material';
 /**
  * ProtoPedia の素材ページのURLは以下のように /id であるが、文字列を渡しても動作する、ありがたい!!
  * https://protopedia.net/material/1863
- * @param material
  *
+ * @param material The material identifier or name to link to.
  * @returns URL to the material page.
  */
 export const buildMaterialLink = (material: string): string => {
