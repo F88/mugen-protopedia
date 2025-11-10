@@ -224,7 +224,7 @@ export function ControlPanel({
   onGetRandomPrototype,
   onClear,
   canFetchMorePrototypes,
-  prototypeIdError,
+  // prototypeIdError,
   isClearDisabled,
   onScrollNext,
   onScrollPrev,
