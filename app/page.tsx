@@ -221,7 +221,7 @@ export default function Home() {
       }
 
       const clonedPrototype = clonePrototype(prototype);
-      console.debug('Selected random prototype', { clonedPrototype });
+      // console.debug('Selected random prototype', { clonedPrototype });
       return clonedPrototype;
     }, [getRandomPrototype]);
 
