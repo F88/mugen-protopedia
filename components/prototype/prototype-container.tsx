@@ -51,7 +51,11 @@ export const PrototypeContainer = ({
 
   return (
     <div className="space-y-2" {...htmlProps}>
-      <PrototypeCard prototype={prototype} isFocused={isFocused} onClick={onClick} />
+      <PrototypeCard
+        prototype={prototype}
+        isFocused={isFocused}
+        onClick={onClick}
+      />
     </div>
   );
 };

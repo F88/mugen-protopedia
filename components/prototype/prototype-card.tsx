@@ -177,8 +177,6 @@ export const PrototypeCard = ({
           getBorderClass(),
         )}
         onClick={onClick}
-        role="button"
-        tabIndex={0}
       >
         {/* Main content */}
         {/* <Medals prototype={prototype} /> */}
