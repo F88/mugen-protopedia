@@ -28,11 +28,13 @@ import {
 type PrototypeCardProps = {
   prototype: Prototype;
   isFocused?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 };
 
 export const PrototypeCard = ({
   prototype,
   isFocused = false,
+  onClick,
 }: PrototypeCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -170,10 +172,13 @@ export const PrototypeCard = ({
     <div className="border-4 rounded-lg p-1 transparent-border">
       <Card
         className={cn(
-          'group relative h-full border-2 transition-all duration-200 hover:shadow-md',
+          'group relative h-full border-2 transition-all duration-200 hover:shadow-md cursor-pointer',
           'bg-card text-card-foreground', // テーマ対応の背景色とテキスト色
           getBorderClass(),
         )}
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
       >
         {/* Main content */}
         {/* <Medals prototype={prototype} /> */}

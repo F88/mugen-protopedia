@@ -49,7 +49,6 @@ export function PrototypeGrid({
               expectedPrototypeId={expectedPrototypeId}
               errorMessage={errorMessage ?? undefined}
               isFocused={index === currentFocusIndex}
-              className="cursor-pointer"
               onClick={() => onCardClick(index)}
             />
           ),
