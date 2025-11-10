@@ -64,6 +64,7 @@ export function scrollToPrototypeByIndex(
     layoutWaitRafRounds = 2,
     layoutWaitTimeoutMs = 100,
     extraOffset = 16,
+    headerOffsetProvider,
   }: ScrollToPrototypeOptions = {},
 ): void {
   // console.debug(`Scrolling to prototype index ${index} with options:`, {
@@ -89,10 +90,22 @@ export function scrollToPrototypeByIndex(
     // Even though the container has top padding, on small screens the header
     // may visually overlap if its height changes after initial layout.
     // Subtract the resolved header offset to keep the target element fully visible.
-    const rawHeaderOffset = getComputedStyle(
-      document.documentElement,
-    ).getPropertyValue('--header-offset');
-    const headerOffset = Number.parseInt(rawHeaderOffset, 10) || 0;
+    // Resolve header offset either via provided callback or CSS variable --header-offset.
+    const headerOffset = (() => {
+      try {
+        if (typeof headerOffsetProvider === 'function') {
+          const value = headerOffsetProvider();
+          if (Number.isFinite(value) && value >= 0) return value;
+        }
+        const raw = getComputedStyle(document.documentElement).getPropertyValue(
+          '--header-offset',
+        );
+        const parsed = Number.parseInt(raw, 10);
+        return Number.isFinite(parsed) ? parsed : 0;
+      } catch {
+        return 0; // Fail-safe: treat as 0 if anything goes wrong
+      }
+    })();
     const targetScrollPosition =
       relativeElementTop - headerOffset - extraOffset;
     const containerWithScrollTo = container as HTMLElement & {
