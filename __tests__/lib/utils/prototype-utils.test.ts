@@ -99,6 +99,60 @@ describe('buildTagLink', () => {
       'https://protopedia.net/tag?tag=foo+bar',
     );
   });
+
+  it('encodes ampersand and equals signs separating them from query semantics', () => {
+    expect(buildTagLink('A&B=1')).toBe(
+      'https://protopedia.net/tag?tag=A%26B%3D1',
+    );
+  });
+
+  it('encodes hash symbol', () => {
+    expect(buildTagLink('proto#tag')).toBe(
+      'https://protopedia.net/tag?tag=proto%23tag',
+    );
+  });
+
+  it('encodes question mark to avoid creating additional query', () => {
+    expect(buildTagLink('env?sensor')).toBe(
+      'https://protopedia.net/tag?tag=env%3Fsensor',
+    );
+  });
+
+  it('encodes percent sign', () => {
+    expect(buildTagLink('100%')).toBe('https://protopedia.net/tag?tag=100%25');
+  });
+
+  it('encodes plus sign literally (URLSearchParams keeps raw + then encodes as %2B)', () => {
+    expect(buildTagLink('A+B')).toBe('https://protopedia.net/tag?tag=A%2BB');
+  });
+
+  it('encodes leading, trailing, and internal spaces as +', () => {
+    expect(buildTagLink('  spaced tag  ')).toBe(
+      'https://protopedia.net/tag?tag=++spaced+tag++',
+    );
+  });
+
+  it('returns base URL with empty tag parameter when empty string provided', () => {
+    expect(buildTagLink('')).toBe('https://protopedia.net/tag?tag=');
+  });
+
+  it('encodes newline and tab characters', () => {
+    expect(buildTagLink('line1\nline2\tend')).toBe(
+      'https://protopedia.net/tag?tag=line1%0Aline2%09end',
+    );
+  });
+
+  it('encodes emoji and mixed scripts', () => {
+    expect(buildTagLink('温度🌡️')).toBe(
+      'https://protopedia.net/tag?tag=%E6%B8%A9%E5%BA%A6%F0%9F%8C%A1%EF%B8%8F',
+    );
+  });
+
+  it('encodes parentheses', () => {
+    expect(buildTagLink('sensor (rev2)')).toBe(
+      'https://protopedia.net/tag?tag=sensor+%28rev2%29',
+    );
+  });
 });
 
 describe('buildMaterialLink', () => {
