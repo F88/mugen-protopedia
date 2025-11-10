@@ -8,7 +8,7 @@
  * - Early theme bootstrapping script to avoid FOUC when toggling dark mode.
  * - Vercel Analytics and Service Worker registration.
  */
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import { Analytics } from '@vercel/analytics/next';
@@ -79,10 +79,6 @@ export const metadata: Metadata = {
     // Apple touch icon generated in <head> automatically by Next.js
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
   },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -122,6 +118,20 @@ export const metadata: Metadata = {
         },
       }
     : {}),
+};
+
+/**
+ * Viewport configuration (Next.js App Router).
+ *
+ * Moved `themeColor` here per Next.js warning:
+ * "Unsupported metadata themeColor is configured in metadata export. Please move it to viewport export instead.".
+ * See: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
 };
 
 /**
