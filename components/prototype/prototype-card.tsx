@@ -177,6 +177,8 @@ export const PrototypeCard = ({
           getBorderClass(),
         )}
         onClick={onClick}
+        aria-selected={isFocused}
+        data-selected={isFocused ? 'true' : 'false'}
       >
         {/* Main content */}
         {/* <Medals prototype={prototype} /> */}

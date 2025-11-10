@@ -41,6 +41,8 @@ export const PrototypeSkeletonCard = ({
           'group relative h-full border-2 transition-all duration-200 hover:shadow-md',
           getBorderClass(),
         )}
+        aria-selected={isFocused}
+        data-selected={isFocused ? 'true' : 'false'}
       >
         <CardHeader>
           {/* ID */}
