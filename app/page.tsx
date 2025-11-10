@@ -3,7 +3,40 @@
 /**
  * @file Home page component providing an infinite prototype browsing surface.
  *
- * @see docs/slot-and-scroll-behavior.md for a formal model of slot lifecycle and scroll triggers.
+ * Responsibilities:
+ * - Orchestrates prototype fetching (random & explicit by ID) with concurrency capping via `usePrototypeSlots`.
+ * - Renders header/dashboard, prototype grid, and control panel with state-driven UI feedback.
+ * - Delegates scrolling/focus lifecycle to `useScrollingBehavior` (auto-focus on addition; correction scroll on load completion).
+ * - Resolves and caches max prototype ID for input validation & range control.
+ * - Opens external ProtoPedia detail pages in a safe manner (`noopener,noreferrer`).
+ *
+ * Data flow:
+ * 1. User triggers fetch (random or by ID) → concurrency guard (`tryIncrementInFlightRequests`).
+ * 2. Placeholder slot appended (`appendPlaceholder`) → scrolling hook auto-focuses & scrolls last slot.
+ * 3. Fetch resolves → slot replaced or error set (`replacePrototypeInSlot` / `setSlotError`).
+ * 4. Loading count decreases → scrolling hook may perform alignment correction if last slot focused.
+ *
+ * Edge cases handled:
+ * - Invalid / empty ID input rejected with inline error message.
+ * - Concurrency cap reached: further fetch attempts politely aborted and button disabled state exposed via `canFetchMorePrototypes` (passed to panel).
+ * - Missing prototype (404-like): slot converted to error state & user feedback surfaced.
+ * - Random fetch returning null: placeholder removed to avoid orphan skeleton.
+ *
+ * Hook integration summary:
+ * - `usePrototypeSlots`: state & mutation for slot lifecycle + backpressure signals.
+ * - `useScrollingBehavior`: focus index & auto-scroll triggering; header offset synchronization.
+ * - `usePrototype` / `useRandomPrototype`: network retrieval with SWR-based caching semantics.
+ *
+ * Testing considerations:
+ * - Business logic (slot mutation and scrolling behavior) unit-tested via dedicated hook test files.
+ * - Remaining surface primarily composes hooks—minimal logic retained here lowers test burden.
+ *
+ * Future extensions:
+ * - Virtualized rendering for large slot counts.
+ * - Persisting history of fetched prototypes across sessions.
+ * - Batched random fetch pre-warming for quicker user iteration.
+ *
+ * @see docs/slot-and-scroll-behavior.md for formal slot & scroll specification.
  */
 
 import type { ChangeEvent } from 'react';
@@ -14,40 +47,46 @@ import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { usePrototype } from '@/lib/hooks/use-prototype';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
-import { scrollToPrototypeByIndex as baseScrollToPrototypeByIndex } from '@/lib/utils/scroll-to-prototype';
-import type { ScrollToPrototypeOptions } from '@/lib/utils/scroll-to-prototype';
+import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
+import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 
 import { ControlPanel } from '@/components/control-panel';
 import { Header } from '@/components/header';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
-const MAX_CONCURRENT_FETCHES = 6;
+const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
 
-const urlOfPageForPrototype = (prototype: Prototype) =>
+/**
+ * Build the external ProtoPedia detail page URL for a given prototype.
+ *
+ * @param prototype - Normalized prototype object
+ * @returns absolute URL string to the ProtoPedia detail page
+ */
+const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
 export default function Home() {
-  type PrototypeSlot = {
-    id: number;
-    prototype?: Prototype;
-    expectedPrototypeId?: number;
-    errorMessage?: string | null;
-    isLoading: boolean;
-  };
-
-  /**
-   * Slots for displaying prototypes fetched asynchronously.
-   * It can contain prototypes having same id.
-   */
-  const [prototypeSlots, setPrototypeSlots] = useState<PrototypeSlot[]>([]);
-
-  const slotIdRef = useRef(0);
   const headerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
-  const [inFlightRequests, setInFlightRequests] = useState(0);
-  const [canFetchMorePrototypes, setCanFetchMorePrototypes] = useState(true);
-  const inFlightRequestsRef = useRef(inFlightRequests);
+
+  // Slot & concurrency management
+  const {
+    prototypeSlots,
+    appendPlaceholder,
+    replacePrototypeInSlot,
+    setSlotError,
+    removeSlotById,
+    clearSlots,
+    inFlightRequests,
+    canFetchMorePrototypes,
+    tryIncrementInFlightRequests,
+    decrementInFlightRequests,
+    maxConcurrentFetches,
+  } = usePrototypeSlots({
+    maxConcurrentFetches: 6,
+    simulateDelayRangeMs: SIMULATED_DELAY_RANGE,
+  });
 
   // data
   const {
@@ -89,6 +128,13 @@ export default function Home() {
     // error: randomPrototypeError,
   } = useRandomPrototype();
 
+  /**
+   * Create a deep-cloned copy of a prototype.
+   *
+   * Note: This uses JSON round-trip which is sufficient for our normalized
+   * data shape (plain objects). If richer types are added later, replace with
+   * a safer cloning strategy.
+   */
   const clonePrototype = (prototype: Prototype): Prototype =>
     JSON.parse(JSON.stringify(prototype));
 
@@ -132,92 +178,22 @@ export default function Home() {
   // console.info('Prototype has any notable highlights!!', { highlights });
   // };
 
-  const updateInFlightState = useCallback((next: number) => {
-    inFlightRequestsRef.current = next;
-    setInFlightRequests(next);
-    setCanFetchMorePrototypes(next < MAX_CONCURRENT_FETCHES);
-  }, []);
+  // Scrolling & focus behavior
+  const {
+    currentFocusIndex,
+    onCardClick: handleCardClick,
+    scrollTo: scrollToPrototype,
+  } = useScrollingBehavior({
+    headerRef,
+    scrollContainerRef,
+    prototypeSlots,
+  });
 
-  const tryIncrementInFlightRequests = useCallback(() => {
-    const current = inFlightRequestsRef.current;
-    if (current >= MAX_CONCURRENT_FETCHES) {
-      setCanFetchMorePrototypes(false);
-      return false;
-    }
-
-    const next = current + 1;
-    updateInFlightState(next);
-    return true;
-  }, [updateInFlightState]);
-
-  const decrementInFlightRequests = useCallback(() => {
-    const current = inFlightRequestsRef.current;
-    const next = Math.max(0, current - 1);
-    updateInFlightState(next);
-  }, [updateInFlightState]);
-
-  const appendPlaceholder = useCallback(
-    ({ expectedPrototypeId }: { expectedPrototypeId?: number } = {}) => {
-      const slotId = slotIdRef.current;
-      slotIdRef.current += 1;
-      setPrototypeSlots((prev) => [
-        ...prev,
-        {
-          id: slotId,
-          prototype: undefined,
-          expectedPrototypeId,
-          errorMessage: null,
-          isLoading: true,
-        },
-      ]);
-      return slotId;
-    },
-    [],
-  );
-
-  const replacePrototypeInSlot = useCallback(
-    async (slotId: number, prototype: Prototype) => {
-      const minDelayMs = 500;
-      const maxDelayMs = 3_000;
-      const randomDelayMs =
-        Math.random() * (maxDelayMs - minDelayMs) + minDelayMs;
-      // const msg = `Simulating network delay of ${Math.round(randomDelayMs).toLocaleString()}ms before replacing prototype in slot ${slotId}`;
-      // console.debug(msg);
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, randomDelayMs);
-      });
-
-      setPrototypeSlots((prev) =>
-        prev.map((slot) =>
-          slot.id === slotId
-            ? { ...slot, prototype, errorMessage: null, isLoading: false }
-            : slot,
-        ),
-      );
-      // logNotableHighlights(prototype);
-    },
-    [],
-  );
-
-  const setSlotError = (slotId: number, message: string) => {
-    setPrototypeSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === slotId
-          ? {
-              ...slot,
-              prototype: undefined,
-              errorMessage: message,
-              isLoading: false,
-            }
-          : slot,
-      ),
-    );
-  };
-
-  const removeSlotById = useCallback((slotId: number) => {
-    setPrototypeSlots((prev) => prev.filter((slot) => slot.id !== slotId));
-  }, []);
-
+  /**
+   * Fetch a random prototype from the API and return a cloned instance.
+   *
+   * @returns cloned prototype or null when API yields no result
+   */
   const getRandomPrototypeFromResults =
     useCallback(async (): Promise<Prototype | null> => {
       const prototype = await getRandomPrototype();
@@ -231,20 +207,34 @@ export default function Home() {
       return clonedPrototype;
     }, [getRandomPrototype]);
 
+  /**
+   * Handle change for explicit ID input field.
+   * Updates local state used by validation and fetch-by-ID action.
+   */
   const handlePrototypeIdInputChange = (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
     setPrototypeIdInput(event.target.value);
   };
 
+  /**
+   * Programmatically set the explicit ID input (e.g., from quick set buttons).
+   */
   const handlePrototypeIdInputSet = (value: number) => {
     setPrototypeIdInput(String(value));
   };
 
+  /**
+   * Clear all prototype slots.
+   */
   const handleClearPrototypes = useCallback(() => {
-    setPrototypeSlots([]);
-  }, []);
+    clearSlots();
+  }, [clearSlots]);
 
+  /**
+   * Append a placeholder slot and populate it with a randomly fetched prototype.
+   * Respects concurrency cap; removes placeholder on null result or error.
+   */
   const handleGetRandomPrototype = useCallback(async () => {
     if (!tryIncrementInFlightRequests()) {
       console.warn('Maximum concurrent fetches reached.');
@@ -275,6 +265,10 @@ export default function Home() {
     decrementInFlightRequests,
   ]);
 
+  /**
+   * Fetch a prototype by explicit ID and insert it into a newly appended slot.
+   * Validates input, respects concurrency cap, and sets error states on failure.
+   */
   const handleGetPrototypeById = async () => {
     // Validation
     const trimmed = prototypeIdInput.trim();
@@ -317,160 +311,13 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const element = headerRef.current;
-    if (!element) {
-      return undefined;
-    }
-
-    const updateOffset = () => {
-      const height = element.getBoundingClientRect().height;
-      document.documentElement.style.setProperty(
-        '--header-offset',
-        `${Math.ceil(height + 16)}px`,
-      );
-    };
-
-    updateOffset();
-
-    if (typeof ResizeObserver !== 'undefined') {
-      const observer = new ResizeObserver(() => {
-        updateOffset();
-      });
-      observer.observe(element);
-      return () => {
-        observer.disconnect();
-      };
-    }
-
-    window.addEventListener('resize', updateOffset);
-    return () => {
-      window.removeEventListener('resize', updateOffset);
-    };
-  }, []);
-
-  // Wrapper around extracted utility to bind current container ref
-  const scrollToPrototypeByIndex = useCallback(
-    (
-      index: number,
-      behavior: ScrollBehavior = 'smooth',
-      options?: Omit<ScrollToPrototypeOptions, 'behavior'>,
-    ) => {
-      const merged: ScrollToPrototypeOptions = {
-        behavior,
-        waitForLayout: options?.waitForLayout,
-        layoutWaitRafRounds: options?.layoutWaitRafRounds,
-        layoutWaitTimeoutMs: options?.layoutWaitTimeoutMs,
-        extraOffset: options?.extraOffset,
-        headerOffsetProvider: options?.headerOffsetProvider,
-      };
-      baseScrollToPrototypeByIndex(scrollContainerRef.current, index, merged);
-    },
-    [],
-  );
-
-  // Track previous loading count (defined once). Used later in effect after focus state.
-  const previousLoadingCountRef = useRef(0);
-
-  // Current focused prototype index for keyboard navigation
-  const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
-
-  // When a new slot is appended, select the last element.
-  // This preserves the behavior that newly added items become the current selection,
-  // while avoiding automatic scrolling (scroll is handled by separate effects/logic).
-  const previousSlotsLengthRef = useRef(0);
-  useEffect(() => {
-    const prevLen = previousSlotsLengthRef.current;
-    const len = prototypeSlots.length;
-    if (len > prevLen && len > 0) {
-      // Select the last card immediately
-      setCurrentFocusIndex(len - 1);
-      // And scroll to it right away with a short layout wait to ensure DOM is ready
-      scrollToPrototypeByIndex(len - 1, 'smooth', {
-        waitForLayout: true,
-        layoutWaitRafRounds: 1,
-        layoutWaitTimeoutMs: 50,
-        extraOffset: 16,
-      });
-    }
-    previousSlotsLengthRef.current = len;
-  }, [prototypeSlots.length, scrollToPrototypeByIndex]);
-
-  // Scroll to currently selected card after any loading slot finishes.
-  // Detect completion by observing a transition of isLoading -> false for any slot.
-  useEffect(() => {
-    const loadingCount = prototypeSlots.reduce(
-      (acc, s) => (s.isLoading ? acc + 1 : acc),
-      0,
-    );
-    const prev = previousLoadingCountRef.current;
-    previousLoadingCountRef.current = loadingCount;
-    // Re-scroll logic:
-    // 1. A loading slot finished (loadingCount decreased)
-    // 2. The focused card is the LAST card (ユーザーが末尾を見ている意図)
-    // 3. Focus index still valid
-    // -> Re-scroll to keep last card top pinned under header after earlier layout shifts.
-    if (loadingCount < prev) {
-      const lastIndex = prototypeSlots.length - 1;
-      const isLastFocused = currentFocusIndex === lastIndex;
-      if (
-        scrollContainerRef.current &&
-        isLastFocused &&
-        currentFocusIndex >= 0 &&
-        currentFocusIndex < prototypeSlots.length
-      ) {
-        scrollToPrototypeByIndex(currentFocusIndex, 'smooth', {
-          waitForLayout: true,
-          layoutWaitRafRounds: 1, // quicker re-alignment for incremental shifts
-          layoutWaitTimeoutMs: 50,
-          extraOffset: 16,
-        });
-      }
-    }
-  }, [prototypeSlots, currentFocusIndex, scrollToPrototypeByIndex]);
-
-  // Handle card tap/click to set focus
-  const handleCardClick = useCallback(
-    (index: number) => {
-      setCurrentFocusIndex(index);
-      scrollToPrototypeByIndex(index, 'smooth');
-    },
-    [scrollToPrototypeByIndex],
-  );
-
-  // Keyboard navigation for prototype containers
-  const scrollToPrototype = useCallback(
-    (direction: 'next' | 'prev') => {
-      if (!scrollContainerRef.current || prototypeSlots.length === 0) return;
-
-      const container = scrollContainerRef.current;
-      const prototypeElements = container.querySelectorAll(
-        '[data-prototype-id]',
-      );
-
-      if (prototypeElements.length === 0) return;
-
-      let nextIndex;
-
-      if (direction === 'next') {
-        nextIndex = Math.min(
-          currentFocusIndex + 1,
-          prototypeElements.length - 1,
-        );
-      } else {
-        nextIndex = Math.max(currentFocusIndex - 1, 0);
-      }
-
-      // Update current focus index
-      setCurrentFocusIndex(nextIndex);
-
-      // Scroll to target element using common function
-      scrollToPrototypeByIndex(nextIndex, 'smooth');
-    },
-    [currentFocusIndex, prototypeSlots.length, scrollToPrototypeByIndex],
-  );
+  // Removed inlined scroll/focus/concurrency logic now handled by hooks
 
   // Open current prototype in Protopedia
+  /**
+   * Open the currently focused prototype in a new browser tab on ProtoPedia.
+   * Uses noopener/noreferrer for security.
+   */
   const openCurrentPrototypeInProtoPedia = useCallback(() => {
     if (currentFocusIndex >= 0 && currentFocusIndex < prototypeSlots.length) {
       const currentSlot = prototypeSlots[currentFocusIndex];
@@ -495,7 +342,7 @@ export default function Home() {
         dashboard={{
           prototypeCount: prototypeSlots.length,
           inFlightRequests,
-          maxConcurrentFetches: MAX_CONCURRENT_FETCHES,
+          maxConcurrentFetches: maxConcurrentFetches,
         }}
       />
 
