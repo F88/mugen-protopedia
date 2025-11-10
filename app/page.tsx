@@ -3,39 +3,6 @@
 /**
  * @file Home page component providing an infinite prototype browsing surface.
  *
- * Responsibilities:
- * - Orchestrates prototype fetching (random & explicit by ID) with concurrency capping via `usePrototypeSlots`.
- * - Renders header/dashboard, prototype grid, and control panel with state-driven UI feedback.
- * - Delegates scrolling/focus lifecycle to `useScrollingBehavior` (auto-focus on addition; correction scroll on load completion).
- * - Resolves and caches max prototype ID for input validation & range control.
- * - Opens external ProtoPedia detail pages in a safe manner (`noopener,noreferrer`).
- *
- * Data flow:
- * 1. User triggers fetch (random or by ID) → concurrency guard (`tryIncrementInFlightRequests`).
- * 2. Placeholder slot appended (`appendPlaceholder`) → scrolling hook auto-focuses & scrolls last slot.
- * 3. Fetch resolves → slot replaced or error set (`replacePrototypeInSlot` / `setSlotError`).
- * 4. Loading count decreases → scrolling hook may perform alignment correction if last slot focused.
- *
- * Edge cases handled:
- * - Invalid / empty ID input rejected with inline error message.
- * - Concurrency cap reached: further fetch attempts politely aborted and button disabled state exposed via `canFetchMorePrototypes` (passed to panel).
- * - Missing prototype (404-like): slot converted to error state & user feedback surfaced.
- * - Random fetch returning null: placeholder removed to avoid orphan skeleton.
- *
- * Hook integration summary:
- * - `usePrototypeSlots`: state & mutation for slot lifecycle + backpressure signals.
- * - `useScrollingBehavior`: focus index & auto-scroll triggering; header offset synchronization.
- * - `usePrototype` / `useRandomPrototype`: network retrieval with SWR-based caching semantics.
- *
- * Testing considerations:
- * - Business logic (slot mutation and scrolling behavior) unit-tested via dedicated hook test files.
- * - Remaining surface primarily composes hooks—minimal logic retained here lowers test burden.
- *
- * Future extensions:
- * - Virtualized rendering for large slot counts.
- * - Persisting history of fetched prototypes across sessions.
- * - Batched random fetch pre-warming for quicker user iteration.
- *
  * @see docs/slot-and-scroll-behavior.md for formal slot & scroll specification.
  */
 
