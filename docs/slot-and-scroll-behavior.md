@@ -24,8 +24,6 @@ Terminology:
 - **Slot**: A placeholder in the UI representing a prototype load operation. Can be in one of three states: loading (skeleton), loaded (data card), or error (error card).
 - **Card**: The rendered content within a slot, which can be a skeleton (while loading), a loaded prototype display, or an error message.
 
----
-
 ## 1. Slot & Card State Model
 
 ### Slot Structure
@@ -63,8 +61,6 @@ type PrototypeSlot = {
 
 - Indicates user is monitoring newest additions.
 - Triggers alignment correction scrolls.
-
----
 
 ## 2. Auto-Scroll Specification
 
@@ -115,15 +111,11 @@ Auto-scroll occurs at two moments.
 | Load completion (last focused) | Correct vertical shift | Minor adjustment only                              |
 | Not last focused               | Preserve user context  | Avoid surprise jumps                               |
 
----
-
 ## 3. Future Enhancements
 
 - "Auto-follow last" toggle.
 - Batch alignment optimization for bursts.
 - Skeleton height approximation to reduce shift.
-
----
 
 ## 4. Pseudocode
 
@@ -140,11 +132,47 @@ if (loadingCountDecreased && focusedIndex === lastIndex) {
 }
 ```
 
----
-
 ## 5. Summary
 
 - Slot lifecycle: Skeleton → Loaded | Error → (optional removal).
 - Focus advances only on addition; load completion preserves focus.
 - Auto-scroll triggers: addition and load completion (last focused).
 - No-scroll safeguards avoid unwanted jumps.
+
+## 6. Diagrams
+
+### 6-1. Slot Lifecycle & Focus + Scroll Triggers (Mermaid)
+
+```mermaid
+flowchart TD
+    A[Add Slot] --> B{Fetch Result}
+    B -->|Success| C[Loaded Card]
+    B -->|Error| D[Error Card]
+    A --> E[Focus Last Index]
+    E --> F[Scroll (Addition)]
+    C --> G[Loading Count Decrease?]
+    D --> G
+    G -->|Yes & Last Still Focused| H[Scroll (Correction)]
+```
+
+Explanation:
+
+- On slot addition we focus the last index and perform a light scroll.
+- When any loading slot finishes and the last slot remains focused we perform a correction scroll.
+- Failure and success both converge into the same correction decision node.
+
+### 6-2. Scroll Decision Table (Mermaid)
+
+```mermaid
+flowchart LR
+    S[Event] --> C{Condition}
+    C -->|Addition| A1[Scroll (focus last)]
+    C -->|LoadComplete & LastFocused| A2[Scroll (correction)]
+    C -->|LoadComplete & NotLast| N1[No Scroll]
+    C -->|Other| N2[No Scroll]
+```
+
+Notes:
+
+- "Other" covers unchanged loading counts or invalid focus index.
+- Correction scroll uses reduced wait parameters.
