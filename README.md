@@ -61,6 +61,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ### 2025-11-10
 
+- 素材を表示するリンクを追加
 - 自動スクロール処理を改善
 - カードの視認性を向上
 - マウスポインタによるカード選択機能を改善

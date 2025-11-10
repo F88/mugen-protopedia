@@ -93,3 +93,15 @@ export const buildTagLink = (tag: string): string => {
   url.searchParams.set('tag', tag);
   return url.toString();
 };
+
+const PROTOPEDIA_MATERIAL_BASE_URL = 'https://protopedia.net/material';
+/**
+ * ProtoPedia の素材ページのURLは以下のように /id であるが、文字列を渡しても動作する、ありがたい!!
+ * https://protopedia.net/material/1863
+ * @param material
+ *
+ * @returns URL to the material page.
+ */
+export const buildMaterialLink = (material: string): string => {
+  return `${PROTOPEDIA_MATERIAL_BASE_URL}/${encodeURIComponent(material)}`;
+};
