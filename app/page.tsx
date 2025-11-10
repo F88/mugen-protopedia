@@ -9,6 +9,7 @@ import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { usePrototype } from '@/lib/hooks/use-prototype';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { scrollToPrototypeByIndex as baseScrollToPrototypeByIndex } from '@/lib/utils/scroll-to-prototype';
+import type { ScrollToPrototypeOptions } from '@/lib/utils/scroll-to-prototype';
 
 import { ControlPanel } from '@/components/control-panel';
 import { Header } from '@/components/header';
@@ -347,13 +348,17 @@ export default function Home() {
     (
       index: number,
       behavior: ScrollBehavior = 'smooth',
-      options?: { waitForLayout?: boolean; extraOffset?: number },
+      options?: Omit<ScrollToPrototypeOptions, 'behavior'>,
     ) => {
-      baseScrollToPrototypeByIndex(scrollContainerRef.current, index, {
+      const merged: ScrollToPrototypeOptions = {
         behavior,
         waitForLayout: options?.waitForLayout,
+        layoutWaitRafRounds: options?.layoutWaitRafRounds,
+        layoutWaitTimeoutMs: options?.layoutWaitTimeoutMs,
         extraOffset: options?.extraOffset,
-      });
+        headerOffsetProvider: options?.headerOffsetProvider,
+      };
+      baseScrollToPrototypeByIndex(scrollContainerRef.current, index, merged);
     },
     [],
   );
@@ -370,6 +375,8 @@ export default function Home() {
     // レイアウト安定後にスクロール（従来の二重 rAF + timeout を抽象化）
     scrollToPrototypeByIndex(lastIndex, 'smooth', {
       waitForLayout: true,
+      layoutWaitRafRounds: 2, // default behavior
+      layoutWaitTimeoutMs: 100, // default behavior
       extraOffset: 16,
     });
   }, [prototypeSlots.length, scrollToPrototypeByIndex]);
