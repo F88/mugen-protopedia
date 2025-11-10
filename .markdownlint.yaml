@@ -5,7 +5,7 @@ MD013:
   line_length: 500
 
 MD025:
-  front_matter_title: ""
+  front_matter_title: ''
   level: 1
 
 MD033:
