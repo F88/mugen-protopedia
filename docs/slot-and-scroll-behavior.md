@@ -45,9 +45,11 @@ type PrototypeSlot = {
 3. Failure: `errorMessage` set; `isLoading: false` → error card
 4. Removal: slot removed from array
 
-```text
-[Add] -> (Skeleton) --success--> (Loaded Card)
-                    \--error--> (Error Card)
+```mermaid
+flowchart TD
+    A[Add Slot] --> B{Fetch Result}
+    B -->|Success| C[Loaded Card]
+    B -->|Error| D[Error Card]
 ```
 
 ### Focus State (`currentFocusIndex`)
@@ -132,6 +134,16 @@ if (loadingCountDecreased && focusedIndex === lastIndex) {
 }
 ```
 
+#### Scroll Trigger Flow (Mermaid)
+
+```mermaid
+flowchart LR
+    Add[Addition] --> S1[Focus last + scroll]
+    Load[Load completion] --> C{Last focused?}
+    C -->|Yes| S2[Correction scroll]
+    C -->|No| NS[No scroll]
+```
+
 ## 5. Summary
 
 - Slot lifecycle: Skeleton → Loaded | Error → (optional removal).
@@ -139,40 +151,4 @@ if (loadingCountDecreased && focusedIndex === lastIndex) {
 - Auto-scroll triggers: addition and load completion (last focused).
 - No-scroll safeguards avoid unwanted jumps.
 
-## 6. Diagrams
-
-### 6-1. Slot Lifecycle & Focus + Scroll Triggers (Mermaid)
-
-```mermaid
-flowchart TD
-    A[Add Slot] --> B{Fetch Result}
-    B -->|Success| C[Loaded Card]
-    B -->|Error| D[Error Card]
-    A --> E[Focus Last Index]
-    E --> F[Scroll (Addition)]
-    C --> G[Loading Count Decrease?]
-    D --> G
-    G -->|Yes & Last Still Focused| H[Scroll (Correction)]
-```
-
-Explanation:
-
-- On slot addition we focus the last index and perform a light scroll.
-- When any loading slot finishes and the last slot remains focused we perform a correction scroll.
-- Failure and success both converge into the same correction decision node.
-
-### 6-2. Scroll Decision Table (Mermaid)
-
-```mermaid
-flowchart LR
-    S[Event] --> C{Condition}
-    C -->|Addition| A1[Scroll (focus last)]
-    C -->|LoadComplete & LastFocused| A2[Scroll (correction)]
-    C -->|LoadComplete & NotLast| N1[No Scroll]
-    C -->|Other| N2[No Scroll]
-```
-
-Notes:
-
-- "Other" covers unchanged loading counts or invalid focus index.
-- Correction scroll uses reduced wait parameters.
+<!-- Diagrams formerly in standalone section are now embedded near their related explanations. -->
