@@ -1,4 +1,14 @@
-import type { Metadata } from 'next';
+/**
+ * @fileoverview Next.js root layout and site‑wide metadata.
+ *
+ * This file defines:
+ * - Centralized metadata via Next.js Metadata API (Open Graph, Twitter, PWA hints).
+ * - The root layout (`<html>`, `<head>`, `<body>`) applied to every page.
+ * - JSON‑LD structured data injection for SEO.
+ * - Early theme bootstrapping script to avoid FOUC when toggling dark mode.
+ * - Vercel Analytics and Service Worker registration.
+ */
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import { Analytics } from '@vercel/analytics/next';
@@ -31,6 +41,23 @@ const APP_KEYWORDS = [
 ];
 const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION_TOKEN;
 
+/**
+ * Site‑wide metadata consumed by Next.js at build/runtime.
+ *
+ * Notes:
+ * - `metadataBase` is used by Next.js to resolve relative URLs.
+ * - `icons.apple` are handled by Next.js and injected into `<head>`.
+ * - When `GOOGLE_SITE_VERIFICATION_TOKEN` is present, the verification meta is
+ *   attached automatically via the `verification.google` field.
+ *
+ * @remarks Next.js 15
+ * see Functions: generateMetadata | Next.js https://nextjs.org/docs/15/app/api-reference/functions/generate-metadata
+ * see Functions: generateViewport | Next.js https://nextjs.org/docs/15/app/api-reference/functions/generate-viewport
+ *
+ * @remarks Next.js 16
+ * see Functions: generateMetadata | Next.js https://nextjs.org/docs/app/api-reference/functions/generate-metadata
+ * see Functions: generateViewport | Next.js https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ */
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: APP_TITLE,
@@ -52,10 +79,6 @@ export const metadata: Metadata = {
     // Apple touch icon generated in <head> automatically by Next.js
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
   },
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -97,6 +120,32 @@ export const metadata: Metadata = {
     : {}),
 };
 
+/**
+ * Viewport configuration (Next.js App Router).
+ *
+ * Moved `themeColor` here per Next.js warning:
+ * "Unsupported metadata themeColor is configured in metadata export. Please move it to viewport export instead.".
+ * See: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+};
+
+/**
+ * Root layout component that wraps all application routes.
+ *
+ * Responsibilities:
+ * - Sets document language and hydration suppression flags.
+ * - Injects JSON‑LD structured data for `WebSite` and `WebApplication`.
+ * - Boots theme state before React hydration to prevent flash of wrong theme.
+ * - Renders global providers/components such as Analytics and SW register.
+ *
+ * @param props.children React subtree to render inside the layout.
+ * @returns The application root HTML structure.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

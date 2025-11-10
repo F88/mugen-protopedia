@@ -3,7 +3,9 @@ import { fileURLToPath } from 'url';
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    // Default to jsdom so React Testing Library usage does not require per-file directives.
+    // Pure Node tests remain unaffected unless they rely on absence of DOM APIs.
+    environment: 'jsdom',
     include: ['**/*.test.ts', '**/*.test.tsx'],
     globals: true,
     reporters: 'default',

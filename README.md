@@ -6,7 +6,37 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Endless prototypes. Instant inspiration. Tap (or press Enter) for a fresh ProtoPedia prototype — infinite exploration with built‑in analysis, caching, and offline-ready UX.
+Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
+
+[ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを無限探索。予測不能な出会いが、創造性を刺激する。偶然の発見を楽しもう。
+
+## Key Features / 特徴
+
+- 📱 Enjoy Anywhere / どこでも楽しめる
+    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
+    - スマートフォンなどの狭い画面でも快適に操作できるレスポンシブデザイン。通勤中や移動中でも、いつでもどこでもプロトタイプ探索を楽しめます。
+
+- ⌨️ Premium Experience / 最高の体験を
+    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
+    - 大きなスクリーンとキーボードショートカット（`Enter`, `j/k`, `r` など）で、デスクトップ環境でも最高の体験を提供。効率的なブラウジングで、より多くのプロトタイプに出会えます。
+
+## About ProtoPedia
+
+[ProtoPedia](https://protopedia.net/) is a Japanese creative platform with the tagline "つくる、たのしむ、ひろがる" (Create, Enjoy, Expand). It serves as a community hub where makers, developers, and creators share their prototype projects across diverse categories:
+
+- **Software Development**: Applications, games, AI/data science, blockchain, AR/VR
+- **Hardware**: Electronics, robotics, wearables, IoT
+- **Design/Art**: Visualization, interactive design, media art
+- **Making/DIY**: Digital fabrication, woodworking, upcycling
+
+This app leverages the ProtoPedia API to deliver an endless stream of inspiring prototypes from this vibrant maker community.
+
+[ProtoPedia（プロトペディア）](https://protopedia.net/)は「つくる、たのしむ、ひろがる」をコンセプトにした日本のクリエイティブプラットフォームです。メイカー、開発者、クリエイターがプロトタイプ作品を共有するコミュニティハブとして、以下のような多様なカテゴリーの作品が集まっています：
+
+- **ソフトウェア開発**: アプリ、ゲーム、AI/データサイエンス、ブロックチェーン、AR/VR
+- **ハードウェア**: 電子工作、ロボティクス、ウェアラブル、IoT
+- **デザイン/アート**: ビジュアライゼーション、インタラクティブデザイン、メディアアート
+- **Making/DIY**: デジタルファブリケーション、木工、アップサイクル
 
 ## Roadmap / 今後の方針
 
@@ -27,45 +57,12 @@ Endless prototypes. Instant inspiration. Tap (or press Enter) for a fresh ProtoP
 - オフラインスナップショットエクスポート (デモ用)
 - コラボレーション向け共有リンク生成
 
-## Features
-
-### Core (ja)
-
-- 無限のランダム探索 (`fetchRandomPrototype`、キャッシュ考慮のフォールバック)
-- リスト取得・単一ID取得・ランダム選択のための決定的なサーバーアクション（`app/actions/prototypes.ts`）
-- プロトタイプの正規化とメタデータ拡充 (タグ、メダル、バッジ、ハイライト)
-
-### Core (en)
-
-- Infinite random exploration (`fetchRandomPrototype`, cache-aware fallbacks)
-- Deterministic server actions for list, single ID, random selection (`app/actions/prototypes.ts`)
-- Prototype normalization & metadata enrichment (tags, medals, badges, highlights)
-
-### Performance & Caching
-
-Data fetch paths prefer cached snapshots; TTL expiry schedules async refresh without blocking response rendering.
-
-## Performance & Fetch Strategy
-
-Refer to [`docs/data-fetching-strategy.md`](./docs/data-fetching-strategy.md) for deeper rationale. Highlights:
-
-- Large page responses exceed Next.js data cache ≈2 MB; strategy adapts page size to stay cacheable where beneficial.
-- Response size + elapsed ms metrics logged for proactive capacity tuning.
-- Random selection performed server-side to minimize client payload & preserve fairness.
-
-## Keyboard Shortcuts
-
-| Key                          | Action                         |
-| ---------------------------- | ------------------------------ |
-| `Enter`                      | Fetch random prototype         |
-| `j / ArrowDown / ArrowRight` | Scroll next                    |
-| `k / ArrowUp / ArrowLeft`    | Scroll previous                |
-| `r`                          | Reset / clear list             |
-| `o`                          | Open selected prototype detail |
-
-Cooldown gating prevents rapid accidental repeats (`ACTION_COOLDOWN_MS`).
-
 ## Changelog
+
+### 2025-11-10
+
+- 自動スクロール処理を改善
+- マウスポインタによるカード選択機能を改善
 
 ### 2025-11-09
 

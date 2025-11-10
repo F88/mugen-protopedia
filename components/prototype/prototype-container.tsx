@@ -13,6 +13,7 @@ type PrototypeContainerProps = {
   errorMessage?: string;
   // Focus state for styling the card
   isFocused?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const PrototypeContainer = ({
@@ -21,6 +22,7 @@ export const PrototypeContainer = ({
   expectedPrototypeId,
   errorMessage,
   isFocused = false,
+  onClick,
   ...htmlProps
 }: PrototypeContainerProps) => {
   if (isLoading) {
@@ -49,7 +51,11 @@ export const PrototypeContainer = ({
 
   return (
     <div className="space-y-2" {...htmlProps}>
-      <PrototypeCard prototype={prototype} isFocused={isFocused} />
+      <PrototypeCard
+        prototype={prototype}
+        isFocused={isFocused}
+        onClick={onClick}
+      />
     </div>
   );
 };

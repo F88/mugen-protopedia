@@ -118,8 +118,8 @@ function MainPanel({
           <Button
             onClick={onGetRandomPrototype}
             className="gap-2"
-            title="Battle (Enter or B)"
-            aria-label="Battle"
+            title="Prototype"
+            aria-label="Prototype"
             aria-describedby="kbd-prototype-hint"
             disabled={!canFetchMorePrototypes}
           >
@@ -224,7 +224,7 @@ export function ControlPanel({
   onGetRandomPrototype,
   onClear,
   canFetchMorePrototypes,
-  prototypeIdError,
+  // prototypeIdError,
   isClearDisabled,
   onScrollNext,
   onScrollPrev,
