@@ -22,7 +22,7 @@ const resolveErrorMessage = (value: unknown): string => {
 
 export const getRandomPrototypeData =
   async (): Promise<NormalizedPrototype | null> => {
-    logger.debug('getRandomPrototypeData called');
+    // logger.debug('getRandomPrototypeData called');
 
     const mapResult = await getRandomPrototypeFromMapOrFetch();
 
