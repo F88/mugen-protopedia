@@ -6,7 +6,39 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Endless prototypes. Instant inspiration. Tap (or press Enter) for a fresh ProtoPedia prototype — infinite exploration with built‑in analysis, caching, and offline-ready UX.
+Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Instant inspiration. Tap (or press Enter) for a fresh prototype — infinite discovery awaits.
+
+[ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを API 経由で延々と探索。即座のインスピレーション。タップ（または Enter キー）で新しいプロトタイプを表示 — 無限の発見があなたを待っています。
+
+## About ProtoPedia
+
+[ProtoPedia](https://protopedia.net/) is a Japanese creative platform with the tagline "つくる、たのしむ、ひろがる" (Create, Enjoy, Expand). It serves as a community hub where makers, developers, and creators share their prototype projects across diverse categories:
+
+- **Software Development**: Applications, games, AI/data science, blockchain, AR/VR
+- **Hardware**: Electronics, robotics, wearables, IoT
+- **Design/Art**: Visualization, interactive design, media art
+- **Making/DIY**: Digital fabrication, woodworking, upcycling
+
+This app leverages the ProtoPedia API to deliver an endless stream of inspiring prototypes from this vibrant maker community.
+
+[ProtoPedia（プロトペディア）](https://protopedia.net/)は「つくる、たのしむ、ひろがる」をコンセプトにした日本のクリエイティブプラットフォームです。メイカー、開発者、クリエイターがプロトタイプ作品を共有するコミュニティハブとして、以下のような多様なカテゴリーの作品が集まっています：
+
+- **ソフトウェア開発**: アプリ、ゲーム、AI/データサイエンス、ブロックチェーン、AR/VR
+- **ハードウェア**: 電子工作、ロボティクス、ウェアラブル、IoT
+- **デザイン/アート**: ビジュアライゼーション、インタラクティブデザイン、メディアアート
+- **Making/DIY**: デジタルファブリケーション、木工、アップサイクル
+
+このアプリは ProtoPedia API を活用して、活気あるメイカーコミュニティから生まれた刺激的なプロトタイプを無限に配信します。
+
+## 特徴 / Key Features
+
+- 📱 どこでも楽しめる / Enjoy Anywhere
+    - スマートフォンなどの狭い画面でも快適に操作できるレスポンシブデザイン。通勤中や移動中でも、いつでもどこでもプロトタイプ探索を楽しめます。
+    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
+
+- ⌨️ 最高の体験を / Premium Experience
+    - 大きなスクリーンとキーボードショートカット（`Enter`, `j/k`, `r` など）で、デスクトップ環境でも最高の体験を提供。効率的なブラウジングで、より多くのプロトタイプに出会えます。
+    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
 
 ## Roadmap / 今後の方針
 
