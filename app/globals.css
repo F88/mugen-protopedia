@@ -91,16 +91,21 @@ body {
 
 /* Custom border colors for prototype highlighting */
 .focus-border {
-  border: 3px solid #3b82f6 !important; /* Thicker blue border */
+  /* Base color variables allow theme-specific overrides */
+  --focus-border-color: 217 92% 60%;
+  /* Do NOT change border width; rely on existing base border size to avoid layout shift */
+  border-color: hsl(var(--focus-border-color)) !important;
+  /* Simple, subtle outer glow (no dash, no animation) */
   box-shadow:
-    0 0 0 2px rgba(59, 130, 246, 0.2),
-    0 0 10px rgba(59, 130, 246, 0.3),
-    0 4px 20px rgba(59, 130, 246, 0.15) !important;
-  transform: translateY(-2px) !important;
-  transition: all 0.2s ease-in-out !important;
-  animation: focus-pulse 2s ease-in-out infinite !important;
+    0 0 0 1px hsl(var(--focus-border-color) / 0.25),
+    0 0 10px hsl(var(--focus-border-color) / 0.25) !important;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
   position: relative !important;
   z-index: 10 !important;
+  transform: none !important; /* avoid layout shift */
+}
+.dark .focus-border {
+  --focus-border-color: 217 95% 70%;
 }
 
 .highlight-border {
@@ -265,7 +270,6 @@ body {
       0 0 16px #3b82f6,
       0 0 24px #dc2626,
       0 0 32px rgba(59, 130, 246, 0.6);
-    transform: scale(1);
   }
   to {
     box-shadow:
@@ -276,7 +280,6 @@ body {
       0 0 45px #dc2626,
       0 0 60px rgba(59, 130, 246, 0.8),
       0 0 75px rgba(220, 38, 38, 0.4);
-    transform: scale(1.02);
   }
 }
 
@@ -311,7 +314,6 @@ body {
       0 0 10px #3b82f6,
       0 0 20px #fbbf24,
       0 0 30px #f59e0b;
-    transform: scale(1);
   }
   50% {
     box-shadow:
@@ -319,7 +321,6 @@ body {
       0 0 40px #fbbf24,
       0 0 60px #f59e0b,
       0 0 80px #d97706;
-    transform: scale(1.03);
   }
 }
 
