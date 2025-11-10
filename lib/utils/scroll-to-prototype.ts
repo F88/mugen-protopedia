@@ -42,7 +42,7 @@ export type ScrollToPrototypeOptions = {
 };
 
 /**
- * Scroll the window so that the prototype element at `index` inside `container`
+ * Scroll the provided scroll container so that the prototype element at `index`
  * appears just beneath the fixed header.
  *
  * Contract:
@@ -64,7 +64,6 @@ export function scrollToPrototypeByIndex(
     layoutWaitRafRounds = 2,
     layoutWaitTimeoutMs = 100,
     extraOffset = 16,
-    headerOffsetProvider,
   }: ScrollToPrototypeOptions = {},
 ): void {
   // console.debug(`Scrolling to prototype index ${index} with options:`, {
@@ -81,20 +80,33 @@ export function scrollToPrototypeByIndex(
     const element = prototypeElements[index];
     if (!element) return;
 
-    const headerOffset =
-      typeof headerOffsetProvider === 'function'
-        ? Number(headerOffsetProvider()) || 0
-        : ((): number => {
-            const str = getComputedStyle(
-              document.documentElement,
-            ).getPropertyValue('--header-offset');
-            return Number.parseInt(str, 10) || 0;
-          })();
     const elementRect = element.getBoundingClientRect();
-    const absoluteElementTop = elementRect.top + window.scrollY;
+    const containerRect = container.getBoundingClientRect();
+    // Position relative to container scroll origin
+    const relativeElementTop =
+      elementRect.top - containerRect.top + container.scrollTop;
+    // Compute dynamic header offset by reading CSS variable --header-offset.
+    // Even though the container has top padding, on small screens the header
+    // may visually overlap if its height changes after initial layout.
+    // Subtract the resolved header offset to keep the target element fully visible.
+    const rawHeaderOffset = getComputedStyle(
+      document.documentElement,
+    ).getPropertyValue('--header-offset');
+    const headerOffset = Number.parseInt(rawHeaderOffset, 10) || 0;
     const targetScrollPosition =
-      absoluteElementTop - headerOffset - extraOffset;
-    window.scrollTo({ top: targetScrollPosition, behavior });
+      relativeElementTop - headerOffset - extraOffset;
+    const containerWithScrollTo = container as HTMLElement & {
+      scrollTo?: unknown;
+    };
+    if (typeof containerWithScrollTo.scrollTo === 'function') {
+      (containerWithScrollTo.scrollTo as (opts: ScrollToOptions) => void)({
+        top: targetScrollPosition,
+        behavior,
+      });
+    } else {
+      // Fallback for environments (like jsdom) that don't implement Element.scrollTo
+      container.scrollTop = targetScrollPosition;
+    }
   };
 
   if (!waitForLayout) {
