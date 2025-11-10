@@ -1,5 +1,35 @@
 import { describe, it, expect } from 'vitest';
 
+type WebSiteNode = {
+  '@type': 'WebSite';
+  '@id': string;
+  url: string;
+  name: string;
+  description: string;
+  inLanguage: string;
+};
+
+type WebApplicationNode = {
+  '@type': 'WebApplication';
+  '@id': string;
+  url: string;
+  name: string;
+  description: string;
+  applicationCategory: string;
+  operatingSystem: string;
+  offers: {
+    '@type': 'Offer';
+    price: string;
+    priceCurrency: string;
+  };
+  author: {
+    '@type': 'Person';
+    name: string;
+    url: string;
+  };
+  inLanguage: string;
+};
+
 // Import metadata from layout (we'll mock the dependencies it needs)
 describe('Layout Metadata', () => {
   // Since we can't directly import the layout metadata due to Next.js dependencies,
@@ -61,7 +91,7 @@ describe('Layout Metadata', () => {
   });
 
   it('should validate URL format', () => {
-    const appUrl = 'https://mugen-protopedia.vercel.app';
+    const appUrl = 'https://mugen-pp.vercel.app/';
 
     // URL should be a valid HTTPS URL
     expect(appUrl).toMatch(/^https:\/\//);
@@ -69,7 +99,7 @@ describe('Layout Metadata', () => {
   });
 
   it('should have proper image URL format', () => {
-    const appUrl = 'https://mugen-protopedia.vercel.app';
+    const appUrl = 'https://mugen-pp.vercel.app';
     const ogImage = `${appUrl}/screenshots/ss-fhd-light.png`;
 
     expect(ogImage).toMatch(/^https:\/\//);
@@ -108,7 +138,7 @@ describe('Layout Metadata', () => {
   });
 
   it('should have valid JSON-LD structure', () => {
-    const appUrl = 'https://mugen-protopedia.vercel.app';
+    const appUrl = 'https://mugen-pp.vercel.app';
     const appTitle = '無限ProtoPedia';
     const appDescription =
       'ProtoPediaに登録された魅力的なプロトタイプ作品をランダムに表示するWebアプリケーション。タップするだけで新しい発見と出会える、エンドレスなプロトタイプ探索体験。';
@@ -145,6 +175,9 @@ describe('Layout Metadata', () => {
           inLanguage: 'ja',
         },
       ],
+    } satisfies {
+      '@context': string;
+      '@graph': [WebSiteNode, WebApplicationNode];
     };
 
     // Validate structure
