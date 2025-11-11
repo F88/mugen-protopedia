@@ -19,6 +19,8 @@ import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 
 import { ControlPanel } from '@/components/control-panel';
 import { Header } from '@/components/header';
+import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
@@ -34,6 +36,17 @@ const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
 export default function Home() {
+  // Provide the real AnalysisDashboard wired with the live hook for the app runtime.
+  const AppAnalysisDashboard = ({
+    defaultExpanded,
+  }: {
+    defaultExpanded?: boolean;
+  }) => (
+    <AnalysisDashboard
+      defaultExpanded={defaultExpanded}
+      useLatestAnalysisHook={useLatestAnalysis}
+    />
+  );
   const headerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
@@ -317,6 +330,7 @@ export default function Home() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
+        AnalysisDashboardComponent={AppAnalysisDashboard}
       />
 
       {/* {(prototypeError || randomPrototypeError) && (

@@ -1,15 +1,21 @@
 import { forwardRef } from 'react';
-
-import { AnalysisDashboard } from './analysis-dashboard';
+import type { ComponentType } from 'react';
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
   dashboard: DashboardProps;
+  /**
+   * Optional override for the AnalysisDashboard component.
+   * Used in Storybook to inject a mock without pulling server actions.
+   */
+  AnalysisDashboardComponent?: ComponentType<{
+    defaultExpanded?: boolean;
+  }>;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard },
+  { dashboard, AnalysisDashboardComponent },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -42,8 +48,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
               size="compact"
             />
 
-            {/* Analysis Dashboard */}
-            <AnalysisDashboard defaultExpanded={false} />
+            {/* Analysis Dashboard (injectable for Storybook). If not provided, omit. */}
+            {AnalysisDashboardComponent ? (
+              <AnalysisDashboardComponent defaultExpanded={false} />
+            ) : null}
 
             {/* Theme  */}
             <ThemeToggle />
