@@ -1,5 +1,4 @@
 import { forwardRef, type ReactNode } from 'react';
-import { AnalysisDashboard } from './analysis-dashboard';
 
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
