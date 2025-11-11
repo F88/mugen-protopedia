@@ -41,7 +41,7 @@ const ANIMATION_VARIANTS: AnimationVariant[] = [
 
 // Deterministic picker to keep the selection stable per mount (useId).
 const getDeterministicVariant = (basis: string | number): AnimationVariant => {
-  const idx = Math.abs(hashString(basis)) % ANIMATION_VARIANTS.length;
+  const idx = hashString(basis) % ANIMATION_VARIANTS.length;
   return ANIMATION_VARIANTS[idx];
 };
 

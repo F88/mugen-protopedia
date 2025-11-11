@@ -8,7 +8,8 @@ export function hashString(input: string | number): number {
   for (let i = 0; i < s.length; i++) {
     h = (h * 31 + s.charCodeAt(i)) | 0;
   }
-  return h;
+  // Always return non-negative to simplify callers
+  return Math.abs(h);
 }
 
 /**
@@ -22,6 +23,6 @@ export function pickSkeletonKind(opts: {
 }): SkeletonKind {
   const { id, seed } = opts;
   const basis = typeof id === 'number' && id > 0 ? id : seed;
-  const idx = Math.abs(hashString(basis)) % SKELETON_KINDS.length;
+  const idx = hashString(basis) % SKELETON_KINDS.length;
   return SKELETON_KINDS[idx];
 }

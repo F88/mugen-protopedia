@@ -36,7 +36,7 @@ const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [
 const getDeterministicDynamicVariant = (
   basis: string | number,
 ): DynamicAnimationVariant => {
-  const idx = Math.abs(hashString(basis)) % DYNAMIC_ANIMATION_VARIANTS.length;
+  const idx = hashString(basis) % DYNAMIC_ANIMATION_VARIANTS.length;
   return DYNAMIC_ANIMATION_VARIANTS[idx];
 };
 
