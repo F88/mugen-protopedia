@@ -1,4 +1,5 @@
-// Removed: legacy shim preserved temporarily. Import '@/lib/logger.server' or '@/lib/logger.client' directly.
+// This legacy logger module is deprecated. Importing it will throw an error
+// to enforce the use of the new context-specific loggers.
 throw new Error(
-  "'@/lib/logger' has been removed. Use '@/lib/logger.server' or '@/lib/logger.client'.",
+  "The '@/lib/logger' module is deprecated. Please import from '@/lib/logger.server' or '@/lib/logger.client' instead.",
 );
