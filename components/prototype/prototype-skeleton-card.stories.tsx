@@ -134,3 +134,34 @@ export const AllVariantsComparison: Story = {
     </div>
   ),
 };
+
+export const AllVariantsComparison_WithId: Story = {
+  render: () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Shimmer (Default)</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="shimmer" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Pulse</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="pulse" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Twinkle</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="twinkle" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Wave</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="wave" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Bounce</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="bounce" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Slide</h3>
+        <PrototypeSkeletonCard expectedPrototypeId={1234} variant="slide" />
+      </div>
+    </div>
+  ),
+};

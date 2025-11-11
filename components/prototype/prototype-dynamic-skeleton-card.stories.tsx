@@ -134,3 +134,52 @@ export const AllDynamicVariantsComparison: Story = {
     </div>
   ),
 };
+
+export const AllDynamicVariantsComparison_With_Id: Story = {
+  render: () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Shuffle (Default)</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="shuffle"
+        />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Explode</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="explode"
+        />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Cascade</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="cascade"
+        />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Orbit</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="orbit"
+        />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Spin</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="spin"
+        />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Rainbow</h3>
+        <PrototypeDynamicSkeletonCard
+          expectedPrototypeId={1234}
+          variant="rainbow"
+        />
+      </div>
+    </div>
+  ),
+};
