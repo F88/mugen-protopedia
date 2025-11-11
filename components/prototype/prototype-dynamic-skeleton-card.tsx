@@ -202,7 +202,7 @@ export const PrototypeDynamicSkeletonCard = ({
             />
             <div className="h-1" />
             <DynamicSkeletonBlock
-              className="h-4 w-9/16"
+              className="h-4 w-7/12"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
               index={5}
