@@ -212,7 +212,7 @@
   animation-delay: 1.8s;
 }
 
-/* Explode: 0.05s step, capped at 40 */
+/* Explode: 0.05s step, capped at 20 */
 .explode-delay-0 {
   animation-delay: 0s;
 }
