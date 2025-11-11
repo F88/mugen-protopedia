@@ -46,6 +46,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
     - 未知との遭遇モード (音と光によるコミュニケーション)
     - プロトタイプ・おぼえていますか モード (唐突にアイドルが歌い出す)
     - 巡り会いプロトタイプモード (ニュータイプ専用)
+    - HLプレゼンモード (どよめきや拍手喝采、ガヤの効果を演出)
 
 ### 中 (Medium)
 
