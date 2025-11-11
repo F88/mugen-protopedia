@@ -214,6 +214,8 @@ export function Thing() {
 }
 ```
 
+**Note:** The client logger's `child()` method returns a simplified `Logger` type that provides basic logging functionality (`debug`, `info`, `warn`, `error`, `child`). Unlike pino's full child logger API, it does not support advanced features such as nested serializers, custom formatters, or pino-specific options. If you need these features, use the server logger in server-side contexts.
+
 ### ESLint guardrails
 
 ESLint enforces that `@/lib/logger.server` is only imported from server-only
