@@ -612,7 +612,7 @@
     opacity: 0.7;
   }
   50% {
-    transform: scale(1.05) translate(var(--explode-x, 0), var(--explode-y, 0));
+    transform: scale(1.05) translate(var(--explode-x, 0px), var(--explode-y, 0px));
     opacity: 0.4;
   }
   75% {
