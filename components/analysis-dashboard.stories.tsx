@@ -54,6 +54,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     defaultExpanded: true,
+    useLatestAnalysisHook: withMockState({}),
   },
 } satisfies Meta<typeof AnalysisDashboard>;
 
@@ -64,8 +65,12 @@ const renderStory: Story['render'] = (_args, context) => {
   const { mockState } = (context.parameters ?? {}) as {
     mockState?: MockAnalysisState;
   };
+  const useLatestAnalysisHook = withMockState(mockState ?? {});
   return (
-    <AnalysisDashboard useLatestAnalysisHook={withMockState(mockState ?? {})} />
+    <AnalysisDashboard
+      {..._args}
+      useLatestAnalysisHook={useLatestAnalysisHook}
+    />
   );
 };
 

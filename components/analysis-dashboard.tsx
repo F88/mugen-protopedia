@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
-import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
+// The hook is injected to avoid importing server actions in Storybook bundles.
+// Do NOT import the real hook here.
 import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
 
 import { RefreshCw } from 'lucide-react';
@@ -225,7 +226,7 @@ type AnalysisState = {
 
 type AnalysisDashboardProps = {
   defaultExpanded?: boolean;
-  useLatestAnalysisHook?: () => AnalysisState;
+  useLatestAnalysisHook: () => AnalysisState;
 };
 
 /**
@@ -233,7 +234,7 @@ type AnalysisDashboardProps = {
  */
 export function AnalysisDashboard({
   defaultExpanded = true,
-  useLatestAnalysisHook = useLatestAnalysis,
+  useLatestAnalysisHook,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
   const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();

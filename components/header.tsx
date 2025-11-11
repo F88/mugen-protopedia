@@ -1,21 +1,16 @@
-import { forwardRef } from 'react';
-import type { ComponentType } from 'react';
+import { forwardRef, type ReactNode } from 'react';
+import { AnalysisDashboard } from './analysis-dashboard';
+
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
   dashboard: DashboardProps;
-  /**
-   * Optional override for the AnalysisDashboard component.
-   * Used in Storybook to inject a mock without pulling server actions.
-   */
-  AnalysisDashboardComponent?: ComponentType<{
-    defaultExpanded?: boolean;
-  }>;
+  analysisDashboard?: ReactNode; // allow injection for Storybook/tests
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard, AnalysisDashboardComponent },
+  { dashboard, analysisDashboard },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -48,10 +43,22 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
               size="compact"
             />
 
-            {/* Analysis Dashboard (injectable for Storybook). If not provided, omit. */}
-            {AnalysisDashboardComponent ? (
-              <AnalysisDashboardComponent defaultExpanded={false} />
-            ) : null}
+            {/* Analysis Dashboard */}
+            {analysisDashboard ?? (
+              <AnalysisDashboard
+                defaultExpanded={false}
+                // In app usage we still need to provide a hook factory.
+                // Lazy import here would re-introduce side-effects; instead we
+                // defer to dynamic import pattern if needed later.
+                // For now we pass a no-op empty state until integrated.
+                useLatestAnalysisHook={() => ({
+                  data: null,
+                  isLoading: false,
+                  error: null,
+                  refresh: () => {},
+                })}
+              />
+            )}
 
             {/* Theme  */}
             <ThemeToggle />

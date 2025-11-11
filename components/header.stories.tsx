@@ -1,17 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-
 import { Header } from './header';
+import { AnalysisDashboard } from './analysis-dashboard';
+import { sampleAnalysis } from '@/.storybook/analysis.fixture';
 
-// Lightweight mock to avoid importing server actions inside Storybook
-const MockAnalysisDashboard = ({
-  defaultExpanded,
-}: {
-  defaultExpanded?: boolean;
-}) => (
-  <div className="px-2 py-0.5 text-[10px] border border-dashed border-gray-300 dark:border-gray-600 rounded opacity-80">
-    Analysis (mock{defaultExpanded ? '✓' : ''})
-  </div>
-);
+const useLatestAnalysisMock = () => ({
+  data: sampleAnalysis,
+  isLoading: false,
+  error: null,
+  refresh: () => {},
+});
 
 const meta = {
   title: 'Components/Header',
@@ -43,7 +40,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    AnalysisDashboardComponent: MockAnalysisDashboard,
+    analysisDashboard: (
+      <AnalysisDashboard
+        defaultExpanded={false}
+        useLatestAnalysisHook={useLatestAnalysisMock}
+      />
+    ),
   },
 };
 
@@ -55,7 +57,12 @@ export const Busy: Story = {
       inFlightRequests: 8,
       maxConcurrentFetches: 8,
     },
-    AnalysisDashboardComponent: MockAnalysisDashboard,
+    analysisDashboard: (
+      <AnalysisDashboard
+        defaultExpanded={false}
+        useLatestAnalysisHook={useLatestAnalysisMock}
+      />
+    ),
   },
 };
 
@@ -67,6 +74,11 @@ export const Mobile: Story = {
     },
   },
   args: {
-    AnalysisDashboardComponent: MockAnalysisDashboard,
+    analysisDashboard: (
+      <AnalysisDashboard
+        defaultExpanded={false}
+        useLatestAnalysisHook={useLatestAnalysisMock}
+      />
+    ),
   },
 };
