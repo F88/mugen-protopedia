@@ -36,17 +36,6 @@ const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
 export default function Home() {
-  // Provide the real AnalysisDashboard wired with the live hook for the app runtime.
-  const AppAnalysisDashboard = ({
-    defaultExpanded,
-  }: {
-    defaultExpanded?: boolean;
-  }) => (
-    <AnalysisDashboard
-      defaultExpanded={defaultExpanded}
-      useLatestAnalysisHook={useLatestAnalysis}
-    />
-  );
   const headerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
@@ -330,7 +319,12 @@ export default function Home() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
-        AnalysisDashboardComponent={AppAnalysisDashboard}
+        analysisDashboard={
+          <AnalysisDashboard
+            defaultExpanded={false}
+            useLatestAnalysisHook={useLatestAnalysis}
+          />
+        }
       />
 
       {/* {(prototypeError || randomPrototypeError) && (
