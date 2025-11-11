@@ -5,64 +5,62 @@ import { cn } from '@/lib/utils';
 import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
 import './skeleton-animations.css';
 
-type AnimationVariant =
-  | 'shimmer'
-  | 'pulse'
-  | 'twinkle'
-  | 'wave'
-  | 'bounce'
-  | 'slide';
+type DynamicAnimationVariant = 'shuffle' | 'explode' | 'ripple' | 'cascade';
 
-type PrototypeSkeletonCardProps = {
+type PrototypeDynamicSkeletonCardProps = {
   expectedPrototypeId?: number;
   errorMessage?: string;
   isFocused?: boolean;
-  variant?: AnimationVariant;
+  variant?: DynamicAnimationVariant;
   disableAnimation?: boolean;
   randomVariant?: boolean;
 };
 
-const ANIMATION_VARIANTS: AnimationVariant[] = [
-  'shimmer',
-  'pulse',
-  'twinkle',
-  'wave',
-  'bounce',
-  'slide',
+const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [
+  'shuffle',
+  'explode',
+  'ripple',
+  'cascade',
 ];
 
-const getRandomVariant = (): AnimationVariant => {
-  const randomIndex = Math.floor(Math.random() * ANIMATION_VARIANTS.length);
-  return ANIMATION_VARIANTS[randomIndex];
+const getRandomDynamicVariant = (): DynamicAnimationVariant => {
+  const randomIndex = Math.floor(
+    Math.random() * DYNAMIC_ANIMATION_VARIANTS.length,
+  );
+  return DYNAMIC_ANIMATION_VARIANTS[randomIndex];
 };
 
-const SkeletonBlock = ({
+const DynamicSkeletonBlock = ({
   className,
-  variant = 'shimmer',
+  variant = 'shuffle',
   disableAnimation = false,
+  index = 0,
 }: {
   className: string;
-  variant?: AnimationVariant;
+  variant?: DynamicAnimationVariant;
   disableAnimation?: boolean;
+  index?: number;
 }) => {
+  // Generate stable random delay based on index
+  const stableRandomDelay = useMemo(() => {
+    // Use index to create pseudo-random but stable delay
+    return ((index * 7) % 10) / 20; // Creates values between 0 and 0.45
+  }, [index]);
+
   const getAnimationClass = () => {
     if (disableAnimation) {
       return 'bg-slate-200 dark:bg-slate-700';
     }
 
     switch (variant) {
-      case 'shimmer':
-        return 'skeleton-shimmer bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
-      case 'pulse':
-        return 'skeleton-pulse bg-slate-200 dark:bg-slate-700';
-      case 'twinkle':
-        return 'skeleton-twinkle bg-slate-200 dark:bg-slate-700';
-      case 'wave':
-        return 'skeleton-wave bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
-      case 'bounce':
-        return 'skeleton-bounce bg-slate-200 dark:bg-slate-700';
-      case 'slide':
-        return 'skeleton-slide bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
+      case 'shuffle':
+        return 'skeleton-shuffle bg-slate-200 dark:bg-slate-700';
+      case 'explode':
+        return 'skeleton-explode bg-slate-200 dark:bg-slate-700';
+      case 'ripple':
+        return 'skeleton-ripple bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700';
+      case 'cascade':
+        return 'skeleton-cascade bg-slate-200 dark:bg-slate-700';
       default:
         return 'bg-slate-200 dark:bg-slate-700';
     }
@@ -73,19 +71,32 @@ const SkeletonBlock = ({
       return {};
     }
 
+    // Add staggered delays for cascade effect
+    const cascadeDelay = variant === 'cascade' ? index * 0.1 : 0;
+    // Stable pseudo-random delays for shuffle effect
+    const shuffleDelay = variant === 'shuffle' ? stableRandomDelay : 0;
+
     switch (variant) {
-      case 'shimmer':
-        return { animation: 'skeleton-shimmer 2s ease-in-out infinite' };
-      case 'pulse':
-        return { animation: 'skeleton-pulse 2s ease-in-out infinite' };
-      case 'twinkle':
-        return { animation: 'skeleton-twinkle 3s ease-in-out infinite' };
-      case 'wave':
-        return { animation: 'skeleton-wave 1.5s ease-in-out infinite' };
-      case 'bounce':
-        return { animation: 'skeleton-bounce 1s ease-in-out infinite' };
-      case 'slide':
-        return { animation: 'skeleton-slide 2.5s linear infinite' };
+      case 'shuffle':
+        return {
+          animation: `skeleton-shuffle 2s ease-in-out infinite`,
+          animationDelay: `${shuffleDelay}s`,
+        };
+      case 'explode':
+        return {
+          animation: `skeleton-explode 3s ease-in-out infinite`,
+          animationDelay: `${index * 0.05}s`,
+        };
+      case 'ripple':
+        return {
+          animation: `skeleton-ripple 2s ease-in-out infinite`,
+          animationDelay: `${index * 0.1}s`,
+        };
+      case 'cascade':
+        return {
+          animation: `skeleton-cascade 2s ease-in-out infinite`,
+          animationDelay: `${cascadeDelay}s`,
+        };
       default:
         return {};
     }
@@ -103,18 +114,18 @@ const SkeletonBlock = ({
   );
 };
 
-export const PrototypeSkeletonCard = ({
+export const PrototypeDynamicSkeletonCard = ({
   expectedPrototypeId,
   errorMessage,
   isFocused = false,
-  variant = 'shimmer',
+  variant = 'shuffle',
   disableAnimation = false,
   randomVariant = false,
-}: PrototypeSkeletonCardProps) => {
+}: PrototypeDynamicSkeletonCardProps) => {
   // Use useMemo to ensure the random variant is stable across re-renders
   const selectedVariant = useMemo(() => {
     if (randomVariant) {
-      return getRandomVariant();
+      return getRandomDynamicVariant();
     }
     return variant;
   }, [randomVariant, variant]);
@@ -147,57 +158,64 @@ export const PrototypeSkeletonCard = ({
             {typeof expectedPrototypeId === 'number' ? (
               <PrototypeIdBadge id={expectedPrototypeId} />
             ) : (
-              <SkeletonBlock
+              <DynamicSkeletonBlock
                 className="h-6 w-2/4"
                 variant={selectedVariant}
                 disableAnimation={disableAnimation}
+                index={0}
               />
             )}
             <div className="flex items-center justify-end">
-              <SkeletonBlock
+              <DynamicSkeletonBlock
                 className="h-4 w-2/4"
                 variant={selectedVariant}
                 disableAnimation={disableAnimation}
+                index={1}
               />
             </div>
           </div>
 
           {/* Description  */}
           <div className="mb-1">
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-8 w-3/4"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={2}
             />
           </div>
 
           <div className="mt-1">
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-full"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={3}
             />
             <div className="h-1" />
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-full"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={4}
             />
             <div className="h-1" />
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-9/16"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={5}
             />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Image  */}
           <div className="relative">
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="w-full aspect-video"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={6}
             />
             {showErrorOnImage && (
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-5xl font-bold text-slate-400 dark:text-slate-500 text-center px-2">
@@ -212,92 +230,48 @@ export const PrototypeSkeletonCard = ({
           </div>
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-full"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={7}
             />
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-full"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={8}
             />
-            <SkeletonBlock
+            <DynamicSkeletonBlock
               className="h-4 w-full"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
+              index={9}
             />
           </div>
 
           {/* Age */}
-          <SkeletonBlock
+          <DynamicSkeletonBlock
             className="h-4 w-full"
             variant={selectedVariant}
             disableAnimation={disableAnimation}
+            index={10}
           />
 
           {/* Badges */}
           <div className="flex flex-wrap gap-1.5">
-            <SkeletonBlock
-              className="h-4 w-24 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-18 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-16 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-16 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-24 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-12 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-12 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-16 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-16 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-12 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-12 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
-            <SkeletonBlock
-              className="h-4 w-12 rounded-full"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
+            {[...Array(12)].map((_, i) => (
+              <DynamicSkeletonBlock
+                key={i}
+                className={cn(
+                  'h-4 rounded-full',
+                  i % 3 === 0 ? 'w-24' : i % 3 === 1 ? 'w-16' : 'w-12',
+                )}
+                variant={selectedVariant}
+                disableAnimation={disableAnimation}
+                index={11 + i}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>
