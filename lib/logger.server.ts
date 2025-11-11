@@ -2,7 +2,11 @@ import 'server-only';
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
 
-type ServerLogger = pino.Logger;
+// Explicitly specialize the pino Logger generics to `string` level names so that
+// downstream helpers typed against `Logger<string, boolean>` accept this instance.
+// Default generic for LevelNames is `never`, which caused build-time type errors
+// when passing child loggers into utility functions expecting `string`.
+type ServerLogger = pino.Logger<string, boolean>;
 
 function createServerLogger(): ServerLogger {
   const level =
