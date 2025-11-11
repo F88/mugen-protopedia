@@ -2,11 +2,6 @@ import 'server-only';
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
 
-import {
-  logger as clientLogger,
-  type Logger as ClientLogger,
-} from './logger.client';
-
 type ServerLogger = pino.Logger;
 
 function createServerLogger(): ServerLogger {
@@ -45,9 +40,5 @@ function createServerLogger(): ServerLogger {
   }) as ServerLogger;
 }
 
-const isBrowser = typeof window !== 'undefined';
-
-export const logger: ServerLogger | ClientLogger = isBrowser
-  ? clientLogger
-  : createServerLogger();
-export type Logger = ServerLogger | ClientLogger;
+export const logger: ServerLogger = createServerLogger();
+export type Logger = ServerLogger;
