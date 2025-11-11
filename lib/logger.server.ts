@@ -37,7 +37,7 @@ function createServerLogger(): ServerLogger {
         base: undefined,
         timestamp: pino.stdTimeFunctions.isoTime,
       },
-      prettyStream as unknown as pino.DestinationStream,
+      prettyStream,
     ) as ServerLogger;
   }
 
