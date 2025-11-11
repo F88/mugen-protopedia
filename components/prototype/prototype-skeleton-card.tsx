@@ -75,29 +75,6 @@ const SkeletonBlock = ({
     }
   };
 
-  const getAnimationStyle = () => {
-    if (disableAnimation) {
-      return {};
-    }
-
-    switch (variant) {
-      case 'shimmer':
-        return { animation: 'skeleton-shimmer 2s ease-in-out infinite' };
-      case 'pulse':
-        return { animation: 'skeleton-pulse 2s ease-in-out infinite' };
-      case 'twinkle':
-        return { animation: 'skeleton-twinkle 3s ease-in-out infinite' };
-      case 'wave':
-        return { animation: 'skeleton-wave 1.5s ease-in-out infinite' };
-      case 'bounce':
-        return { animation: 'skeleton-bounce 1s ease-in-out infinite' };
-      case 'slide':
-        return { animation: 'skeleton-slide 2.5s linear infinite' };
-      default:
-        return {};
-    }
-  };
-
   return (
     <div
       className={cn(
@@ -105,7 +82,6 @@ const SkeletonBlock = ({
         getAnimationClass(),
         className,
       )}
-      style={getAnimationStyle()}
     />
   );
 };

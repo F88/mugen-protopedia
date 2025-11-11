@@ -9,7 +9,14 @@ import { cn } from '@/lib/utils';
 
 import './skeleton-animations.css';
 
-type DynamicAnimationVariant = 'shuffle' | 'explode' | 'ripple' | 'cascade';
+type DynamicAnimationVariant =
+  | 'shuffle'
+  | 'explode'
+  | 'ripple'
+  | 'cascade'
+  | 'orbit'
+  | 'spin'
+  | 'rainbow';
 
 type PrototypeDynamicSkeletonCardProps = PrototypeSkeletonCardBaseProps & {
   variant?: DynamicAnimationVariant;
@@ -20,6 +27,9 @@ const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [
   'explode',
   'ripple',
   'cascade',
+  'orbit',
+  'spin',
+  'rainbow',
 ];
 
 const getRandomDynamicVariant = (): DynamicAnimationVariant => {
@@ -40,12 +50,6 @@ const DynamicSkeletonBlock = ({
   disableAnimation?: boolean;
   index?: number;
 }) => {
-  // Generate stable random delay based on index
-  const stableRandomDelay = useMemo(() => {
-    // Use index to create pseudo-random but stable delay
-    return ((index * 7) % 10) / 20; // Creates values between 0 and 0.45
-  }, [index]);
-
   const getAnimationClass = () => {
     if (disableAnimation) {
       return 'bg-slate-200 dark:bg-slate-700';
@@ -60,44 +64,39 @@ const DynamicSkeletonBlock = ({
         return 'skeleton-ripple bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700';
       case 'cascade':
         return 'skeleton-cascade bg-slate-200 dark:bg-slate-700';
+      case 'orbit':
+        return 'skeleton-orbit bg-slate-200 dark:bg-slate-700';
+      case 'spin':
+        return 'skeleton-spin bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
+      case 'rainbow':
+        return 'skeleton-rainbow bg-gradient-to-r from-pink-400 via-indigo-500 to-cyan-400 dark:from-pink-600 dark:via-indigo-600 dark:to-cyan-500 bg-[length:300%_100%]';
       default:
         return 'bg-slate-200 dark:bg-slate-700';
     }
   };
 
-  const getAnimationStyle = () => {
+  // Map index to delay class buckets to avoid inline styles
+  const getDelayClass = () => {
     if (disableAnimation) {
-      return {};
+      return '';
     }
-
-    // Add staggered delays for cascade effect
-    const cascadeDelay = variant === 'cascade' ? index * 0.1 : 0;
-    // Stable pseudo-random delays for shuffle effect
-    const shuffleDelay = variant === 'shuffle' ? stableRandomDelay : 0;
-
     switch (variant) {
       case 'shuffle':
-        return {
-          animation: `skeleton-shuffle 2s ease-in-out infinite`,
-          animationDelay: `${shuffleDelay}s`,
-        };
+        return `shuffle-delay-${index % 10}`;
       case 'explode':
-        return {
-          animation: `skeleton-explode 3s ease-in-out infinite`,
-          animationDelay: `${index * 0.05}s`,
-        };
+        return `explode-delay-${index <= 40 ? index : 40}`;
       case 'ripple':
-        return {
-          animation: `skeleton-ripple 2s ease-in-out infinite`,
-          animationDelay: `${index * 0.1}s`,
-        };
+        return `ripple-delay-${index <= 40 ? index : 40}`;
       case 'cascade':
-        return {
-          animation: `skeleton-cascade 2s ease-in-out infinite`,
-          animationDelay: `${cascadeDelay}s`,
-        };
+        return `cascade-delay-${index <= 40 ? index : 40}`;
+      case 'spin':
+        return `spin-delay-${index % 10}`;
+      case 'rainbow':
+        return `rainbow-delay-${index % 10}`;
+      case 'orbit':
+        return `orbit-delay-${index <= 40 ? index : 40}`;
       default:
-        return {};
+        return '';
     }
   };
 
@@ -106,9 +105,9 @@ const DynamicSkeletonBlock = ({
       className={cn(
         'rounded transition-colors duration-200',
         getAnimationClass(),
+        getDelayClass(),
         className,
       )}
-      style={getAnimationStyle()}
     />
   );
 };

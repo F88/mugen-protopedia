@@ -8,7 +8,15 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['shuffle', 'explode', 'ripple', 'cascade'],
+      options: [
+        'shuffle',
+        'explode',
+        'ripple',
+        'cascade',
+        'orbit',
+        'spin',
+        'rainbow',
+      ],
       description: 'Dynamic animation variant for the skeleton blocks',
     },
     disableAnimation: {
@@ -50,6 +58,18 @@ export const CascadeVariant: Story = {
   render: () => <PrototypeDynamicSkeletonCard variant="cascade" />,
 };
 
+export const OrbitVariant: Story = {
+  render: () => <PrototypeDynamicSkeletonCard variant="orbit" />,
+};
+
+export const SpinVariant: Story = {
+  render: () => <PrototypeDynamicSkeletonCard variant="spin" />,
+};
+
+export const RainbowVariant: Story = {
+  render: () => <PrototypeDynamicSkeletonCard variant="rainbow" />,
+};
+
 export const DisabledAnimation: Story = {
   render: () => <PrototypeDynamicSkeletonCard disableAnimation />,
 };
@@ -60,7 +80,7 @@ export const RandomVariant: Story = {
 
 export const RandomVariantComparison: Story = {
   render: () => (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <div>
         <h3 className="mb-2 text-sm font-semibold">Random #1</h3>
         <PrototypeDynamicSkeletonCard randomVariant />
@@ -98,7 +118,7 @@ export const WithExpectedIdAndError: Story = {
 
 export const AllDynamicVariantsComparison: Story = {
   render: () => (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <div>
         <h3 className="mb-2 text-sm font-semibold">Shuffle (Default)</h3>
         <PrototypeDynamicSkeletonCard variant="shuffle" />
@@ -114,6 +134,18 @@ export const AllDynamicVariantsComparison: Story = {
       <div>
         <h3 className="mb-2 text-sm font-semibold">Cascade</h3>
         <PrototypeDynamicSkeletonCard variant="cascade" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Orbit</h3>
+        <PrototypeDynamicSkeletonCard variant="orbit" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Spin</h3>
+        <PrototypeDynamicSkeletonCard variant="spin" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Rainbow</h3>
+        <PrototypeDynamicSkeletonCard variant="rainbow" />
       </div>
     </div>
   ),
