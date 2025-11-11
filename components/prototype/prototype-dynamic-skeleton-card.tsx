@@ -269,7 +269,7 @@ export const PrototypeDynamicSkeletonCard = ({
 
           {/* Badges */}
           <div className="flex flex-wrap gap-1.5">
-            {[...Array(12)].map((_, i) => (
+            {Array.from({ length: 12 }, (_, i) => (
               <DynamicSkeletonBlock
                 key={i}
                 className={cn(
