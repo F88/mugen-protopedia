@@ -244,4 +244,4 @@ Defaults:
 - Do import `@/lib/logger.server` in server code only.
 - Do import `@/lib/logger.client` in browser code and Storybook.
 - Don’t import `@/lib/logger.server` in client components or stories.
-- Don’t add `pino-pretty` as a static import; it’s loaded via `transport`.
+- Note: `pino-pretty` is statically imported to avoid Next.js bundling issues with worker-based transports.
