@@ -13,7 +13,7 @@ export function hashString(input: string | number): number {
 
 /**
  * Pick a skeleton kind deterministically.
- * - When id is provided and > 0: use it to pick deterministically
+ * - When id is provided and is a positive number: use it to pick deterministically
  * - Otherwise: use a stable seed (e.g., useId()) to pick in a SSR-safe way
  */
 export function pickSkeletonKind(opts: {
