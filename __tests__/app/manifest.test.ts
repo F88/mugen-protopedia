@@ -29,7 +29,7 @@ describe('PWA Manifest', () => {
     expect(manifestData.id).toBe('/');
   });
 
-  it('should have orientation set to portrait primary', () => {
+  it('should have orientation set to any', () => {
     const manifestData = manifest();
     expect(manifestData.orientation).toBe('any');
   });
