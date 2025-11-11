@@ -80,15 +80,15 @@ const DynamicSkeletonBlock = ({
       case 'shuffle':
         return `shuffle-delay-${index % 10}`;
       case 'explode':
-        return `explode-delay-${index <= 40 ? index : 40}`;
+        return `explode-delay-${index <= 20 ? index : 20}`;
       case 'cascade':
-        return `cascade-delay-${index <= 40 ? index : 40}`;
+        return `cascade-delay-${index <= 20 ? index : 20}`;
       case 'spin':
         return `spin-delay-${index % 10}`;
       case 'rainbow':
         return `rainbow-delay-${index % 10}`;
       case 'orbit':
-        return `orbit-delay-${index <= 40 ? index : 40}`;
+        return `orbit-delay-${index <= 20 ? index : 20}`;
       default:
         return '';
     }
