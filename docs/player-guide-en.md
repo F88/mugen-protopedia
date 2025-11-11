@@ -12,15 +12,15 @@ instructions-for-ais:
     - Content within code fences may be written in languages other than English.
 ---
 
-# Player Guide
+# 🎮 Player Guide
 
 Welcome! This guide helps you install and play Mugen ProtoPedia with the best experience across desktop and mobile.
 
-## What is Mugen ProtoPedia?
+## ❓ What is Mugen ProtoPedia?
 
 An endless, serendipity-first viewer for prototypes on [ProtoPedia](https://protopedia.net/). Browse randomly, discover unexpectedly, and get inspired.
 
-## 🚀 Recommended Environments to play
+## 🚀 Recommended Environments to Play
 
 📝 This app can open any prototype in your default web browser from within the app. Because the hand-off process (Browser vs. Installed App) may differ by platform, we encourage you to **choose the experience that best suits your preferences**.
 
@@ -49,7 +49,7 @@ While the browser is supported, we recommend **installing the PWA** for native-l
     - **Installation Method (for PWA):** **Manual Installation is Required.** Use the **Share button** then select **Add to Home Screen**.
     - **Note:** Safari is the only browser supported for PWA installation on these devices, as automatic prompts are not allowed.
 
-## Changelog & Support
+## 📝 Changelog & Support
 
-- Changelog is in the repository README.
+- Changelog is in the repository [README](../README.md).
 - Issues or questions? Open a GitHub issue or contact the maintainer.
