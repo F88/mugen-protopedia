@@ -94,12 +94,21 @@ const DynamicSkeletonBlock = ({
     }
   };
 
+  // For explode variant, add direction class to create scatter effect
+  const getDirectionClass = () => {
+    if (disableAnimation || variant !== 'explode') {
+      return '';
+    }
+    return `explode-direction-${index % 10}`;
+  };
+
   return (
     <div
       className={cn(
         'rounded transition-colors duration-200',
         getAnimationClass(),
         getDelayClass(),
+        getDirectionClass(),
         className,
       )}
     />

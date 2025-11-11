@@ -337,6 +337,48 @@
   animation-delay: 2s;
 }
 
+/* Explode directions: pre-defined scatter patterns */
+.explode-direction-0 {
+  --explode-x: 0px;
+  --explode-y: -8px;
+}
+.explode-direction-1 {
+  --explode-x: 6px;
+  --explode-y: -6px;
+}
+.explode-direction-2 {
+  --explode-x: 8px;
+  --explode-y: 0px;
+}
+.explode-direction-3 {
+  --explode-x: 6px;
+  --explode-y: 6px;
+}
+.explode-direction-4 {
+  --explode-x: 0px;
+  --explode-y: 8px;
+}
+.explode-direction-5 {
+  --explode-x: -6px;
+  --explode-y: 6px;
+}
+.explode-direction-6 {
+  --explode-x: -8px;
+  --explode-y: 0px;
+}
+.explode-direction-7 {
+  --explode-x: -6px;
+  --explode-y: -6px;
+}
+.explode-direction-8 {
+  --explode-x: 4px;
+  --explode-y: -4px;
+}
+.explode-direction-9 {
+  --explode-x: -4px;
+  --explode-y: 4px;
+}
+
 /* Cascade: 0.1s step, capped at 40 */
 .cascade-delay-0 {
   animation-delay: 0s;
