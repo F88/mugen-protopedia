@@ -1,19 +1,18 @@
 'use client';
-import React, { useMemo } from 'react';
+
+import { useMemo } from 'react';
+
+import { PrototypeSkeletonCardBaseProps } from '@/components/prototype/prototype-skeleton-card';
+import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
+
 import './skeleton-animations.css';
 
 type DynamicAnimationVariant = 'shuffle' | 'explode' | 'ripple' | 'cascade';
 
-type PrototypeDynamicSkeletonCardProps = {
-  expectedPrototypeId?: number;
-  errorMessage?: string;
-  isFocused?: boolean;
+type PrototypeDynamicSkeletonCardProps = PrototypeSkeletonCardBaseProps & {
   variant?: DynamicAnimationVariant;
-  disableAnimation?: boolean;
-  randomVariant?: boolean;
 };
 
 const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [

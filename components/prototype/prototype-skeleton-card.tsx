@@ -1,8 +1,12 @@
 'use client';
-import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+
+import { useMemo } from 'react';
+
 import { cn } from '@/lib/utils';
-import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
+
+import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+
 import './skeleton-animations.css';
 
 type AnimationVariant =
@@ -13,13 +17,16 @@ type AnimationVariant =
   | 'bounce'
   | 'slide';
 
-type PrototypeSkeletonCardProps = {
+export type PrototypeSkeletonCardBaseProps = {
   expectedPrototypeId?: number;
   errorMessage?: string;
   isFocused?: boolean;
-  variant?: AnimationVariant;
   disableAnimation?: boolean;
   randomVariant?: boolean;
+};
+
+type PrototypeSkeletonCardProps = PrototypeSkeletonCardBaseProps & {
+  variant?: AnimationVariant;
 };
 
 const ANIMATION_VARIANTS: AnimationVariant[] = [
