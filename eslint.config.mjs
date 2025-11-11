@@ -41,7 +41,10 @@ const eslintConfig = defineConfig([
   {
     files: [
       'app/actions/**/*.{ts,tsx}',
-      'lib/**/!(*.client).{ts,tsx}',
+      'lib/**/*.ts',
+      'lib/**/*.tsx',
+      '!lib/**/*.client.ts',
+      '!lib/**/*.client.tsx',
       'lib/**/*server*.{ts,tsx}',
       'lib/api/**/*.{ts,tsx}',
       'lib/protopedia-client.ts',
