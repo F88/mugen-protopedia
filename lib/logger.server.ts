@@ -26,6 +26,10 @@ function createServerLogger(): ServerLogger {
       colorize: true,
       translateTime: 'SYS:standard',
       ignore: 'pid,hostname',
+      // Ensure synchronous writes so logs are flushed before process exit.
+      // This mirrors the legacy logger behavior and avoids losing trailing logs
+      // during short-lived server actions or process shutdowns.
+      sync: true,
     });
     return pino(
       {
