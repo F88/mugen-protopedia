@@ -75,6 +75,18 @@ const DynamicSkeletonBlock = ({
   };
 
   // Map index to delay class buckets to avoid inline styles
+  //
+  // Design notes:
+  // - explode/cascade/orbit use monotonic, index-based delays with a hard cap
+  //   (explode: 0..40 by 0.05s; cascade/orbit: 0..20 by 0.1s). Capping keeps
+  //   the CSS class set finite, preserves the "later = slower" feel without
+  //   wrapping, and ensures initial motion happens within ~2s for a11y.
+  // - shuffle/spin/rainbow do not require monotonic progression; they are
+  //   distributed into 10 buckets via modulo for variety and smaller CSS.
+  //
+  // If future UIs need more granularity for very large lists, consider:
+  // - raising the cap (more classes, larger CSS), or
+  // - adding a small per-group offset/jitter while keeping monotonicity.
   const getDelayClass = () => {
     if (disableAnimation) {
       return '';
