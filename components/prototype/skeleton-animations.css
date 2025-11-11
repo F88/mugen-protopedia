@@ -111,7 +111,6 @@
 .skeleton-rainbow {
   animation: skeleton-rainbow 2s linear infinite;
   /* Light overall transparency to soften colors at low cost */
-  /* opacity: 1.0; */
   opacity: 0.5;
 }
 
