@@ -402,7 +402,7 @@
   animation-delay: 2s;
 }
 
-/* Orbit: 0.1s step, capped at 40 */
+/* Orbit: 0.1s step, capped at 20 */
 .orbit-delay-0 {
   animation-delay: 0s;
 }
