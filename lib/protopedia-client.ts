@@ -1,5 +1,5 @@
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.server';
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;

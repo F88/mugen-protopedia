@@ -5,7 +5,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    ".storybook/prototypes.fixture.ts"
+    ".storybook/**/*.ts"
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {

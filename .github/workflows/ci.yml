@@ -61,3 +61,6 @@ jobs:
       #   uses: codecov/codecov-action@v5
       #   with:
       #     token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Run build
+        run: npm run build

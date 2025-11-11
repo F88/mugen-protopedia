@@ -1,5 +1,5 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.client';
 import { isBirthDay, calculateAge } from '@/lib/utils/anniversary-nerd';
 
 /**

@@ -1,15 +1,15 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 
-import { AnalysisDashboard } from './analysis-dashboard';
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
   dashboard: DashboardProps;
+  analysisDashboard?: ReactNode; // allow injection for Storybook/tests
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard },
+  { dashboard, analysisDashboard },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -43,7 +43,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             />
 
             {/* Analysis Dashboard */}
-            <AnalysisDashboard defaultExpanded={false} />
+            {analysisDashboard}
 
             {/* Theme  */}
             <ThemeToggle />

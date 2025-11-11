@@ -1,5 +1,5 @@
 import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.server';
 
 /**
  * Cached analysis entry with metadata

@@ -19,6 +19,8 @@ import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 
 import { ControlPanel } from '@/components/control-panel';
 import { Header } from '@/components/header';
+import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
@@ -317,6 +319,12 @@ export default function Home() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
+        analysisDashboard={
+          <AnalysisDashboard
+            defaultExpanded={false}
+            useLatestAnalysisHook={useLatestAnalysis}
+          />
+        }
       />
 
       {/* {(prototypeError || randomPrototypeError) && (
