@@ -32,14 +32,6 @@ const meta = {
       inFlightRequests: 0,
       maxConcurrentFetches: 2,
     },
-  },
-} satisfies Meta<typeof Header>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
-  args: {
     analysisDashboard: (
       <AnalysisDashboard
         defaultExpanded={false}
@@ -47,7 +39,12 @@ export const Default: Story = {
       />
     ),
   },
-};
+} satisfies Meta<typeof Header>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
 
 export const Busy: Story = {
   name: 'Busy (large numbers)',
@@ -57,12 +54,6 @@ export const Busy: Story = {
       inFlightRequests: 8,
       maxConcurrentFetches: 8,
     },
-    analysisDashboard: (
-      <AnalysisDashboard
-        defaultExpanded={false}
-        useLatestAnalysisHook={useLatestAnalysisMock}
-      />
-    ),
   },
 };
 
@@ -73,12 +64,5 @@ export const Mobile: Story = {
       defaultViewport: 'iphone14',
     },
   },
-  args: {
-    analysisDashboard: (
-      <AnalysisDashboard
-        defaultExpanded={false}
-        useLatestAnalysisHook={useLatestAnalysisMock}
-      />
-    ),
-  },
+  args: {},
 };
