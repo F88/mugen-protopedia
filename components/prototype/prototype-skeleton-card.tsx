@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -8,6 +8,7 @@ import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 import './skeleton-animations.css';
+import { hashString } from './utils/skeleton-kind';
 
 type AnimationVariant =
   | 'shimmer'
@@ -38,9 +39,10 @@ const ANIMATION_VARIANTS: AnimationVariant[] = [
   'slide',
 ];
 
-const getRandomVariant = (): AnimationVariant => {
-  const randomIndex = Math.floor(Math.random() * ANIMATION_VARIANTS.length);
-  return ANIMATION_VARIANTS[randomIndex];
+// Deterministic picker to keep the selection stable per mount (useId).
+const getDeterministicVariant = (basis: string | number): AnimationVariant => {
+  const idx = Math.abs(hashString(basis)) % ANIMATION_VARIANTS.length;
+  return ANIMATION_VARIANTS[idx];
 };
 
 const SkeletonBlock = ({
@@ -94,13 +96,15 @@ export const PrototypeSkeletonCard = ({
   disableAnimation = false,
   randomVariant = false,
 }: PrototypeSkeletonCardProps) => {
-  // Use useMemo to ensure the random variant is stable across re-renders
+  // Per-mount random: seed with useId so multiple mounted skeletons differ,
+  // while remaining stable for the lifetime of each instance.
+  const rid = useId();
   const selectedVariant = useMemo(() => {
     if (randomVariant) {
-      return getRandomVariant();
+      return getDeterministicVariant(rid);
     }
     return variant;
-  }, randomVariant ? [randomVariant] : [randomVariant, variant]);
+  }, [randomVariant, rid, variant]);
 
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =

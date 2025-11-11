@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 
 import { PrototypeSkeletonCardBaseProps } from '@/components/prototype/prototype-skeleton-card';
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 import './skeleton-animations.css';
+import { hashString } from './utils/skeleton-kind';
 
 type DynamicAnimationVariant =
   | 'shuffle'
@@ -30,11 +31,13 @@ const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [
   'rainbow',
 ];
 
-const getRandomDynamicVariant = (): DynamicAnimationVariant => {
-  const randomIndex = Math.floor(
-    Math.random() * DYNAMIC_ANIMATION_VARIANTS.length,
-  );
-  return DYNAMIC_ANIMATION_VARIANTS[randomIndex];
+// Deterministic selection to avoid re-picks on unrelated prop changes
+// and to keep selection stable across renders.
+const getDeterministicDynamicVariant = (
+  basis: string | number,
+): DynamicAnimationVariant => {
+  const idx = Math.abs(hashString(basis)) % DYNAMIC_ANIMATION_VARIANTS.length;
+  return DYNAMIC_ANIMATION_VARIANTS[idx];
 };
 
 const DynamicSkeletonBlock = ({
@@ -80,26 +83,18 @@ const DynamicSkeletonBlock = ({
       case 'shuffle':
         return `shuffle-delay-${index % 10}`;
       case 'explode':
-        return `explode-delay-${index <= 20 ? index : 20}`;
+        return `explode-delay-${index <= 40 ? index : 40}`;
       case 'cascade':
-        return `cascade-delay-${index <= 20 ? index : 20}`;
+        return `cascade-delay-${index <= 40 ? index : 40}`;
       case 'spin':
         return `spin-delay-${index % 10}`;
       case 'rainbow':
         return `rainbow-delay-${index % 10}`;
       case 'orbit':
-        return `orbit-delay-${index <= 20 ? index : 20}`;
+        return `orbit-delay-${index <= 40 ? index : 40}`;
       default:
         return '';
     }
-  };
-
-  // For explode variant, add direction class to create scatter effect
-  const getDirectionClass = () => {
-    if (disableAnimation || variant !== 'explode') {
-      return '';
-    }
-    return `explode-direction-${index % 10}`;
   };
 
   return (
@@ -108,7 +103,6 @@ const DynamicSkeletonBlock = ({
         'rounded transition-colors duration-200',
         getAnimationClass(),
         getDelayClass(),
-        getDirectionClass(),
         className,
       )}
     />
@@ -123,13 +117,17 @@ export const PrototypeDynamicSkeletonCard = ({
   disableAnimation = false,
   randomVariant = false,
 }: PrototypeDynamicSkeletonCardProps) => {
-  // Use useMemo to ensure the random variant is stable across re-renders
+  // Use a deterministic basis: prefer the explicit ID, otherwise a stable useId seed
+  const rid = useId();
   const selectedVariant = useMemo(() => {
     if (randomVariant) {
-      return getRandomDynamicVariant();
+      // Per-mount random: use the unique, stable useId() seed only.
+      // This makes each mounted skeleton pick a different variant,
+      // while keeping it stable for the lifetime of the instance.
+      return getDeterministicDynamicVariant(rid);
     }
     return variant;
-  }, randomVariant ? [randomVariant] : [randomVariant, variant]);
+  }, [randomVariant, rid, variant]);
 
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =
@@ -202,7 +200,7 @@ export const PrototypeDynamicSkeletonCard = ({
             />
             <div className="h-1" />
             <DynamicSkeletonBlock
-              className="h-4 w-7/12"
+              className="h-4 w-9/16"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
               index={5}
