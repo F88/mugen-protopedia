@@ -1,0 +1,630 @@
+/* Skeleton card animations */
+/* Static skeleton variant classes (durations <= 2s) */
+.skeleton-shimmer {
+  animation: skeleton-shimmer 2s ease-in-out infinite;
+}
+.skeleton-pulse {
+  animation: skeleton-pulse 2s ease-in-out infinite;
+}
+.skeleton-twinkle {
+  animation: skeleton-twinkle 2s ease-in-out infinite;
+}
+.skeleton-wave {
+  animation: skeleton-wave 1.5s ease-in-out infinite;
+}
+.skeleton-bounce {
+  animation: skeleton-bounce 1s ease-in-out infinite;
+}
+.skeleton-slide {
+  animation: skeleton-slide 2s linear infinite;
+}
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes skeleton-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes skeleton-wave {
+  0% {
+    background-position: -200% 0;
+    transform: scaleY(1);
+  }
+  50% {
+    background-position: 0% 0;
+    transform: scaleY(0.98);
+  }
+  100% {
+    background-position: 200% 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes skeleton-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-3px) scale(1.01);
+    opacity: 0.7;
+  }
+}
+
+@keyframes skeleton-slide {
+  0% {
+    background-position: -200% 0;
+    transform: translateX(0);
+  }
+  50% {
+    background-position: 0% 0;
+    transform: translateX(2px);
+  }
+  100% {
+    background-position: 200% 0;
+    transform: translateX(0);
+  }
+}
+
+/* Dynamic skeleton card animations - More dramatic effects */
+/* Dynamic skeleton variant classes (durations <= 2s) */
+.skeleton-shuffle {
+  animation: skeleton-shuffle 2s ease-in-out infinite;
+}
+.skeleton-explode {
+  animation: skeleton-explode 2s ease-in-out infinite;
+}
+.skeleton-cascade {
+  animation: skeleton-cascade 2s ease-in-out infinite;
+}
+.skeleton-orbit {
+  animation: skeleton-orbit 2s ease-in-out infinite;
+}
+.skeleton-spin {
+  animation: skeleton-spin 1.6s linear infinite;
+}
+.skeleton-rainbow {
+  animation: skeleton-rainbow 2s linear infinite;
+  /* Light overall transparency to soften colors at low cost */
+  opacity: 0.5;
+}
+
+/* Delay classes to avoid inline styles */
+/* Shuffle: stable pseudo-random sequence for 10 buckets */
+/* Shared pseudo-random delay buckets (used by shuffle/spin) */
+.pseudo-random-delay-0 {
+  animation-delay: 0s;
+}
+.pseudo-random-delay-1 {
+  animation-delay: 0.35s;
+}
+.pseudo-random-delay-2 {
+  animation-delay: 0.2s;
+}
+.pseudo-random-delay-3 {
+  animation-delay: 0.05s;
+}
+.pseudo-random-delay-4 {
+  animation-delay: 0.4s;
+}
+.pseudo-random-delay-5 {
+  animation-delay: 0.25s;
+}
+.pseudo-random-delay-6 {
+  animation-delay: 0.1s;
+}
+.pseudo-random-delay-7 {
+  animation-delay: 0.45s;
+}
+.pseudo-random-delay-8 {
+  animation-delay: 0.3s;
+}
+.pseudo-random-delay-9 {
+  animation-delay: 0.15s;
+}
+
+/* Rainbow delays: capped at 0.9s to ensure motion feedback within first second */
+.rainbow-delay-0 {
+  animation-delay: 0s;
+}
+.rainbow-delay-1 {
+  animation-delay: 0.1s;
+}
+.rainbow-delay-2 {
+  animation-delay: 0.2s;
+}
+.rainbow-delay-3 {
+  animation-delay: 0.3s;
+}
+.rainbow-delay-4 {
+  animation-delay: 0.4s;
+}
+.rainbow-delay-5 {
+  animation-delay: 0.5s;
+}
+.rainbow-delay-6 {
+  animation-delay: 0.6s;
+}
+.rainbow-delay-7 {
+  animation-delay: 0.7s;
+}
+.rainbow-delay-8 {
+  animation-delay: 0.8s;
+}
+.rainbow-delay-9 {
+  animation-delay: 0.9s;
+}
+
+/* Explode: 0.05s step, capped at 20 */
+.explode-delay-0 {
+  animation-delay: 0s;
+}
+.explode-delay-1 {
+  animation-delay: 0.05s;
+}
+.explode-delay-2 {
+  animation-delay: 0.1s;
+}
+.explode-delay-3 {
+  animation-delay: 0.15s;
+}
+.explode-delay-4 {
+  animation-delay: 0.2s;
+}
+.explode-delay-5 {
+  animation-delay: 0.25s;
+}
+.explode-delay-6 {
+  animation-delay: 0.3s;
+}
+.explode-delay-7 {
+  animation-delay: 0.35s;
+}
+.explode-delay-8 {
+  animation-delay: 0.4s;
+}
+.explode-delay-9 {
+  animation-delay: 0.45s;
+}
+.explode-delay-10 {
+  animation-delay: 0.5s;
+}
+.explode-delay-11 {
+  animation-delay: 0.55s;
+}
+.explode-delay-12 {
+  animation-delay: 0.6s;
+}
+.explode-delay-13 {
+  animation-delay: 0.65s;
+}
+.explode-delay-14 {
+  animation-delay: 0.7s;
+}
+.explode-delay-15 {
+  animation-delay: 0.75s;
+}
+.explode-delay-16 {
+  animation-delay: 0.8s;
+}
+.explode-delay-17 {
+  animation-delay: 0.85s;
+}
+.explode-delay-18 {
+  animation-delay: 0.9s;
+}
+.explode-delay-19 {
+  animation-delay: 0.95s;
+}
+.explode-delay-20 {
+  animation-delay: 1s;
+}
+.explode-delay-21 {
+  animation-delay: 1.05s;
+}
+.explode-delay-22 {
+  animation-delay: 1.1s;
+}
+.explode-delay-23 {
+  animation-delay: 1.15s;
+}
+.explode-delay-24 {
+  animation-delay: 1.2s;
+}
+.explode-delay-25 {
+  animation-delay: 1.25s;
+}
+.explode-delay-26 {
+  animation-delay: 1.3s;
+}
+.explode-delay-27 {
+  animation-delay: 1.35s;
+}
+.explode-delay-28 {
+  animation-delay: 1.4s;
+}
+.explode-delay-29 {
+  animation-delay: 1.45s;
+}
+.explode-delay-30 {
+  animation-delay: 1.5s;
+}
+.explode-delay-31 {
+  animation-delay: 1.55s;
+}
+.explode-delay-32 {
+  animation-delay: 1.6s;
+}
+.explode-delay-33 {
+  animation-delay: 1.65s;
+}
+.explode-delay-34 {
+  animation-delay: 1.7s;
+}
+.explode-delay-35 {
+  animation-delay: 1.75s;
+}
+.explode-delay-36 {
+  animation-delay: 1.8s;
+}
+.explode-delay-37 {
+  animation-delay: 1.85s;
+}
+.explode-delay-38 {
+  animation-delay: 1.9s;
+}
+.explode-delay-39 {
+  animation-delay: 1.95s;
+}
+.explode-delay-40 {
+  animation-delay: 2s;
+}
+
+/* Explode directions: pre-defined scatter patterns */
+.explode-direction-0 {
+  --explode-x: 0px;
+  --explode-y: -8px;
+}
+.explode-direction-1 {
+  --explode-x: 6px;
+  --explode-y: -6px;
+}
+.explode-direction-2 {
+  --explode-x: 8px;
+  --explode-y: 0px;
+}
+.explode-direction-3 {
+  --explode-x: 6px;
+  --explode-y: 6px;
+}
+.explode-direction-4 {
+  --explode-x: 0px;
+  --explode-y: 8px;
+}
+.explode-direction-5 {
+  --explode-x: -6px;
+  --explode-y: 6px;
+}
+.explode-direction-6 {
+  --explode-x: -8px;
+  --explode-y: 0px;
+}
+.explode-direction-7 {
+  --explode-x: -6px;
+  --explode-y: -6px;
+}
+.explode-direction-8 {
+  --explode-x: 4px;
+  --explode-y: -4px;
+}
+.explode-direction-9 {
+  --explode-x: -4px;
+  --explode-y: 4px;
+}
+
+/* Cascade: 0.1s step, capped at 20 */
+.cascade-delay-0 {
+  animation-delay: 0s;
+}
+.cascade-delay-1 {
+  animation-delay: 0.1s;
+}
+.cascade-delay-2 {
+  animation-delay: 0.2s;
+}
+.cascade-delay-3 {
+  animation-delay: 0.3s;
+}
+.cascade-delay-4 {
+  animation-delay: 0.4s;
+}
+.cascade-delay-5 {
+  animation-delay: 0.5s;
+}
+.cascade-delay-6 {
+  animation-delay: 0.6s;
+}
+.cascade-delay-7 {
+  animation-delay: 0.7s;
+}
+.cascade-delay-8 {
+  animation-delay: 0.8s;
+}
+.cascade-delay-9 {
+  animation-delay: 0.9s;
+}
+.cascade-delay-10 {
+  animation-delay: 1s;
+}
+.cascade-delay-11 {
+  animation-delay: 1.1s;
+}
+.cascade-delay-12 {
+  animation-delay: 1.2s;
+}
+.cascade-delay-13 {
+  animation-delay: 1.3s;
+}
+.cascade-delay-14 {
+  animation-delay: 1.4s;
+}
+.cascade-delay-15 {
+  animation-delay: 1.5s;
+}
+.cascade-delay-16 {
+  animation-delay: 1.6s;
+}
+.cascade-delay-17 {
+  animation-delay: 1.7s;
+}
+.cascade-delay-18 {
+  animation-delay: 1.8s;
+}
+.cascade-delay-19 {
+  animation-delay: 1.9s;
+}
+.cascade-delay-20 {
+  animation-delay: 2s;
+}
+
+/* Orbit: 0.1s step, capped at 20 */
+.orbit-delay-0 {
+  animation-delay: 0s;
+}
+.orbit-delay-1 {
+  animation-delay: 0.1s;
+}
+.orbit-delay-2 {
+  animation-delay: 0.2s;
+}
+.orbit-delay-3 {
+  animation-delay: 0.3s;
+}
+.orbit-delay-4 {
+  animation-delay: 0.4s;
+}
+.orbit-delay-5 {
+  animation-delay: 0.5s;
+}
+.orbit-delay-6 {
+  animation-delay: 0.6s;
+}
+.orbit-delay-7 {
+  animation-delay: 0.7s;
+}
+.orbit-delay-8 {
+  animation-delay: 0.8s;
+}
+.orbit-delay-9 {
+  animation-delay: 0.9s;
+}
+.orbit-delay-10 {
+  animation-delay: 1s;
+}
+.orbit-delay-11 {
+  animation-delay: 1.1s;
+}
+.orbit-delay-12 {
+  animation-delay: 1.2s;
+}
+.orbit-delay-13 {
+  animation-delay: 1.3s;
+}
+.orbit-delay-14 {
+  animation-delay: 1.4s;
+}
+.orbit-delay-15 {
+  animation-delay: 1.5s;
+}
+.orbit-delay-16 {
+  animation-delay: 1.6s;
+}
+.orbit-delay-17 {
+  animation-delay: 1.7s;
+}
+.orbit-delay-18 {
+  animation-delay: 1.8s;
+}
+.orbit-delay-19 {
+  animation-delay: 1.9s;
+}
+.orbit-delay-20 {
+  animation-delay: 2s;
+}
+
+/* Orbit keyframes: faster, larger circular motion with pronounced rotation */
+@keyframes skeleton-orbit {
+  0% {
+    transform: rotate(0deg) translateX(14px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: rotate(90deg) translateX(14px) rotate(-90deg) scale(1.04);
+    opacity: 0.9;
+  }
+  50% {
+    transform: rotate(180deg) translateX(14px) rotate(-180deg) scale(1.08);
+    opacity: 0.8;
+  }
+  75% {
+    transform: rotate(270deg) translateX(14px) rotate(-270deg) scale(1.04);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(360deg) translateX(14px) rotate(-360deg) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes skeleton-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: rotate(120deg) scale(1.05);
+    opacity: 0.9;
+  }
+  50% {
+    transform: rotate(220deg) scale(1.1);
+    opacity: 0.75;
+  }
+  80% {
+    transform: rotate(300deg) scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes skeleton-rainbow {
+  /* Seesaw motion: start slightly left, swing right, and back */
+  0% {
+    background-position: 40% 0;
+    filter: hue-rotate(0deg) saturate(1.05);
+    transform: rotate(-6deg) scale(1);
+  }
+  25% {
+    background-position: 50% 0;
+    filter: hue-rotate(90deg) saturate(1.05);
+    transform: rotate(0deg) scale(1.02);
+  }
+  50% {
+    background-position: 60% 0;
+    filter: hue-rotate(180deg) saturate(1.05);
+    transform: rotate(6deg) scale(1.04);
+  }
+  75% {
+    background-position: 50% 0;
+    filter: hue-rotate(270deg) saturate(1.05);
+    transform: rotate(0deg) scale(1.02);
+  }
+  100% {
+    background-position: 40% 0;
+    filter: hue-rotate(360deg) saturate(1.05);
+    transform: rotate(-6deg) scale(1);
+  }
+}
+@keyframes skeleton-shuffle {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(4px, -2px) rotate(2deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-3px, 3px) rotate(-1deg);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate(2px, -4px) rotate(1deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes skeleton-explode {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(0.95) translate(0, 0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05)
+      translate(var(--explode-x, 0px), var(--explode-y, 0px));
+    opacity: 0.4;
+  }
+  75% {
+    transform: scale(0.98) translate(0, 0);
+    opacity: 0.7;
+  }
+}
+
+@keyframes skeleton-cascade {
+  0%,
+  100% {
+    transform: translateX(0) scaleX(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(-10px) scaleX(0.95);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(10px) scaleX(1.05);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(-5px) scaleX(0.98);
+    opacity: 0.6;
+  }
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer,
+  .skeleton-pulse,
+  .skeleton-twinkle,
+  .skeleton-wave,
+  .skeleton-bounce,
+  .skeleton-slide,
+  .skeleton-shuffle,
+  .skeleton-explode,
+  .skeleton-cascade,
+  .skeleton-orbit,
+  .skeleton-spin,
+  .skeleton-rainbow {
+    animation: none !important;
+  }
+}

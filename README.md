@@ -59,20 +59,24 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-11-11
+
+- 🎪 スケルトンカードのバリエーションを追加
+
 ### 2025-11-10
 
-- 素材を表示するリンクを追加
-- 自動スクロール処理を改善
-- カードの視認性を向上
-- マウスポインタによるカード選択機能を改善
+- 🔗 素材を表示するリンクを追加
+- 🪄 自動スクロール処理を改善
+- 🎨 カードの視認性を向上
+- 🎯 マウスポインタによるカード選択機能を改善
 
 ### 2025-11-09
 
-- PWA 対応（A2HS）: Web App Manifest & Service Worker でインストール可能に
+- 📱 PWA 対応（A2HS）: Web App Manifest & Service Worker でインストール可能に
 
 ### 2025-11-08
 
-- 🎊 初期リリース
+- 🎊 リリース
 
 ## Documentation
 

@@ -1,7 +1,13 @@
 'use client';
 
+import { useId } from 'react';
+
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+
+import { pickSkeletonKind } from './utils/skeleton-kind';
+
 import { PrototypeCard } from './prototype-card';
+import { PrototypeDynamicSkeletonCard } from './prototype-dynamic-skeleton-card';
 import { PrototypeSkeletonCard } from './prototype-skeleton-card';
 
 type PrototypeContainerProps = {
@@ -25,28 +31,35 @@ export const PrototypeContainer = ({
   onClick,
   ...htmlProps
 }: PrototypeContainerProps) => {
-  if (isLoading) {
-    return (
-      <div {...htmlProps}>
-        <PrototypeSkeletonCard
-          expectedPrototypeId={expectedPrototypeId}
-          errorMessage={errorMessage}
-          isFocused={isFocused}
-        />
-      </div>
+  const rid = useId();
+  const selectedKind = pickSkeletonKind({
+    id: expectedPrototypeId,
+    seed: rid,
+  });
+
+  const renderRandomSkeleton = () =>
+    selectedKind === 'dynamic' ? (
+      <PrototypeDynamicSkeletonCard
+        expectedPrototypeId={expectedPrototypeId}
+        errorMessage={errorMessage}
+        isFocused={isFocused}
+        randomVariant={true}
+      />
+    ) : (
+      <PrototypeSkeletonCard
+        expectedPrototypeId={expectedPrototypeId}
+        errorMessage={errorMessage}
+        isFocused={isFocused}
+        randomVariant={true}
+      />
     );
+
+  if (isLoading) {
+    return <div {...htmlProps}>{renderRandomSkeleton()}</div>;
   }
 
   if (prototype == null) {
-    return (
-      <div {...htmlProps}>
-        <PrototypeSkeletonCard
-          expectedPrototypeId={expectedPrototypeId}
-          errorMessage={errorMessage}
-          isFocused={isFocused}
-        />
-      </div>
-    );
+    return <div {...htmlProps}>{renderRandomSkeleton()}</div>;
   }
 
   return (
