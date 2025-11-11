@@ -15,6 +15,10 @@ const meta = {
       control: 'boolean',
       description: 'Disable all animations',
     },
+    randomVariant: {
+      control: 'boolean',
+      description: 'Randomly select an animation variant',
+    },
     isFocused: {
       control: 'boolean',
       description: 'Apply focus styling',
@@ -44,6 +48,29 @@ export const TwinkleVariant: Story = {
 
 export const DisabledAnimation: Story = {
   render: () => <PrototypeSkeletonCard disableAnimation />,
+};
+
+export const RandomVariant: Story = {
+  render: () => <PrototypeSkeletonCard randomVariant />,
+};
+
+export const RandomVariantComparison: Story = {
+  render: () => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Random #1</h3>
+        <PrototypeSkeletonCard randomVariant />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Random #2</h3>
+        <PrototypeSkeletonCard randomVariant />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Random #3</h3>
+        <PrototypeSkeletonCard randomVariant />
+      </div>
+    </div>
+  ),
 };
 
 export const WithExpectedIdAndNoError: Story = {

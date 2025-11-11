@@ -70,4 +70,29 @@ describe('PrototypeSkeletonCard', () => {
     const allDivs = container.querySelectorAll('div');
     expect(allDivs.length).toBeGreaterThan(10);
   });
+
+  it('renders with random variant when randomVariant is true', () => {
+    const { container } = render(<PrototypeSkeletonCard randomVariant />);
+    // Should render one of the three animation variants
+    const shimmerBlocks = container.querySelectorAll('.skeleton-shimmer');
+    const pulseBlocks = container.querySelectorAll('.skeleton-pulse');
+    const twinkleBlocks = container.querySelectorAll('.skeleton-twinkle');
+    const totalAnimatedBlocks =
+      shimmerBlocks.length + pulseBlocks.length + twinkleBlocks.length;
+    expect(totalAnimatedBlocks).toBeGreaterThan(0);
+  });
+
+  it('randomVariant overrides variant prop', () => {
+    const { container } = render(
+      <PrototypeSkeletonCard variant="shimmer" randomVariant />,
+    );
+    // Should use random variant, not the specified shimmer
+    // We can't predict which one, but it should have animation blocks
+    const shimmerBlocks = container.querySelectorAll('.skeleton-shimmer');
+    const pulseBlocks = container.querySelectorAll('.skeleton-pulse');
+    const twinkleBlocks = container.querySelectorAll('.skeleton-twinkle');
+    const totalAnimatedBlocks =
+      shimmerBlocks.length + pulseBlocks.length + twinkleBlocks.length;
+    expect(totalAnimatedBlocks).toBeGreaterThan(0);
+  });
 });

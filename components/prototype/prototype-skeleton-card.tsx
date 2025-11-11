@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
@@ -12,6 +12,14 @@ type PrototypeSkeletonCardProps = {
   isFocused?: boolean;
   variant?: AnimationVariant;
   disableAnimation?: boolean;
+  randomVariant?: boolean;
+};
+
+const ANIMATION_VARIANTS: AnimationVariant[] = ['shimmer', 'pulse', 'twinkle'];
+
+const getRandomVariant = (): AnimationVariant => {
+  const randomIndex = Math.floor(Math.random() * ANIMATION_VARIANTS.length);
+  return ANIMATION_VARIANTS[randomIndex];
 };
 
 const SkeletonBlock = ({
@@ -75,7 +83,16 @@ export const PrototypeSkeletonCard = ({
   isFocused = false,
   variant = 'shimmer',
   disableAnimation = false,
+  randomVariant = false,
 }: PrototypeSkeletonCardProps) => {
+  // Use useMemo to ensure the random variant is stable across re-renders
+  const selectedVariant = useMemo(() => {
+    if (randomVariant) {
+      return getRandomVariant();
+    }
+    return variant;
+  }, [randomVariant, variant]);
+
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =
     !showErrorOnImage && typeof expectedPrototypeId === 'number';
@@ -106,14 +123,14 @@ export const PrototypeSkeletonCard = ({
             ) : (
               <SkeletonBlock
                 className="h-6 w-2/4"
-                variant={variant}
+                variant={selectedVariant}
                 disableAnimation={disableAnimation}
               />
             )}
             <div className="flex items-center justify-end">
               <SkeletonBlock
                 className="h-4 w-2/4"
-                variant={variant}
+                variant={selectedVariant}
                 disableAnimation={disableAnimation}
               />
             </div>
@@ -123,7 +140,7 @@ export const PrototypeSkeletonCard = ({
           <div className="mb-1">
             <SkeletonBlock
               className="h-8 w-3/4"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
           </div>
@@ -131,19 +148,19 @@ export const PrototypeSkeletonCard = ({
           <div className="mt-1">
             <SkeletonBlock
               className="h-4 w-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <div className="h-1" />
             <SkeletonBlock
               className="h-4 w-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <div className="h-1" />
             <SkeletonBlock
               className="h-4 w-9/16"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
           </div>
@@ -153,7 +170,7 @@ export const PrototypeSkeletonCard = ({
           <div className="relative">
             <SkeletonBlock
               className="w-full aspect-video"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             {showErrorOnImage && (
@@ -171,17 +188,17 @@ export const PrototypeSkeletonCard = ({
           <div className="grid grid-cols-3 gap-3">
             <SkeletonBlock
               className="h-4 w-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
           </div>
@@ -189,7 +206,7 @@ export const PrototypeSkeletonCard = ({
           {/* Age */}
           <SkeletonBlock
             className="h-4 w-full"
-            variant={variant}
+            variant={selectedVariant}
             disableAnimation={disableAnimation}
           />
 
@@ -197,62 +214,62 @@ export const PrototypeSkeletonCard = ({
           <div className="flex flex-wrap gap-1.5">
             <SkeletonBlock
               className="h-4 w-24 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-18 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-16 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-16 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-24 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-12 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-12 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-16 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-16 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-12 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-12 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
             <SkeletonBlock
               className="h-4 w-12 rounded-full"
-              variant={variant}
+              variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
           </div>
