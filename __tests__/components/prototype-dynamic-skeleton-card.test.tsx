@@ -19,14 +19,6 @@ describe('PrototypeDynamicSkeletonCard', () => {
     expect(skeletonBlocks.length).toBeGreaterThan(0);
   });
 
-  it('renders with ripple variant', () => {
-    const { container } = render(
-      <PrototypeDynamicSkeletonCard variant="ripple" />,
-    );
-    const skeletonBlocks = container.querySelectorAll('.skeleton-ripple');
-    expect(skeletonBlocks.length).toBeGreaterThan(0);
-  });
-
   it('renders with cascade variant', () => {
     const { container } = render(
       <PrototypeDynamicSkeletonCard variant="cascade" />,
@@ -41,11 +33,9 @@ describe('PrototypeDynamicSkeletonCard', () => {
     );
     const shuffleBlocks = container.querySelectorAll('.skeleton-shuffle');
     const explodeBlocks = container.querySelectorAll('.skeleton-explode');
-    const rippleBlocks = container.querySelectorAll('.skeleton-ripple');
     const cascadeBlocks = container.querySelectorAll('.skeleton-cascade');
     expect(shuffleBlocks.length).toBe(0);
     expect(explodeBlocks.length).toBe(0);
-    expect(rippleBlocks.length).toBe(0);
     expect(cascadeBlocks.length).toBe(0);
   });
 
@@ -96,13 +86,9 @@ describe('PrototypeDynamicSkeletonCard', () => {
     // Should render one of the four animation variants
     const shuffleBlocks = container.querySelectorAll('.skeleton-shuffle');
     const explodeBlocks = container.querySelectorAll('.skeleton-explode');
-    const rippleBlocks = container.querySelectorAll('.skeleton-ripple');
     const cascadeBlocks = container.querySelectorAll('.skeleton-cascade');
     const totalAnimatedBlocks =
-      shuffleBlocks.length +
-      explodeBlocks.length +
-      rippleBlocks.length +
-      cascadeBlocks.length;
+      shuffleBlocks.length + explodeBlocks.length + cascadeBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 
@@ -114,13 +100,9 @@ describe('PrototypeDynamicSkeletonCard', () => {
     // We can't predict which one, but it should have animation blocks
     const shuffleBlocks = container.querySelectorAll('.skeleton-shuffle');
     const explodeBlocks = container.querySelectorAll('.skeleton-explode');
-    const rippleBlocks = container.querySelectorAll('.skeleton-ripple');
     const cascadeBlocks = container.querySelectorAll('.skeleton-cascade');
     const totalAnimatedBlocks =
-      shuffleBlocks.length +
-      explodeBlocks.length +
-      rippleBlocks.length +
-      cascadeBlocks.length;
+      shuffleBlocks.length + explodeBlocks.length + cascadeBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 });

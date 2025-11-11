@@ -12,7 +12,6 @@ import './skeleton-animations.css';
 type DynamicAnimationVariant =
   | 'shuffle'
   | 'explode'
-  | 'ripple'
   | 'cascade'
   | 'orbit'
   | 'spin'
@@ -25,7 +24,6 @@ type PrototypeDynamicSkeletonCardProps = PrototypeSkeletonCardBaseProps & {
 const DYNAMIC_ANIMATION_VARIANTS: DynamicAnimationVariant[] = [
   'shuffle',
   'explode',
-  'ripple',
   'cascade',
   'orbit',
   'spin',
@@ -60,8 +58,6 @@ const DynamicSkeletonBlock = ({
         return 'skeleton-shuffle bg-slate-200 dark:bg-slate-700';
       case 'explode':
         return 'skeleton-explode bg-slate-200 dark:bg-slate-700';
-      case 'ripple':
-        return 'skeleton-ripple bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700';
       case 'cascade':
         return 'skeleton-cascade bg-slate-200 dark:bg-slate-700';
       case 'orbit':
@@ -85,8 +81,6 @@ const DynamicSkeletonBlock = ({
         return `shuffle-delay-${index % 10}`;
       case 'explode':
         return `explode-delay-${index <= 40 ? index : 40}`;
-      case 'ripple':
-        return `ripple-delay-${index <= 40 ? index : 40}`;
       case 'cascade':
         return `cascade-delay-${index <= 40 ? index : 40}`;
       case 'spin':

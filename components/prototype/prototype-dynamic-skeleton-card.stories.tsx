@@ -8,15 +8,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: [
-        'shuffle',
-        'explode',
-        'ripple',
-        'cascade',
-        'orbit',
-        'spin',
-        'rainbow',
-      ],
+      options: ['shuffle', 'explode', 'cascade', 'orbit', 'spin', 'rainbow'],
       description: 'Dynamic animation variant for the skeleton blocks',
     },
     disableAnimation: {
@@ -48,10 +40,6 @@ export const ShuffleVariant: Story = {
 
 export const ExplodeVariant: Story = {
   render: () => <PrototypeDynamicSkeletonCard variant="explode" />,
-};
-
-export const RippleVariant: Story = {
-  render: () => <PrototypeDynamicSkeletonCard variant="ripple" />,
 };
 
 export const CascadeVariant: Story = {
@@ -126,10 +114,6 @@ export const AllDynamicVariantsComparison: Story = {
       <div>
         <h3 className="mb-2 text-sm font-semibold">Explode</h3>
         <PrototypeDynamicSkeletonCard variant="explode" />
-      </div>
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Ripple</h3>
-        <PrototypeDynamicSkeletonCard variant="ripple" />
       </div>
       <div>
         <h3 className="mb-2 text-sm font-semibold">Cascade</h3>
