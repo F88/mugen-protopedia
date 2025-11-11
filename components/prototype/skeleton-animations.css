@@ -116,66 +116,35 @@
 
 /* Delay classes to avoid inline styles */
 /* Shuffle: stable pseudo-random sequence for 10 buckets */
-.shuffle-delay-0 {
+/* Shared pseudo-random delay buckets (used by shuffle/spin) */
+.pseudo-random-delay-0 {
   animation-delay: 0s;
 }
-.shuffle-delay-1 {
+.pseudo-random-delay-1 {
   animation-delay: 0.35s;
 }
-.shuffle-delay-2 {
+.pseudo-random-delay-2 {
   animation-delay: 0.2s;
 }
-.shuffle-delay-3 {
+.pseudo-random-delay-3 {
   animation-delay: 0.05s;
 }
-.shuffle-delay-4 {
+.pseudo-random-delay-4 {
   animation-delay: 0.4s;
 }
-.shuffle-delay-5 {
+.pseudo-random-delay-5 {
   animation-delay: 0.25s;
 }
-.shuffle-delay-6 {
+.pseudo-random-delay-6 {
   animation-delay: 0.1s;
 }
-.shuffle-delay-7 {
+.pseudo-random-delay-7 {
   animation-delay: 0.45s;
 }
-.shuffle-delay-8 {
+.pseudo-random-delay-8 {
   animation-delay: 0.3s;
 }
-.shuffle-delay-9 {
-  animation-delay: 0.15s;
-}
-
-/* Spin: reuse pseudo-random bucket delays */
-.spin-delay-0 {
-  animation-delay: 0s;
-}
-.spin-delay-1 {
-  animation-delay: 0.35s;
-}
-.spin-delay-2 {
-  animation-delay: 0.2s;
-}
-.spin-delay-3 {
-  animation-delay: 0.05s;
-}
-.spin-delay-4 {
-  animation-delay: 0.4s;
-}
-.spin-delay-5 {
-  animation-delay: 0.25s;
-}
-.spin-delay-6 {
-  animation-delay: 0.1s;
-}
-.spin-delay-7 {
-  animation-delay: 0.45s;
-}
-.spin-delay-8 {
-  animation-delay: 0.3s;
-}
-.spin-delay-9 {
+.pseudo-random-delay-9 {
   animation-delay: 0.15s;
 }
 
@@ -612,7 +581,8 @@
     opacity: 0.7;
   }
   50% {
-    transform: scale(1.05) translate(var(--explode-x, 0px), var(--explode-y, 0px));
+    transform: scale(1.05)
+      translate(var(--explode-x, 0px), var(--explode-y, 0px));
     opacity: 0.4;
   }
   75% {
