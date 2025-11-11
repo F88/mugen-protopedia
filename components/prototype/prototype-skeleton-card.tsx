@@ -172,7 +172,7 @@ export const PrototypeSkeletonCard = ({
             />
             <div className="h-1" />
             <SkeletonBlock
-              className="h-4 w-7/12"
+              className="h-4 w-9/16"
               variant={selectedVariant}
               disableAnimation={disableAnimation}
             />
