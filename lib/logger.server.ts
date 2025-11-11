@@ -1,5 +1,6 @@
 import 'server-only';
 import pino from 'pino';
+import pinoPretty from 'pino-pretty';
 
 import {
   logger as clientLogger,
@@ -19,24 +20,28 @@ function createServerLogger(): ServerLogger {
       ? prettyEnv === '1' || prettyEnv.toLowerCase() === 'true'
       : process.env.NODE_ENV === 'development';
 
-  // Use pino's transport system to reference pino-pretty by name without a static import.
-  // This avoids bundling server-only deps into client builds and keeps side-effects minimal.
-  const transport = prettyEnabled
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-        },
-      }
-    : undefined;
+  // Use a direct pretty stream in dev to avoid worker-based transport resolution
+  // that can break under Next.js dev bundling (missing vendor-chunks/lib/worker.js).
+  if (prettyEnabled) {
+    const prettyStream = pinoPretty({
+      colorize: true,
+      translateTime: 'SYS:standard',
+      ignore: 'pid,hostname',
+    });
+    return pino(
+      {
+        level,
+        base: undefined,
+        timestamp: pino.stdTimeFunctions.isoTime,
+      },
+      prettyStream as unknown as pino.DestinationStream,
+    ) as ServerLogger;
+  }
 
   return pino({
     level,
     base: undefined,
     timestamp: pino.stdTimeFunctions.isoTime,
-    transport,
   }) as ServerLogger;
 }
 
