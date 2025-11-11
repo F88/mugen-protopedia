@@ -97,12 +97,22 @@ const DynamicSkeletonBlock = ({
     }
   };
 
+  // Optional directional scatter for explode variant
+  const getDirectionClass = () => {
+    if (disableAnimation || variant !== 'explode') {
+      return '';
+    }
+    // Cycle through available direction classes (0-9)
+    return `explode-direction-${index % 10}`;
+  };
+
   return (
     <div
       className={cn(
         'rounded transition-colors duration-200',
         getAnimationClass(),
         getDelayClass(),
+        getDirectionClass(),
         className,
       )}
     />
