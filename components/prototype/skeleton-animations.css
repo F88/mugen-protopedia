@@ -610,7 +610,10 @@
   .skeleton-slide,
   .skeleton-shuffle,
   .skeleton-explode,
-  .skeleton-cascade {
+  .skeleton-cascade,
+  .skeleton-orbit,
+  .skeleton-spin,
+  .skeleton-rainbow {
     animation: none !important;
   }
 }
