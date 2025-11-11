@@ -17,7 +17,7 @@ import {
   type NormalizedPrototype,
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.server';
 import { protopedia } from '@/lib/protopedia-client';
 import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
 import { analysisCache } from '@/lib/stores/analysis-cache';

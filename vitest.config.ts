@@ -14,6 +14,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./', import.meta.url)),
+      // Next.js-specific stub to allow importing 'server-only' in tests
+      'server-only': fileURLToPath(
+        new URL('./__tests__/mocks/server-only.ts', import.meta.url),
+      ),
     },
   },
 });

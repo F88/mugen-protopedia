@@ -15,7 +15,7 @@ const { childMock } = vi.hoisted(() => ({
   childMock: vi.fn(() => stubLogger),
 }));
 
-vi.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger.server', () => ({
   logger: {
     child: childMock,
   },

@@ -8,7 +8,7 @@
  */
 
 import { getAllPrototypesFromMapOrFetch } from '@/app/actions/prototypes';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.server';
 import {
   analysisCache,
   type CachedAnalysis,

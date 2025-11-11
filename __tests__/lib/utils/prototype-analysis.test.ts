@@ -3,7 +3,7 @@ import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
 
 // Mock the logger to avoid actual logging during tests
-vi.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger.client', () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),

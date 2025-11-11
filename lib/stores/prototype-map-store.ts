@@ -7,7 +7,7 @@
  */
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
-import { logger as baseLogger } from '@/lib/logger';
+import { logger as baseLogger } from '@/lib/logger.server';
 
 const ONE_HOUR_IN_MS = 60 * 60 * 1_000;
 
