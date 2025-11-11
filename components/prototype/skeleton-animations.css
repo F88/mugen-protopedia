@@ -379,7 +379,7 @@
   --explode-y: 4px;
 }
 
-/* Cascade: 0.1s step, capped at 40 */
+/* Cascade: 0.1s step, capped at 20 */
 .cascade-delay-0 {
   animation-delay: 0s;
 }
