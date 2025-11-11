@@ -1,18 +1,70 @@
 'use client';
+import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
+
+type AnimationVariant = 'shimmer' | 'pulse' | 'twinkle';
 
 type PrototypeSkeletonCardProps = {
   expectedPrototypeId?: number;
   errorMessage?: string;
   isFocused?: boolean;
+  variant?: AnimationVariant;
+  disableAnimation?: boolean;
 };
 
-const SkeletonBlock = ({ className }: { className: string }) => {
+const SkeletonBlock = ({
+  className,
+  variant = 'shimmer',
+  disableAnimation = false,
+}: {
+  className: string;
+  variant?: AnimationVariant;
+  disableAnimation?: boolean;
+}) => {
+  const getAnimationClass = () => {
+    if (disableAnimation) {
+      return 'bg-slate-200 dark:bg-slate-700';
+    }
+
+    switch (variant) {
+      case 'shimmer':
+        return 'skeleton-shimmer bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
+      case 'pulse':
+        return 'skeleton-pulse bg-slate-200 dark:bg-slate-700';
+      case 'twinkle':
+        return 'skeleton-twinkle bg-slate-200 dark:bg-slate-700';
+      default:
+        return 'bg-slate-200 dark:bg-slate-700';
+    }
+  };
+
+  const getAnimationStyle = () => {
+    if (disableAnimation) {
+      return {};
+    }
+
+    switch (variant) {
+      case 'shimmer':
+        return { animation: 'skeleton-shimmer 2s ease-in-out infinite' };
+      case 'pulse':
+        return { animation: 'skeleton-pulse 2s ease-in-out infinite' };
+      case 'twinkle':
+        return { animation: 'skeleton-twinkle 3s ease-in-out infinite' };
+      default:
+        return {};
+    }
+  };
+
   return (
     <div
-      className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 transition-colors duration-200 ${className}`}
+      className={cn(
+        'rounded transition-colors duration-200',
+        getAnimationClass(),
+        className,
+      )}
+      style={getAnimationStyle()}
     />
   );
 };
@@ -21,6 +73,8 @@ export const PrototypeSkeletonCard = ({
   expectedPrototypeId,
   errorMessage,
   isFocused = false,
+  variant = 'shimmer',
+  disableAnimation = false,
 }: PrototypeSkeletonCardProps) => {
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =
@@ -50,30 +104,58 @@ export const PrototypeSkeletonCard = ({
             {typeof expectedPrototypeId === 'number' ? (
               <PrototypeIdBadge id={expectedPrototypeId} />
             ) : (
-              <SkeletonBlock className="h-6 w-2/4" />
+              <SkeletonBlock
+                className="h-6 w-2/4"
+                variant={variant}
+                disableAnimation={disableAnimation}
+              />
             )}
             <div className="flex items-center justify-end">
-              <SkeletonBlock className="h-4 w-2/4" />
+              <SkeletonBlock
+                className="h-4 w-2/4"
+                variant={variant}
+                disableAnimation={disableAnimation}
+              />
             </div>
           </div>
 
           {/* Description  */}
           <div className="mb-1">
-            <SkeletonBlock className="h-8 w-3/4" />
+            <SkeletonBlock
+              className="h-8 w-3/4"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
           </div>
 
           <div className="mt-1">
-            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock
+              className="h-4 w-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
             <div className="h-1" />
-            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock
+              className="h-4 w-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
             <div className="h-1" />
-            <SkeletonBlock className="h-4 w-9/16" />
+            <SkeletonBlock
+              className="h-4 w-9/16"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Image  */}
           <div className="relative">
-            <SkeletonBlock className="w-full aspect-video" />
+            <SkeletonBlock
+              className="w-full aspect-video"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
             {showErrorOnImage && (
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-5xl font-bold text-slate-400 dark:text-slate-500 text-center px-2">
                 {errorMessage}
@@ -87,28 +169,92 @@ export const PrototypeSkeletonCard = ({
           </div>
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
-            <SkeletonBlock className="h-4 w-full" />
-            <SkeletonBlock className="h-4 w-full" />
-            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock
+              className="h-4 w-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
           </div>
 
           {/* Age */}
-          <SkeletonBlock className="h-4 w-full" />
+          <SkeletonBlock
+            className="h-4 w-full"
+            variant={variant}
+            disableAnimation={disableAnimation}
+          />
 
           {/* Badges */}
           <div className="flex flex-wrap gap-1.5">
-            <SkeletonBlock className="h-4 w-24 rounded-full" />
-            <SkeletonBlock className="h-4 w-18 rounded-full" />
-            <SkeletonBlock className="h-4 w-16 rounded-full" />
-            <SkeletonBlock className="h-4 w-16 rounded-full" />
-            <SkeletonBlock className="h-4 w-24 rounded-full" />
-            <SkeletonBlock className="h-4 w-12 rounded-full" />
-            <SkeletonBlock className="h-4 w-12 rounded-full" />
-            <SkeletonBlock className="h-4 w-16 rounded-full" />
-            <SkeletonBlock className="h-4 w-16 rounded-full" />
-            <SkeletonBlock className="h-4 w-12 rounded-full" />
-            <SkeletonBlock className="h-4 w-12 rounded-full" />
-            <SkeletonBlock className="h-4 w-12 rounded-full" />
+            <SkeletonBlock
+              className="h-4 w-24 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-18 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-16 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-16 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-24 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-12 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-12 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-16 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-16 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-12 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-12 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
+            <SkeletonBlock
+              className="h-4 w-12 rounded-full"
+              variant={variant}
+              disableAnimation={disableAnimation}
+            />
           </div>
         </CardContent>
       </Card>
