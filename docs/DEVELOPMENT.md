@@ -175,3 +175,75 @@ if (items.length > 0) {
 ### Hosting / Deployment
 
 - Vercel
+
+---
+
+## Logging Policy
+
+This project separates logging by runtime to avoid bundling server-only
+dependencies into the browser and to make side-effects explicit.
+
+- Server-only: `@/lib/logger.server` - Uses pino with optional pretty output via transport (`pino-pretty`). - Marked with `server-only` to prevent client imports.
+- Browser-only: `@/lib/logger.client` - Thin console wrapper matching a small subset of the server logger API.
+- Deprecated compatibility entry: `@/lib/logger` - Re-exports the server logger and is marked server-only. - Will be removed after migration. Do not import this from client code.
+
+### How to use
+
+Server contexts (server actions, API handlers, server utilities):
+
+```ts
+// app/actions/your-action.ts
+import { logger } from '@/lib/logger.server';
+
+export async function doStuff() {
+    const log = logger.child({ action: 'doStuff' });
+    log.info('start');
+    // ...
+    log.info('done');
+}
+```
+
+Client contexts (client components, browser hooks, Storybook stories):
+
+```ts
+// components/thing.tsx (use client)
+import { logger } from '@/lib/logger.client';
+
+export function Thing() {
+    logger.debug('render Thing');
+    return null;
+}
+```
+
+### ESLint guardrails
+
+ESLint enforces that `@/lib/logger.server` is only imported from server-only
+contexts. Allowed paths include:
+
+- `app/actions/**/*.{ts,tsx}`
+- `lib/**/!(*.client).{ts,tsx}` (non-client TS/TSX under `lib/`)
+- `lib/**/*server*.{ts,tsx}`
+- `lib/api/**/*.{ts,tsx}`
+- `lib/protopedia-client.ts`
+
+Anywhere else, importing `@/lib/logger.server` triggers `no-restricted-imports`.
+Client-side code must use `@/lib/logger.client`.
+
+### Environment variables
+
+- `LOG_LEVEL`: `debug` | `info` | `warn` | `error` (server)
+- `LOG_PRETTY`: `1`/`true` to enable pretty logs even outside dev (server)
+- `PROTOPEDIA_API_V2_LOG_LEVEL`:
+  `silent` | `error` | `warn` | `info` | `debug` (upstream client)
+
+Defaults:
+
+- Dev: pretty logging enabled by default
+- Prod: JSON logs by default (set `LOG_PRETTY=1` to pretty-print)
+
+### Do / Don’t
+
+- Do import `@/lib/logger.server` in server code only.
+- Do import `@/lib/logger.client` in browser code and Storybook.
+- Don’t import `@/lib/logger.server` in client components or stories.
+- Don’t add `pino-pretty` as a static import; it’s loaded via `transport`.
