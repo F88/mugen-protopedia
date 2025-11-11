@@ -226,7 +226,30 @@ type AnalysisState = {
 
 type AnalysisDashboardProps = {
   defaultExpanded?: boolean;
-  useLatestAnalysisHook: () => AnalysisState;
+  /**
+   * Hook for fetching analysis data. 
+   * @deprecated Providing this prop is now required for proper functionality. 
+   * A default no-op hook is provided for backward compatibility but will be removed in a future version.
+   * Please explicitly pass a hook (e.g., `useLatestAnalysis` from `@/lib/hooks/use-analysis`).
+   */
+  useLatestAnalysisHook?: () => AnalysisState;
+};
+
+// Default no-op hook for backward compatibility
+const defaultAnalysisHook = (): AnalysisState => {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      '[AnalysisDashboard] useLatestAnalysisHook prop not provided. ' +
+      'This prop will be required in a future version. ' +
+      'Please explicitly pass a hook (e.g., useLatestAnalysis from @/lib/hooks/use-analysis).'
+    );
+  }
+  return {
+    data: null,
+    isLoading: false,
+    error: null,
+    refresh: () => {},
+  };
 };
 
 /**
@@ -234,7 +257,7 @@ type AnalysisDashboardProps = {
  */
 export function AnalysisDashboard({
   defaultExpanded = true,
-  useLatestAnalysisHook,
+  useLatestAnalysisHook = defaultAnalysisHook,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
   const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();
