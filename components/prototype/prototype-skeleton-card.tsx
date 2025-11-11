@@ -100,7 +100,7 @@ export const PrototypeSkeletonCard = ({
       return getRandomVariant();
     }
     return variant;
-  }, [randomVariant, variant]);
+  }, randomVariant ? [randomVariant] : [randomVariant, variant]);
 
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =
