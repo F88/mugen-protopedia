@@ -14,7 +14,7 @@ instructions-for-ais:
 
 # 🎮 Player Guide
 
-Welcome! This guide helps you install and play Mugen ProtoPedia with the best experience across desktop and mobile.
+Welcome! This guide helps you play Mugen ProtoPedia with the best experience across desktop and mobile.
 
 ## ❓ What is Mugen ProtoPedia?
 
