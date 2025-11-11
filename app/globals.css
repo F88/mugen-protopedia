@@ -389,11 +389,57 @@ body {
   }
 }
 
+@keyframes skeleton-wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.98);
+  }
+}
+
+@keyframes skeleton-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-3px) scale(1.01);
+    opacity: 0.7;
+  }
+}
+
+@keyframes skeleton-slide {
+  0% {
+    background-position: -200% 0;
+    transform: translateX(0);
+  }
+  50% {
+    background-position: 0% 0;
+    transform: translateX(2px);
+  }
+  100% {
+    background-position: 200% 0;
+    transform: translateX(0);
+  }
+}
+
 /* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer,
   .skeleton-pulse,
-  .skeleton-twinkle {
+  .skeleton-twinkle,
+  .skeleton-wave,
+  .skeleton-bounce,
+  .skeleton-slide {
     animation: none !important;
   }
 }

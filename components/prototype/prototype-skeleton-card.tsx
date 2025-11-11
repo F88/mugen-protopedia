@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { PrototypeIdBadge } from '../ui/badges/prototype-id-badge';
 
-type AnimationVariant = 'shimmer' | 'pulse' | 'twinkle';
+type AnimationVariant =
+  | 'shimmer'
+  | 'pulse'
+  | 'twinkle'
+  | 'wave'
+  | 'bounce'
+  | 'slide';
 
 type PrototypeSkeletonCardProps = {
   expectedPrototypeId?: number;
@@ -15,7 +21,14 @@ type PrototypeSkeletonCardProps = {
   randomVariant?: boolean;
 };
 
-const ANIMATION_VARIANTS: AnimationVariant[] = ['shimmer', 'pulse', 'twinkle'];
+const ANIMATION_VARIANTS: AnimationVariant[] = [
+  'shimmer',
+  'pulse',
+  'twinkle',
+  'wave',
+  'bounce',
+  'slide',
+];
 
 const getRandomVariant = (): AnimationVariant => {
   const randomIndex = Math.floor(Math.random() * ANIMATION_VARIANTS.length);
@@ -43,6 +56,12 @@ const SkeletonBlock = ({
         return 'skeleton-pulse bg-slate-200 dark:bg-slate-700';
       case 'twinkle':
         return 'skeleton-twinkle bg-slate-200 dark:bg-slate-700';
+      case 'wave':
+        return 'skeleton-wave bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
+      case 'bounce':
+        return 'skeleton-bounce bg-slate-200 dark:bg-slate-700';
+      case 'slide':
+        return 'skeleton-slide bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 bg-[length:200%_100%]';
       default:
         return 'bg-slate-200 dark:bg-slate-700';
     }
@@ -60,6 +79,12 @@ const SkeletonBlock = ({
         return { animation: 'skeleton-pulse 2s ease-in-out infinite' };
       case 'twinkle':
         return { animation: 'skeleton-twinkle 3s ease-in-out infinite' };
+      case 'wave':
+        return { animation: 'skeleton-wave 1.5s ease-in-out infinite' };
+      case 'bounce':
+        return { animation: 'skeleton-bounce 1s ease-in-out infinite' };
+      case 'slide':
+        return { animation: 'skeleton-slide 2.5s linear infinite' };
       default:
         return {};
     }

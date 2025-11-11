@@ -23,14 +23,38 @@ describe('PrototypeSkeletonCard', () => {
     expect(skeletonBlocks.length).toBeGreaterThan(0);
   });
 
+  it('renders with wave variant', () => {
+    const { container } = render(<PrototypeSkeletonCard variant="wave" />);
+    const skeletonBlocks = container.querySelectorAll('.skeleton-wave');
+    expect(skeletonBlocks.length).toBeGreaterThan(0);
+  });
+
+  it('renders with bounce variant', () => {
+    const { container } = render(<PrototypeSkeletonCard variant="bounce" />);
+    const skeletonBlocks = container.querySelectorAll('.skeleton-bounce');
+    expect(skeletonBlocks.length).toBeGreaterThan(0);
+  });
+
+  it('renders with slide variant', () => {
+    const { container } = render(<PrototypeSkeletonCard variant="slide" />);
+    const skeletonBlocks = container.querySelectorAll('.skeleton-slide');
+    expect(skeletonBlocks.length).toBeGreaterThan(0);
+  });
+
   it('renders without animations when disableAnimation is true', () => {
     const { container } = render(<PrototypeSkeletonCard disableAnimation />);
     const shimmerBlocks = container.querySelectorAll('.skeleton-shimmer');
     const pulseBlocks = container.querySelectorAll('.skeleton-pulse');
     const twinkleBlocks = container.querySelectorAll('.skeleton-twinkle');
+    const waveBlocks = container.querySelectorAll('.skeleton-wave');
+    const bounceBlocks = container.querySelectorAll('.skeleton-bounce');
+    const slideBlocks = container.querySelectorAll('.skeleton-slide');
     expect(shimmerBlocks.length).toBe(0);
     expect(pulseBlocks.length).toBe(0);
     expect(twinkleBlocks.length).toBe(0);
+    expect(waveBlocks.length).toBe(0);
+    expect(bounceBlocks.length).toBe(0);
+    expect(slideBlocks.length).toBe(0);
   });
 
   it('renders error message when provided', () => {
@@ -73,12 +97,20 @@ describe('PrototypeSkeletonCard', () => {
 
   it('renders with random variant when randomVariant is true', () => {
     const { container } = render(<PrototypeSkeletonCard randomVariant />);
-    // Should render one of the three animation variants
+    // Should render one of the six animation variants
     const shimmerBlocks = container.querySelectorAll('.skeleton-shimmer');
     const pulseBlocks = container.querySelectorAll('.skeleton-pulse');
     const twinkleBlocks = container.querySelectorAll('.skeleton-twinkle');
+    const waveBlocks = container.querySelectorAll('.skeleton-wave');
+    const bounceBlocks = container.querySelectorAll('.skeleton-bounce');
+    const slideBlocks = container.querySelectorAll('.skeleton-slide');
     const totalAnimatedBlocks =
-      shimmerBlocks.length + pulseBlocks.length + twinkleBlocks.length;
+      shimmerBlocks.length +
+      pulseBlocks.length +
+      twinkleBlocks.length +
+      waveBlocks.length +
+      bounceBlocks.length +
+      slideBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 
@@ -91,8 +123,16 @@ describe('PrototypeSkeletonCard', () => {
     const shimmerBlocks = container.querySelectorAll('.skeleton-shimmer');
     const pulseBlocks = container.querySelectorAll('.skeleton-pulse');
     const twinkleBlocks = container.querySelectorAll('.skeleton-twinkle');
+    const waveBlocks = container.querySelectorAll('.skeleton-wave');
+    const bounceBlocks = container.querySelectorAll('.skeleton-bounce');
+    const slideBlocks = container.querySelectorAll('.skeleton-slide');
     const totalAnimatedBlocks =
-      shimmerBlocks.length + pulseBlocks.length + twinkleBlocks.length;
+      shimmerBlocks.length +
+      pulseBlocks.length +
+      twinkleBlocks.length +
+      waveBlocks.length +
+      bounceBlocks.length +
+      slideBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 });

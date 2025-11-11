@@ -8,7 +8,7 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['shimmer', 'pulse', 'twinkle'],
+      options: ['shimmer', 'pulse', 'twinkle', 'wave', 'bounce', 'slide'],
       description: 'Animation variant for the skeleton blocks',
     },
     disableAnimation: {
@@ -44,6 +44,18 @@ export const PulseVariant: Story = {
 
 export const TwinkleVariant: Story = {
   render: () => <PrototypeSkeletonCard variant="twinkle" />,
+};
+
+export const WaveVariant: Story = {
+  render: () => <PrototypeSkeletonCard variant="wave" />,
+};
+
+export const BounceVariant: Story = {
+  render: () => <PrototypeSkeletonCard variant="bounce" />,
+};
+
+export const SlideVariant: Story = {
+  render: () => <PrototypeSkeletonCard variant="slide" />,
 };
 
 export const DisabledAnimation: Story = {
@@ -106,6 +118,18 @@ export const AllVariantsComparison: Story = {
       <div>
         <h3 className="mb-2 text-sm font-semibold">Twinkle</h3>
         <PrototypeSkeletonCard variant="twinkle" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Wave</h3>
+        <PrototypeSkeletonCard variant="wave" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Bounce</h3>
+        <PrototypeSkeletonCard variant="bounce" />
+      </div>
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Slide</h3>
+        <PrototypeSkeletonCard variant="slide" />
       </div>
     </div>
   ),
