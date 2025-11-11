@@ -1,17 +1,25 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: '無限ProtoPedia',
-    short_name: '∞PP',
+    short_name: '無限PP',
     description:
       '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ',
+    id: '/',
     start_url: '/',
+    // lang: 'ja-JP',
+    // dir: 'ltr',
     display: 'standalone',
+    orientation: 'any',
+    display_override: ['window-controls-overlay', 'standalone'],
     background_color: '#ffffff',
     theme_color: '#000000',
-    orientation: 'portrait-primary',
     scope: '/',
+    categories: ['entertainment', 'productivity'],
+    launch_handler: {
+      client_mode: 'focus-existing',
+    },
     icons: [
       {
         src: '/icons/icon-72x72.png',
