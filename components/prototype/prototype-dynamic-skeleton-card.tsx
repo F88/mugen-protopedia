@@ -129,7 +129,7 @@ export const PrototypeDynamicSkeletonCard = ({
       return getRandomDynamicVariant();
     }
     return variant;
-  }, [randomVariant, variant]);
+  }, randomVariant ? [randomVariant] : [randomVariant, variant]);
 
   const showErrorOnImage = typeof errorMessage === 'string';
   const showPrototypeIdOnImage =
