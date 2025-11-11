@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { PrototypeSkeletonCardBaseProps } from '@/components/prototype/prototype-skeleton-card';
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';

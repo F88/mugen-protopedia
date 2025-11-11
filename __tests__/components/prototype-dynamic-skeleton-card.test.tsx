@@ -83,12 +83,20 @@ describe('PrototypeDynamicSkeletonCard', () => {
     const { container } = render(
       <PrototypeDynamicSkeletonCard randomVariant />,
     );
-    // Should render one of the four animation variants
+    // Should render one of the dynamic animation variants
     const shuffleBlocks = container.querySelectorAll('.skeleton-shuffle');
     const explodeBlocks = container.querySelectorAll('.skeleton-explode');
     const cascadeBlocks = container.querySelectorAll('.skeleton-cascade');
+    const orbitBlocks = container.querySelectorAll('.skeleton-orbit');
+    const spinBlocks = container.querySelectorAll('.skeleton-spin');
+    const rainbowBlocks = container.querySelectorAll('.skeleton-rainbow');
     const totalAnimatedBlocks =
-      shuffleBlocks.length + explodeBlocks.length + cascadeBlocks.length;
+      shuffleBlocks.length +
+      explodeBlocks.length +
+      cascadeBlocks.length +
+      orbitBlocks.length +
+      spinBlocks.length +
+      rainbowBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 
@@ -101,8 +109,16 @@ describe('PrototypeDynamicSkeletonCard', () => {
     const shuffleBlocks = container.querySelectorAll('.skeleton-shuffle');
     const explodeBlocks = container.querySelectorAll('.skeleton-explode');
     const cascadeBlocks = container.querySelectorAll('.skeleton-cascade');
+    const orbitBlocks = container.querySelectorAll('.skeleton-orbit');
+    const spinBlocks = container.querySelectorAll('.skeleton-spin');
+    const rainbowBlocks = container.querySelectorAll('.skeleton-rainbow');
     const totalAnimatedBlocks =
-      shuffleBlocks.length + explodeBlocks.length + cascadeBlocks.length;
+      shuffleBlocks.length +
+      explodeBlocks.length +
+      cascadeBlocks.length +
+      orbitBlocks.length +
+      spinBlocks.length +
+      rainbowBlocks.length;
     expect(totalAnimatedBlocks).toBeGreaterThan(0);
   });
 });
