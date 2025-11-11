@@ -1,4 +1,18 @@
-# Mugen ProtoPedia Play Guide
+---
+lang: en
+title: Player Guide
+title-en: Player Guide
+title-ja: プレイヤーガイド
+related:
+    - README.md "Project Overview"
+    - docs/player-guide-ja.md "プレイヤーガイド"
+instructions-for-ais:
+    - Prohibit updating this front-matter.
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+---
+
+# Player Guide
 
 Welcome! This guide helps you install and play Mugen ProtoPedia with the best experience across desktop and mobile.
 
