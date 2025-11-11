@@ -6,10 +6,9 @@ title-ja: プロトタイプスロットと自動スクロールの動作
 related:
     - README.md "Project Overview"
 instructions-for-ais:
+    - Prohibit updating this front-matter.
     - This document should be written in English for AI readability.
     - Content within code fences may be written in languages other than English.
-    - Prohibit updating this front-matter.
-    - Prohibit updating title line (1st line) in this document.
 ---
 
 # Prototype Slot & Auto-Scroll Behavior
