@@ -44,21 +44,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             />
 
             {/* Analysis Dashboard */}
-            {analysisDashboard ?? (
-              <AnalysisDashboard
-                defaultExpanded={false}
-                // In app usage we still need to provide a hook factory.
-                // Lazy import here would re-introduce side-effects; instead we
-                // defer to dynamic import pattern if needed later.
-                // For now we pass a no-op empty state until integrated.
-                useLatestAnalysisHook={() => ({
-                  data: null,
-                  isLoading: false,
-                  error: null,
-                  refresh: () => {},
-                })}
-              />
-            )}
+            {analysisDashboard}
 
             {/* Theme  */}
             <ThemeToggle />
