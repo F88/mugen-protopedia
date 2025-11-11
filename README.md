@@ -8,7 +8,11 @@
 
 Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
 
+📜 [Player Guide (en)](./docs/player-guide-en.md)
+
 [ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを無限探索。予測不能な出会いが、創造性を刺激する。偶然の発見を楽しもう。
+
+📜 [プレイヤーガイド (ja)](./docs/player-guide-ja.md)
 
 ## Key Features / 特徴
 
@@ -57,35 +61,6 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 - オフラインスナップショットエクスポート (デモ用)
 - コラボレーション向け共有リンク生成
 
-## 🚀 Recommended Environments to play
-
-📝 This app can open any prototype in your default web browser from within the app. Because the hand-off process (Browser vs. Installed App) may differ by platform, we encourage you to **choose the experience that best suits your preferences**.
-
-### 🖥️ Desktop Usage
-
-The application functions well in both installed and browser modes. The browser version may be preferred by users who prioritize seamless integration with their existing tabs.
-
-- **Windows/macOS/Linux**
-    - **Recommended Browser:** Latest stable Chrome or Edge.
-    - **Installation Method (for PWA):** Look for the **"Install" icon** (usually in the address bar) or access the install option via the **Browser Menu**.
-    - **Note:** Both the browser and installed PWA versions are fully supported.
-- **macOS (Safari)**
-    - **Support:** Fully supported.
-    - **Installation Method (for PWA):** The PWA installation method is available via the **Address Bar "Install" button** or the **Browser Menu**, depending on your version.
-
-### 📱 Mobile Usage (Installed App Recommended for Performance)
-
-While the browser is supported, we recommend **installing the PWA** for native-like performance and better utilization of the smaller screen space.
-
-- **Android**
-    - **Recommended Browser:** Latest stable Chrome.
-    - **Installation Method (for PWA):** An **automatic install prompt (A2HS)** may appear at the bottom of the screen when all requirements are met.
-    - **Note:** The installed app (PWA) often delivers better overall performance and screen usage on mobile devices.
-- **iOS/iPadOS**
-    - **Recommended Browser:** Safari.
-    - **Installation Method (for PWA):** **Manual Installation is Required.** Use the **Share button** then select **Add to Home Screen**.
-    - **Note:** Safari is the only browser supported for PWA installation on these devices, as automatic prompts are not allowed.
-
 ## Changelog
 
 ### 2025-11-10
@@ -107,6 +82,7 @@ While the browser is supported, we recommend **installing the PWA** for native-l
 
 - Development Guide: [`docs/development.md`](./docs/development.md)
 - Data Fetching Strategy: [`docs/data-fetching-strategy.md`](./docs/data-fetching-strategy.md)
+- Prototype Slot & Auto-Scroll Behavior: [`docs/slot-and-scroll-behavior.md`](./docs/slot-and-scroll-behavior.md)
 
 ## License
 
