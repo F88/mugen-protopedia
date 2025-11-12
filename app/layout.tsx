@@ -73,10 +73,13 @@ export const metadata: Metadata = {
   icons: {
     // Generic icons (optional but useful for some platforms)
     icon: [
+      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
+    shortcut: [{ url: '/icons/favicon.ico' }],
     // Apple touch icon generated in <head> automatically by Next.js
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
   },
@@ -99,7 +102,7 @@ export const metadata: Metadata = {
         url: APP_OG_IMAGE,
         width: 2300,
         height: 1294,
-        alt: `${APP_TITLE} - ProtoPediaのプロトタイプをランダムに表示`,
+        alt: `${APP_TITLE} - ${APP_DESCRIPTION}`,
       },
     ],
     locale: 'ja_JP',
