@@ -114,7 +114,7 @@ function showHelpAndExit() {
 if (hasFlag('--help') || hasFlag('-h')) {
   showHelpAndExit();
 }
-import { mkdir, access, writeFile } from 'fs/promises';
+import { mkdir, access, writeFile, readFile } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -289,15 +289,23 @@ async function generateFaviconIco() {
 
   try {
     const pngBuffers = await Promise.all(
-      FAVICON_ICO_SIZES.map((size) =>
-        sharp(inputImage)
-          .resize(size, size, {
-            fit: 'contain',
-            background: { r: 255, g: 255, b: 255, alpha: 0 },
-          })
-          .png()
-          .toBuffer(),
-      ),
+      FAVICON_ICO_SIZES.map(async (size) => {
+        const fileName = `favicon-${size}x${size}.png`;
+        const filePath = join(outputDir, fileName);
+
+        try {
+          await access(filePath, constants.R_OK);
+          return await readFile(filePath);
+        } catch {
+          return sharp(inputImage)
+            .resize(size, size, {
+              fit: 'contain',
+              background: { r: 255, g: 255, b: 255, alpha: 0 },
+            })
+            .png()
+            .toBuffer();
+        }
+      }),
     );
 
     const icoBuffer = await pngToIco(pngBuffers);
