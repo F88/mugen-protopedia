@@ -94,6 +94,7 @@
     "vitest": "^4.0.8"
   },
   "optionalDependencies": {
+    "@tailwindcss/oxide": "^4.1.17",
     "sharp": "^0.34.5"
   }
 }
