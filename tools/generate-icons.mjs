@@ -76,24 +76,34 @@ const argv = process.argv.slice(2);
 function getFlagValue(name) {
   const idx = argv.indexOf(name);
   if (idx === -1) return undefined;
-  return argv[idx + 1];
+  const candidate = argv[idx + 1];
+  // No argument follows OR next token is another flag -> treat as missing value
+  if (candidate === undefined || candidate.startsWith('-')) {
+    // Emit a warning for flags that expect a value when verbose mode requested later.
+    // We cannot yet check VERBOSE (declared after parsing), so we store warnings.
+    pendingWarnings.push(`Flag ${name} provided without a value; ignoring.`);
+    return undefined;
+  }
+  return candidate;
 }
 function hasFlag(name) {
   return argv.includes(name);
 }
 
 function showHelpAndExit() {
-  console.log(`Usage: node tools/generate-icons.mjs [options]\n\n` +
-    `Options:\n` +
-    `  --input <path>    Source image (default: public/img/P-640x640.png)\n` +
-    `  --out-dir <path>  Output directory (default: public/icons)\n` +
-    `  --dry-run         List actions without writing files\n` +
-    `  --verbose         Detailed configuration output\n` +
-    `  --help, -h        Show this help\n\n` +
-    `Examples:\n` +
-    `  node tools/generate-icons.mjs\n` +
-    `  node tools/generate-icons.mjs --dry-run --verbose\n` +
-    `  node tools/generate-icons.mjs --input public/img/logo.png --out-dir public/assets/icons\n`);
+  console.log(
+    `Usage: node tools/generate-icons.mjs [options]\n\n` +
+      `Options:\n` +
+      `  --input <path>    Source image (default: public/img/P-640x640.png)\n` +
+      `  --out-dir <path>  Output directory (default: public/icons)\n` +
+      `  --dry-run         List actions without writing files\n` +
+      `  --verbose         Detailed configuration output\n` +
+      `  --help, -h        Show this help\n\n` +
+      `Examples:\n` +
+      `  node tools/generate-icons.mjs\n` +
+      `  node tools/generate-icons.mjs --dry-run --verbose\n` +
+      `  node tools/generate-icons.mjs --input public/img/logo.png --out-dir public/assets/icons\n`,
+  );
   process.exit(0);
 }
 
@@ -109,11 +119,17 @@ import { constants } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const baseDir = join(__dirname, '..');
-const inputImage = getFlagValue('--input')
-  ? join(process.cwd(), getFlagValue('--input'))
+// Collect warnings during early parse, print later once verbosity known.
+const pendingWarnings = [];
+
+const inputVal = getFlagValue('--input');
+const outDirVal = getFlagValue('--out-dir');
+
+const inputImage = inputVal
+  ? join(process.cwd(), inputVal)
   : join(baseDir, 'public/img/P-640x640.png');
-const outputDir = getFlagValue('--out-dir')
-  ? join(process.cwd(), getFlagValue('--out-dir'))
+const outputDir = outDirVal
+  ? join(process.cwd(), outDirVal)
   : join(baseDir, 'public/icons');
 const DRY_RUN = hasFlag('--dry-run');
 const VERBOSE = hasFlag('--verbose');
@@ -191,7 +207,9 @@ async function generateIcons() {
       await access(inputImage, constants.R_OK);
     } catch {
       console.error(`Error: Input image not found at ${inputImage}`);
-      console.error('Please ensure the file exists before running this script or pass --input <path>.');
+      console.error(
+        'Please ensure the file exists before running this script or pass --input <path>.',
+      );
       process.exit(1);
     }
 
@@ -203,6 +221,10 @@ async function generateIcons() {
     }
 
     if (VERBOSE) {
+      if (pendingWarnings.length > 0) {
+        console.warn('Warnings:');
+        pendingWarnings.forEach((w) => console.warn('  ' + w));
+      }
       console.log('Configuration:');
       console.log(`  inputImage: ${inputImage}`);
       console.log(`  outputDir : ${outputDir}`);
@@ -211,7 +233,9 @@ async function generateIcons() {
       console.log(`  maskable content scale: ${MASKABLE_CONTENT_SCALE}`);
       console.log('Planned sizes:');
       sizes.forEach(({ size, name, maskable }) => {
-        console.log(`  - ${name} (${size}x${size})${maskable ? ' [maskable]' : ''}`);
+        console.log(
+          `  - ${name} (${size}x${size})${maskable ? ' [maskable]' : ''}`,
+        );
       });
     }
 
@@ -219,14 +243,20 @@ async function generateIcons() {
     for (const { size, name, maskable } of sizes) {
       if (maskable) {
         await generateMaskable(size, name);
-        console.log(`${DRY_RUN ? '[dry-run] Would generate (maskable):' : 'Generated (maskable):'} ${name} (${size}x${size})`);
+        console.log(
+          `${DRY_RUN ? '[dry-run] Would generate (maskable):' : 'Generated (maskable):'} ${name} (${size}x${size})`,
+        );
       } else {
         await generateStandard(size, name);
-        console.log(`${DRY_RUN ? '[dry-run] Would generate:' : 'Generated:'} ${name} (${size}x${size})`);
+        console.log(
+          `${DRY_RUN ? '[dry-run] Would generate:' : 'Generated:'} ${name} (${size}x${size})`,
+        );
       }
     }
 
-    console.log(`\n${DRY_RUN ? 'Dry-run complete (no files written).' : 'All icons generated successfully!'}`);
+    console.log(
+      `\n${DRY_RUN ? 'Dry-run complete (no files written).' : 'All icons generated successfully!'}`,
+    );
   } catch (error) {
     console.error('Error generating icons:', error);
     process.exit(1);
