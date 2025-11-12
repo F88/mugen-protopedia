@@ -46,7 +46,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
     - 未知との遭遇モード (音と光によるコミュニケーション)
     - プロトタイプ・おぼえていますか モード (唐突にアイドルが歌い出す)
     - 巡り会いプロトタイプモード (ニュータイプ専用)
-    - HLプレゼンモード (どよめきや拍手喝采、ガヤの効果を演出)
+    - HLプレゼン観覧モード (どよめきや拍手喝采、ガヤの効果を演出)
 
 ### 中 (Medium)
 
@@ -59,6 +59,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 - コラボレーション向け共有リンク生成
 
 ## Changelog
+
+### 2025-11-12
+
+- 🖼️ アイコンを刷新: 仮アイコンを廃止し、配信品質の PWA / Apple Touch / maskable アイコン一式に更新
 
 ### 2025-11-11
 
