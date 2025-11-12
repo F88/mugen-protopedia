@@ -112,3 +112,6 @@ storybook-static
 
 # Development
 tools/sample-data/
+tmp/
+tools/create-icon-grid.mjs
+tools/test-resize-methods.mjs
