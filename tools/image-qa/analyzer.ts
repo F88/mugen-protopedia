@@ -261,7 +261,7 @@ export async function processImage(
 ): Promise<ValidationResult> {
   try {
     const stats = await analyzeImage(imagePath);
-    const filename = imagePath.split('/').pop() || '';
+    const filename = basename(imagePath);
 
     // Validate image quality
     const { errors: qualityErrors, warnings } = validateImage(
