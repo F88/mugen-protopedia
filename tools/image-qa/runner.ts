@@ -91,12 +91,9 @@ export async function runQA(config: QAConfig): Promise<QAReport> {
     console.warn('No images found matching the specified patterns');
   }
 
-  const results: ValidationResult[] = [];
-
-  for (const imagePath of images) {
-    const result = await processImage(imagePath, config.thresholds);
-    results.push(result);
-  }
+  const results: ValidationResult[] = await Promise.all(
+    images.map((imagePath) => processImage(imagePath, config.thresholds)),
+  );
 
   const passed = results.filter((r) => r.valid).length;
   const failed = results.length - passed;
