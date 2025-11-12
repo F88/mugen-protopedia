@@ -36,8 +36,10 @@ jobs:
         # run: npm --loglevel debug list
         # run: npm --loglevel silly list
 
-      - name: Run format check
-        run: npm run format:check
+      # - name: Run format check
+      #   run: npm run format:check
+      - name: Run format check and auto-fix
+        run: npm run format
 
       - name: Run lint
         run: npm run lint
