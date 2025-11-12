@@ -22,6 +22,12 @@ export default function manifest(): MetadataRoute.Manifest {
     },
     icons: [
       {
+        src: '/icons/icon-48x48.png',
+        sizes: '48x48',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
         src: '/icons/icon-72x72.png',
         sizes: '72x72',
         type: 'image/png',
@@ -58,13 +64,6 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
       {
-        // src: '/icons/icon-192x192-maskable.png',
-        src: '/icons/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-        purpose: 'maskable',
-      },
-      {
         src: '/icons/icon-256x256.png',
         sizes: '256x256',
         type: 'image/png',
@@ -81,6 +80,14 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
+      },
+      /* Maskable icons */
+      {
+        // src: '/icons/icon-192x192-maskable.png',
+        src: '/icons/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable',
       },
       {
         // src: '/icons/icon-512x512-maskable.png',
