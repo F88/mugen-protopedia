@@ -1,4 +1,105 @@
+/**
+ * @file generate-icons.mjs
+ * @description Utility script to generate PWA / Apple Touch / maskable icons from a single
+ * base image. Produces a set of PNG assets in `public/icons/` used by the web app's
+ * manifest and layout metadata.
+ *
+ * USAGE:
+ *   node tools/generate-icons.mjs [--input <path>] [--out-dir <path>] [--dry-run] [--verbose]
+ *   (From repo root. Requires that dependencies including `sharp` are installed.)
+ *
+ * CLI FLAGS:
+ *   --input <path>    Override source image (default: public/img/P-640x640.png)
+ *   --out-dir <path>  Override output directory (default: public/icons)
+ *   --dry-run         Show planned outputs without writing any files
+ *   --verbose         Print detailed configuration and planned sizes
+ *   --help | -h       Show usage help and exit
+ *
+ * PREREQUISITES:
+ *   - Source image must exist at `public/img/P-640x640.png` (transparent PNG preferred).
+ *   - The image should have important visual content centered so maskable icons crop cleanly.
+ *
+ * GENERATED OUTPUT DIRECTORY:
+ *   public/icons/
+ *   Contains standard icons, Apple Touch icon, and maskable variants. Sizes currently defined:
+ *     Standard: 72, 96, 128, 144, 152, 180 (apple-touch), 192, 256, 384, 512
+ *     Maskable: 192, 512 (padded via safe area scale 0.8)
+ *
+ * MASKABLE ICON STRATEGY:
+ *   We downscale the original to 80% (`MASKABLE_CONTENT_SCALE`) then composite onto a
+ *   transparent canvas. Adjust `MASKABLE_CONTENT_SCALE` if you need more or less padding.
+ *
+ * CUSTOMIZATION:
+ *   - Change `inputImage` if the source file path or name differs.
+ *   - Add/remove entries in the `sizes` array to alter generated variants.
+ *   - To include favicons (16x16 / 32x32 / multi-size .ico), you can append additional
+ *     entries here (PNG) and optionally create an ICO via `sharp` or a dedicated tool.
+ *
+ * ERROR HANDLING:
+ *   Script exits with code 1 if the input image is missing or an unexpected error occurs.
+ *
+ * INTEGRATION NOTES:
+ *   After generating icons, ensure `app/manifest.ts` lists all required sizes and `app/layout.tsx`
+ *   includes appropriate <link rel="icon"> and <link rel="apple-touch-icon"> tags.
+ *
+ * FUTURE IMPROVEMENTS (Ideas):
+ *   - Accept CLI flags for input path, output dir, content scale.
+ *   - Auto-generate favicon.ico from multiple sizes.
+ *   - Add --dry-run to preview actions.
+ *
+ * @example
+ *   // Generate assets
+ *   node tools/generate-icons.mjs
+ *
+ * @example
+ *   // Dry run to preview outputs
+ *   node tools/generate-icons.mjs --dry-run --verbose
+ *
+ * @example
+ *   // Custom input and output directory
+ *   node tools/generate-icons.mjs --input public/img/logo.png --out-dir public/assets/icons
+ *
+ * @see Issue #9 (Create icons and visual assets for web app)
+ */
 import sharp from 'sharp';
+
+// -----------------------------
+// CLI Flag Parsing (lightweight)
+// -----------------------------
+// Supported flags:
+//   --input <path>    : Source image path override.
+//   --out-dir <path>  : Output directory override.
+//   --dry-run         : List planned outputs without writing files.
+//   --verbose         : Extra logging details (timing, paths).
+
+const argv = process.argv.slice(2);
+function getFlagValue(name) {
+  const idx = argv.indexOf(name);
+  if (idx === -1) return undefined;
+  return argv[idx + 1];
+}
+function hasFlag(name) {
+  return argv.includes(name);
+}
+
+function showHelpAndExit() {
+  console.log(`Usage: node tools/generate-icons.mjs [options]\n\n` +
+    `Options:\n` +
+    `  --input <path>    Source image (default: public/img/P-640x640.png)\n` +
+    `  --out-dir <path>  Output directory (default: public/icons)\n` +
+    `  --dry-run         List actions without writing files\n` +
+    `  --verbose         Detailed configuration output\n` +
+    `  --help, -h        Show this help\n\n` +
+    `Examples:\n` +
+    `  node tools/generate-icons.mjs\n` +
+    `  node tools/generate-icons.mjs --dry-run --verbose\n` +
+    `  node tools/generate-icons.mjs --input public/img/logo.png --out-dir public/assets/icons\n`);
+  process.exit(0);
+}
+
+if (hasFlag('--help') || hasFlag('-h')) {
+  showHelpAndExit();
+}
 import { mkdir, access } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
@@ -8,8 +109,14 @@ import { constants } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const baseDir = join(__dirname, '..');
-const inputImage = join(baseDir, 'public/img/P-640x640.png');
-const outputDir = join(baseDir, 'public/icons');
+const inputImage = getFlagValue('--input')
+  ? join(process.cwd(), getFlagValue('--input'))
+  : join(baseDir, 'public/img/P-640x640.png');
+const outputDir = getFlagValue('--out-dir')
+  ? join(process.cwd(), getFlagValue('--out-dir'))
+  : join(baseDir, 'public/icons');
+const DRY_RUN = hasFlag('--dry-run');
+const VERBOSE = hasFlag('--verbose');
 
 // Icon sizes needed for PWA
 // When maskable is true, we generate with padding (safe area) so launchers can crop.
@@ -35,6 +142,7 @@ const sizes = [
 const MASKABLE_CONTENT_SCALE = 0.8; // 0.8 = 80% of target box
 
 async function generateStandard(size, name) {
+  if (DRY_RUN) return; // Skip actual write
   await sharp(inputImage)
     .resize(size, size, {
       fit: 'contain',
@@ -57,6 +165,7 @@ async function generateMaskable(size, name) {
     .toBuffer();
 
   // Create transparent canvas and center-composite the resized content
+  if (DRY_RUN) return; // Skip actual write
   await sharp({
     create: {
       width: size,
@@ -82,28 +191,42 @@ async function generateIcons() {
       await access(inputImage, constants.R_OK);
     } catch {
       console.error(`Error: Input image not found at ${inputImage}`);
-      console.error(
-        'Please ensure the file exists before running this script.',
-      );
+      console.error('Please ensure the file exists before running this script or pass --input <path>.');
       process.exit(1);
     }
 
-    // Create icons directory
-    await mkdir(outputDir, { recursive: true });
-    console.log(`Created directory: ${outputDir}`);
+    if (!DRY_RUN) {
+      await mkdir(outputDir, { recursive: true });
+      console.log(`Created directory: ${outputDir}`);
+    } else {
+      console.log(`[dry-run] Would create directory: ${outputDir}`);
+    }
+
+    if (VERBOSE) {
+      console.log('Configuration:');
+      console.log(`  inputImage: ${inputImage}`);
+      console.log(`  outputDir : ${outputDir}`);
+      console.log(`  dryRun    : ${DRY_RUN}`);
+      console.log(`  verbose   : ${VERBOSE}`);
+      console.log(`  maskable content scale: ${MASKABLE_CONTENT_SCALE}`);
+      console.log('Planned sizes:');
+      sizes.forEach(({ size, name, maskable }) => {
+        console.log(`  - ${name} (${size}x${size})${maskable ? ' [maskable]' : ''}`);
+      });
+    }
 
     // Generate each icon size
     for (const { size, name, maskable } of sizes) {
       if (maskable) {
         await generateMaskable(size, name);
-        console.log(`Generated (maskable): ${name} (${size}x${size})`);
+        console.log(`${DRY_RUN ? '[dry-run] Would generate (maskable):' : 'Generated (maskable):'} ${name} (${size}x${size})`);
       } else {
         await generateStandard(size, name);
-        console.log(`Generated: ${name} (${size}x${size})`);
+        console.log(`${DRY_RUN ? '[dry-run] Would generate:' : 'Generated:'} ${name} (${size}x${size})`);
       }
     }
 
-    console.log('\nAll icons generated successfully!');
+    console.log(`\n${DRY_RUN ? 'Dry-run complete (no files written).' : 'All icons generated successfully!'}`);
   } catch (error) {
     console.error('Error generating icons:', error);
     process.exit(1);
