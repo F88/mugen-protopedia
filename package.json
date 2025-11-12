@@ -33,7 +33,10 @@
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "tool:save-sample-prototypes": "tsx tools/get-sample-data.ts"
+    "tool:save-sample-prototypes": "tsx tools/get-sample-data.ts",
+    "qa:images": "tsx tools/image-qa/cli.ts",
+    "qa:icons": "tsx tools/image-qa/cli.ts --preset pwa-icons",
+    "qa:screenshots": "tsx tools/image-qa/cli.ts --preset screenshots"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -64,6 +67,7 @@
     "@storybook/nextjs-vite": "^10.0.6",
     "@tailwindcss/postcss": "^4.1.17",
     "@testing-library/react": "^16.3.0",
+    "@types/glob": "^8.1.0",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
@@ -72,6 +76,7 @@
     "eslint-config-next": "^16.0.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.0.6",
+    "glob": "^11.0.3",
     "jsdom": "^27.1.0",
     "msw": "^2.12.1",
     "node-fetch": "^3.3.2",

@@ -45,6 +45,9 @@ jobs:
       - name: Run tests
         run: npm run test
 
+      - name: Validate PWA icons quality
+        run: npm run qa:icons
+
       # - name: Run tests for Codecov Test Analytics
       #   run: npm run test:codecov
 
