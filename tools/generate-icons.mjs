@@ -18,12 +18,14 @@
  * PREREQUISITES:
  *   - Source image must exist at `public/img/P-640x640.png` (transparent PNG preferred).
  *   - The image should have important visual content centered so maskable icons crop cleanly.
+ *   - Install dependencies including `sharp` and `png-to-ico`.
  *
  * GENERATED OUTPUT DIRECTORY:
  *   public/icons/
- *   Contains standard icons, Apple Touch icon, and maskable variants. Sizes currently defined:
- *     Standard: 72, 96, 128, 144, 152, 180 (apple-touch), 192, 256, 384, 512
- *     Maskable: 192, 512 (padded via safe area scale 0.8)
+ *   Contains standard icons, Apple Touch icon, favicon PNGs/ICO, and maskable variants. Sizes currently defined:
+ *     Standard: 16, 32, 48, 72, 96, 128, 144, 152, 180 (apple-touch), 192, 256, 384, 512, 1024
+ *     Maskable: 192, 512, 1024 (padded via safe area scale 0.8)
+ *     Favicon ICO: 16, 32, 48 (auto-packed into favicon.ico)
  *
  * MASKABLE ICON STRATEGY:
  *   We downscale the original to 80% (`MASKABLE_CONTENT_SCALE`) then composite onto a
@@ -32,8 +34,8 @@
  * CUSTOMIZATION:
  *   - Change `inputImage` if the source file path or name differs.
  *   - Add/remove entries in the `sizes` array to alter generated variants.
- *   - To include favicons (16x16 / 32x32 / multi-size .ico), you can append additional
- *     entries here (PNG) and optionally create an ICO via `sharp` or a dedicated tool.
+ *   - To include favicons (16x16 / 32x32 / multi-size .ico), adjust entries here. The script
+ *     uses `png-to-ico` to pack the generated PNGs into a single ICO file.
  *
  * ERROR HANDLING:
  *   Script exits with code 1 if the input image is missing or an unexpected error occurs.
@@ -112,17 +114,19 @@ function showHelpAndExit() {
 if (hasFlag('--help') || hasFlag('-h')) {
   showHelpAndExit();
 }
-import { mkdir, access } from 'fs/promises';
+import { mkdir, access, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { constants } from 'fs';
+import pngToIcoModule from 'png-to-ico';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const baseDir = join(__dirname, '..');
 const inputVal = getFlagValue('--input');
 const outDirVal = getFlagValue('--out-dir');
+const pngToIco = pngToIcoModule?.default ?? pngToIcoModule;
 
 const inputImage = inputVal
   ? join(process.cwd(), inputVal)
@@ -136,6 +140,10 @@ const VERBOSE = hasFlag('--verbose');
 // Icon sizes needed for PWA
 // When maskable is true, we generate with padding (safe area) so launchers can crop.
 const sizes = [
+  // Favicon PNGs
+  { size: 16, name: 'favicon-16x16.png' },
+  { size: 32, name: 'favicon-32x32.png' },
+
   // Standard icons
   { size: 48, name: 'icon-48x48.png' },
   { size: 72, name: 'icon-72x72.png' },
@@ -155,6 +163,8 @@ const sizes = [
   { size: 512, name: 'icon-512x512-maskable.png', maskable: true },
   { size: 1024, name: 'icon-1024x1024-maskable.png', maskable: true },
 ];
+
+const FAVICON_ICO_SIZES = [16, 32, 48];
 
 // Content scale ratio for maskable icons (keep important content within ~80% area)
 const MASKABLE_CONTENT_SCALE = 0.8; // 0.8 = 80% of target box
@@ -239,6 +249,7 @@ async function generateIcons() {
           `  - ${name} (${size}x${size})${maskable ? ' [maskable]' : ''}`,
         );
       });
+      console.log(`  favicon.ico sizes: ${FAVICON_ICO_SIZES.join(', ')}`);
     }
 
     // Generate each icon size
@@ -256,12 +267,45 @@ async function generateIcons() {
       }
     }
 
+    await generateFaviconIco();
+
     console.log(
       `\n${DRY_RUN ? 'Dry-run complete (no files written).' : 'All icons generated successfully!'}`,
     );
   } catch (error) {
     console.error('Error generating icons:', error);
     process.exit(1);
+  }
+}
+
+async function generateFaviconIco() {
+  const icoPath = join(outputDir, 'favicon.ico');
+  const label = `favicon.ico (${FAVICON_ICO_SIZES.join(', ')})`;
+
+  if (DRY_RUN) {
+    console.log(`[dry-run] Would generate: ${label}`);
+    return;
+  }
+
+  try {
+    const pngBuffers = await Promise.all(
+      FAVICON_ICO_SIZES.map((size) =>
+        sharp(inputImage)
+          .resize(size, size, {
+            fit: 'contain',
+            background: { r: 255, g: 255, b: 255, alpha: 0 },
+          })
+          .png()
+          .toBuffer(),
+      ),
+    );
+
+    const icoBuffer = await pngToIco(pngBuffers);
+    await writeFile(icoPath, icoBuffer);
+    console.log(`Generated ICO: ${label}`);
+  } catch (error) {
+    console.error('Error generating favicon.ico:', error);
+    throw error;
   }
 }
 
