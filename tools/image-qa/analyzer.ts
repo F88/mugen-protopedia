@@ -1,5 +1,6 @@
 import sharp from 'sharp';
 import safeRegex from 'safe-regex';
+import { basename } from 'path';
 import type {
   ImageStats,
   ValidationResult,
