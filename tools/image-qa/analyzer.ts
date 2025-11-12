@@ -213,10 +213,21 @@ export function validateDimensions(
       const match = filename.match(regex);
 
       if (match && match.length >= 3) {
-        const expectedWidth = parseInt(match[1], 10);
-        const expectedHeight = parseInt(match[2], 10);
+        const rawWidth = match[1];
+        const rawHeight = match[2];
+        const expectedWidth = parseInt(rawWidth, 10);
+        const expectedHeight = parseInt(rawHeight, 10);
 
-        if (stats.width !== expectedWidth || stats.height !== expectedHeight) {
+        if (Number.isNaN(expectedWidth) || Number.isNaN(expectedHeight)) {
+          errors.push({
+            type: 'dimensions',
+            message: `Could not parse dimensions from filename using pattern. Found '${rawWidth}x${rawHeight}'.`,
+            severity: 'error',
+          });
+        } else if (
+          stats.width !== expectedWidth ||
+          stats.height !== expectedHeight
+        ) {
           errors.push({
             type: 'dimensions',
             message: `Filename indicates ${expectedWidth}x${expectedHeight}, but image is ${stats.width}x${stats.height}`,
