@@ -137,6 +137,7 @@ const VERBOSE = hasFlag('--verbose');
 // When maskable is true, we generate with padding (safe area) so launchers can crop.
 const sizes = [
   // Standard icons
+  { size: 48, name: 'icon-48x48.png' },
   { size: 72, name: 'icon-72x72.png' },
   { size: 96, name: 'icon-96x96.png' },
   { size: 128, name: 'icon-128x128.png' },
@@ -146,6 +147,7 @@ const sizes = [
   { size: 256, name: 'icon-256x256.png' },
   { size: 384, name: 'icon-384x384.png' },
   { size: 512, name: 'icon-512x512.png' },
+  { size: 1024, name: 'icon-1024x1024.png' },
   { size: 180, name: 'apple-touch-icon.png' }, // Apple Touch Icon
 
   // Maskable variants (padded)
