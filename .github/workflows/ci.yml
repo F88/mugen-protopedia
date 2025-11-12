@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - "main"
+      - 'main'
   push:
     branches:
-      - "main"
+      - 'main'
 
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          cache: "npm"
+          cache: 'npm'
 
       - name: Show npm config
         run: npm config list
