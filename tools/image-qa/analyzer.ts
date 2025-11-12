@@ -31,8 +31,8 @@ export async function analyzeImage(imagePath: string): Promise<ImageStats> {
         0.587 * channelStats[1].mean +
         0.114 * channelStats[2].mean) /
       255;
-  } else if (channels === 1) {
-    // Grayscale
+  } else if (channels === 1 || channels === 2) {
+    // Grayscale or Grayscale with alpha
     brightnessMean = channelStats[0].mean / 255;
   }
 
