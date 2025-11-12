@@ -60,6 +60,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-11-12
+
+- 🖼️ アイコンを刷新: 仮アイコンを廃止し、配信品質の PWA / Apple Touch / maskable アイコン一式に更新
+
 ### 2025-11-11
 
 - 🎪 スケルトンカードのバリエーションを追加
