@@ -165,7 +165,7 @@ Array of glob patterns for files to exclude.
 
 ## CLI Options
 
-```
+```shell-session
 Usage: image-qa [options] [paths...]
 
 Options:
