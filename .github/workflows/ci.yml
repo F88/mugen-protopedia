@@ -28,8 +28,7 @@ jobs:
         run: npm config list
 
       - name: Install dependencies
-        # run: npm install
-        run: npm ci
+        run: npm ci --include=optional
 
       - name: List dependencies
         run: npm --loglevel notice list #default level
@@ -46,6 +45,9 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+      - name: Validate PWA icons quality
+        run: npm run qa:icons
 
       # - name: Run tests for Codecov Test Analytics
       #   run: npm run test:codecov
