@@ -201,7 +201,7 @@ npm run qa:icons
 ## How It Works
 
 1. **Image Analysis**: Uses Sharp library to read image metadata and compute statistics
-    - Brightness: Calculates mean luminance using perceived brightness formula (0.299*R + 0.587*G + 0.114*B)
+    - Brightness: Calculates mean luminance using perceived brightness formula (0.299*R + 0.587*G + 0.114\*B)
     - Contrast: Computes variance and standard deviation across channels
     - Transparency: Analyzes alpha channel statistics
 
