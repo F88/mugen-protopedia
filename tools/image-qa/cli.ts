@@ -110,7 +110,7 @@ EXAMPLES:
     }
 
     // Exit with appropriate code
-    if (report.failed > 0) {
+    if (report.failed > 0 && config.severity === 'error') {
       process.exit(1);
     }
   } catch (error) {
