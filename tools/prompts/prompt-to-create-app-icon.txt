@@ -1,0 +1,44 @@
+Create App Icon for "MUGEN ProtoPedia"
+---
+Icon spec
+- Shape: perfect circle
+- Size: 1024 x 1024
+- Background (outside the circle only): transparent
+- Edge of circle: border
+
+---
+# About MUGEN ProtoPedia
+
+Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
+
+## Key Features
+
+- 📱 Enjoy Anywhere
+    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
+
+- ⌨️ Premium Experience
+    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
+
+## About ProtoPedia
+
+[ProtoPedia](https://protopedia.net/) is a Japanese creative platform with the tagline "つくる、たのしむ、ひろがる" (Create, Enjoy, Expand). It serves as a community hub where makers, developers, and creators share their prototype projects across diverse categories:
+
+- **Software Development**: Applications, games, AI/data science, blockchain, AR/VR
+- **Hardware**: Electronics, robotics, wearables, IoT
+- **Design/Art**: Visualization, interactive design, media art
+- **Making/DIY**: Digital fabrication, woodworking, upcycling
+
+This app leverages the ProtoPedia API to deliver an endless stream of inspiring prototypes from this vibrant maker community.
+
+---
+Screen Layout in App
+- On mobile, one card is displayed per screen.
+- On PC, six cards are displayed per screen.
+
+---
+Elements in image
+- Place an object that combines the letters "∞" and "p" to represent infinity.
+
+---
+Additional Information (Tweaks)
+- none
