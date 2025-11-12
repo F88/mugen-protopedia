@@ -41,9 +41,10 @@ export async function analyzeImage(imagePath: string): Promise<ImageStats> {
   const brightnessMax = Math.max(...channelStats.map((c) => c.max)) / 255;
 
   // Calculate contrast (variance and standard deviation)
+  const channelCount = channelStats.length > 0 ? channelStats.length : 1;
   const variance =
     channelStats.reduce((sum, c) => sum + c.stdev * c.stdev, 0) /
-    (channels * 255 * 255);
+    (channelCount * 255 * 255);
   const stdDev = Math.sqrt(variance);
 
   const result: ImageStats = {
