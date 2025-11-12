@@ -1,5 +1,6 @@
 import { glob } from 'glob';
 import { readFile } from 'fs/promises';
+import { isAbsolute } from 'path';
 import { processImage } from './analyzer.js';
 import { presets } from './presets.js';
 import type { QAConfig, QAReport, ValidationResult } from './types.js';
@@ -38,16 +39,46 @@ export async function findImages(
   include: string[],
   exclude: string[] = [],
 ): Promise<string[]> {
-  const includePatterns = include.map((pattern) =>
-    pattern.startsWith('/') ? pattern : `**/${pattern}`,
-  );
+  const includePatterns = normalizeGlobPatterns(include);
+  const excludePatterns = normalizeGlobPatterns(exclude);
 
   const images = await glob(includePatterns, {
-    ignore: exclude,
+    ignore: excludePatterns,
     nodir: true,
   });
 
   return images;
+}
+
+function normalizeGlobPatterns(patterns: string[]): string[] {
+  return patterns.map((pattern) => {
+    if (!pattern) {
+      return pattern;
+    }
+
+    if (isAbsolute(pattern)) {
+      return pattern;
+    }
+
+    if (pattern.startsWith('./') || pattern.startsWith('../')) {
+      return pattern;
+    }
+
+    if (
+      pattern.startsWith('**/') ||
+      pattern.includes('/') ||
+      hasGlobSyntax(pattern)
+    ) {
+      return pattern;
+    }
+
+    return `**/${pattern}`;
+  });
+}
+
+function hasGlobSyntax(pattern: string): boolean {
+  const globTokens = ['*', '?', '[', ']', '{', '}', '(', ')', '!'];
+  return globTokens.some((token) => pattern.includes(token));
 }
 
 /**

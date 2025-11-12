@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import safeRegex from 'safe-regex';
 import type {
   ImageStats,
   ValidationResult,
@@ -203,24 +204,52 @@ export function validateDimensions(
 
   // Extract and validate from filename pattern
   if (dimensionConfig.pattern) {
-    const regex = new RegExp(dimensionConfig.pattern);
-    const match = filename.match(regex);
+    const pattern = dimensionConfig.pattern;
 
-    if (match && match.length >= 3) {
-      const expectedWidth = parseInt(match[1], 10);
-      const expectedHeight = parseInt(match[2], 10);
+    try {
+      assertSafeDimensionPattern(pattern);
+      const regex = new RegExp(pattern);
+      const match = filename.match(regex);
 
-      if (stats.width !== expectedWidth || stats.height !== expectedHeight) {
-        errors.push({
-          type: 'dimensions',
-          message: `Filename indicates ${expectedWidth}x${expectedHeight}, but image is ${stats.width}x${stats.height}`,
-          severity: 'error',
-        });
+      if (match && match.length >= 3) {
+        const expectedWidth = parseInt(match[1], 10);
+        const expectedHeight = parseInt(match[2], 10);
+
+        if (stats.width !== expectedWidth || stats.height !== expectedHeight) {
+          errors.push({
+            type: 'dimensions',
+            message: `Filename indicates ${expectedWidth}x${expectedHeight}, but image is ${stats.width}x${stats.height}`,
+            severity: 'error',
+          });
+        }
       }
+    } catch (error) {
+      errors.push({
+        type: 'dimensions',
+        message: `Invalid dimension pattern: ${error instanceof Error ? error.message : String(error)}`,
+        severity: 'error',
+      });
+      return errors;
     }
   }
 
   return errors;
+}
+
+const DIMENSION_PATTERN_MAX_LENGTH = 256;
+
+function assertSafeDimensionPattern(pattern: string): void {
+  if (pattern.length > DIMENSION_PATTERN_MAX_LENGTH) {
+    throw new Error(
+      `Pattern exceeds ${DIMENSION_PATTERN_MAX_LENGTH} characters and may impact performance`,
+    );
+  }
+
+  if (!safeRegex(pattern)) {
+    throw new Error(
+      'Pattern is potentially unsafe and could cause excessive backtracking',
+    );
+  }
 }
 
 /**
