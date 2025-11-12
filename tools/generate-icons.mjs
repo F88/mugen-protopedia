@@ -153,6 +153,7 @@ const sizes = [
   // Maskable variants (padded)
   { size: 192, name: 'icon-192x192-maskable.png', maskable: true },
   { size: 512, name: 'icon-512x512-maskable.png', maskable: true },
+  { size: 1024, name: 'icon-1024x1024-maskable.png', maskable: true },
 ];
 
 // Content scale ratio for maskable icons (keep important content within ~80% area)
