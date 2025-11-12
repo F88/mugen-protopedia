@@ -73,6 +73,8 @@ import sharp from 'sharp';
 //   --verbose         : Extra logging details (timing, paths).
 
 const argv = process.argv.slice(2);
+// Collect warnings during early parse, printed later once verbosity known.
+const pendingWarnings = [];
 function getFlagValue(name) {
   const idx = argv.indexOf(name);
   if (idx === -1) return undefined;
@@ -119,9 +121,6 @@ import { constants } from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const baseDir = join(__dirname, '..');
-// Collect warnings during early parse, print later once verbosity known.
-const pendingWarnings = [];
-
 const inputVal = getFlagValue('--input');
 const outDirVal = getFlagValue('--out-dir');
 
