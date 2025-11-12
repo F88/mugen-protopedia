@@ -20,7 +20,7 @@ export const presets: Record<string, Preset> = {
         },
         alpha: {
           maxMeanTransparency: 0.5, // Max 50% average transparency
-          allowFullyTransparent: false,
+          allowFullyTransparent: true,
         },
         dimensions: {
           pattern: 'icon-(\\d+)x(\\d+)', // Extract WxH from filename
