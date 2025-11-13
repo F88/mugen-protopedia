@@ -6,10 +6,17 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 ![icon-512x512.png](assets/icons/v2/icon-512x512.png)
 
 ![MPP-3-1.gif](assets/images/MPP-3-1.gif)
+
+![a.gif](assets/images/a.gif)
+
+![b.gif](assets/images/b.gif)
+
+![c.gif](assets/images/c.gif)
+
+![d.gif](assets/images/d.gif)
 
 Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
 
