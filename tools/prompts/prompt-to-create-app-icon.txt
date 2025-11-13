@@ -33,6 +33,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ---
 Screen Layout in App
 - On mobile, one card is displayed per screen.
+- On Tablet, four cards are displayed per screen.
 - On PC, six cards are displayed per screen.
 
 ---
