@@ -217,6 +217,60 @@ function BirthdayPrototypes({
   );
 }
 
+/**
+ * Component to display newborn prototypes (published today)
+ */
+function NewbornPrototypes({
+  anniversaries,
+}: {
+  anniversaries: PrototypeAnalysis['anniversaries'];
+}) {
+  const { newbornCount, newbornPrototypes } = anniversaries;
+
+  const sortedNewbornPrototypes = [...newbornPrototypes].sort(
+    (a, b) => a.id - b.id,
+  );
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        👶 Newborn Prototypes Today
+      </h4>
+      {newbornCount === 0 ? (
+        <div className="text-sm text-gray-500">No new prototypes today</div>
+      ) : (
+        <div className="space-y-1">
+          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            {newbornCount.toLocaleString()} new prototypes published today!
+          </div>
+          {sortedNewbornPrototypes.slice(0, 5).map((prototype) => (
+            <div
+              key={prototype.id}
+              className="flex items-start justify-between gap-3 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded"
+            >
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                  ID: {prototype.id}
+                </span>
+                <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                  {prototype.title}
+                </span>
+              </div>
+              <span className="text-green-600 dark:text-green-400 font-semibold shrink-0 self-start">
+                NEW
+              </span>
+            </div>
+          ))}
+          {newbornCount > 5 && (
+            <div className="text-xs text-gray-500">
+              +{newbornCount - 5} more prototypes
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type AnalysisState = {
   data: PrototypeAnalysis | null;
   isLoading: boolean;
@@ -294,6 +348,7 @@ export function AnalysisDashboard({
   });
 
   const birthdayCount = analysis.anniversaries.birthdayCount;
+  const newbornCount = analysis.anniversaries.newbornCount;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -330,6 +385,9 @@ export function AnalysisDashboard({
         </span>
         <span className="text-sm sm:text-base">
           🎉 {birthdayCount.toLocaleString()}
+        </span>
+        <span className="text-sm sm:text-base">
+          👶 {newbornCount.toLocaleString()}
         </span>
       </SummaryBar>
 
@@ -375,6 +433,12 @@ export function AnalysisDashboard({
           {birthdayCount > 0 && (
             <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
               <BirthdayPrototypes anniversaries={analysis.anniversaries} />
+            </div>
+          )}
+
+          {newbornCount > 0 && (
+            <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <NewbornPrototypes anniversaries={analysis.anniversaries} />
             </div>
           )}
 

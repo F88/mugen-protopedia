@@ -7,7 +7,7 @@ import {
   it,
   vi,
 } from 'vitest';
-import { calculateAge, isBirthDay } from '@/lib/utils/anniversary-nerd';
+import { calculateAge, isBirthDay, isToday } from '@/lib/utils/anniversary-nerd';
 
 const fixedNow = new Date('2000-01-01T00:00:00Z');
 
@@ -94,5 +94,40 @@ describe('isBirthDay', () => {
 
   it('returns false when date is invalid', () => {
     expect(isBirthDay('invalid-date')).toBe(false);
+  });
+});
+
+describe('isToday', () => {
+  it('returns true when date is today (same year, month, and day)', () => {
+    expect(isToday('2000-01-01')).toBe(true);
+  });
+
+  it('returns false when date is different year', () => {
+    expect(isToday('1999-01-01')).toBe(false);
+    expect(isToday('2001-01-01')).toBe(false);
+  });
+
+  it('returns false when date is different month', () => {
+    expect(isToday('2000-02-01')).toBe(false);
+    expect(isToday('2000-12-01')).toBe(false);
+  });
+
+  it('returns false when date is different day', () => {
+    expect(isToday('2000-01-02')).toBe(false);
+    expect(isToday('2000-01-31')).toBe(false);
+  });
+
+  it('returns true for different times on the same day', () => {
+    expect(isToday('2000-01-01T12:00:00Z')).toBe(true);
+    expect(isToday('2000-01-01T23:59:59Z')).toBe(true);
+  });
+
+  it('returns false when date is invalid', () => {
+    expect(isToday('invalid-date')).toBe(false);
+  });
+
+  it('supports numeric timestamps', () => {
+    const timestamp = new Date('2000-01-01T12:00:00Z').valueOf();
+    expect(isToday(timestamp)).toBe(true);
   });
 });

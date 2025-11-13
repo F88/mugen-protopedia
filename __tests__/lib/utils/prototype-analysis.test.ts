@@ -1067,6 +1067,8 @@ describe('Anniversary Analysis', () => {
 
     expect(result.anniversaries.birthdayCount).toBe(0);
     expect(result.anniversaries.birthdayPrototypes).toEqual([]);
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
   });
 
   it('should handle invalid release dates gracefully', () => {
@@ -1082,5 +1084,136 @@ describe('Anniversary Analysis', () => {
 
     expect(result.anniversaries.birthdayCount).toBe(0);
     expect(result.anniversaries.birthdayPrototypes).toEqual([]);
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
+  });
+});
+
+describe('Newborn Analysis', () => {
+  it('should identify prototypes published today correctly', () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Create prototypes with today's date
+    const prototypes = [
+      createMockPrototype({
+        id: 1,
+        prototypeNm: 'Newborn Prototype 1',
+        releaseDate: today.toISOString(),
+      }),
+      createMockPrototype({
+        id: 2,
+        prototypeNm: 'Newborn Prototype 2',
+        releaseDate: today.toISOString(),
+      }),
+      createMockPrototype({
+        id: 3,
+        prototypeNm: 'Old Prototype',
+        releaseDate: yesterday.toISOString(),
+      }),
+    ];
+
+    const result = analyzePrototypes(prototypes);
+
+    expect(result.anniversaries.newbornCount).toBe(2);
+    expect(result.anniversaries.newbornPrototypes).toHaveLength(2);
+
+    const newborn1 = result.anniversaries.newbornPrototypes.find(
+      (p) => p.id === 1,
+    );
+    const newborn2 = result.anniversaries.newbornPrototypes.find(
+      (p) => p.id === 2,
+    );
+
+    expect(newborn1).toBeDefined();
+    expect(newborn1?.title).toBe('Newborn Prototype 1');
+
+    expect(newborn2).toBeDefined();
+    expect(newborn2?.title).toBe('Newborn Prototype 2');
+  });
+
+  it('should not identify yesterday\'s prototypes as newborn', () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const prototypes = [
+      createMockPrototype({
+        id: 1,
+        prototypeNm: 'Yesterday Prototype',
+        releaseDate: yesterday.toISOString(),
+      }),
+    ];
+
+    const result = analyzePrototypes(prototypes);
+
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
+  });
+
+  it('should not identify tomorrow\'s prototypes as newborn', () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const prototypes = [
+      createMockPrototype({
+        id: 1,
+        prototypeNm: 'Tomorrow Prototype',
+        releaseDate: tomorrow.toISOString(),
+      }),
+    ];
+
+    const result = analyzePrototypes(prototypes);
+
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
+  });
+
+  it('should handle different times on the same day as newborn', () => {
+    const today = new Date();
+    const todayMorning = new Date(today);
+    todayMorning.setHours(0, 0, 0, 0);
+    const todayEvening = new Date(today);
+    todayEvening.setHours(23, 59, 59, 999);
+
+    const prototypes = [
+      createMockPrototype({
+        id: 1,
+        prototypeNm: 'Morning Prototype',
+        releaseDate: todayMorning.toISOString(),
+      }),
+      createMockPrototype({
+        id: 2,
+        prototypeNm: 'Evening Prototype',
+        releaseDate: todayEvening.toISOString(),
+      }),
+    ];
+
+    const result = analyzePrototypes(prototypes);
+
+    expect(result.anniversaries.newbornCount).toBe(2);
+    expect(result.anniversaries.newbornPrototypes).toHaveLength(2);
+  });
+
+  it('should handle empty data for newborn analysis', () => {
+    const result = analyzePrototypes([]);
+
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
+  });
+
+  it('should handle invalid dates in newborn analysis', () => {
+    const prototypes = [
+      createMockPrototype({
+        id: 1,
+        prototypeNm: 'Invalid Date Prototype',
+        releaseDate: 'invalid-date',
+      }),
+    ];
+
+    const result = analyzePrototypes(prototypes);
+
+    expect(result.anniversaries.newbornCount).toBe(0);
+    expect(result.anniversaries.newbornPrototypes).toEqual([]);
   });
 });

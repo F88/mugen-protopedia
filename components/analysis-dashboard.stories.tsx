@@ -159,6 +159,66 @@ export const ManyBirthdays: Story = {
   },
 };
 
+export const ManyNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.newbornPrototypes = Array.from({ length: 7 }).map(
+          (_, index) => ({
+            id: 2000 + index,
+            title: `Fresh Prototype ${index + 1} with an exceptionally detailed and long title`,
+            releaseDate: new Date().toISOString(),
+          }),
+        );
+        draft.anniversaries.newbornCount =
+          draft.anniversaries.newbornPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'Displays multiple newborn prototypes to verify layout and overflow handling.',
+      },
+    },
+  },
+};
+
+export const BirthdaysAndNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 3 }).map(
+          (_, index) => ({
+            id: 1000 + index,
+            title: `Anniversary Prototype ${index + 1}`,
+            years: 2 + index,
+            releaseDate: new Date(2020 + index, 0, 1).toISOString(),
+          }),
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
+        draft.anniversaries.newbornPrototypes = Array.from({ length: 4 }).map(
+          (_, index) => ({
+            id: 2000 + index,
+            title: `Brand New Prototype ${index + 1}`,
+            releaseDate: new Date().toISOString(),
+          }),
+        );
+        draft.anniversaries.newbornCount =
+          draft.anniversaries.newbornPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'Displays both birthday and newborn prototypes to verify layout with both sections.',
+      },
+    },
+  },
+};
+
 export const LongTeamNames: Story = {
   render: renderStory,
   parameters: {
@@ -199,6 +259,15 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
     { count: 12 },
   );
 
+  const newborns = faker.helpers.multiple(
+    (_value, index) => ({
+      id: 6000 + index,
+      title: faker.commerce.productName(),
+      releaseDate: new Date().toISOString(),
+    }),
+    { count: 8 },
+  );
+
   return {
     totalCount: count,
     statusDistribution: {
@@ -232,6 +301,8 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
     anniversaries: {
       birthdayCount: birthdays.length,
       birthdayPrototypes: birthdays,
+      newbornCount: newborns.length,
+      newbornPrototypes: newborns,
     },
     analyzedAt: faker.date.recent().toISOString(),
   } satisfies PrototypeAnalysis;

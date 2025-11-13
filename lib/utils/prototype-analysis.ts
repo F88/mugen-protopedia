@@ -1,6 +1,6 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.client';
-import { isBirthDay, calculateAge } from '@/lib/utils/anniversary-nerd';
+import { isBirthDay, calculateAge, isToday } from '@/lib/utils/anniversary-nerd';
 
 /**
  * Analysis result for prototype data containing insights and statistics.
@@ -29,6 +29,14 @@ export type PrototypeAnalysis = {
       id: number;
       title: string;
       years: number;
+      releaseDate: string;
+    }>;
+    /** Number of prototypes published today (newborn) */
+    newbornCount: number;
+    /** Prototypes published today */
+    newbornPrototypes: Array<{
+      id: number;
+      title: string;
       releaseDate: string;
     }>;
   };
@@ -80,6 +88,8 @@ export function analyzePrototypes(
       anniversaries: {
         birthdayCount: 0,
         birthdayPrototypes: [],
+        newbornCount: 0,
+        newbornPrototypes: [],
       },
       analyzedAt: new Date().toISOString(),
     };
@@ -162,6 +172,17 @@ export function analyzePrototypes(
       };
     });
 
+  // Newborn analysis - check for prototypes published today
+  const newbornPrototypes = prototypes
+    .filter(
+      (prototype) => prototype.releaseDate && isToday(prototype.releaseDate),
+    )
+    .map((prototype) => ({
+      id: prototype.id,
+      title: prototype.prototypeNm,
+      releaseDate: prototype.releaseDate,
+    }));
+
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
 
   logger.debug(
@@ -171,6 +192,7 @@ export function analyzePrototypes(
       uniqueTags: Object.keys(tagCounts).length,
       uniqueTeams: Object.keys(teamCounts).length,
       birthdayCount: birthdayPrototypes.length,
+      newbornCount: newbornPrototypes.length,
       elapsedMs,
     },
     'Prototype analysis completed',
@@ -187,6 +209,8 @@ export function analyzePrototypes(
     anniversaries: {
       birthdayCount: birthdayPrototypes.length,
       birthdayPrototypes,
+      newbornCount: newbornPrototypes.length,
+      newbornPrototypes,
     },
     analyzedAt: new Date().toISOString(),
   };

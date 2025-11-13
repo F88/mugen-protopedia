@@ -62,3 +62,21 @@ export const isBirthDay = (value: string | number): boolean => {
 
   return now.getMonth() === 1 && now.getDate() === 28;
 };
+
+/**
+ * Determines whether the provided date is today (same year, month, and day).
+ * - Returns true when year/month/day all match exactly.
+ */
+export const isToday = (value: string | number): boolean => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  const now = new Date();
+  return (
+    now.getFullYear() === date.getFullYear() &&
+    now.getMonth() === date.getMonth() &&
+    now.getDate() === date.getDate()
+  );
+};
