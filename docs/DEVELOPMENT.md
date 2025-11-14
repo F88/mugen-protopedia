@@ -247,3 +247,22 @@ Defaults:
 - Do import `@/lib/logger.client` in browser code and Storybook.
 - Don’t import `@/lib/logger.server` in client components or stories.
 - Note: `pino-pretty` is statically imported to avoid Next.js bundling issues with worker-based transports.
+
+---
+
+## Anniversaries (Birthdays & Newborns)
+
+- Display rules and timezone policy are documented in `docs/anniversaries.md`.
+- The dashboard supports client-side recomputation of anniversaries using the
+  user’s local timezone:
+
+    ```tsx
+    <AnalysisDashboard
+        useLatestAnalysisHook={useLatestAnalysis}
+        preferClientTimezoneAnniversaries
+    />
+    ```
+
+- Implementation: - Hook: `lib/hooks/use-client-anniversaries.ts` - It fetches a broad snapshot (up to 10,000 items) and runs
+  `analyzePrototypes` locally. The UI falls back to server analysis while
+  loading or on errors.
