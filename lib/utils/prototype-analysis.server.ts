@@ -25,18 +25,10 @@ type MinimalLogger = {
 };
 
 /**
- * Utility to format numbers to 2 digits (01, 02, ..., 10, 11, ...)
- */
-function pad2(n: number): string {
-  return n < 10 ? `0${n}` : String(n);
-}
-
-/**
  * Computes UTC-based anniversary candidate metadata for client-side filtering.
  *
  * This helper generates:
  * - metadata.windowUTC: Inclusive ISO range [yesterday 00:00, tomorrow 23:59:59.999] in UTC
- * - monthDaysUTC: MM-DD strings for [yesterday, today, tomorrow] in UTC
  * - metadata.computedAt: Current timestamp in UTC
  * - prototypes: Filtered prototypes within the 3-day window
  *
@@ -45,11 +37,13 @@ function pad2(n: number): string {
  *
  * @param prototypes - All prototypes to filter
  * @param now - The reference date (caller's "now")
+ * @param logger - Optional logger for debug output
  * @returns Anniversary candidate data with filtered prototypes
  */
 function buildAnniversaryCandidates(
   prototypes: NormalizedPrototype[],
   now: Date,
+  logger?: MinimalLogger,
 ): AnniversaryCandidates {
   const uYear = now.getUTCFullYear();
   const uMonth = now.getUTCMonth(); // 0-based
@@ -59,13 +53,6 @@ function buildAnniversaryCandidates(
   const startTodayUTC = Date.UTC(uYear, uMonth, uDate, 0, 0, 0, 0);
   const startYesterdayUTC = startTodayUTC - dayMs;
   const endTomorrowUTC = startTodayUTC + 2 * dayMs - 1; // inclusive end (23:59:59.999)
-
-  const yesterday = new Date(startYesterdayUTC);
-  const today = new Date(startTodayUTC);
-  const tomorrow = new Date(startTodayUTC + dayMs);
-
-  const mmdd = (d: Date) =>
-    `${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
 
   // Filter prototypes within the 3-day UTC window and extract only necessary fields
   const fromTime = new Date(startYesterdayUTC).getTime();
@@ -81,7 +68,7 @@ function buildAnniversaryCandidates(
       releaseDate: p.releaseDate,
     }));
 
-  return {
+  const result = {
     metadata: {
       computedAt: now.toISOString(),
       windowUTC: {
@@ -89,9 +76,12 @@ function buildAnniversaryCandidates(
         toISO: new Date(endTomorrowUTC).toISOString(),
       },
     },
-    monthDaysUTC: [mmdd(yesterday), mmdd(today), mmdd(tomorrow)],
-    prototypes: candidatePrototypes,
+    mmdd: candidatePrototypes,
   };
+
+  logger?.debug(result, 'Built anniversary candidates');
+
+  return result;
 }
 
 /**
@@ -139,7 +129,11 @@ export function analyzePrototypesForServer(
       yearDistribution: {},
       topTeams: [],
       analyzedAt: new Date().toISOString(),
-      anniversaryCandidates: buildAnniversaryCandidates(prototypes, now),
+      anniversaryCandidates: buildAnniversaryCandidates(
+        prototypes,
+        now,
+        logger,
+      ),
     };
   }
 
@@ -149,7 +143,11 @@ export function analyzePrototypesForServer(
   const averageAgeInDays = computeAverageAgeInDays(prototypes, now);
   const yearDistribution = buildYearDistribution(prototypes);
   const { topTeams, teamCounts } = buildTopTeams(prototypes);
-  const anniversaryCandidates = buildAnniversaryCandidates(prototypes, now);
+  const anniversaryCandidates = buildAnniversaryCandidates(
+    prototypes,
+    now,
+    logger,
+  );
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
 

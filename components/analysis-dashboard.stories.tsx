@@ -507,8 +507,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
           toISO: new Date(Date.now() + 86400000).toISOString(),
         },
       },
-      monthDaysUTC: ['11-13', '11-14', '11-15'],
-      prototypes: [],
+      mmdd: [],
     },
   } satisfies PrototypeAnalysis;
 };

@@ -27,6 +27,14 @@ export type AnniversaryCandidatePrototype = {
  * hints about which prototypes might be anniversaries in the user's timezone,
  * allowing clients to fetch a minimal subset rather than the entire dataset.
  *
+ * **Typical data volume:**
+ * The 3-day UTC window typically contains a small subset of prototypes compared
+ * to the full dataset (~10,000 items). However, due to project deadlines and
+ * scheduled release dates, certain days may have concentrated releases resulting
+ * in several dozen to over 100 candidates per day. This is expected behavior
+ * and still represents significant payload reduction (99%+) compared to fetching
+ * the entire dataset.
+ *
  * **Fields:**
  * - `metadata.computedAt`: ISO 8601 timestamp of when these candidates were computed.
  *   Used for cache validation and debugging.
@@ -34,10 +42,6 @@ export type AnniversaryCandidatePrototype = {
  * - `metadata.windowUTC`: ISO 8601 date range covering [yesterday 00:00, tomorrow 23:59:59.999]
  *   in UTC. Prototypes with `releaseDate` within this window are candidates for
  *   anniversary detection (newborn, birthday, yearly milestone, etc. in user's timezone).
- *
- * - `monthDaysUTC`: Array of MM-DD strings (e.g., ['11-13', '11-14', '11-15'])
- *   representing month-day combinations for yesterday, today, and tomorrow in UTC.
- *   Provides an alternative filtering approach for month-day matching.
  *
  * - `prototypes`: Array of prototype data within the 3-day UTC window.
  *   This allows clients to perform anniversary analysis without fetching the entire dataset.
@@ -58,12 +62,11 @@ export type AnniversaryCandidatePrototype = {
  *       toISO: '2025-11-15T23:59:59.999Z'
  *     }
  *   },
- *   monthDaysUTC: ['11-13', '11-14', '11-15'],
- *   prototypes: [...]
+ *   mmdd: [...]
  * }
  *
  * // Client uses pre-filtered data:
- * const analysis = analyzePrototypes(candidates.prototypes);
+ * const analysis = analyzePrototypes(candidates.mmdd);
  * // No need to fetch 10,000 items - only candidates are transferred
  * ```
  *
@@ -83,10 +86,8 @@ export type AnniversaryCandidates = {
       toISO: string;
     };
   };
-  /** Array of MM-DD strings in UTC for 3-day range (yesterday, today, tomorrow) */
-  monthDaysUTC: string[];
-  /** Minimal prototype data within the 3-day UTC window for client-side anniversary analysis */
-  prototypes: AnniversaryCandidatePrototype[];
+  /** Minimal prototype data for month-day based anniversary detection */
+  mmdd: AnniversaryCandidatePrototype[];
 };
 
 /**

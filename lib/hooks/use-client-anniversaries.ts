@@ -48,7 +48,7 @@ export function useClientAnniversaries(
 
         // Use pre-filtered candidate prototypes from server (3-day window)
         // No need to fetch 10,000 items - server already filtered candidates
-        const candidatePrototypes = anniversaryCandidates.prototypes;
+        const candidatePrototypes = anniversaryCandidates.mmdd;
 
         if (signal?.aborted) return;
 

@@ -41,7 +41,7 @@ type MinimalLogger = {
  * ```typescript
  * // In a client component or hook
  * const { anniversaryCandidates } = serverAnalysis;
- * const analysis = analyzeCandidates(anniversaryCandidates.prototypes);
+ * const analysis = analyzeCandidates(anniversaryCandidates.mmdd);
  * // analysis.anniversaries reflects user's timezone
  * ```
  */
