@@ -134,7 +134,7 @@ if (loadingCountDecreased && focusedIndex === lastIndex) {
 }
 ```
 
-#### Scroll Trigger Flow (Mermaid)
+### Scroll Trigger Flow (Mermaid)
 
 ```mermaid
 flowchart LR
