@@ -1,6 +1,7 @@
 'use client';
 
 import { logger as clientLogger } from '@/lib/logger.client';
+import { buildAnniversaryCandidateTotals } from '@/lib/utils/anniversary-candidate-metrics';
 import {
   buildAnniversaries,
   buildAnniversarySlice,
@@ -47,13 +48,26 @@ type MinimalLogger = {
  */
 export function analyzeCandidates(
   candidates: AnniversaryCandidatePrototype[],
-  options?: { logger?: MinimalLogger },
+  options?: { logger?: MinimalLogger; referenceDate?: Date },
 ): ClientPrototypeAnalysis {
   const base: MinimalLogger = options?.logger ?? clientLogger;
   const logger = base.child({ action: 'analyzeCandidates' });
+  const totals = buildAnniversaryCandidateTotals(candidates, {
+    referenceDate: options?.referenceDate,
+  });
 
   // Early return if no candidates
   if (candidates.length === 0) {
+    logger.debug(
+      {
+        totals,
+        anniversaries: {
+          birthdayCount: 0,
+          newbornCount: 0,
+        },
+      },
+      'Client-side anniversaries computed from candidates',
+    );
     return {
       anniversaries: {
         birthdayCount: 0,
@@ -70,9 +84,11 @@ export function analyzeCandidates(
 
   logger.debug(
     {
-      candidateCount: candidates.length,
-      birthdayCount: birthdayPrototypes.length,
-      newbornCount: newbornPrototypes.length,
+      totals,
+      anniversaries: {
+        birthdayCount: birthdayPrototypes.length,
+        newbornCount: newbornPrototypes.length,
+      },
     },
     'Client-side anniversaries computed from candidates',
   );

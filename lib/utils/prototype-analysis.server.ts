@@ -1,6 +1,10 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as serverLogger } from '@/lib/logger.server';
 import {
+  buildAnniversaryCandidateTotals,
+  extractMonthDay,
+} from '@/lib/utils/anniversary-candidate-metrics';
+import {
   buildStatusDistribution,
   buildTopTags,
   buildTopTeams,
@@ -13,33 +17,7 @@ import type {
   ServerPrototypeAnalysis,
 } from '@/lib/utils/prototype-analysis.types';
 
-/**
- * Extracts month-day string in MM-DD format from a date string or Date object.
- *
- * @param date - Date string (ISO or any parseable format) or Date object
- * @returns MM-DD string (e.g., "01-15", "12-31") or null if invalid
- *
- * @example
- * ```typescript
- * extractMonthDay('2024-11-14T10:30:00Z') // '11-14'
- * extractMonthDay('2024-11-14 10:30:00.0') // '11-14'
- * extractMonthDay(new Date('2024-01-05')) // '01-05'
- * extractMonthDay('invalid') // null
- * ```
- */
-export function extractMonthDay(date: string | Date): string | null {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-
-  if (isNaN(dateObj.getTime())) {
-    return null;
-  }
-
-  const month = dateObj.getUTCMonth() + 1;
-  const day = dateObj.getUTCDate();
-  const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));
-
-  return `${pad2(month)}-${pad2(day)}`;
-}
+export { extractMonthDay } from '@/lib/utils/anniversary-candidate-metrics';
 
 /**
  * Minimal logger interface for dependency injection
@@ -122,18 +100,32 @@ export function buildAnniversaryCandidates(
       title: p.prototypeNm,
       releaseDate: p.releaseDate,
     }));
-  const result = {
-    metadata: {
-      computedAt: referenceDate.toISOString(),
-      windowUTC: {
-        fromISO: new Date(startYesterdayUTC).toISOString(),
-        toISO: new Date(endTomorrowUTC).toISOString(),
-      },
+  const metadata = {
+    computedAt: referenceDate.toISOString(),
+    windowUTC: {
+      fromISO: new Date(startYesterdayUTC).toISOString(),
+      toISO: new Date(endTomorrowUTC).toISOString(),
     },
+  };
+
+  const result = {
+    metadata,
     mmdd: candidatePrototypes,
   };
 
-  logger?.debug(result, 'Built anniversary candidates');
+  if (logger) {
+    const totals = buildAnniversaryCandidateTotals(candidatePrototypes, {
+      referenceDate,
+    });
+
+    logger.debug(
+      {
+        metadata,
+        totals,
+      },
+      'Built anniversary candidates',
+    );
+  }
 
   return result;
 }

@@ -937,7 +937,14 @@ describe('buildAnniversaryCandidates (direct unit tests)', () => {
           metadata: expect.objectContaining({
             computedAt: '2025-05-01T00:00:00.000Z',
           }),
-          mmdd: expect.any(Array),
+          totals: expect.objectContaining({
+            byMonthDay: expect.objectContaining({
+              '04-30': 1,
+              '05-01': 1,
+            }),
+            birthday: 1,
+            candidates: 2,
+          }),
         }),
         'Built anniversary candidates',
       );
