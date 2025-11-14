@@ -241,6 +241,13 @@ export async function fetchPrototypes(
       'utf8',
     );
 
+    let sampleLogContext: {
+      upstreamSampleSelection: string;
+      upstreamSamplePrototypeId: number | null;
+      upstreamSamplePrototype: UpstreamPrototype | null;
+    } | null = null;
+
+    // Log a sampled prototype from the upstream results for debugging purposes
     if (logger.isLevelEnabled('debug')) {
       const rawResults = Array.isArray(upstream.results)
         ? (upstream.results as UpstreamPrototype[])
@@ -259,7 +266,7 @@ export async function fetchPrototypes(
         }
       }
 
-      const sampleLogContext = sampledPrototype
+      sampleLogContext = sampledPrototype
         ? {
             upstreamSampleSelection: 'max-id',
             upstreamSamplePrototypeId: sampledId,
@@ -294,13 +301,24 @@ export async function fetchPrototypes(
     const normalizeElapsedMs =
       Math.round((normalizeEnd - normalizeStart) * 100) / 100;
 
-    // logger.debug(
-    //   {
-    //     normalizeElapsedMs,
-    //     normalizedCount: normalized.length,
-    //   },
-    //   'Data normalization completed',
-    // );
+    // Log the normalized sample for comparison
+    if (logger.isLevelEnabled('debug') && sampleLogContext) {
+      const normalizedSample =
+        sampleLogContext.upstreamSamplePrototypeId !== null
+          ? (normalized.find(
+              (prototype) =>
+                prototype.id === sampleLogContext?.upstreamSamplePrototypeId,
+            ) ?? null)
+          : null;
+
+      logger.debug(
+        {
+          ...sampleLogContext,
+          normalizedSamplePrototype: normalizedSample,
+        },
+        'Sampled prototype after normalization',
+      );
+    }
 
     if (prototypeId !== undefined && normalized.length === 0) {
       logger.debug(
