@@ -30,7 +30,7 @@ type MinimalLogger = {
  * This helper generates:
  * - metadata.windowUTC: Inclusive ISO range [yesterday 00:00, tomorrow 23:59:59.999] in UTC
  * - metadata.computedAt: Current timestamp in UTC
- * - prototypes: Filtered prototypes within the 3-day window
+ * - mmdd: Minimal prototype data (id, title, releaseDate only) within the 3-day window
  *
  * Clients can use this data to perform anniversary analysis without fetching
  * the entire dataset.
@@ -38,7 +38,7 @@ type MinimalLogger = {
  * @param prototypes - All prototypes to filter
  * @param now - The reference date (caller's "now")
  * @param logger - Optional logger for debug output
- * @returns Anniversary candidate data with filtered prototypes
+ * @returns Anniversary candidate data with filtered minimal prototypes
  */
 function buildAnniversaryCandidates(
   prototypes: NormalizedPrototype[],
