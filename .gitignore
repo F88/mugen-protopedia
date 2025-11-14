@@ -115,3 +115,6 @@ tools/sample-data/
 .coverage
 coverage/
 .vercel
+
+# Tools
+cleanup-verce-deployments.js
