@@ -239,7 +239,31 @@ export async function getLatestAnalysis(options?: {
       'Prototype analysis completed (timezone + summary)',
     );
   }
-
+  // Debug-level payload snapshot (small, avoids dumping full arrays)
+  try {
+    const a = cached.analysis;
+    const analysisDebugSample = {
+      totalCount: a.totalCount,
+      birthdayCount: a.anniversaries.birthdayCount,
+      newbornCount: a.anniversaries.newbornCount,
+      statusKeys: Object.keys(a.statusDistribution),
+      yearKeys: Object.keys(a.yearDistribution),
+      topTags: a.topTags.map((t) => t.tag),
+      topTeams: a.topTeams.map((t) => t.team),
+      sampleBirthdays: a.anniversaries.birthdayPrototypes
+        .slice(0, 5)
+        .map(({ id, releaseDate }) => ({ id, releaseDate })),
+      sampleNewborns: a.anniversaries.newbornPrototypes
+        .slice(0, 5)
+        .map(({ id, releaseDate }) => ({ id, releaseDate })),
+    };
+    logger.debug(
+      { analysis: analysisDebugSample },
+      'Returning latest analysis payload',
+    );
+  } catch (err) {
+    logger.debug({ err }, 'Failed to build debug sample for latest analysis');
+  }
   return {
     ok: true,
     data: cached.analysis,
@@ -301,6 +325,35 @@ export async function getAnalysisForParams(params: {
     'Matching analysis retrieved from cache',
   );
 
+  // Debug-level payload snapshot for parameter-specific analysis
+  try {
+    const a = cached.analysis;
+    const analysisDebugSample = {
+      totalCount: a.totalCount,
+      birthdayCount: a.anniversaries.birthdayCount,
+      newbornCount: a.anniversaries.newbornCount,
+      statusKeys: Object.keys(a.statusDistribution),
+      yearKeys: Object.keys(a.yearDistribution),
+      topTags: a.topTags.map((t) => t.tag),
+      topTeams: a.topTeams.map((t) => t.team),
+      sampleBirthdays: a.anniversaries.birthdayPrototypes
+        .slice(0, 3)
+        .map(({ id, releaseDate }) => ({ id, releaseDate })),
+      sampleNewborns: a.anniversaries.newbornPrototypes
+        .slice(0, 3)
+        .map(({ id, releaseDate }) => ({ id, releaseDate })),
+    };
+    logger.debug(
+      { analysis: analysisDebugSample },
+      'Returning parameter-specific analysis payload',
+    );
+  } catch (err) {
+    logger.debug(
+      { err },
+      'Failed to build debug sample for parameter analysis',
+    );
+  }
+
   return {
     ok: true,
     data: cached.analysis,
@@ -347,6 +400,30 @@ export async function getAllAnalyses(): Promise<GetAllAnalysesResult> {
     },
     'All analyses retrieved from cache',
   );
+
+  // Debug-level aggregated snapshot (limit to first few entries)
+  try {
+    const summaries = cached.slice(0, 3).map((c) => ({
+      key: c.key,
+      cachedAt: c.cachedAt.toISOString(),
+      totalCount: c.analysis.totalCount,
+      birthdayCount: c.analysis.anniversaries.birthdayCount,
+      newbornCount: c.analysis.anniversaries.newbornCount,
+    }));
+    logger.debug(
+      {
+        summaries,
+        stats: {
+          size: stats.size,
+          maxEntries: stats.maxEntries,
+          ttlMs: stats.ttlMs,
+        },
+      },
+      'Returning all cached analyses payload (summary only)',
+    );
+  } catch (err) {
+    logger.debug({ err }, 'Failed to build debug summaries for all analyses');
+  }
 
   return {
     ok: true,

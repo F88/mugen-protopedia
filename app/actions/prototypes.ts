@@ -15,6 +15,7 @@
 import {
   normalizePrototype,
   type NormalizedPrototype,
+  type UpstreamPrototype,
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
@@ -239,6 +240,39 @@ export async function fetchPrototypes(
       JSON.stringify(upstream),
       'utf8',
     );
+
+    if (logger.isLevelEnabled('debug')) {
+      const rawResults = Array.isArray(upstream.results)
+        ? (upstream.results as UpstreamPrototype[])
+        : [];
+      let sampledPrototype: UpstreamPrototype | null = null;
+      let sampledId = -Infinity;
+
+      for (const candidate of rawResults) {
+        if (!candidate || typeof candidate.id !== 'number') {
+          continue;
+        }
+
+        if (candidate.id > sampledId) {
+          sampledId = candidate.id;
+          sampledPrototype = candidate;
+        }
+      }
+
+      const sampleLogContext = sampledPrototype
+        ? {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: sampledId,
+            upstreamSamplePrototype: sampledPrototype,
+          }
+        : {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: null,
+            upstreamSamplePrototype: null,
+          };
+
+      logger.debug(sampleLogContext, 'Sampled upstream prototype payload');
+    }
 
     logger.debug(
       {
