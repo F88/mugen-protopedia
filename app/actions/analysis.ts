@@ -82,6 +82,65 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
   key: cached.key,
 });
 
+const pad2 = (value: number) => (value < 10 ? `0${value}` : String(value));
+
+const buildTimezoneSnapshot = (now: Date) => {
+  const tz = (() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
+    } catch {
+      return 'unknown';
+    }
+  })();
+  const offsetMin = -now.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const absMin = Math.abs(offsetMin);
+  const offset = `${sign}${pad2(Math.trunc(absMin / 60))}:${pad2(absMin % 60)}`;
+
+  return {
+    timeZone: tz,
+    offsetMinutes: offsetMin,
+    offset,
+    nowUTC: now.toISOString(),
+    nowLocal: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}T${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}${offset}`,
+    todayLocalYMD: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`,
+    todayUTCYMD: now.toISOString().slice(0, 10),
+  };
+};
+
+const buildAnalysisSummary = (
+  analysis: ServerPrototypeAnalysis,
+  elapsedMs: number,
+) => ({
+  totalCount: analysis.totalCount,
+  statusKinds: Object.keys(analysis.statusDistribution).length,
+  uniqueTags: analysis.topTags.length,
+  uniqueTeams: analysis.topTeams.length,
+  averageAgeInDays: analysis.averageAgeInDays,
+  elapsedMs,
+});
+
+const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
+  totalCount: analysis.totalCount,
+  statusKeys: Object.keys(analysis.statusDistribution),
+  yearKeys: Object.keys(analysis.yearDistribution),
+  topTags: analysis.topTags.map((t) => t.tag),
+  topTeams: analysis.topTeams.map((t) => t.team),
+});
+
+const logAnalysisDebugSample = (
+  logger: Pick<typeof baseLogger, 'debug'>,
+  analysis: ServerPrototypeAnalysis,
+  message: string,
+  failureMessage: string,
+) => {
+  try {
+    logger.debug({ analysis: buildAnalysisDebugSample(analysis) }, message);
+  } catch (err) {
+    logger.debug({ err }, failureMessage);
+  }
+};
+
 /**
  * Get the most recent analysis from cache.
  *
@@ -199,63 +258,21 @@ export async function getLatestAnalysis(options?: {
   // analyzePrototypes info line) if we did not compute it during this call.
   if (!computedDuringCall) {
     const now = new Date();
-    const to2 = (n: number) => (n < 10 ? `0${n}` : String(n));
-    const tz = (() => {
-      try {
-        return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
-      } catch {
-        return 'unknown';
-      }
-    })();
-    const offsetMin = -now.getTimezoneOffset();
-    const sign = offsetMin >= 0 ? '+' : '-';
-    const absMin = Math.abs(offsetMin);
-    const offset = `${sign}${to2(Math.trunc(absMin / 60))}:${to2(absMin % 60)}`;
-    const utcISO = now.toISOString();
-    const localISO = `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}T${to2(now.getHours())}:${to2(now.getMinutes())}:${to2(now.getSeconds())}${offset}`;
-
-    const a = cached.analysis;
     logger.info(
       {
         environment: { runtime: 'server', source: 'cache' },
-        timezone: {
-          timeZone: tz,
-          offsetMinutes: offsetMin,
-          offset,
-          nowUTC: utcISO,
-          nowLocal: localISO,
-          todayLocalYMD: `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}`,
-          todayUTCYMD: utcISO.slice(0, 10),
-        },
-        summary: {
-          totalCount: a.totalCount,
-          statusKinds: Object.keys(a.statusDistribution).length,
-          uniqueTags: a.topTags.length, // approximation (already top 10)
-          uniqueTeams: a.topTeams.length, // approximation
-          averageAgeInDays: a.averageAgeInDays,
-          elapsedMs,
-        },
+        timezone: buildTimezoneSnapshot(now),
+        summary: buildAnalysisSummary(cached.analysis, elapsedMs),
       },
       'Prototype analysis completed (timezone + summary)',
     );
   }
-  // Debug-level payload snapshot (small, avoids dumping full arrays)
-  try {
-    const a = cached.analysis;
-    const analysisDebugSample = {
-      totalCount: a.totalCount,
-      statusKeys: Object.keys(a.statusDistribution),
-      yearKeys: Object.keys(a.yearDistribution),
-      topTags: a.topTags.map((t) => t.tag),
-      topTeams: a.topTeams.map((t) => t.team),
-    };
-    logger.debug(
-      { analysis: analysisDebugSample },
-      'Returning latest analysis payload',
-    );
-  } catch (err) {
-    logger.debug({ err }, 'Failed to build debug sample for latest analysis');
-  }
+  logAnalysisDebugSample(
+    logger,
+    cached.analysis,
+    'Returning latest analysis payload',
+    'Failed to build debug sample for latest analysis',
+  );
   return {
     ok: true,
     data: cached.analysis,
@@ -317,26 +334,12 @@ export async function getAnalysisForParams(params: {
     'Matching analysis retrieved from cache',
   );
 
-  // Debug-level payload snapshot for parameter-specific analysis
-  try {
-    const a = cached.analysis;
-    const analysisDebugSample = {
-      totalCount: a.totalCount,
-      statusKeys: Object.keys(a.statusDistribution),
-      yearKeys: Object.keys(a.yearDistribution),
-      topTags: a.topTags.map((t) => t.tag),
-      topTeams: a.topTeams.map((t) => t.team),
-    };
-    logger.debug(
-      { analysis: analysisDebugSample },
-      'Returning parameter-specific analysis payload',
-    );
-  } catch (err) {
-    logger.debug(
-      { err },
-      'Failed to build debug sample for parameter analysis',
-    );
-  }
+  logAnalysisDebugSample(
+    logger,
+    cached.analysis,
+    'Returning parameter-specific analysis payload',
+    'Failed to build debug sample for parameter analysis',
+  );
 
   return {
     ok: true,
