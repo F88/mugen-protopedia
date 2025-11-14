@@ -3,7 +3,7 @@
 /**
  * @file Home page component providing an infinite prototype browsing surface.
  *
- * @see docs/slot-and-scroll-behavior.md for formal slot & scroll specification.
+ * @see docs/specs/slot-and-scroll-behavior.md for formal slot & scroll specification.
  */
 
 import type { ChangeEvent } from 'react';

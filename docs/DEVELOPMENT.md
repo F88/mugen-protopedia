@@ -76,7 +76,7 @@ UI Components (Dashboard / Cards / Badges)
 
 ## Performance & Fetch Strategy
 
-See `docs/data-fetching-strategy.md` for deep-dive. Highlights:
+See `docs/specs/data-fetching-strategy.md` for deep-dive. Highlights:
 
 - Responses over ~2 MB skip Next.js data cache; prefer smaller pages when caching matters.
 - Clamp limits between 1 and 10,000; measurement logs track elapsed ms and approximate payload size.
@@ -160,11 +160,7 @@ if (items.length > 0) {
 
 - Helper defined in `lib/utils/time.ts`. Input: ProtoPedia timestamp string (with optional fractional seconds or offset hints).
 - Output: ISO 8601 string in UTC (`YYYY-MM-DDTHH:mm:ss.sssZ`) when the value can be parsed, otherwise `null`.
-- Behavior highlights:
-      - Assumes the upstream string is JST when no offset is provided; applies the `Asia/Tokyo` offset before converting to UTC.
-      - Truncates fractional seconds to millisecond precision and tolerates omission/padding of millisecond digits.
-      - Accepts explicit `+HH:MM` offsets when present, but still returns a UTC ISO string.
-      - Rejects malformed timestamps (non-numeric segments, impossible dates after rollover) by returning `null` so callers can fall back gracefully.
+- Behavior highlights: - Assumes the upstream string is JST when no offset is provided; applies the `Asia/Tokyo` offset before converting to UTC. - Truncates fractional seconds to millisecond precision and tolerates omission/padding of millisecond digits. - Accepts explicit `+HH:MM` offsets when present, but still returns a UTC ISO string. - Rejects malformed timestamps (non-numeric segments, impossible dates after rollover) by returning `null` so callers can fall back gracefully.
 - Usage: `lib/api/prototypes.ts` runs every upstream `createDate`/`updateDate`/`releaseDate` through this helper. When it returns `null`, the code retains the raw upstream string so downstream components can still display the original value if desired.
 
 ### Tooling
@@ -305,19 +301,7 @@ Defaults:
 - Don’t import `@/lib/logger.server` in client components or stories.
 - Note: `pino-pretty` is statically imported to avoid Next.js bundling issues with worker-based transports.
 
-## Anniversaries (Birthdays & Newborns)
+## Feature Specifications
 
-- Display rules and timezone policy are documented in `docs/anniversaries.md`.
-- The dashboard supports client-side recomputation of anniversaries using the
-  user’s local timezone:
-
-    ```tsx
-    <AnalysisDashboard
-        useLatestAnalysisHook={useLatestAnalysis}
-        preferClientTimezoneAnniversaries
-    />
-    ```
-
-- Implementation: - Hook: `lib/hooks/use-client-anniversaries.ts` - It fetches a broad snapshot (up to 10,000 items) and runs
-  `analyzePrototypes` locally. The UI falls back to server analysis while
-  loading or on errors.
+- Feature (プロダクト/UX レベル) のまとめ方は `docs/mugen-protopedia-feature-guide.md` を参照し、`docs/features/` 配下に配置します。
+- Specification (検証可能な要件) の作成/更新手順は `docs/mugen-protopedia-specification-guide.md` を参照し、`docs/specs/` 配下に配置します。

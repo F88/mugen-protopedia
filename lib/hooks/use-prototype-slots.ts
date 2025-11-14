@@ -18,7 +18,7 @@
  * Related:
  * - Scrolling behavior and focus management are handled by
  *   `useScrollingBehavior`.
- * - Behavior spec in `docs/slot-and-scroll-behavior.md`.
+ * - Behavior spec in `docs/specs/slot-and-scroll-behavior.md`.
  */
 
 import { useCallback, useRef, useState } from 'react';
