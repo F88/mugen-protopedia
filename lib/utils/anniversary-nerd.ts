@@ -73,8 +73,8 @@ export const isBirthDay = (value: string | number): boolean => {
 
 /**
  * Determines whether the provided date is today (same year, month, and day).
- * - Returns true when year/month/day all match exactly.
- */
+ * - Returns `true` if the date matches today's date in either the local timezone or UTC.
+ * - This inclusive check helps avoid off-by-one errors near midnight across timezones.
 export const isToday = (value: string | number): boolean => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
