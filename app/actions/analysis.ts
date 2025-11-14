@@ -106,6 +106,7 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
   logger.debug('Getting latest analysis from cache');
 
   let cached = analysisCache.getLatest();
+  let computedDuringCall = false;
 
   if (!cached) {
     const hydrationStart = performance.now();
@@ -154,6 +155,7 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
           },
           'Generated analysis during cache hydration',
         );
+        computedDuringCall = true;
       }
     }
 
@@ -178,6 +180,53 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
     },
     'Latest analysis retrieved from cache',
   );
+
+  // Emit a summary log even when using cached analysis (to mirror the
+  // analyzePrototypes info line) if we did not compute it during this call.
+  if (!computedDuringCall) {
+    const now = new Date();
+    const to2 = (n: number) => (n < 10 ? `0${n}` : String(n));
+    const tz = (() => {
+      try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
+      } catch {
+        return 'unknown';
+      }
+    })();
+    const offsetMin = -now.getTimezoneOffset();
+    const sign = offsetMin >= 0 ? '+' : '-';
+    const absMin = Math.abs(offsetMin);
+    const offset = `${sign}${to2(Math.trunc(absMin / 60))}:${to2(absMin % 60)}`;
+    const utcISO = now.toISOString();
+    const localISO = `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}T${to2(now.getHours())}:${to2(now.getMinutes())}:${to2(now.getSeconds())}${offset}`;
+
+    const a = cached.analysis;
+    logger.info(
+      {
+        environment: { runtime: 'server', source: 'cache' },
+        timezone: {
+          timeZone: tz,
+          offsetMinutes: offsetMin,
+          offset,
+          nowUTC: utcISO,
+          nowLocal: localISO,
+          todayLocalYMD: `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}`,
+          todayUTCYMD: utcISO.slice(0, 10),
+        },
+        summary: {
+          totalCount: a.totalCount,
+          statusKinds: Object.keys(a.statusDistribution).length,
+          uniqueTags: a.topTags.length, // approximation (already top 10)
+          uniqueTeams: a.topTeams.length, // approximation
+          averageAgeInDays: a.averageAgeInDays,
+          birthdayCount: a.anniversaries.birthdayCount,
+          newbornCount: a.anniversaries.newbornCount,
+          elapsedMs,
+        },
+      },
+      'Prototype analysis completed (timezone + summary)',
+    );
+  }
 
   return {
     ok: true,
