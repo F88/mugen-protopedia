@@ -24,7 +24,8 @@ const APP_TITLE = '無限ProtoPedia';
 const APP_DESCRIPTION =
   '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ';
 const APP_URL = 'https://mugen-pp.vercel.app';
-const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
+// const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
+const APP_OG_IMAGE = `${APP_URL}/img/MPP-3-0-1200x630-OG.png`;
 const APP_KEYWORDS = [
   'ProtoPedia',
   'プロトタイプ',
