@@ -68,7 +68,7 @@ export function analyzeCandidates(
   const { birthdayPrototypes, newbornPrototypes } =
     buildAnniversaries(candidates);
 
-  logger.info(
+  logger.debug(
     {
       candidateCount: candidates.length,
       birthdayCount: birthdayPrototypes.length,
