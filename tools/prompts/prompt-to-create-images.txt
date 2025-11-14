@@ -47,7 +47,7 @@ A four-panel comic strip or illustration, likely promotional material, is displa
 
 # Logo
 
-The logo is an infinity symbol stylized with a gradient of colors, transitioning from light cyan/pinkish purple on the left to medium blue on the right, with the center overlapping area a blend of these colors. After the logo is the text "MUGEN ProtoPedia" in white, bold, sans-serif capitalization. Underneath this main title, in a smaller size and slightly thinner font, is the tagline "ENDLESS DISCOVERY, CREATIVE ENCUNTERS" also in white capitalization. All elements are centrally aligned on the plain black background.
+The logo is an infinity symbol stylized with a gradient of colors, transitioning from light cyan/pinkish purple on the left to medium blue on the right, with the center overlapping area a blend of these colors. After the logo is the text "MUGEN ProtoPedia" in white, bold, sans-serif capitalization. Underneath this main title, in a smaller size and slightly thinner font, is the tagline "ENDLESS DISCOVERY, CREATIVE ENCOUNTERS" also in white capitalization. All elements are centrally aligned on the plain black background.
 
 # Layout
 
@@ -98,7 +98,7 @@ The overall style of the image is clean, bright, and reminiscent of anime or hig
 Speech bubbles: Children are saying "Wow!" and "Look!"
 
 
-## The thried panel:
+## The third panel:
 
 Place and Time: A lively geek bar at night. Neon signs and circuit diagram-themed art are on display, and a large screen is set up on the wall. The warm lighting brightens the bar, creating a lively and clear atmosphere. The blue light from the monitors adds a cool accent. The atmosphere is lively and filled with intellectual conversation.
 
@@ -108,18 +108,18 @@ Specific Actions: One animal cries out in amazement at the prototype on the scre
 
 Speech bubbles: The animals have speech bubbles saying "That's the hook." and "This changes the stack."
 
-## The forth panel
 
+## The fourth panel
 
 An anime-style illustration depicts a young male sitting in a dimly lit room, facing a large array of computer monitors. The subject appears to be a teenager or young adult, with short, dark hair. He is wearing a light-colored t-shirt. His back is to the viewer, and he is seated in a dark chair, operating a computer mouse with his right hand, which rests on the desk.
 
 The setting is a dedicated computer workstation, suggesting an intense computing or hacking environment. The desk is cluttered with keyboards and other peripherals, illuminated primarily by the glow of the monitors and a strip of pinkish-purple LED light lining the edge of the desk. There are several drawers visible beneath the desk.
 
-Nine computer monitors are visible, arranged in a grid-like configuration. Three monitors are on the bottom row, three in the middle, and three on the top. Many of the monitors display lines of code or complex data interfaces, predominantly featuring light text on a dark background. Several screens show the logo "MutoPedia." Other screens display various images, profiles, or different types of interface elements. The overall color palette is dominated by dark blues, purples, and the cyan or green glow of the screens, creating a moody, nocturnal atmosphere. Two small overhead lights with a cyan glow illuminate the area directly above the monitors.
+Nine computer monitors are visible, arranged in a grid-like configuration. Three monitors are on the bottom row, three in the middle, and three on the top. Many of the monitors display lines of code or complex data interfaces, predominantly featuring light text on a dark background. Several screens show the logo "MUGEN ProtoPedia." Other screens display various images, profiles, or different types of interface elements. The overall color palette is dominated by dark blues, purples, and the cyan or green glow of the screens, creating a moody, nocturnal atmosphere. Two small overhead lights with a cyan glow illuminate the area directly above the monitors.
 
 ---
 
 ## Prohibited Items
 
-- No explanation of the purpose of expressing time or situation is required. For example, "Night" or "Moring."
+- No explanation of the purpose of expressing time or situation is required. For example, "Night" or "Morning."
 
