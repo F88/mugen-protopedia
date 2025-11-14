@@ -150,6 +150,12 @@ if (items.length > 0) {
 
 - [protopedia-api-v2-client - npm](https://www.npmjs.com/package/protopedia-api-v2-client)
 
+#### ProtoPedia date fields
+
+- Upstream timestamps (`createDate`, `updateDate`, `releaseDate`, etc.) arrive as strings like `2025-11-14 12:03:07.0` with no timezone offset information.
+- Treat these values as Japan Standard Time when deriving local dates; the API omits offset markers even though the canonical interpretation is JST.
+- Do not assume the strings are safe to parse as UTC. Always supply an explicit `Asia/Tokyo` timezone when normalizing or comparing these fields.
+
 ### Tooling
 
 - TypeScript 5.x
