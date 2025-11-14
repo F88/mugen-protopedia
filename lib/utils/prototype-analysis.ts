@@ -1,6 +1,10 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.client';
-import { isBirthDay, calculateAge, isToday } from '@/lib/utils/anniversary-nerd';
+import {
+  isBirthDay,
+  calculateAge,
+  isToday,
+} from '@/lib/utils/anniversary-nerd';
 
 /**
  * Analysis result for prototype data containing insights and statistics.
@@ -75,6 +79,23 @@ export function analyzePrototypes(
   const logger = baseLogger.child({ action: 'analyzePrototypes' });
   const startTime = performance.now();
 
+  // Timezone diagnostics (works both in Node and browser)
+  const now = new Date();
+  const tz = (() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
+    } catch {
+      return 'unknown';
+    }
+  })();
+  const offsetMin = -now.getTimezoneOffset();
+  const to2 = (n: number) => (n < 10 ? `0${n}` : String(n));
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const absMin = Math.abs(offsetMin);
+  const offset = `${sign}${to2(Math.trunc(absMin / 60))}:${to2(absMin % 60)}`;
+  const localISO = `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}T${to2(now.getHours())}:${to2(now.getMinutes())}:${to2(now.getSeconds())}${offset}`;
+  const utcISO = now.toISOString();
+
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
     return {
@@ -123,7 +144,6 @@ export function analyzePrototypes(
     .map(([tag, count]) => ({ tag, count }));
 
   // Age analysis
-  const now = new Date();
   const ages = prototypes
     .map((prototype) => {
       const releaseDate = new Date(prototype.releaseDate);
@@ -185,17 +205,50 @@ export function analyzePrototypes(
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
 
-  logger.debug(
+  // Compute simple dataset range for summary
+  const validDates = prototypes
+    .map((p) => Date.parse(p.releaseDate))
+    .filter((t) => Number.isFinite(t)) as number[];
+  validDates.sort((a, b) => a - b);
+  const datasetMin =
+    validDates.length > 0 ? new Date(validDates[0]).toISOString() : null;
+  const datasetMax =
+    validDates.length > 0
+      ? new Date(validDates[validDates.length - 1]).toISOString()
+      : null;
+
+  // Log detailed diagnostics with timezone and processing summary
+  logger.info(
     {
-      totalCount: prototypes.length,
-      statusCount: Object.keys(statusDistribution).length,
-      uniqueTags: Object.keys(tagCounts).length,
-      uniqueTeams: Object.keys(teamCounts).length,
-      birthdayCount: birthdayPrototypes.length,
-      newbornCount: newbornPrototypes.length,
-      elapsedMs,
+      // Execution environment (minimal)
+      environment: {
+        runtime: typeof window === 'undefined' ? 'server' : 'client',
+      },
+      // Timezone diagnostics
+      timezone: {
+        timeZone: tz,
+        offsetMinutes: offsetMin,
+        offset,
+        nowUTC: utcISO,
+        nowLocal: localISO,
+        todayLocalYMD: `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}`,
+        todayUTCYMD: utcISO.slice(0, 10),
+      },
+      // Processing summary
+      summary: {
+        totalCount: prototypes.length,
+        statusKinds: Object.keys(statusDistribution).length,
+        uniqueTags: Object.keys(tagCounts).length,
+        uniqueTeams: Object.keys(teamCounts).length,
+        averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
+        birthdayCount: birthdayPrototypes.length,
+        newbornCount: newbornPrototypes.length,
+        datasetMinISO: datasetMin,
+        datasetMaxISO: datasetMax,
+        elapsedMs,
+      },
     },
-    'Prototype analysis completed',
+    'Prototype analysis completed (timezone + summary)',
   );
 
   const ret = {

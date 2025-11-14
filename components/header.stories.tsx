@@ -10,6 +10,12 @@ const useLatestAnalysisMock = () => ({
   refresh: () => {},
 });
 
+const clientAnniversariesOverride = {
+  anniversaries: sampleAnalysis.anniversaries,
+  isLoading: false,
+  error: null,
+} as const;
+
 const meta = {
   title: 'Components/Header',
   component: Header,
@@ -36,6 +42,8 @@ const meta = {
       <AnalysisDashboard
         defaultExpanded={false}
         useLatestAnalysisHook={useLatestAnalysisMock}
+        preferClientTimezoneAnniversaries
+        clientAnniversariesOverride={clientAnniversariesOverride}
       />
     ),
   },

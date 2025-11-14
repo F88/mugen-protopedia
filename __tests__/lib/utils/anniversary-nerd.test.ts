@@ -7,7 +7,11 @@ import {
   it,
   vi,
 } from 'vitest';
-import { calculateAge, isBirthDay, isToday } from '@/lib/utils/anniversary-nerd';
+import {
+  calculateAge,
+  isBirthDay,
+  isToday,
+} from '@/lib/utils/anniversary-nerd';
 
 const fixedNow = new Date('2000-01-01T00:00:00Z');
 

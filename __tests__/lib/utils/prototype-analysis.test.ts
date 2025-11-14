@@ -1133,7 +1133,7 @@ describe('Newborn Analysis', () => {
     expect(newborn2?.title).toBe('Newborn Prototype 2');
   });
 
-  it('should not identify yesterday\'s prototypes as newborn', () => {
+  it("should not identify yesterday's prototypes as newborn", () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
@@ -1151,7 +1151,7 @@ describe('Newborn Analysis', () => {
     expect(result.anniversaries.newbornPrototypes).toEqual([]);
   });
 
-  it('should not identify tomorrow\'s prototypes as newborn', () => {
+  it("should not identify tomorrow's prototypes as newborn", () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
