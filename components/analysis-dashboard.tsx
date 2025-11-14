@@ -434,8 +434,16 @@ export function AnalysisDashboard({
         return clientTZ.anniversaries;
       }
     }
-    // ServerPrototypeAnalysis does not include anniversaries
-    // Return empty slice as fallback
+    // preferClientTimezoneAnniversaries=false is not a real-world config anymore.
+    // Emit a signal so we can spot regressions in case this fallback ever renders.
+    console.error(
+      '[AnalysisDashboard] Missing client-side anniversaries; falling back to empty slice',
+      {
+        preferClientTimezoneAnniversaries,
+        hasClientOverride: Boolean(clientAnniversariesOverride?.anniversaries),
+        hasClientHookData: Boolean(clientTZ.anniversaries),
+      },
+    );
     return {
       birthdayCount: 0,
       birthdayPrototypes: [],
