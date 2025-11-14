@@ -14,6 +14,34 @@ import type {
 } from '@/lib/utils/prototype-analysis.types';
 
 /**
+ * Extracts month-day string in MM-DD format from a date string or Date object.
+ *
+ * @param date - Date string (ISO or any parseable format) or Date object
+ * @returns MM-DD string (e.g., "01-15", "12-31") or null if invalid
+ *
+ * @example
+ * ```typescript
+ * extractMonthDay('2024-11-14T10:30:00Z') // '11-14'
+ * extractMonthDay('2024-11-14 10:30:00.0') // '11-14'
+ * extractMonthDay(new Date('2024-01-05')) // '01-05'
+ * extractMonthDay('invalid') // null
+ * ```
+ */
+export function extractMonthDay(date: string | Date): string | null {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return null;
+  }
+
+  const month = dateObj.getUTCMonth() + 1;
+  const day = dateObj.getUTCDate();
+  const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));
+
+  return `${pad2(month)}-${pad2(day)}`;
+}
+
+/**
  * Minimal logger interface for dependency injection
  */
 type MinimalLogger = {
@@ -35,42 +63,68 @@ type MinimalLogger = {
  * Clients can use this data to perform anniversary analysis without fetching
  * the entire dataset.
  *
+ * **Month-Day Matching Strategy:**
+ * Unlike timestamp-based filtering, this function matches prototypes by their
+ * MM-DD (month-day) pattern regardless of year. A prototype released on 2022-11-14
+ * will be included in the candidates when the reference date is 2025-11-14.
+ *
  * @param prototypes - All prototypes to filter
- * @param now - The reference date (caller's "now")
+ * @param referenceDate - The reference date (caller's "now")
  * @param logger - Optional logger for debug output
  * @returns Anniversary candidate data with filtered minimal prototypes
+ *
+ * @example
+ * ```typescript
+ * const candidates = buildAnniversaryCandidates(
+ *   allPrototypes,
+ *   new Date('2025-11-14T12:00:00Z')
+ * );
+ * // Returns prototypes with releaseDate MM-DD matching 11-13, 11-14, or 11-15
+ * // from any year (2014, 2021, 2022, etc.)
+ * ```
  */
-function buildAnniversaryCandidates(
+export function buildAnniversaryCandidates(
   prototypes: NormalizedPrototype[],
-  now: Date,
+  referenceDate: Date,
   logger?: MinimalLogger,
 ): AnniversaryCandidates {
-  const uYear = now.getUTCFullYear();
-  const uMonth = now.getUTCMonth(); // 0-based
-  const uDate = now.getUTCDate();
+  const uYear = referenceDate.getUTCFullYear();
+  const uMonth = referenceDate.getUTCMonth(); // 0-based
+  const uDate = referenceDate.getUTCDate();
 
   const dayMs = 24 * 60 * 60 * 1000;
   const startTodayUTC = Date.UTC(uYear, uMonth, uDate, 0, 0, 0, 0);
   const startYesterdayUTC = startTodayUTC - dayMs;
   const endTomorrowUTC = startTodayUTC + 2 * dayMs - 1; // inclusive end (23:59:59.999)
 
-  // Filter prototypes within the 3-day UTC window and extract only necessary fields
-  const fromTime = new Date(startYesterdayUTC).getTime();
-  const toTime = new Date(endTomorrowUTC).getTime();
+  // Build set of target MM-DD strings for 3-day window (yesterday, today, tomorrow)
+  const yesterday = new Date(startYesterdayUTC);
+  const today = new Date(startTodayUTC);
+  const tomorrow = new Date(startTodayUTC + dayMs);
+
+  const targetMonthDays = new Set(
+    [
+      extractMonthDay(yesterday),
+      extractMonthDay(today),
+      extractMonthDay(tomorrow),
+    ].filter((mmdd): mmdd is string => mmdd !== null),
+  );
+
+  // Filter prototypes by month-day (regardless of year) and extract only necessary fields
   const candidatePrototypes = prototypes
     .filter((p) => {
-      const releaseTime = new Date(p.releaseDate).getTime();
-      return releaseTime >= fromTime && releaseTime <= toTime;
+      if (!p.releaseDate) return false;
+      const mmdd = extractMonthDay(p.releaseDate);
+      return mmdd !== null && targetMonthDays.has(mmdd);
     })
     .map((p) => ({
       id: p.id,
       title: p.prototypeNm,
       releaseDate: p.releaseDate,
     }));
-
   const result = {
     metadata: {
-      computedAt: now.toISOString(),
+      computedAt: referenceDate.toISOString(),
       windowUTC: {
         fromISO: new Date(startYesterdayUTC).toISOString(),
         toISO: new Date(endTomorrowUTC).toISOString(),
@@ -98,7 +152,7 @@ function buildAnniversaryCandidates(
  * **For client-side usage with anniversaries, use `analyzePrototypes` instead.**
  *
  * @param prototypes - Array of normalized prototype data to analyze
- * @param options - Optional configuration (logger for diagnostics)
+ * @param options - Optional configuration (logger for diagnostics, referenceDate for testing)
  * @returns Server analysis object WITHOUT anniversary data
  *
  * @example
@@ -110,13 +164,13 @@ function buildAnniversaryCandidates(
  */
 export function analyzePrototypesForServer(
   prototypes: NormalizedPrototype[],
-  options?: { logger?: MinimalLogger },
+  options?: { logger?: MinimalLogger; referenceDate?: Date },
 ): ServerPrototypeAnalysis {
   const base: MinimalLogger = options?.logger ?? serverLogger;
   const logger = base.child({ action: 'analyzePrototypesForServer' });
   const startTime = performance.now();
 
-  const now = new Date();
+  const now = options?.referenceDate ?? new Date();
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
