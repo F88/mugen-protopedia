@@ -71,7 +71,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 - 📈🐣 分析情報: 新生児セクションを追加（全件表示、HH:MM:SS、空時は "No newborns today"）
 - 📈🎂 分析情報: 誕生日セクションの改善（空時は "No birthdays today"、年齢はクライアント側でローカルTZ再計算）
 - 🎉 記念日判定: UIでローカルTZ準拠の再計算をサポート。AnalysisDashboard で `preferClientTimezoneAnniversaries` を有効化し、準備完了まではサーバ分析にフォールバック
-- 🕒 Today判定の堅牢化: サーバ側ユーティリティは local もしくは UTC のいずれかが当日なら “today” とみなす包括判定を使用
+- 🕒 Today判定の堅牢化: 世界のどこでも正しく記念日が到来
 
 ### 2025-11-12
 
