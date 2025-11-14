@@ -1,10 +1,16 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as clientLogger } from '@/lib/logger.client';
+import type { AnniversariesSlice } from '@/lib/utils/prototype-analysis-helpers';
 import {
-  isBirthDay,
-  calculateAge,
-  isToday,
-} from '@/lib/utils/anniversary-nerd';
+  buildAnniversaries,
+  buildAnniversarySlice,
+  buildStatusDistribution,
+  buildTopTags,
+  buildTopTeams,
+  buildYearDistribution,
+  computeAverageAgeInDays,
+  countPrototypesWithAwards,
+} from '@/lib/utils/prototype-analysis-helpers';
 
 /**
  * Analysis result for prototype data containing insights and statistics.
@@ -25,25 +31,7 @@ export type PrototypeAnalysis = {
   /** Teams with most prototypes */
   topTeams: Array<{ team: string; count: number }>;
   /** Anniversary analysis */
-  anniversaries: {
-    /** Number of prototypes celebrating birthday today */
-    birthdayCount: number;
-    /** Prototypes celebrating birthdays with their ages */
-    birthdayPrototypes: Array<{
-      id: number;
-      title: string;
-      years: number;
-      releaseDate: string;
-    }>;
-    /** Number of prototypes published today (newborn) */
-    newbornCount: number;
-    /** Prototypes published today */
-    newbornPrototypes: Array<{
-      id: number;
-      title: string;
-      releaseDate: string;
-    }>;
-  };
+  anniversaries: AnniversariesSlice;
   /**
    * Lightweight candidate info to aid client-side TZ filtering/sampling
    * - newborn.windowUTC: inclusive ISO range [from, to] around UTC yesterday..tomorrow
@@ -146,92 +134,14 @@ export function analyzePrototypes(
     };
   }
 
-  // Status distribution analysis
-  const statusDistribution: Record<string, number> = {};
-  prototypes.forEach((prototype) => {
-    const status = prototype.status ?? 'unknown';
-    statusDistribution[status] = (statusDistribution[status] ?? 0) + 1;
-  });
-
-  // Awards analysis
-  const prototypesWithAwards = prototypes.filter(
-    (prototype) => prototype.awards && prototype.awards.length > 0,
-  ).length;
-
-  // Tags analysis
-  const tagCounts: Record<string, number> = {};
-  prototypes.forEach((prototype) => {
-    if (prototype.tags && Array.isArray(prototype.tags)) {
-      prototype.tags.forEach((tag) => {
-        tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-      });
-    }
-  });
-
-  const topTags = Object.entries(tagCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
-    .map(([tag, count]) => ({ tag, count }));
-
-  // Age analysis
-  const ages = prototypes
-    .map((prototype) => {
-      const releaseDate = new Date(prototype.releaseDate);
-      return (now.getTime() - releaseDate.getTime()) / (1000 * 60 * 60 * 24); // days
-    })
-    .filter((age) => !Number.isNaN(age) && age >= 0);
-
-  const averageAgeInDays =
-    ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;
-
-  // Year distribution analysis
-  const yearDistribution: Record<number, number> = {};
-  prototypes.forEach((prototype) => {
-    const year = new Date(prototype.releaseDate).getFullYear();
-    if (!Number.isNaN(year) && year > 1900) {
-      yearDistribution[year] = (yearDistribution[year] ?? 0) + 1;
-    }
-  });
-
-  // Team analysis
-  const teamCounts: Record<string, number> = {};
-  prototypes.forEach((prototype) => {
-    if (prototype.teamNm && prototype.teamNm.trim() !== '') {
-      const team = prototype.teamNm.trim();
-      teamCounts[team] = (teamCounts[team] ?? 0) + 1;
-    }
-  });
-
-  const topTeams = Object.entries(teamCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
-    .map(([team, count]) => ({ team, count }));
-
-  // Anniversary analysis - check for birthday prototypes
-  const birthdayPrototypes = prototypes
-    .filter(
-      (prototype) => prototype.releaseDate && isBirthDay(prototype.releaseDate),
-    )
-    .map((prototype) => {
-      const age = calculateAge(prototype.releaseDate);
-      return {
-        id: prototype.id,
-        title: prototype.prototypeNm,
-        years: age.years,
-        releaseDate: prototype.releaseDate,
-      };
-    });
-
-  // Newborn analysis - check for prototypes published today
-  const newbornPrototypes = prototypes
-    .filter(
-      (prototype) => prototype.releaseDate && isToday(prototype.releaseDate),
-    )
-    .map((prototype) => ({
-      id: prototype.id,
-      title: prototype.prototypeNm,
-      releaseDate: prototype.releaseDate,
-    }));
+  const statusDistribution = buildStatusDistribution(prototypes);
+  const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  const { topTags, tagCounts } = buildTopTags(prototypes);
+  const averageAgeInDays = computeAverageAgeInDays(prototypes, now);
+  const yearDistribution = buildYearDistribution(prototypes);
+  const { topTeams, teamCounts } = buildTopTeams(prototypes);
+  const { birthdayPrototypes, newbornPrototypes } =
+    buildAnniversaries(prototypes);
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
 
@@ -315,12 +225,7 @@ export function analyzePrototypes(
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     yearDistribution,
     topTeams,
-    anniversaries: {
-      birthdayCount: birthdayPrototypes.length,
-      birthdayPrototypes,
-      newbornCount: newbornPrototypes.length,
-      newbornPrototypes,
-    },
+    anniversaries: buildAnniversarySlice(birthdayPrototypes, newbornPrototypes),
     anniversaryCandidates: (() => {
       const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));
       const uYear = now.getUTCFullYear();
