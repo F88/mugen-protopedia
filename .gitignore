@@ -117,4 +117,4 @@ coverage/
 .vercel
 
 # Tools
-cleanup-verce-deployments.js
+cleanup-vercel-deployments.js
