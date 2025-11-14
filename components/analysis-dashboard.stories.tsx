@@ -52,6 +52,7 @@ type MockAnalysisState = {
   error?: string | null;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const refresh = (_opts?: { forceRecompute?: boolean }) => {};
 
 const sampleAnalysis = analyzePrototypes([
