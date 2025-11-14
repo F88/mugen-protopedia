@@ -82,15 +82,9 @@ export const isToday = (value: string | number): boolean => {
   }
 
   const now = new Date();
-  const sameLocal =
+  return (
     now.getFullYear() === date.getFullYear() &&
     now.getMonth() === date.getMonth() &&
-    now.getDate() === date.getDate();
-
-  const sameUTC =
-    now.getUTCFullYear() === date.getUTCFullYear() &&
-    now.getUTCMonth() === date.getUTCMonth() &&
-    now.getUTCDate() === date.getUTCDate();
-
-  return sameLocal || sameUTC;
+    now.getDate() === date.getDate()
+  );
 };

@@ -126,6 +126,11 @@ describe('isToday', () => {
     expect(isToday('2000-01-01T23:59:59Z')).toBe(true);
   });
 
+  it('does not treat previous local day as today even if the UTC day matches', () => {
+    vi.setSystemTime(new Date('2025-11-14T15:30:00Z'));
+    expect(isToday('2025-11-14T03:03:07Z')).toBe(false);
+  });
+
   it('returns false when date is invalid', () => {
     expect(isToday('invalid-date')).toBe(false);
   });
