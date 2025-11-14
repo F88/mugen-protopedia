@@ -1,5 +1,3 @@
-'use server';
-
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as serverLogger } from '@/lib/logger.server';
 import {
