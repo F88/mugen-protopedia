@@ -6,6 +6,8 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/F88/mugen-protopedia)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![MPP-3-1.gif](assets/images/MPP-3-1.gif)
+
 Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
 
 [ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを無限探索。予測不能な出会いが、創造性を刺激する。偶然の発見を楽しもう。
@@ -47,11 +49,15 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
     - プロトタイプ・おぼえていますか モード (唐突にアイドルが歌い出す)
     - 巡り会いプロトタイプモード (ニュータイプ専用)
     - HLプレゼン観覧モード (どよめきや拍手喝采、ガヤの効果を演出)
+    - フィーバーモード (特定の条件で発動、演出が派手に、カードが瞬時に表示される、忙しい人向け)
 
 ### 中 (Medium)
 
 - 分析ダッシュボードを高度化 (キャッシュヒット率 / レイテンシ時系列 / サイズ分布)
 - 共有コレクションの下準備 (権限 & 永続化層検討)
+- KBショートカットの強化
+    - `?` ヘルプ
+    - `e` でアーカイブ
 
 ### 低 (Low)
 
@@ -91,3 +97,5 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ## License
 
 MIT © F88. See [`LICENSE`](./LICENSE).
+
+![icon-512x512.png](assets/icons/v2/icon-512x512.png)

@@ -1,0 +1,125 @@
+Create Image for OGP image of "MUGEN ProtoPedia"
+
+---
+Image spec
+- Size: 1400x768
+- Restrictions on text output: Text must be output in English only, or translated into English.
+
+---
+# About MUGEN ProtoPedia (Information for Image or video generator)
+
+[CAUTION] This content should not be included in images or other output.
+
+Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
+
+## Key Features
+
+- 📱 Enjoy Anywhere
+    - Responsive design optimized for smartphones and narrow screens. Explore prototypes anytime, anywhere — during your commute or on the go.
+
+- ⌨️ Premium Experience
+    - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
+
+## About ProtoPedia
+
+[ProtoPedia](https://protopedia.net/) is a Japanese creative platform with the tagline "Create, Enjoy, Expand". It serves as a community hub where makers, developers, and creators share their prototype projects across diverse categories:
+
+- **Software Development**: Applications, games, AI/data science, blockchain, AR/VR
+- **Hardware**: Electronics, robotics, wearables, IoT
+- **Design/Art**: Visualization, interactive design, media art
+- **Making/DIY**: Digital fabrication, woodworking, upcycling
+
+This app leverages the ProtoPedia API to deliver an endless stream of inspiring prototypes from this vibrant maker community.
+
+## Screen Layout in App
+- On mobile, one card is displayed per screen.
+- On Tablet, four cards are displayed per screen.
+- On PC, six cards are displayed per screen.
+
+---
+
+<< FROM HERE TO THE END ARE INSTRUCTIONS REGARDING THE OUTPUT IMAGE >>
+
+
+A four-panel comic strip or illustration, likely promotional material, is displayed horizontally with a black border and a caption at the bottom. The caption, in white, reads "MUGEN ProtoPedia" with an infinity symbol logo, and below that, "ENDLESS DISCOVERY, CREATIVE ENCOUNTERS."
+
+
+
+# Logo
+
+The logo is an infinity symbol stylized with a gradient of colors, transitioning from light cyan/pinkish purple on the left to medium blue on the right, with the center overlapping area a blend of these colors. After the logo is the text "MUGEN ProtoPedia" in white, bold, sans-serif capitalization. Underneath this main title, in a smaller size and slightly thinner font, is the tagline "ENDLESS DISCOVERY, CREATIVE ENCOUNTERS" also in white capitalization. All elements are centrally aligned on the plain black background.
+
+# Layout
+
+- Leave 15% of the screen space at the bottom.
+- The space should be filled with galaxies and twinkling stars. However, planets should not be displayed. The effect should be sufficient to evoke a space-like atmosphere.
+- The logo is placed in an appropriate location within the image.
+- A four-panel comic strip or illustration, likely promotional material, is displayed horizontally with a black border.
+- The image consists of four main scenes: early morning, midday, night, and late night.
+- The four scenes are drawn in four horizontally separated areas.
+
+
+---
+
+# Panel Details (Scene)
+
+## The first panel:
+
+A detailed illustration in an anime or manga style depicts a young woman sitting by the window of a train or bus, looking at her smartphone.
+
+**Character Description:**
+The subject is a young woman, likely in her late teens or early twenties, with medium-length, straight brown hair that reaches her shoulders. Her complexion is a warm, slightly tanned skin tone, and she has large, expressive brown eyes typical of the anime style. She is wearing a light blue or gray hooded sweatshirt (hoodie). Over her head, she wears a pair of large, silver or gray, over-ear headphones. She holds a light green smartphone with both hands, lightly touching the screen with her right index finger, and has a slight, contented smile on her face as she looks down at the device. Her posture suggests she is relaxed and engrossed in her phone. Legs slightly crossed.
+
+**Setting and Background:**
+The character is seated on a plush, dark gray or black seat inside a vehicle, presumably a train or commuter rail, indicated by the window design and overhead storage/information panel visible in the top right corner.
+
+Outside the large window, there is a vibrant springtime scene dominated by flowering cherry blossom trees (sakura). The blossoms are a delicate pink and white, creating a soft, misty aesthetic in the background. The trees have thick, textured brown trunks. Beyond the trees, there is a grassy area and some low green bushes. In the distance, several modern buildings with clear architectural lines are visible, suggesting an urban or suburban environment. The lighting is soft and natural, suggesting daylight, possibly early morning or late afternoon, as the sunlight illuminates the outdoor scene through the window. The overall mood is peaceful and serene, blending the comfort of the commute with the beauty of nature.
+
+## The second panel:
+
+A bright, cheerful, digitally illustrated scene depicts a picnic in a sunlit forest clearing or park. The setting is dominated by lush, green grass and dense foliage, with several large tree trunks, possibly oaks, framing the sides and background. Sunlight filters through the canopy, creating a dappled light effect on the ground.
+
+Four people are seated on a red and white checkered blanket spread on the grass. A young adult woman is surrounded by three young boys, likely her children or students, suggesting a warm, educational outdoor activity.
+
+The woman is seated in the center, facing slightly forward and toward the viewer's left. She has medium-length brown hair pulled back in a high ponytail, with some strands framing her face. She has light skin and large, expressive brown eyes. She is wearing a rust-colored or light brown long-sleeved shirt over a white undershirt and dark blue jeans. Her right hand is raised and open as she speaks, and a speech bubble above her head reads "WOOW!". She appears to be in her 20s or 30s.
+
+The three boys are seated around her.
+
+1.  **Boy on the left:** This boy is seated cross-legged on the blanket, facing the woman. He has short brown hair and light skin. He is wearing a yellow short-sleeved shirt with white stripes. His left hand is raised in excitement, and a speech bubble above him reads "LOOK!". He appears to be between 4 and 7 years old.
+2.  **Boy in the middle/right:** This boy is seated next to the woman, facing the tablet. He has short brown hair and light skin. He is wearing a light blue short-sleeved shirt and dark blue shorts or pants. His right hand is resting near a tablet. He appears to be between 4 and 7 years old.
+3.  **Boy on the far right:** This boy is seated closer to the edge of the blanket, facing toward the center group. He has very short, dark brown or black hair and light skin. He is wearing a reddish-orange short-sleeved shirt and dark shorts, with white socks and red sneakers. He appears to be between 4 and 7 years old.
+
+In the center of the group, resting on the blanket, is a large, dark-colored digital tablet displaying what appears to be a web page or image gallery with multiple smaller thumbnails.
+
+To the right of the group, on the blanket, is a woven picnic basket with its lid open, revealing wrapped food items or sandwiches inside.
+
+The overall style of the image is clean, bright, and reminiscent of anime or high-quality children's book illustration, characterized by soft edges and vibrant colors.
+
+Speech bubbles: Children are saying "Wow!" and "Look!"
+
+
+## The third panel:
+
+Place and Time: A lively geek bar at night. Neon signs and circuit diagram-themed art are on display, and a large screen is set up on the wall. The warm lighting brightens the bar, creating a lively and clear atmosphere. The blue light from the monitors adds a cool accent. The atmosphere is lively and filled with intellectual conversation.
+
+People (Animals) and Actions: Several anthropomorphic animals, including dogs, cats, and otters, are focusing on PCs and the bar's large screen (which is designed to display the MUGEN ProtoPedia app), chatting with glasses in hand.
+
+Specific Actions: One animal cries out in amazement at the prototype on the screen, another claps in joy at a serendipitous discovery, and still others get inspired and start writing code and blueprints on laptops and tablets. The overall feeling is one of technological excitement and shared discovery.
+
+Speech bubbles: The animals have speech bubbles saying "That's the hook." and "This changes the stack."
+
+
+## The fourth panel
+
+An anime-style illustration depicts a young male sitting in a dimly lit room, facing a large array of computer monitors. The subject appears to be a teenager or young adult, with short, dark hair. He is wearing a light-colored t-shirt. His back is to the viewer, and he is seated in a dark chair, operating a computer mouse with his right hand, which rests on the desk.
+
+The setting is a dedicated computer workstation, suggesting an intense computing or hacking environment. The desk is cluttered with keyboards and other peripherals, illuminated primarily by the glow of the monitors and a strip of pinkish-purple LED light lining the edge of the desk. There are several drawers visible beneath the desk.
+
+Nine computer monitors are visible, arranged in a grid-like configuration. Three monitors are on the bottom row, three in the middle, and three on the top. Many of the monitors display lines of code or complex data interfaces, predominantly featuring light text on a dark background. Several screens show the logo "MUGEN ProtoPedia." Other screens display various images, profiles, or different types of interface elements. The overall color palette is dominated by dark blues, purples, and the cyan or green glow of the screens, creating a moody, nocturnal atmosphere. Two small overhead lights with a cyan glow illuminate the area directly above the monitors.
+
+---
+
+## Prohibited Items
+
+- No explanation of the purpose of expressing time or situation is required. For example, "Night" or "Morning."
+
