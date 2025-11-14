@@ -44,6 +44,26 @@ export type PrototypeAnalysis = {
       releaseDate: string;
     }>;
   };
+  /**
+   * Lightweight candidate info to aid client-side TZ filtering/sampling
+   * - newborn.windowUTC: inclusive ISO range [from, to] around UTC yesterday..tomorrow
+   * - birthday.monthDaysUTC: MM-DD strings for [yesterday, today, tomorrow] in UTC
+   */
+  anniversaryCandidates?: {
+    newborn?: {
+      windowUTC: { fromISO: string; toISO: string };
+    };
+    birthday?: {
+      monthDaysUTC: string[]; // e.g. ["02-28", "02-29", "03-01"]
+    };
+    nowUTC?: string;
+  };
+  /** Minimal timezone context for transparency (optional) */
+  tzContext?: {
+    runtime: 'server' | 'client';
+    timeZone?: string;
+    offset?: string; // "+09:00" style
+  };
   /** Analysis timestamp */
   analyzedAt: string;
 };
@@ -227,6 +247,23 @@ export function analyzePrototypes(
       ? new Date(validDates[validDates.length - 1]).toISOString()
       : null;
 
+  // Newborn candidate window (UTC): yesterday 00:00:00 UTC to tomorrow 23:59:59.999 UTC
+  const utcY = now.getUTCFullYear();
+  const utcM = now.getUTCMonth();
+  const utcD = now.getUTCDate();
+  const newbornFromUTC = new Date(Date.UTC(utcY, utcM, utcD - 1, 0, 0, 0, 0));
+  const newbornToUTC = new Date(
+    Date.UTC(utcY, utcM, utcD + 1, 23, 59, 59, 999),
+  );
+
+  const timesAll = prototypes
+    .map((p) => Date.parse(p.releaseDate))
+    .filter((t) => Number.isFinite(t)) as number[];
+
+  const inNewbornWindowCount = timesAll.filter(
+    (t) => t >= newbornFromUTC.getTime() && t <= newbornToUTC.getTime(),
+  ).length;
+
   // Log detailed diagnostics with timezone and processing summary
   logger.info(
     {
@@ -243,6 +280,15 @@ export function analyzePrototypes(
         nowLocal: localISO,
         todayLocalYMD: `${now.getFullYear()}-${to2(now.getMonth() + 1)}-${to2(now.getDate())}`,
         todayUTCYMD: utcISO.slice(0, 10),
+      },
+      // Newborn candidates window (UTC) diagnostics
+      newbornCandidates: {
+        windowUTC: {
+          fromISO: newbornFromUTC.toISOString(),
+          toISO: newbornToUTC.toISOString(),
+        },
+        inWindowCount: inNewbornWindowCount,
+        finalNewbornCount: newbornPrototypes.length,
       },
       // Processing summary
       summary: {
@@ -274,6 +320,44 @@ export function analyzePrototypes(
       birthdayPrototypes,
       newbornCount: newbornPrototypes.length,
       newbornPrototypes,
+    },
+    anniversaryCandidates: (() => {
+      const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));
+      const uYear = now.getUTCFullYear();
+      const uMonth = now.getUTCMonth(); // 0-based
+      const uDate = now.getUTCDate();
+      const startTodayUTC = Date.UTC(uYear, uMonth, uDate, 0, 0, 0, 0);
+      const dayMs = 24 * 60 * 60 * 1000;
+      const startYesterdayUTC = startTodayUTC - dayMs;
+      const endTomorrowUTCExclusive = startTodayUTC + 2 * dayMs; // exclusive end
+      const endTomorrowUTC = endTomorrowUTCExclusive - 1; // inclusive end
+
+      const y = new Date(startYesterdayUTC);
+      const t = new Date(startTodayUTC);
+      const tm = new Date(startTodayUTC + dayMs);
+
+      const mmdd = (d: Date) =>
+        `${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+
+      return {
+        newborn: {
+          windowUTC: {
+            fromISO: new Date(startYesterdayUTC).toISOString(),
+            toISO: new Date(endTomorrowUTC).toISOString(),
+          },
+        },
+        birthday: {
+          monthDaysUTC: [mmdd(y), mmdd(t), mmdd(tm)],
+        },
+        nowUTC: utcISO,
+      };
+    })(),
+    tzContext: {
+      runtime: (typeof window === 'undefined' ? 'server' : 'client') as
+        | 'server'
+        | 'client',
+      timeZone: tz,
+      offset,
     },
     analyzedAt: new Date().toISOString(),
   };
