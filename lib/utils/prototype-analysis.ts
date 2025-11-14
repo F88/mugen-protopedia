@@ -1,5 +1,5 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
-import { logger as baseLogger } from '@/lib/logger.client';
+import { logger as clientLogger } from '@/lib/logger.client';
 import {
   isBirthDay,
   calculateAge,
@@ -73,10 +73,20 @@ export type PrototypeAnalysis = {
  * }
  * ```
  */
+type MinimalLogger = {
+  debug: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  child: (bindings: Record<string, unknown>) => MinimalLogger;
+};
+
 export function analyzePrototypes(
   prototypes: NormalizedPrototype[],
+  options?: { logger?: MinimalLogger },
 ): PrototypeAnalysis {
-  const logger = baseLogger.child({ action: 'analyzePrototypes' });
+  const base: MinimalLogger = options?.logger ?? clientLogger;
+  const logger = base.child({ action: 'analyzePrototypes' });
   const startTime = performance.now();
 
   // Timezone diagnostics (works both in Node and browser)

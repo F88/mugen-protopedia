@@ -137,7 +137,7 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
 
       if (hydrateResult.data.length > 0) {
         const analysisStart = performance.now();
-        const analysis = analyzePrototypes(hydrateResult.data);
+        const analysis = analyzePrototypes(hydrateResult.data, { logger });
         const analysisElapsedMs =
           Math.round((performance.now() - analysisStart) * 100) / 100;
 
