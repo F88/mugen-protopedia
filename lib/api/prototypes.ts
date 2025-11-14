@@ -1,9 +1,8 @@
 import { ResultOfListPrototypesApiResponse } from 'protopedia-api-v2-client';
-import { splitPipeSeparatedString } from '../utils/converter';
 
-/**
- * Pro
- */
+import { splitPipeSeparatedString } from '../utils/converter';
+import { normalizeProtoPediaTimestamp } from '../utils/time';
+
 export type UpstreamPrototype = ResultOfListPrototypesApiResponse;
 
 export type NormalizedPrototype = {
@@ -91,10 +90,10 @@ export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
     status: p.status,
     releaseFlg: p.releaseFlg,
     createId: p.createId,
-    createDate: p.createDate,
+    createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
     updateId: p.updateId,
-    updateDate: p.updateDate,
-    releaseDate: p.releaseDate,
+    updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
+    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate,
     revision: p.revision,
     awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
     freeComment: p.freeComment,
