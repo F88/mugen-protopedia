@@ -9,6 +9,28 @@ export type Logger = {
   child: (bindings: Record<string, unknown>) => Logger;
 };
 
+type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
+
+const LOG_LEVELS: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+  silent: 4,
+};
+
+function getClientLogLevel(): LogLevel {
+  const envLevel = process.env.NEXT_PUBLIC_CLIENT_LOG_LEVEL?.toLowerCase();
+  const validLevels: LogLevel[] = ['debug', 'info', 'warn', 'error', 'silent'];
+
+  if (envLevel && validLevels.includes(envLevel as LogLevel)) {
+    return envLevel as LogLevel;
+  }
+
+  // Default: info in development, warn in production
+  return process.env.NODE_ENV === 'development' ? 'info' : 'warn';
+}
+
 function formatPrefix(bindings?: Record<string, unknown>): string {
   if (!bindings || Object.keys(bindings).length === 0) return '';
   try {
@@ -22,17 +44,39 @@ function formatPrefix(bindings?: Record<string, unknown>): string {
 }
 
 function makeConsoleLogger(bindings?: Record<string, unknown>): Logger {
+  const currentLevel = getClientLogLevel();
+  const currentLevelValue = LOG_LEVELS[currentLevel];
+
   const prefix = formatPrefix(bindings);
-  const withPrefix =
-    (fn: (...args: unknown[]) => void) =>
-    (...args: unknown[]) =>
-      prefix ? fn(prefix, ...args) : fn(...args);
+
+  const withPrefixAndLevel =
+    (level: string, fn: (...args: unknown[]) => void) =>
+    (...args: unknown[]) => {
+      const levelTag = `[${level.toUpperCase()}]`;
+      if (prefix) {
+        fn(prefix, levelTag, ...args);
+      } else {
+        fn(levelTag, ...args);
+      }
+    };
+
+  const noop = () => {};
+
+  const shouldLog = (level: LogLevel) => LOG_LEVELS[level] >= currentLevelValue;
 
   return {
-    debug: withPrefix(console.debug.bind(console)),
-    info: withPrefix(console.info.bind(console)),
-    warn: withPrefix(console.warn.bind(console)),
-    error: withPrefix(console.error.bind(console)),
+    debug: shouldLog('debug')
+      ? withPrefixAndLevel('debug', console.debug.bind(console))
+      : noop,
+    info: shouldLog('info')
+      ? withPrefixAndLevel('info', console.info.bind(console))
+      : noop,
+    warn: shouldLog('warn')
+      ? withPrefixAndLevel('warn', console.warn.bind(console))
+      : noop,
+    error: shouldLog('error')
+      ? withPrefixAndLevel('error', console.error.bind(console))
+      : noop,
     child: (childBindings: Record<string, unknown>) =>
       makeConsoleLogger({ ...(bindings ?? {}), ...(childBindings ?? {}) }),
   };

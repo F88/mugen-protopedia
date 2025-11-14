@@ -1,5 +1,9 @@
 /**
  * Calculates the age difference between the provided date and now.
+ *
+ * Timezone note:
+ * - This function uses the runtime's local timezone (the user's local time in a browser).
+ * - For UI usage, call this on the client so ages reflect the user's locale/timezone.
  */
 export const calculateAge = (
   value: string | number,
@@ -36,6 +40,10 @@ export const calculateAge = (
  * Determines whether the current date matches the provided birthday.
  * - Returns true when month/day match exactly.
  * - Treats February 29 birthdays as February 28 in non-leap years.
+ *
+ * Timezone note:
+ * - Comparison uses the runtime's local timezone (the user's local time in a browser).
+ * - To reflect the user's timezone, prefer evaluating this on the client.
  */
 export const isBirthDay = (value: string | number): boolean => {
   const date = new Date(value);
@@ -61,4 +69,28 @@ export const isBirthDay = (value: string | number): boolean => {
   }
 
   return now.getMonth() === 1 && now.getDate() === 28;
+};
+
+/**
+ * Determines whether the provided date is today (same year, month, and day).
+ * - Returns true when year/month/day all match exactly.
+ */
+export const isToday = (value: string | number): boolean => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return false;
+  }
+
+  const now = new Date();
+  const sameLocal =
+    now.getFullYear() === date.getFullYear() &&
+    now.getMonth() === date.getMonth() &&
+    now.getDate() === date.getDate();
+
+  const sameUTC =
+    now.getUTCFullYear() === date.getUTCFullYear() &&
+    now.getUTCMonth() === date.getUTCMonth() &&
+    now.getUTCDate() === date.getUTCDate();
+
+  return sameLocal || sameUTC;
 };

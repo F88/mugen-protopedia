@@ -1,12 +1,12 @@
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /**
  * Cached analysis entry with metadata
  */
-type CachedAnalysis = {
-  /** The analysis result */
-  analysis: PrototypeAnalysis;
+export type CachedAnalysis = {
+  /** The cached analysis data (server-side, no anniversaries) */
+  analysis: ServerPrototypeAnalysis;
   /** When this analysis was cached */
   cachedAt: Date;
   /** Parameters used to generate this analysis */
@@ -116,7 +116,7 @@ class AnalysisCache {
    * Store an analysis result in cache
    */
   set(
-    analysis: PrototypeAnalysis,
+    analysis: ServerPrototypeAnalysis,
     params: { limit: number; offset: number; totalCount: number },
   ): void {
     const key = this.generateKey(params);
@@ -134,7 +134,6 @@ class AnalysisCache {
       {
         key,
         totalCount: analysis.totalCount,
-        birthdayCount: analysis.anniversaries.birthdayCount,
         cacheSize: this.cache.size,
       },
       'Analysis cached',
@@ -240,4 +239,5 @@ class AnalysisCache {
 // Global singleton instance
 const analysisCache = new AnalysisCache();
 
-export { analysisCache, type CachedAnalysis, type AnalysisCacheConfig };
+export { analysisCache };
+export type { AnalysisCacheConfig };

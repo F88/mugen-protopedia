@@ -13,7 +13,7 @@ import {
   type GetAllAnalysesResult,
 } from '@/app/actions/analysis';
 
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 
 /**
  * Shared state shape returned by analysis hooks.
@@ -31,7 +31,7 @@ type AnalysisHookState<T> = {
   /** Latest error message, or null if no error occurred. */
   error: string | null;
   /** Refreshes the analysis data. */
-  refresh: () => void;
+  refresh: (options?: { forceRecompute?: boolean }) => void;
 };
 
 /**
@@ -40,10 +40,12 @@ type AnalysisHookState<T> = {
  * - トリガーのたびにサーバーアクションを直接呼び出し、最新分析を取得する。
  * - 分析データはサイズが大きく、更新頻度も低いため SWR キャッシュを挟まず
  *   必要時に明示フェッチする設計にしている。
+ * - 返却される分析データは ServerPrototypeAnalysis 型で、anniversaries フィールドを含まない。
+ *   クライアント側で anniversaries が必要な場合は useClientAnniversaries を併用すること。
  */
-export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
+export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> {
   const [state, setState] = useState<{
-    data: PrototypeAnalysis | null;
+    data: ServerPrototypeAnalysis | null;
     isLoading: boolean;
     error: string | null;
   }>({
@@ -52,40 +54,43 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     error: null,
   });
 
-  const performFetchLatest = useCallback(async (signal?: AbortSignal) => {
-    try {
-      const result = await getLatestAnalysis();
+  const performFetchLatest = useCallback(
+    async (signal?: AbortSignal, options?: { forceRecompute?: boolean }) => {
+      try {
+        const result = await getLatestAnalysis(options);
 
-      if (signal?.aborted) {
-        return;
-      }
+        if (signal?.aborted) {
+          return;
+        }
 
-      if (result.ok) {
-        setState({
-          data: result.data,
-          isLoading: false,
-          error: null,
-        });
-      } else {
+        if (result.ok) {
+          setState({
+            data: result.data,
+            isLoading: false,
+            error: null,
+          });
+        } else {
+          setState({
+            data: null,
+            isLoading: false,
+            error: result.error,
+          });
+        }
+      } catch (error) {
+        if (signal?.aborted) {
+          return;
+        }
+
         setState({
           data: null,
           isLoading: false,
-          error: result.error,
+          error:
+            error instanceof Error ? error.message : 'Unknown error occurred',
         });
       }
-    } catch (error) {
-      if (signal?.aborted) {
-        return;
-      }
-
-      setState({
-        data: null,
-        isLoading: false,
-        error:
-          error instanceof Error ? error.message : 'Unknown error occurred',
-      });
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -96,10 +101,13 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     };
   }, [performFetchLatest]);
 
-  const refresh = useCallback(() => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-    void performFetchLatest();
-  }, [performFetchLatest]);
+  const refresh = useCallback(
+    (options?: { forceRecompute?: boolean }) => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      void performFetchLatest(undefined, options);
+    },
+    [performFetchLatest],
+  );
 
   return {
     data: state.data,

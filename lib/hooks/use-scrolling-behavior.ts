@@ -17,7 +17,7 @@
  * - Can accept custom `headerOffsetProvider` to override DOM measurement for environments like SSR snapshots.
  * - `extraOffset` enables spacing adjustments without touching header code.
  *
- * See also: `docs/slot-and-scroll-behavior.md` for formal lifecycle & triggers.
+ * See also: `docs/specs/slot-and-scroll-behavior.md` for formal lifecycle & triggers.
  */
 
 import {

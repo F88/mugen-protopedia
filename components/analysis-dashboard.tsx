@@ -1,8 +1,13 @@
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
+import { calculateAge } from '@/lib/utils/anniversary-nerd';
+import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 
 // The hook is injected to avoid importing server actions in Storybook bundles.
 // Do NOT import the real hook here.
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import type {
+  ServerPrototypeAnalysis,
+  PrototypeAnalysis,
+} from '@/lib/utils/prototype-analysis.types';
 
 import { RefreshCw } from 'lucide-react';
 
@@ -164,7 +169,25 @@ function TopTags({
 }
 
 /**
- * Component to display birthday prototypes
+ * Component to display birthday prototypes.
+ *
+ * Output specification:
+ * - Always renders the section; shows an empty-state message when none.
+ * - Sorting: by `releaseDate` ascending (oldest first); ties by `id` ascending.
+ * - Renders up to the first 5 items from the sorted list.
+ * - Each row shows:
+ *   - ID (numeric identifier)
+ *   - Title (prototype name)
+ *   - Age badge computed at render using the user's local timezone:
+ *     "🎂 N 歳".
+ *
+ * Timezone note:
+ * - Birthday detection and displayed age are intended to reflect the user's local timezone.
+ * - The age badge is recalculated on render via `calculateAge(releaseDate)` to ensure
+ *   it matches the user's locale/timezone even if upstream analysis was computed on the server.
+ * - When there are more than 5 items, shows a trailing summary:
+ *   "+X more prototypes" where X is the remaining count.
+ * - Empty state message: "No birthdays today".
  */
 function BirthdayPrototypes({
   anniversaries,
@@ -173,9 +196,12 @@ function BirthdayPrototypes({
 }) {
   const { birthdayCount, birthdayPrototypes } = anniversaries;
 
-  const sortedBirthdayPrototypes = [...birthdayPrototypes].sort(
-    (a, b) => a.id - b.id,
-  );
+  const sortedBirthdayPrototypes = [...birthdayPrototypes].sort((a, b) => {
+    const aTime = new Date(a.releaseDate).getTime();
+    const bTime = new Date(b.releaseDate).getTime();
+    if (aTime !== bTime) return aTime - bTime; // oldest first
+    return a.id - b.id; // tie-breaker by ID ascending
+  });
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -201,14 +227,14 @@ function BirthdayPrototypes({
                   {prototype.title}
                 </span>
               </div>
-              <span className="text-blue-600 dark:text-blue-400 font-semibold shrink-0 self-start">
-                {prototype.years} 歳
+              <span className="text-base text-blue-600 dark:text-blue-400 font-semibold shrink-0 self-start">
+                🎂 {calculateAge(prototype.releaseDate).years} 歳
               </span>
             </div>
           ))}
-          {birthdayCount > 3 && (
+          {birthdayCount > 5 && (
             <div className="text-xs text-gray-500">
-              +{birthdayCount - 3} more prototypes
+              +{birthdayCount - 5} more prototypes
             </div>
           )}
         </div>
@@ -217,16 +243,98 @@ function BirthdayPrototypes({
   );
 }
 
+/**
+ * Component to display newborn prototypes (published today).
+ *
+ * Output specification:
+ * - Lists all newborn items for "today" (no truncation/pagination).
+ * - Sorted by `releaseDate` in descending order (most recent first).
+ * - Each row shows:
+ *   - ID (numeric identifier)
+ *   - Title (prototype name)
+ *   - Badge "NEW"
+ *   - Published time in Japanese locale with seconds: HH:MM:SS (`ja-JP`).
+ * - When there are no newborns, renders: "No newborns today".
+ */
+function NewbornPrototypes({
+  anniversaries,
+}: {
+  anniversaries: PrototypeAnalysis['anniversaries'];
+}) {
+  const { newbornCount, newbornPrototypes } = anniversaries;
+
+  const sortedNewbornPrototypes = [...newbornPrototypes].sort(
+    (a, b) =>
+      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime(),
+  );
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        🐣 Newborn Prototypes Today
+      </h4>
+      {newbornCount === 0 ? (
+        <div className="text-sm text-gray-500">No newborns today</div>
+      ) : (
+        <div className="space-y-1">
+          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            {newbornCount.toLocaleString()} new prototypes published today!
+          </div>
+          {sortedNewbornPrototypes.map((prototype) => (
+            <div
+              key={prototype.id}
+              className="flex items-start justify-between gap-3 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded"
+            >
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                  ID: {prototype.id}
+                </span>
+                <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                  {prototype.title}
+                </span>
+              </div>
+              <span className="text-base text-green-700 dark:text-green-300">
+                {`🎉 ` +
+                  new Date(prototype.releaseDate).toLocaleTimeString('ja-JP', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type AnalysisState = {
-  data: PrototypeAnalysis | null;
+  data: ServerPrototypeAnalysis | null;
   isLoading: boolean;
   error: string | null;
-  refresh: () => void;
+  refresh: (options?: { forceRecompute?: boolean }) => void;
 };
 
 type AnalysisDashboardProps = {
   defaultExpanded?: boolean;
   useLatestAnalysisHook: () => AnalysisState;
+  /**
+   * When true, recomputes anniversaries (birthdays/newborns) on the client using
+   * the user's local timezone and uses that result for the two sections and
+   * summary counts. Falls back to server-provided analysis until the local
+   * computation completes or on error.
+   */
+  preferClientTimezoneAnniversaries?: boolean;
+  /**
+   * Optional override for Storybook/tests to avoid real network calls when
+   * `preferClientTimezoneAnniversaries` is true. If provided, this value will
+   * be used instead of the real client recomputation result.
+   */
+  clientAnniversariesOverride?: {
+    anniversaries: PrototypeAnalysis['anniversaries'] | null;
+    isLoading: boolean;
+    error: string | null;
+  } | null;
 };
 
 /**
@@ -235,9 +343,28 @@ type AnalysisDashboardProps = {
 export function AnalysisDashboard({
   defaultExpanded = true,
   useLatestAnalysisHook,
+  preferClientTimezoneAnniversaries = false,
+  clientAnniversariesOverride = null,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
   const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();
+  // Always call the hook; gate heavy work via enabled flag to satisfy rules-of-hooks
+  const clientTZ = useClientAnniversaries(analysis, {
+    enabled: preferClientTimezoneAnniversaries,
+  });
+
+  // Refresh both server-side analysis and client TZ anniversaries (when applicable)
+  const refreshBoth = useCallback(() => {
+    refresh({ forceRecompute: true });
+    if (preferClientTimezoneAnniversaries && !clientAnniversariesOverride) {
+      clientTZ.refresh();
+    }
+  }, [
+    refresh,
+    clientTZ,
+    preferClientTimezoneAnniversaries,
+    clientAnniversariesOverride,
+  ]);
 
   if (isLoading) {
     return (
@@ -257,7 +384,7 @@ export function AnalysisDashboard({
         actions={
           <Button
             type="button"
-            onClick={refresh}
+            onClick={refreshBoth}
             variant="destructive"
             size="sm"
           >
@@ -275,7 +402,12 @@ export function AnalysisDashboard({
       <SummaryBar
         density="compact"
         actions={
-          <Button type="button" onClick={refresh} variant="outline" size="sm">
+          <Button
+            type="button"
+            onClick={() => refresh()}
+            variant="outline"
+            size="sm"
+          >
             Load
           </Button>
         }
@@ -293,7 +425,45 @@ export function AnalysisDashboard({
     minute: '2-digit',
   });
 
-  const birthdayCount = analysis.anniversaries.birthdayCount;
+  const effectiveAnniversaries = (() => {
+    if (preferClientTimezoneAnniversaries) {
+      if (clientAnniversariesOverride?.anniversaries) {
+        return clientAnniversariesOverride.anniversaries;
+      }
+      if (clientTZ.anniversaries) {
+        return clientTZ.anniversaries;
+      }
+      if (clientTZ.isLoading || clientTZ.error) {
+        return {
+          birthdayCount: 0,
+          birthdayPrototypes: [],
+          newbornCount: 0,
+          newbornPrototypes: [],
+        };
+      }
+    }
+    // preferClientTimezoneAnniversaries=false is not a real-world config anymore.
+    // Emit a signal so we can spot regressions in case this fallback ever renders.
+    console.error(
+      '[AnalysisDashboard] Unexpected state: Missing client-side anniversaries without loading/error; falling back to empty slice',
+      {
+        preferClientTimezoneAnniversaries,
+        hasClientOverride: Boolean(clientAnniversariesOverride?.anniversaries),
+        hasClientHookData: Boolean(clientTZ.anniversaries),
+        isClientLoading: clientTZ.isLoading,
+        clientError: clientTZ.error,
+      },
+    );
+    return {
+      birthdayCount: 0,
+      birthdayPrototypes: [],
+      newbornCount: 0,
+      newbornPrototypes: [],
+    };
+  })();
+
+  const birthdayCount = effectiveAnniversaries.birthdayCount;
+  const newbornCount = effectiveAnniversaries.newbornCount;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -313,7 +483,7 @@ export function AnalysisDashboard({
             </DialogTrigger>
             <Button
               type="button"
-              onClick={refresh}
+              onClick={refreshBoth}
               size="sm"
               className="hidden gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 sm:inline-flex"
             >
@@ -331,13 +501,16 @@ export function AnalysisDashboard({
         <span className="text-sm sm:text-base">
           🎉 {birthdayCount.toLocaleString()}
         </span>
+        <span className="text-sm sm:text-base">
+          🐣 {newbornCount.toLocaleString()}
+        </span>
       </SummaryBar>
 
       <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-4xl">
         <DialogHeader className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">
           <Button
             type="button"
-            onClick={refresh}
+            onClick={refreshBoth}
             size="sm"
             className="self-start gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
           >
@@ -372,11 +545,13 @@ export function AnalysisDashboard({
             />
           </div>
 
-          {birthdayCount > 0 && (
-            <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-              <BirthdayPrototypes anniversaries={analysis.anniversaries} />
-            </div>
-          )}
+          <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <BirthdayPrototypes anniversaries={effectiveAnniversaries} />
+          </div>
+
+          <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+            <NewbornPrototypes anniversaries={effectiveAnniversaries} />
+          </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <StatusDistribution

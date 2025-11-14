@@ -5,6 +5,7 @@ import { createProtoPediaClient } from 'protopedia-api-v2-client';
 
 const PROTOTYPE_SAMPLE_OFFSET = 0;
 const PROTOTYPE_SAMPLE_COUNT = 100;
+// const PROTOTYPE_SAMPLE_COUNT = 10_000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

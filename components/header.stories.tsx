@@ -7,8 +7,15 @@ const useLatestAnalysisMock = () => ({
   data: sampleAnalysis,
   isLoading: false,
   error: null,
-  refresh: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  refresh: (_opts?: { forceRecompute?: boolean }) => {},
 });
+
+const clientAnniversariesOverride = {
+  anniversaries: sampleAnalysis.anniversaries,
+  isLoading: false,
+  error: null,
+} as const;
 
 const meta = {
   title: 'Components/Header',
@@ -36,6 +43,8 @@ const meta = {
       <AnalysisDashboard
         defaultExpanded={false}
         useLatestAnalysisHook={useLatestAnalysisMock}
+        preferClientTimezoneAnniversaries
+        clientAnniversariesOverride={clientAnniversariesOverride}
       />
     ),
   },

@@ -15,11 +15,12 @@
 import {
   normalizePrototype,
   type NormalizedPrototype,
+  type UpstreamPrototype,
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
 import { protopedia } from '@/lib/protopedia-client';
-import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
 
@@ -240,6 +241,46 @@ export async function fetchPrototypes(
       'utf8',
     );
 
+    let sampleLogContext: {
+      upstreamSampleSelection: string;
+      upstreamSamplePrototypeId: number | null;
+      upstreamSamplePrototype: UpstreamPrototype | null;
+    } | null = null;
+
+    // Log a sampled prototype from the upstream results for debugging purposes
+    if (logger.isLevelEnabled('debug')) {
+      const rawResults = Array.isArray(upstream.results)
+        ? (upstream.results as UpstreamPrototype[])
+        : [];
+      let sampledPrototype: UpstreamPrototype | null = null;
+      let sampledId = -Infinity;
+
+      for (const candidate of rawResults) {
+        if (!candidate || typeof candidate.id !== 'number') {
+          continue;
+        }
+
+        if (candidate.id > sampledId) {
+          sampledId = candidate.id;
+          sampledPrototype = candidate;
+        }
+      }
+
+      sampleLogContext = sampledPrototype
+        ? {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: sampledId,
+            upstreamSamplePrototype: sampledPrototype,
+          }
+        : {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: null,
+            upstreamSamplePrototype: null,
+          };
+
+      logger.debug(sampleLogContext, 'Sampled upstream prototype payload');
+    }
+
     logger.debug(
       {
         apiElapsedMs,
@@ -260,13 +301,24 @@ export async function fetchPrototypes(
     const normalizeElapsedMs =
       Math.round((normalizeEnd - normalizeStart) * 100) / 100;
 
-    // logger.debug(
-    //   {
-    //     normalizeElapsedMs,
-    //     normalizedCount: normalized.length,
-    //   },
-    //   'Data normalization completed',
-    // );
+    // Log the normalized sample for comparison
+    if (sampleLogContext) {
+      const normalizedSample =
+        sampleLogContext.upstreamSamplePrototypeId !== null
+          ? (normalized.find(
+              (prototype) =>
+                prototype.id === sampleLogContext?.upstreamSamplePrototypeId,
+            ) ?? null)
+          : null;
+
+      logger.debug(
+        {
+          ...sampleLogContext,
+          normalizedSamplePrototype: normalizedSample,
+        },
+        'Sampled prototype after normalization',
+      );
+    }
 
     if (prototypeId !== undefined && normalized.length === 0) {
       logger.debug(
@@ -403,7 +455,7 @@ const populatePrototypeMap = async (
   }
 
   const analysisStart = performance.now();
-  const analysis = analyzePrototypes(result.data);
+  const analysis = analyzePrototypesForServer(result.data);
   const analysisElapsedMs =
     Math.round((performance.now() - analysisStart) * 100) / 100;
 

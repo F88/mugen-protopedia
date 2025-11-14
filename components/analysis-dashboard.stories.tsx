@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import {
-  analyzePrototypes,
-  type PrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis';
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/utils/prototype-analysis-helpers';
+import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
   anniversaryMinimalPrototype,
   fullfilledPrototype,
@@ -12,13 +15,45 @@ import { faker } from '@faker-js/faker';
 
 import { AnalysisDashboard } from './analysis-dashboard';
 
+// Helper function for Storybook
+function analyzePrototypes(
+  prototypes: NormalizedPrototype[],
+): PrototypeAnalysis {
+  const serverAnalysis = analyzePrototypesForServer(prototypes);
+
+  if (prototypes.length === 0) {
+    return {
+      ...serverAnalysis,
+      anniversaries: {
+        birthdayCount: 0,
+        birthdayPrototypes: [],
+        newbornCount: 0,
+        newbornPrototypes: [],
+      },
+    };
+  }
+
+  const { birthdayPrototypes, newbornPrototypes } =
+    buildAnniversaries(prototypes);
+  const anniversaries = buildAnniversarySlice(
+    birthdayPrototypes,
+    newbornPrototypes,
+  );
+
+  return {
+    ...serverAnalysis,
+    anniversaries,
+  };
+}
+
 type MockAnalysisState = {
   data?: PrototypeAnalysis | null;
   isLoading?: boolean;
   error?: string | null;
 };
 
-const refresh = () => {};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const refresh = (_opts?: { forceRecompute?: boolean }) => {};
 
 const sampleAnalysis = analyzePrototypes([
   fullfilledPrototype,
@@ -36,14 +71,65 @@ const makeAnalysis = (mutator: (analysis: PrototypeAnalysis) => void) => {
   return draft;
 };
 
+const randomTimeTodayISOString = (): string => {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  return faker.date
+    .between({ from: startOfToday, to: endOfToday })
+    .toISOString();
+};
+
+// Create a releaseDate that represents "birthday is today" for given years ago
+// with a randomized time of day to add variance in stories
+const releaseDateForYearsAgo = (years: number): string => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - years);
+  // Randomize time within the day (local time)
+  const hours = faker.number.int({ min: 0, max: 23 });
+  const minutes = faker.number.int({ min: 0, max: 59 });
+  const seconds = faker.number.int({ min: 0, max: 59 });
+  const ms = faker.number.int({ min: 0, max: 999 });
+  d.setHours(hours, minutes, seconds, ms);
+  return d.toISOString();
+};
+
+// Pre-generate newborn datasets once per module load
+const newborns7Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
+  Array.from({ length: 7 }).map((_, index) => ({
+    id: 2000 + index,
+    title: `Fresh Prototype ${index + 1} with an exceptionally detailed and long title`,
+    releaseDate: randomTimeTodayISOString(),
+  }));
+
+const newborns4Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
+  Array.from({ length: 4 }).map((_, index) => ({
+    id: 2000 + index,
+    title: `Brand New Prototype ${index + 1}`,
+    releaseDate: randomTimeTodayISOString(),
+  }));
+
 const withMockState =
   (state: MockAnalysisState = {}) =>
   () => ({
-    data: state.data ?? sampleAnalysis,
+    data: state.data !== undefined ? state.data : sampleAnalysis,
     isLoading: state.isLoading ?? false,
     error: state.error ?? null,
     refresh,
   });
+
+// Provide a mock anniversaries override to avoid network calls in Storybook
+const buildClientAnniversariesOverride = (state: MockAnalysisState = {}) => {
+  const data = state.data !== undefined ? state.data : sampleAnalysis;
+  const isLoading = Boolean(state.isLoading);
+  const error = state.error ?? null;
+  return {
+    anniversaries: data ? data.anniversaries : null,
+    isLoading,
+    error,
+  } as const;
+};
 
 const meta = {
   title: 'Components/AnalysisDashboard',
@@ -66,10 +152,15 @@ const renderStory: Story['render'] = (_args, context) => {
     mockState?: MockAnalysisState;
   };
   const useLatestAnalysisHook = withMockState(mockState ?? {});
+  const clientAnniversariesOverride = buildClientAnniversariesOverride(
+    mockState ?? {},
+  );
   return (
     <AnalysisDashboard
       {..._args}
       useLatestAnalysisHook={useLatestAnalysisHook}
+      preferClientTimezoneAnniversaries
+      clientAnniversariesOverride={clientAnniversariesOverride}
     />
   );
 };
@@ -84,6 +175,21 @@ export const Default: Story = {
       description: {
         story:
           'Default analysis dashboard showing prototype statistics and insights.',
+      },
+    },
+  },
+};
+
+export const Minimal: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      // Always provide a minimal-but-non-null dataset
+      data: analyzePrototypes([minimalPrototype]),
+    },
+    docs: {
+      description: {
+        story: 'Minimal dataset with a single prototype to avoid No data.',
       },
     },
   },
@@ -139,12 +245,15 @@ export const ManyBirthdays: Story = {
     mockState: {
       data: makeAnalysis((draft) => {
         draft.anniversaries.birthdayPrototypes = Array.from({ length: 6 }).map(
-          (_, index) => ({
-            id: 1000 + index,
-            title: `Celebration Prototype ${index + 1} with a very long descriptive title to wrap`,
-            years: 5 + index,
-            releaseDate: new Date(2015 + index, 0, 1).toISOString(),
-          }),
+          (_, index) => {
+            const years = 5 + index;
+            return {
+              id: 1000 + index,
+              title: `Celebration Prototype ${index + 1} with a very long descriptive title to wrap`,
+              years,
+              releaseDate: releaseDateForYearsAgo(years),
+            };
+          },
         );
         draft.anniversaries.birthdayCount =
           draft.anniversaries.birthdayPrototypes.length;
@@ -154,6 +263,137 @@ export const ManyBirthdays: Story = {
       description: {
         story:
           'Displays multiple birthday entries to verify wrapping and overflow handling.',
+      },
+    },
+  },
+};
+
+export const ManyNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.newbornPrototypes = newborns7Today;
+        draft.anniversaries.newbornCount =
+          draft.anniversaries.newbornPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'Displays multiple newborn prototypes to verify layout and overflow handling.',
+      },
+    },
+  },
+};
+
+export const BirthdaysAndNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 3 }).map(
+          (_, index) => {
+            const years = 2 + index;
+            return {
+              id: 1000 + index,
+              title: `Anniversary Prototype ${index + 1}`,
+              years,
+              releaseDate: releaseDateForYearsAgo(years),
+            };
+          },
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
+        draft.anniversaries.newbornPrototypes = newborns4Today;
+        draft.anniversaries.newbornCount =
+          draft.anniversaries.newbornPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'Displays both birthday and newborn prototypes to verify layout with both sections.',
+      },
+    },
+  },
+};
+
+export const NoBirthdays: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        // Remove birthdays
+        draft.anniversaries.birthdayPrototypes = [];
+        draft.anniversaries.birthdayCount = 0;
+        // Keep newborns so only newborns section appears
+        draft.anniversaries.newbornPrototypes = Array.from({ length: 4 }).map(
+          (_, index) => ({
+            id: 3000 + index,
+            title: `Only Newborn Prototype ${index + 1}`,
+            releaseDate: randomTimeTodayISOString(),
+          }),
+        );
+        draft.anniversaries.newbornCount =
+          draft.anniversaries.newbornPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story: 'State with no birthdays but some newborns.',
+      },
+    },
+  },
+};
+
+export const NoNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        // Remove newborns
+        draft.anniversaries.newbornPrototypes = [];
+        draft.anniversaries.newbornCount = 0;
+        // Keep birthdays so only birthdays section appears
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 3 }).map(
+          (_, index) => {
+            const years = 1 + index;
+            return {
+              id: 4000 + index,
+              title: `Only Birthday Prototype ${index + 1}`,
+              years,
+              releaseDate: releaseDateForYearsAgo(years),
+            };
+          },
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story: 'State with birthdays but no newborns.',
+      },
+    },
+  },
+};
+
+export const NoBirthdaysAndNoNewborns: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        // Both sections empty
+        draft.anniversaries.birthdayPrototypes = [];
+        draft.anniversaries.birthdayCount = 0;
+        draft.anniversaries.newbornPrototypes = [];
+        draft.anniversaries.newbornCount = 0;
+      }),
+    },
+    docs: {
+      description: {
+        story: 'State with both birthdays and newborns empty.',
       },
     },
   },
@@ -190,13 +430,36 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
   });
 
   const birthdays = faker.helpers.multiple(
-    (_value, index) => ({
-      id: 5000 + index,
-      title: faker.commerce.productName(),
-      years: faker.number.int({ min: 1, max: 15 }),
-      releaseDate: faker.date.past({ years: 15 }).toISOString(),
-    }),
+    (_value, index) => {
+      const years = faker.number.int({ min: 1, max: 15 });
+      return {
+        id: 5000 + index,
+        title: faker.commerce.productName(),
+        years,
+        releaseDate: releaseDateForYearsAgo(years),
+      };
+    },
     { count: 12 },
+  );
+
+  // Generate newborns with random times within today
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const newborns = faker.helpers.multiple(
+    (_value, index) => {
+      const releaseDate = faker.date
+        .between({ from: startOfToday, to: endOfToday })
+        .toISOString();
+      return {
+        id: 6000 + index,
+        title: faker.commerce.productName(),
+        releaseDate,
+      };
+    },
+    { count: 8 },
   );
 
   return {
@@ -232,8 +495,20 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
     anniversaries: {
       birthdayCount: birthdays.length,
       birthdayPrototypes: birthdays,
+      newbornCount: newborns.length,
+      newbornPrototypes: newborns,
     },
     analyzedAt: faker.date.recent().toISOString(),
+    anniversaryCandidates: {
+      metadata: {
+        computedAt: new Date().toISOString(),
+        windowUTC: {
+          fromISO: new Date(Date.now() - 86400000).toISOString(),
+          toISO: new Date(Date.now() + 86400000).toISOString(),
+        },
+      },
+      mmdd: [],
+    },
   } satisfies PrototypeAnalysis;
 };
 

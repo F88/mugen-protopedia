@@ -13,15 +13,15 @@ import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
-import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
 
 /**
  * Successful response containing analysis data
  */
 type GetAnalysisSuccess = {
   ok: true;
-  data: PrototypeAnalysis;
+  data: ServerPrototypeAnalysis;
   cachedAt: string;
   params: {
     limit: number;
@@ -49,7 +49,7 @@ export type GetAnalysisResult = GetAnalysisSuccess | GetAnalysisFailure;
 type GetAllAnalysesSuccess = {
   ok: true;
   data: Array<{
-    analysis: PrototypeAnalysis;
+    analysis: ServerPrototypeAnalysis;
     cachedAt: string;
     params: {
       limit: number;
@@ -82,6 +82,65 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
   key: cached.key,
 });
 
+const pad2 = (value: number) => (value < 10 ? `0${value}` : String(value));
+
+const buildTimezoneSnapshot = (now: Date) => {
+  const tz = (() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
+    } catch {
+      return 'unknown';
+    }
+  })();
+  const offsetMin = -now.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const absMin = Math.abs(offsetMin);
+  const offset = `${sign}${pad2(Math.trunc(absMin / 60))}:${pad2(absMin % 60)}`;
+
+  return {
+    timeZone: tz,
+    offsetMinutes: offsetMin,
+    offset,
+    nowUTC: now.toISOString(),
+    nowLocal: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}T${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}${offset}`,
+    todayLocalYMD: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`,
+    todayUTCYMD: now.toISOString().slice(0, 10),
+  };
+};
+
+const buildAnalysisSummary = (
+  analysis: ServerPrototypeAnalysis,
+  elapsedMs: number,
+) => ({
+  totalCount: analysis.totalCount,
+  statusKinds: Object.keys(analysis.statusDistribution).length,
+  uniqueTags: analysis.topTags.length,
+  uniqueTeams: analysis.topTeams.length,
+  averageAgeInDays: analysis.averageAgeInDays,
+  elapsedMs,
+});
+
+const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
+  totalCount: analysis.totalCount,
+  statusKeys: Object.keys(analysis.statusDistribution),
+  yearKeys: Object.keys(analysis.yearDistribution),
+  topTags: analysis.topTags.map((t) => t.tag),
+  topTeams: analysis.topTeams.map((t) => t.team),
+});
+
+const logAnalysisDebugSample = (
+  logger: Pick<typeof baseLogger, 'debug'>,
+  analysis: ServerPrototypeAnalysis,
+  message: string,
+  failureMessage: string,
+) => {
+  try {
+    logger.debug({ analysis: buildAnalysisDebugSample(analysis) }, message);
+  } catch (err) {
+    logger.debug({ err }, failureMessage);
+  }
+};
+
 /**
  * Get the most recent analysis from cache.
  *
@@ -99,18 +158,31 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
  * }
  * ```
  */
-export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
+export async function getLatestAnalysis(options?: {
+  forceRecompute?: boolean;
+}): Promise<GetAnalysisResult> {
   const logger = baseLogger.child({ action: 'getLatestAnalysis' });
   const startTime = performance.now();
 
-  logger.debug('Getting latest analysis from cache');
+  const forceRecompute = options?.forceRecompute === true;
+  logger.debug(
+    { forceRecompute },
+    'Getting latest analysis (cache + recompute control)',
+  );
 
-  let cached = analysisCache.getLatest();
+  let cached: CachedAnalysis | null = null;
+  let computedDuringCall = false;
+
+  if (!forceRecompute) {
+    cached = analysisCache.getLatest();
+  }
 
   if (!cached) {
     const hydrationStart = performance.now();
     logger.debug(
-      'No cached analysis found, attempting to hydrate from prototype map',
+      forceRecompute
+        ? 'Force recompute requested, hydrating prototype map'
+        : 'No cached analysis found, attempting to hydrate from prototype map',
     );
 
     const hydrateResult = await getAllPrototypesFromMapOrFetch();
@@ -137,7 +209,9 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
 
       if (hydrateResult.data.length > 0) {
         const analysisStart = performance.now();
-        const analysis = analyzePrototypes(hydrateResult.data);
+        const analysis = analyzePrototypesForServer(hydrateResult.data, {
+          logger,
+        });
         const analysisElapsedMs =
           Math.round((performance.now() - analysisStart) * 100) / 100;
 
@@ -154,6 +228,7 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
           },
           'Generated analysis during cache hydration',
         );
+        computedDuringCall = true;
       }
     }
 
@@ -179,6 +254,25 @@ export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
     'Latest analysis retrieved from cache',
   );
 
+  // Emit a summary log even when using cached analysis (to mirror the
+  // analyzePrototypes info line) if we did not compute it during this call.
+  if (!computedDuringCall) {
+    const now = new Date();
+    logger.info(
+      {
+        environment: { runtime: 'server', source: 'cache' },
+        timezone: buildTimezoneSnapshot(now),
+        summary: buildAnalysisSummary(cached.analysis, elapsedMs),
+      },
+      'Prototype analysis completed (timezone + summary)',
+    );
+  }
+  logAnalysisDebugSample(
+    logger,
+    cached.analysis,
+    'Returning latest analysis payload',
+    'Failed to build debug sample for latest analysis',
+  );
   return {
     ok: true,
     data: cached.analysis,
@@ -240,6 +334,13 @@ export async function getAnalysisForParams(params: {
     'Matching analysis retrieved from cache',
   );
 
+  logAnalysisDebugSample(
+    logger,
+    cached.analysis,
+    'Returning parameter-specific analysis payload',
+    'Failed to build debug sample for parameter analysis',
+  );
+
   return {
     ok: true,
     data: cached.analysis,
@@ -286,6 +387,28 @@ export async function getAllAnalyses(): Promise<GetAllAnalysesResult> {
     },
     'All analyses retrieved from cache',
   );
+
+  // Debug-level aggregated snapshot (limit to first few entries)
+  try {
+    const summaries = cached.slice(0, 3).map((c) => ({
+      key: c.key,
+      cachedAt: c.cachedAt.toISOString(),
+      totalCount: c.analysis.totalCount,
+    }));
+    logger.debug(
+      {
+        summaries,
+        stats: {
+          size: stats.size,
+          maxEntries: stats.maxEntries,
+          ttlMs: stats.ttlMs,
+        },
+      },
+      'Returning all cached analyses payload (summary only)',
+    );
+  } catch (err) {
+    logger.debug({ err }, 'Failed to build debug summaries for all analyses');
+  }
 
   return {
     ok: true,

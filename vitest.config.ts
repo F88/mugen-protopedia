@@ -10,6 +10,30 @@ export default defineConfig({
     globals: true,
     reporters: 'default',
     setupFiles: ['./vitest.setup.mjs'],
+    coverage: {
+      provider: 'v8',
+      include: [
+        'app/**/*.{ts,tsx}',
+        'components/**/*.{ts,tsx}',
+        'hooks/**/*.{ts,tsx}',
+        'lib/**/*.{ts,tsx}',
+        'types/**/*.ts',
+        'tools/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        '**/*.d.ts',
+        '**/*.stories.*',
+        '**/*.test.*',
+        '**/__tests__/**',
+        'lib/utils/prototype-analysis.types.ts',
+        '.next/**',
+        'coverage/**',
+        'node_modules/**',
+        'vitest.config.ts',
+      ],
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+    },
   },
   resolve: {
     alias: {

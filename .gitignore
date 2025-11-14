@@ -112,3 +112,9 @@ storybook-static
 
 # Development
 tools/sample-data/
+.coverage
+coverage/
+.vercel
+
+# Tools
+cleanup-vercel-deployments.js
