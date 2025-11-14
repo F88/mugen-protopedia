@@ -433,15 +433,25 @@ export function AnalysisDashboard({
       if (clientTZ.anniversaries) {
         return clientTZ.anniversaries;
       }
+      if (clientTZ.isLoading || clientTZ.error) {
+        return {
+          birthdayCount: 0,
+          birthdayPrototypes: [],
+          newbornCount: 0,
+          newbornPrototypes: [],
+        };
+      }
     }
     // preferClientTimezoneAnniversaries=false is not a real-world config anymore.
     // Emit a signal so we can spot regressions in case this fallback ever renders.
     console.error(
-      '[AnalysisDashboard] Missing client-side anniversaries; falling back to empty slice',
+      '[AnalysisDashboard] Unexpected state: Missing client-side anniversaries without loading/error; falling back to empty slice',
       {
         preferClientTimezoneAnniversaries,
         hasClientOverride: Boolean(clientAnniversariesOverride?.anniversaries),
         hasClientHookData: Boolean(clientTZ.anniversaries),
+        isClientLoading: clientTZ.isLoading,
+        clientError: clientTZ.error,
       },
     );
     return {
