@@ -221,11 +221,31 @@ export const Placeholder_AllHeights: Story = {
   render: () => (
     <div className="space-y-8 w-full max-w-4xl">
       {[
-        { url: 'https://placehold.co/1200x800/png?text=1200x800', label: 'lg', height: 'lg' },
-        { url: 'https://placehold.co/800x600/png?text=800x600', label: 'md', height: 'md' },
-        { url: 'https://placehold.co/600x400/png?text=600x400', label: 'sm', height: 'sm' },
-        { url: 'https://placehold.co/1280x720/png?text=1280x720', label: 'xl', height: 'xl' },
-        { url: 'https://placehold.co/512x512/png?text=512x512', label: 'none', height: 'none' },
+        {
+          url: 'https://placehold.co/1200x800/png?text=1200x800',
+          label: 'lg',
+          height: 'lg',
+        },
+        {
+          url: 'https://placehold.co/800x600/png?text=800x600',
+          label: 'md',
+          height: 'md',
+        },
+        {
+          url: 'https://placehold.co/600x400/png?text=600x400',
+          label: 'sm',
+          height: 'sm',
+        },
+        {
+          url: 'https://placehold.co/1280x720/png?text=1280x720',
+          label: 'xl',
+          height: 'xl',
+        },
+        {
+          url: 'https://placehold.co/512x512/png?text=512x512',
+          label: 'none',
+          height: 'none',
+        },
       ].map((item) => (
         <div key={item.label} className="space-y-2">
           <h3 className="text-sm font-medium">maxHeight = {item.height}</h3>
@@ -324,15 +344,41 @@ export const OGP_All: Story = {
   render: () => (
     <div className="space-y-8 w-full max-w-5xl">
       {[
-        { url: 'https://placehold.co/1200x630/png?text=1200x630', label: '1200x630', h: 'md' },
-        { url: 'https://placehold.co/1200x628/png?text=1200x628', label: '1200x628', h: 'md' },
-        { url: 'https://placehold.co/1200x600/png?text=1200x600', label: '1200x600', h: 'lg' },
-        { url: 'https://placehold.co/800x418/png?text=800x418', label: '800x418', h: 'sm' },
-        { url: 'https://placehold.co/600x315/png?text=600x315', label: '600x315', h: 'sm' },
-        { url: 'https://placehold.co/1080x1080/png?text=1080x1080', label: '1080x1080', h: 'none' },
+        {
+          url: 'https://placehold.co/1200x630/png?text=1200x630',
+          label: '1200x630',
+          h: 'md',
+        },
+        {
+          url: 'https://placehold.co/1200x628/png?text=1200x628',
+          label: '1200x628',
+          h: 'md',
+        },
+        {
+          url: 'https://placehold.co/1200x600/png?text=1200x600',
+          label: '1200x600',
+          h: 'lg',
+        },
+        {
+          url: 'https://placehold.co/800x418/png?text=800x418',
+          label: '800x418',
+          h: 'sm',
+        },
+        {
+          url: 'https://placehold.co/600x315/png?text=600x315',
+          label: '600x315',
+          h: 'sm',
+        },
+        {
+          url: 'https://placehold.co/1080x1080/png?text=1080x1080',
+          label: '1080x1080',
+          h: 'none',
+        },
       ].map((item) => (
         <div key={item.label} className="space-y-2">
-          <h3 className="text-sm font-medium">OGP size {item.label} (maxHeight={item.h})</h3>
+          <h3 className="text-sm font-medium">
+            OGP size {item.label} (maxHeight={item.h})
+          </h3>
           <PrototypeMainImage
             prototype={{
               mainUrl: item.url,
@@ -406,13 +452,31 @@ export const HighRes_All: Story = {
   render: () => (
     <div className="space-y-8 w-full max-w-5xl">
       {[
-        { url: 'https://placehold.co/1920x1080/png?text=1920x1080', label: '1920x1080 FHD', h: 'xl' },
-        { url: 'https://placehold.co/2560x1440/png?text=2560x1440', label: '2560x1440 QHD', h: 'xl' },
-        { url: 'https://placehold.co/3440x1440/png?text=3440x1440', label: '3440x1440 UltraWide', h: 'none' },
-        { url: 'https://placehold.co/3840x2160/png?text=3840x2160', label: '3840x2160 4K', h: 'none' },
+        {
+          url: 'https://placehold.co/1920x1080/png?text=1920x1080',
+          label: '1920x1080 FHD',
+          h: 'xl',
+        },
+        {
+          url: 'https://placehold.co/2560x1440/png?text=2560x1440',
+          label: '2560x1440 QHD',
+          h: 'xl',
+        },
+        {
+          url: 'https://placehold.co/3440x1440/png?text=3440x1440',
+          label: '3440x1440 UltraWide',
+          h: 'none',
+        },
+        {
+          url: 'https://placehold.co/3840x2160/png?text=3840x2160',
+          label: '3840x2160 4K',
+          h: 'none',
+        },
       ].map((item) => (
         <div key={item.label} className="space-y-2">
-          <h3 className="text-sm font-medium">HighRes size {item.label} (maxHeight={item.h})</h3>
+          <h3 className="text-sm font-medium">
+            HighRes size {item.label} (maxHeight={item.h})
+          </h3>
           <PrototypeMainImage
             prototype={{
               mainUrl: item.url,
@@ -424,42 +488,4 @@ export const HighRes_All: Story = {
       ))}
     </div>
   ),
-};
-
-// ---------------------------------------------------------------------------
-// New: Demonstrate fit/position props to control cropping and anchoring
-// ---------------------------------------------------------------------------
-
-export const Tall_Cover_Top_lg: Story = {
-  args: {
-    prototype: {
-      mainUrl: 'https://placehold.co/600x800/png?text=Tall+600x800',
-      prototypeNm: 'Tall cover top',
-    },
-    maxHeight: 'lg',
-    position: 'top',
-  },
-};
-
-export const Tall_Contain_Top_none: Story = {
-  args: {
-    prototype: {
-      mainUrl: 'https://placehold.co/600x800/png?text=Tall+600x800',
-      prototypeNm: 'Tall contain top',
-    },
-    maxHeight: 'none',
-    fit: 'contain',
-    position: 'top',
-  },
-};
-
-export const Square_Contain_none: Story = {
-  args: {
-    prototype: {
-      mainUrl: 'https://placehold.co/1080x1080/png?text=Square+1080x1080',
-      prototypeNm: 'Square contain',
-    },
-    maxHeight: 'none',
-    fit: 'contain',
-  },
 };
