@@ -156,6 +156,17 @@ if (items.length > 0) {
 - Treat these values as Japan Standard Time when deriving local dates; the API omits offset markers even though the canonical interpretation is JST.
 - Do not assume the strings are safe to parse as UTC. Always supply an explicit `Asia/Tokyo` timezone when normalizing or comparing these fields.
 
+##### `normalizeProtoPediaTimestamp`
+
+- Helper defined in `lib/utils/time.ts`. Input: ProtoPedia timestamp string (with optional fractional seconds or offset hints).
+- Output: ISO 8601 string in UTC (`YYYY-MM-DDTHH:mm:ss.sssZ`) when the value can be parsed, otherwise `null`.
+- Behavior highlights:
+      - Assumes the upstream string is JST when no offset is provided; applies the `Asia/Tokyo` offset before converting to UTC.
+      - Truncates fractional seconds to millisecond precision and tolerates omission/padding of millisecond digits.
+      - Accepts explicit `+HH:MM` offsets when present, but still returns a UTC ISO string.
+      - Rejects malformed timestamps (non-numeric segments, impossible dates after rollover) by returning `null` so callers can fall back gracefully.
+- Usage: `lib/api/prototypes.ts` runs every upstream `createDate`/`updateDate`/`releaseDate` through this helper. When it returns `null`, the code retains the raw upstream string so downstream components can still display the original value if desired.
+
 ### Tooling
 
 - TypeScript 5.x
@@ -183,6 +194,46 @@ if (items.length > 0) {
 - Vercel
 
 ---
+
+## High-level system diagram
+
+```mermaid
+%% High-level system diagram emphasizing two client access modes (Browser vs Installed PWA) %%
+%%{init: { 'flowchart': { 'nodeSpacing': 36, 'rankSpacing': 60 } }}%%
+flowchart TB
+   subgraph Client["Client Device"]
+      Browser["Web Browser"]
+      PWA["PWA (Installed app)"]
+      UI["Next.js UI"]
+      Browser <--> UI
+      PWA <--> UI
+   end
+
+   subgraph Vercel["Vercel Platform"]
+      Edge["Delivery Network"]
+      subgraph Runtime["Vercel Functions"]
+         RSC["Server Components"]
+         SA["Server Functions"]
+         MapStore["prototypeMapStore"]
+         AnalysisCache["analysisCache"]
+         APIClient["ProtoPedia API Ver 2.0 Client for Javascript"]
+      end
+   end
+
+   ProtoPedia["ProtoPedia API v2"]
+
+   UI --> Edge --> RSC --> SA --> APIClient --> ProtoPedia
+   SA --> MapStore
+   SA --> AnalysisCache
+   MapStore --> SA
+   AnalysisCache --> SA
+   RSC --> Edge --> UI
+```
+
+Access Modes:
+
+- Web Browser: 標準アクセス。インストール不要で最新リソースを都度取得
+- PWA App: インストール済みアイコンから起動
 
 ## Logging Policy
 
@@ -253,46 +304,6 @@ Defaults:
 - Do import `@/lib/logger.client` in browser code and Storybook.
 - Don’t import `@/lib/logger.server` in client components or stories.
 - Note: `pino-pretty` is statically imported to avoid Next.js bundling issues with worker-based transports.
-
-## High-level system diagram
-
-```mermaid
-%% High-level system diagram emphasizing two client access modes (Browser vs Installed PWA) %%
-%%{init: { 'flowchart': { 'nodeSpacing': 36, 'rankSpacing': 60 } }}%%
-flowchart TB
-   subgraph Client["Client Device"]
-      Browser["Web Browser"]
-      PWA["PWA (Installed app)"]
-      UI["Next.js UI"]
-      Browser <--> UI
-      PWA <--> UI
-   end
-
-   subgraph Vercel["Vercel Platform"]
-      Edge["Delivery Network"]
-      subgraph Runtime["Vercel Functions"]
-         RSC["Server Components"]
-         SA["Server Functions"]
-         MapStore["prototypeMapStore"]
-         AnalysisCache["analysisCache"]
-         APIClient["ProtoPedia API Ver 2.0 Client for Javascript"]
-      end
-   end
-
-   ProtoPedia["ProtoPedia API v2"]
-
-   UI --> Edge --> RSC --> SA --> APIClient --> ProtoPedia
-   SA --> MapStore
-   SA --> AnalysisCache
-   MapStore --> SA
-   AnalysisCache --> SA
-   RSC --> Edge --> UI
-```
-
-Access Modes:
-
-- Web Browser: 標準アクセス。インストール不要で最新リソースを都度取得
-- PWA App: インストール済みアイコンから起動
 
 ## Anniversaries (Birthdays & Newborns)
 
