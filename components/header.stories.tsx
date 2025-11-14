@@ -7,7 +7,7 @@ const useLatestAnalysisMock = () => ({
   data: sampleAnalysis,
   isLoading: false,
   error: null,
-  refresh: () => {},
+  refresh: (_opts?: { forceRecompute?: boolean }) => {},
 });
 
 const clientAnniversariesOverride = {

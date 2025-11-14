@@ -31,7 +31,7 @@ type AnalysisHookState<T> = {
   /** Latest error message, or null if no error occurred. */
   error: string | null;
   /** Refreshes the analysis data. */
-  refresh: () => void;
+  refresh: (options?: { forceRecompute?: boolean }) => void;
 };
 
 /**
@@ -52,40 +52,43 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     error: null,
   });
 
-  const performFetchLatest = useCallback(async (signal?: AbortSignal) => {
-    try {
-      const result = await getLatestAnalysis();
+  const performFetchLatest = useCallback(
+    async (signal?: AbortSignal, options?: { forceRecompute?: boolean }) => {
+      try {
+        const result = await getLatestAnalysis(options);
 
-      if (signal?.aborted) {
-        return;
-      }
+        if (signal?.aborted) {
+          return;
+        }
 
-      if (result.ok) {
-        setState({
-          data: result.data,
-          isLoading: false,
-          error: null,
-        });
-      } else {
+        if (result.ok) {
+          setState({
+            data: result.data,
+            isLoading: false,
+            error: null,
+          });
+        } else {
+          setState({
+            data: null,
+            isLoading: false,
+            error: result.error,
+          });
+        }
+      } catch (error) {
+        if (signal?.aborted) {
+          return;
+        }
+
         setState({
           data: null,
           isLoading: false,
-          error: result.error,
+          error:
+            error instanceof Error ? error.message : 'Unknown error occurred',
         });
       }
-    } catch (error) {
-      if (signal?.aborted) {
-        return;
-      }
-
-      setState({
-        data: null,
-        isLoading: false,
-        error:
-          error instanceof Error ? error.message : 'Unknown error occurred',
-      });
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -96,10 +99,13 @@ export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
     };
   }, [performFetchLatest]);
 
-  const refresh = useCallback(() => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-    void performFetchLatest();
-  }, [performFetchLatest]);
+  const refresh = useCallback(
+    (options?: { forceRecompute?: boolean }) => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      void performFetchLatest(undefined, options);
+    },
+    [performFetchLatest],
+  );
 
   return {
     data: state.data,

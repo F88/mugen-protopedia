@@ -18,7 +18,7 @@ type MockAnalysisState = {
   error?: string | null;
 };
 
-const refresh = () => {};
+const refresh = (_opts?: { forceRecompute?: boolean }) => {};
 
 const sampleAnalysis = analyzePrototypes([
   fullfilledPrototype,

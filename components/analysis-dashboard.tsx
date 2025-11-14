@@ -309,7 +309,7 @@ type AnalysisState = {
   data: PrototypeAnalysis | null;
   isLoading: boolean;
   error: string | null;
-  refresh: () => void;
+  refresh: (options?: { forceRecompute?: boolean }) => void;
 };
 
 type AnalysisDashboardProps = {
@@ -352,7 +352,7 @@ export function AnalysisDashboard({
 
   // Refresh both server-side analysis and client TZ anniversaries (when applicable)
   const refreshBoth = useCallback(() => {
-    refresh();
+    refresh({ forceRecompute: true });
     if (preferClientTimezoneAnniversaries && !clientAnniversariesOverride) {
       clientTZ.refresh();
     }
@@ -399,7 +399,12 @@ export function AnalysisDashboard({
       <SummaryBar
         density="compact"
         actions={
-          <Button type="button" onClick={refresh} variant="outline" size="sm">
+          <Button
+            type="button"
+            onClick={() => refresh()}
+            variant="outline"
+            size="sm"
+          >
             Load
           </Button>
         }

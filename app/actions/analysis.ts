@@ -99,19 +99,31 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
  * }
  * ```
  */
-export async function getLatestAnalysis(): Promise<GetAnalysisResult> {
+export async function getLatestAnalysis(options?: {
+  forceRecompute?: boolean;
+}): Promise<GetAnalysisResult> {
   const logger = baseLogger.child({ action: 'getLatestAnalysis' });
   const startTime = performance.now();
 
-  logger.debug('Getting latest analysis from cache');
+  const forceRecompute = options?.forceRecompute === true;
+  logger.debug(
+    { forceRecompute },
+    'Getting latest analysis (cache + recompute control)',
+  );
 
-  let cached = analysisCache.getLatest();
+  let cached: CachedAnalysis | null = null;
   let computedDuringCall = false;
+
+  if (!forceRecompute) {
+    cached = analysisCache.getLatest();
+  }
 
   if (!cached) {
     const hydrationStart = performance.now();
     logger.debug(
-      'No cached analysis found, attempting to hydrate from prototype map',
+      forceRecompute
+        ? 'Force recompute requested, hydrating prototype map'
+        : 'No cached analysis found, attempting to hydrate from prototype map',
     );
 
     const hydrateResult = await getAllPrototypesFromMapOrFetch();
