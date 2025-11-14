@@ -323,8 +323,7 @@ export default function Home() {
           <AnalysisDashboard
             defaultExpanded={false}
             useLatestAnalysisHook={useLatestAnalysis}
-            // preferClientTimezoneAnniversaries={true}
-            preferClientTimezoneAnniversaries={false}
+            preferClientTimezoneAnniversaries={true}
           />
         }
       />
