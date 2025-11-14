@@ -10,7 +10,11 @@
 
 Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpredictable encounters spark creativity. Embrace serendipitous discoveries.
 
+📜 [Player Guide (en)](./docs/player-guide-en.md)
+
 [ProtoPedia（プロトペディア）](https://protopedia.net/)に登録されているプロトタイプを無限探索。予測不能な出会いが、創造性を刺激する。偶然の発見を楽しもう。
+
+📜 [プレイヤーガイド (ja)](./docs/player-guide-ja.md)
 
 ## Key Features / 特徴
 
@@ -93,6 +97,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 - Development Guide: [`docs/development.md`](./docs/development.md)
 - Data Fetching Strategy: [`docs/data-fetching-strategy.md`](./docs/data-fetching-strategy.md)
+- Prototype Slot & Auto-Scroll Behavior: [`docs/slot-and-scroll-behavior.md`](./docs/slot-and-scroll-behavior.md)
 
 ## License
 
