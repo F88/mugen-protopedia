@@ -9,31 +9,35 @@ import type {
   NewbornPrototype,
 } from '@/lib/utils/prototype-analysis-helpers';
 
+import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
+
 type AnniversarySlice = ClientPrototypeAnalysis['anniversaries'];
 
-const mockBuildAnniversaries = vi.fn(() => ({
-  birthdayPrototypes: [] as BirthdayPrototype[],
-  newbornPrototypes: [] as NewbornPrototype[],
-}));
+const { mockBuildAnniversaries, mockBuildAnniversarySlice } = vi.hoisted(() => {
+  const mockBuildAnniversaries = vi.fn(() => ({
+    birthdayPrototypes: [] as BirthdayPrototype[],
+    newbornPrototypes: [] as NewbornPrototype[],
+  }));
 
-const mockBuildAnniversarySlice = vi.fn<
-  (
-    birthdayPrototypes: BirthdayPrototype[],
-    newbornPrototypes: NewbornPrototype[],
-  ) => AnniversarySlice
->((birthdayPrototypes, newbornPrototypes) => ({
-  birthdayCount: birthdayPrototypes.length,
-  birthdayPrototypes,
-  newbornCount: newbornPrototypes.length,
-  newbornPrototypes,
-}));
+  const mockBuildAnniversarySlice = vi.fn<
+    (
+      birthdayPrototypes: BirthdayPrototype[],
+      newbornPrototypes: NewbornPrototype[],
+    ) => AnniversarySlice
+  >((birthdayPrototypes, newbornPrototypes) => ({
+    birthdayCount: birthdayPrototypes.length,
+    birthdayPrototypes,
+    newbornCount: newbornPrototypes.length,
+    newbornPrototypes,
+  }));
+
+  return { mockBuildAnniversaries, mockBuildAnniversarySlice };
+});
 
 vi.mock('@/lib/utils/prototype-analysis-helpers', () => ({
   buildAnniversaries: mockBuildAnniversaries,
   buildAnniversarySlice: mockBuildAnniversarySlice,
 }));
-
-import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
 
 function createMockLogger() {
   const logger = {
