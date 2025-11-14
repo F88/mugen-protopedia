@@ -126,6 +126,26 @@ describe('isToday', () => {
     expect(isToday('2000-01-01T23:59:59Z')).toBe(true);
   });
 
+  it('does not treat previous local day as today even if the UTC day matches', () => {
+    const reference = new Date('2025-11-14T15:30:00Z');
+    expect(
+      isToday('2025-11-14T03:03:07Z', {
+        referenceDate: reference,
+        timeZone: 'Asia/Tokyo',
+      }),
+    ).toBe(false);
+  });
+
+  it('supports timezone overrides for deterministic testing', () => {
+    const reference = new Date('2025-11-14T15:30:00Z'); // 2025-11-15 00:30 in JST
+    expect(
+      isToday('2025-11-14T15:00:00Z', {
+        referenceDate: reference,
+        timeZone: 'UTC',
+      }),
+    ).toBe(true);
+  });
+
   it('returns false when date is invalid', () => {
     expect(isToday('invalid-date')).toBe(false);
   });

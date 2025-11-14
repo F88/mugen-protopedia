@@ -142,7 +142,7 @@ There are two layers that influence how “today” is determined:
 
 - Utilities: `isBirthDay(releaseDate)`, `isToday(releaseDate)` in `lib/utils/anniversary-nerd.ts`.
 - Birthday detection is intended to align with the user’s local timezone.
-- To satisfy mixed environments (e.g., UTC-bound data, local rendering, and tests), `isToday` returns true when either the local-calendar date OR the UTC date of `releaseDate` equals “today”. This inclusive rule avoids off-by-one misses near midnight and when upstream timestamps are normalized in a different zone.
+- `isToday` now matches **only** on the local-calendar date. The UTC fallback was removed because it misclassified “yesterday” releases (e.g., prototype #7840 on 2025-11-15 JST) as newborns for users in UTC+ offsets. The server already ships a ±1 day candidate window, so relying on the user’s timezone is safe.
 
 1. Client-side recomputation (optional, recommended when TZ fidelity matters)
 
@@ -154,7 +154,7 @@ There are two layers that influence how “today” is determined:
 #### Rationale
 
 - Local TZ for birthdays makes the displayed age feel correct to the user (“turning N today”).
-- Newborns should feel “today” even when upstream timing and client TZ straddle a boundary. The inclusive local-or-UTC check reduces surprising empty states around midnight.
+- Newborns should feel “today” in the user’s locale. The server’s ±1 day candidate window guarantees that client-side local comparisons still catch releases near UTC boundaries without needing UTC fallbacks.
 
 ### Display Specification
 
@@ -169,7 +169,7 @@ These rules are enforced by `components/analysis-dashboard.tsx`.
 
 #### Newborns
 
-- Membership: `isToday(releaseDate)` where “today” is inclusive (local OR UTC) on the default path.
+- Membership: `isToday(releaseDate)` where “today” is determined solely by the user’s local timezone.
 - Sorting: by `releaseDate` descending (most recent first).
 - Limit: list all newborns for the day (no truncation/pagination).
 - Each row: `ID`, `Title`, a “NEW” badge (styling), and published time in Japanese locale with seconds (`ja-JP`, `HH:MM:SS`).
@@ -205,7 +205,7 @@ type PrototypeAnalysis = {
 ### Edge Cases
 
 - Leap Day (Feb 29): A prototype released on Feb 29 is considered a “birthday” on Feb 29 in leap years. In non-leap years, the library treats birthday detection strictly by the calendar day; if special handling is required (e.g., observe on Feb 28), implement it in `isBirthDay` and document it here.
-- Near Midnight: The inclusive `isToday` logic reduces flicker around 00:00 across timezones. If your product policy changes, adjust tests and utilities together.
+- Near Midnight: Server-provided anniversary candidates always span yesterday/today/tomorrow in UTC, so the client can rely purely on local `isToday` / `isBirthDay` checks without flicker.
 
 ### Performance Considerations
 
