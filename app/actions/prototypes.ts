@@ -302,7 +302,7 @@ export async function fetchPrototypes(
       Math.round((normalizeEnd - normalizeStart) * 100) / 100;
 
     // Log the normalized sample for comparison
-    if (logger.isLevelEnabled('debug') && sampleLogContext) {
+    if (sampleLogContext) {
       const normalizedSample =
         sampleLogContext.upstreamSamplePrototypeId !== null
           ? (normalized.find(
