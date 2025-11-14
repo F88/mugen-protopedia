@@ -304,4 +304,3 @@ Access Modes:
 - Implementation: - Hook: `lib/hooks/use-client-anniversaries.ts` - It fetches a broad snapshot (up to 10,000 items) and runs
   `analyzePrototypes` locally. The UI falls back to server analysis while
   loading or on errors.
-
