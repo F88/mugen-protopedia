@@ -36,6 +36,44 @@ export const calculateAge = (
   return { years, months: remainingMonths, days };
 };
 
+type CalendarDateParts = {
+  year: number;
+  month: number;
+  day: number;
+};
+
+const datePartsFormatterCache = new Map<string, Intl.DateTimeFormat>();
+
+const getCalendarDateParts = (
+  date: Date,
+  timeZone?: string,
+): CalendarDateParts => {
+  const cacheKey = timeZone ?? '__local__';
+  let formatter = datePartsFormatterCache.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    datePartsFormatterCache.set(cacheKey, formatter);
+  }
+
+  const parts: CalendarDateParts = { year: 0, month: 0, day: 0 };
+  formatter.formatToParts(date).forEach((part) => {
+    if (part.type === 'year') {
+      parts.year = Number(part.value);
+    } else if (part.type === 'month') {
+      parts.month = Number(part.value);
+    } else if (part.type === 'day') {
+      parts.day = Number(part.value);
+    }
+  });
+
+  return parts;
+};
+
 /**
  * Determines whether the current date matches the provided birthday.
  * - Returns true when month/day match exactly.
@@ -75,16 +113,27 @@ export const isBirthDay = (value: string | number): boolean => {
  * Determines whether the provided date is today (same year, month, and day).
  * - Returns true when year/month/day all match exactly.
  */
-export const isToday = (value: string | number): boolean => {
+export const isToday = (
+  value: string | number,
+  options?: {
+    referenceDate?: Date;
+    timeZone?: string;
+  },
+): boolean => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return false;
   }
 
-  const now = new Date();
+  const referenceDate = options?.referenceDate ?? new Date();
+  const timeZone = options?.timeZone;
+
+  const candidate = getCalendarDateParts(date, timeZone);
+  const reference = getCalendarDateParts(referenceDate, timeZone);
+
   return (
-    now.getFullYear() === date.getFullYear() &&
-    now.getMonth() === date.getMonth() &&
-    now.getDate() === date.getDate()
+    candidate.year === reference.year &&
+    candidate.month === reference.month &&
+    candidate.day === reference.day
   );
 };
