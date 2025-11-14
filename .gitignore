@@ -112,4 +112,6 @@ storybook-static
 
 # Development
 tools/sample-data/
+.coverage
+coverage/
 .vercel

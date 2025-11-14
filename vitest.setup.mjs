@@ -2,6 +2,9 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import { server } from './mocks/server.js';
 import fetch, { Headers, Request, Response } from 'node-fetch';
 
+// Force runtime to treat all Date parsing/comparisons as UTC for deterministic tests
+process.env.TZ = 'UTC';
+
 // Ensure API client does not throw on missing token during tests
 process.env.PROTOPEDIA_API_V2_TOKEN ||= 'test';
 // Route client traffic to a mock origin MSW can intercept
