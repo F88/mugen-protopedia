@@ -61,13 +61,19 @@ const getCalendarDateParts = (
   }
 
   const parts: CalendarDateParts = { year: 0, month: 0, day: 0 };
-  formatter.formatToParts(date).forEach((part) => {
-    if (part.type === 'year') {
-      parts.year = Number(part.value);
-    } else if (part.type === 'month') {
-      parts.month = Number(part.value);
-    } else if (part.type === 'day') {
-      parts.day = Number(part.value);
+  formatter.formatToParts(date).forEach(({ type, value }) => {
+    switch (type) {
+      case 'year':
+        parts.year = Number(value);
+        break;
+      case 'month':
+        parts.month = Number(value);
+        break;
+      case 'day':
+        parts.day = Number(value);
+        break;
+      default:
+        break;
     }
   });
 
