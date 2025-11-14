@@ -20,7 +20,7 @@ import {
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
 import { protopedia } from '@/lib/protopedia-client';
-import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
 
@@ -455,7 +455,7 @@ const populatePrototypeMap = async (
   }
 
   const analysisStart = performance.now();
-  const analysis = analyzePrototypes(result.data);
+  const analysis = analyzePrototypesForServer(result.data);
   const analysisElapsedMs =
     Math.round((performance.now() - analysisStart) * 100) / 100;
 

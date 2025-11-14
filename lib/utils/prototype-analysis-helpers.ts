@@ -237,13 +237,23 @@ export function buildTopTeams(prototypes: NormalizedPrototype[]): {
  * - Client recomputation via `preferClientTimezoneAnniversaries` flag is
  *   strongly recommended for any user-facing anniversary display.
  *
- * @param prototypes - Normalized prototype array to scan.
+ * @param prototypes - Prototype array with minimal required fields (id, title/prototypeNm, releaseDate).
  * @returns Birthday and newborn arrays reflecting the current runtime TZ.
  */
-export function buildAnniversaries(prototypes: NormalizedPrototype[]): {
+export function buildAnniversaries(
+  prototypes: Array<{
+    id: number;
+    releaseDate: string;
+    title?: string;
+    prototypeNm?: string;
+  }>,
+): {
   birthdayPrototypes: BirthdayPrototype[];
   newbornPrototypes: NewbornPrototype[];
 } {
+  const getTitle = (p: { title?: string; prototypeNm?: string }): string =>
+    p.title ?? p.prototypeNm ?? '';
+
   const birthdayPrototypes = prototypes
     .filter(
       (prototype) => prototype.releaseDate && isBirthDay(prototype.releaseDate),
@@ -252,7 +262,7 @@ export function buildAnniversaries(prototypes: NormalizedPrototype[]): {
       const age = calculateAge(prototype.releaseDate);
       return {
         id: prototype.id,
-        title: prototype.prototypeNm,
+        title: getTitle(prototype),
         years: age.years,
         releaseDate: prototype.releaseDate,
       };
@@ -264,7 +274,7 @@ export function buildAnniversaries(prototypes: NormalizedPrototype[]): {
     )
     .map((prototype) => ({
       id: prototype.id,
-      title: prototype.prototypeNm,
+      title: getTitle(prototype),
       releaseDate: prototype.releaseDate,
     }));
 

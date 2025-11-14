@@ -4,7 +4,10 @@ import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 
 // The hook is injected to avoid importing server actions in Storybook bundles.
 // Do NOT import the real hook here.
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import type {
+  ServerPrototypeAnalysis,
+  PrototypeAnalysis,
+} from '@/lib/utils/prototype-analysis.types';
 
 import { RefreshCw } from 'lucide-react';
 
@@ -306,7 +309,7 @@ function NewbornPrototypes({
 }
 
 type AnalysisState = {
-  data: PrototypeAnalysis | null;
+  data: ServerPrototypeAnalysis | null;
   isLoading: boolean;
   error: string | null;
   refresh: (options?: { forceRecompute?: boolean }) => void;
@@ -346,7 +349,7 @@ export function AnalysisDashboard({
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
   const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();
   // Always call the hook; gate heavy work via enabled flag to satisfy rules-of-hooks
-  const clientTZ = useClientAnniversaries({
+  const clientTZ = useClientAnniversaries(analysis, {
     enabled: preferClientTimezoneAnniversaries,
   });
 
@@ -431,7 +434,14 @@ export function AnalysisDashboard({
         return clientTZ.anniversaries;
       }
     }
-    return analysis.anniversaries;
+    // ServerPrototypeAnalysis does not include anniversaries
+    // Return empty slice as fallback
+    return {
+      birthdayCount: 0,
+      birthdayPrototypes: [],
+      newbornCount: 0,
+      newbornPrototypes: [],
+    };
   })();
 
   const birthdayCount = effectiveAnniversaries.birthdayCount;

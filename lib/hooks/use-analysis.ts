@@ -13,7 +13,7 @@ import {
   type GetAllAnalysesResult,
 } from '@/app/actions/analysis';
 
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 
 /**
  * Shared state shape returned by analysis hooks.
@@ -40,10 +40,12 @@ type AnalysisHookState<T> = {
  * - トリガーのたびにサーバーアクションを直接呼び出し、最新分析を取得する。
  * - 分析データはサイズが大きく、更新頻度も低いため SWR キャッシュを挟まず
  *   必要時に明示フェッチする設計にしている。
+ * - 返却される分析データは ServerPrototypeAnalysis 型で、anniversaries フィールドを含まない。
+ *   クライアント側で anniversaries が必要な場合は useClientAnniversaries を併用すること。
  */
-export function useLatestAnalysis(): AnalysisHookState<PrototypeAnalysis> {
+export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> {
   const [state, setState] = useState<{
-    data: PrototypeAnalysis | null;
+    data: ServerPrototypeAnalysis | null;
     isLoading: boolean;
     error: string | null;
   }>({

@@ -1,8 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import {
-  analyzePrototypes,
-  type PrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis';
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/utils/prototype-analysis-helpers';
+import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
   anniversaryMinimalPrototype,
   fullfilledPrototype,
@@ -11,6 +14,37 @@ import {
 import { faker } from '@faker-js/faker';
 
 import { AnalysisDashboard } from './analysis-dashboard';
+
+// Helper function for Storybook
+function analyzePrototypes(
+  prototypes: NormalizedPrototype[],
+): PrototypeAnalysis {
+  const serverAnalysis = analyzePrototypesForServer(prototypes);
+
+  if (prototypes.length === 0) {
+    return {
+      ...serverAnalysis,
+      anniversaries: {
+        birthdayCount: 0,
+        birthdayPrototypes: [],
+        newbornCount: 0,
+        newbornPrototypes: [],
+      },
+    };
+  }
+
+  const { birthdayPrototypes, newbornPrototypes } =
+    buildAnniversaries(prototypes);
+  const anniversaries = buildAnniversarySlice(
+    birthdayPrototypes,
+    newbornPrototypes,
+  );
+
+  return {
+    ...serverAnalysis,
+    anniversaries,
+  };
+}
 
 type MockAnalysisState = {
   data?: PrototypeAnalysis | null;
@@ -464,6 +498,17 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       newbornPrototypes: newborns,
     },
     analyzedAt: faker.date.recent().toISOString(),
+    anniversaryCandidates: {
+      metadata: {
+        computedAt: new Date().toISOString(),
+        windowUTC: {
+          fromISO: new Date(Date.now() - 86400000).toISOString(),
+          toISO: new Date(Date.now() + 86400000).toISOString(),
+        },
+      },
+      monthDaysUTC: ['11-13', '11-14', '11-15'],
+      prototypes: [],
+    },
   } satisfies PrototypeAnalysis;
 };
 

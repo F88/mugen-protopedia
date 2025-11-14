@@ -13,15 +13,18 @@ import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis';
-import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import type {
+  PrototypeAnalysis,
+  ServerPrototypeAnalysis,
+} from '@/lib/utils/prototype-analysis.types';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
 
 /**
  * Successful response containing analysis data
  */
 type GetAnalysisSuccess = {
   ok: true;
-  data: PrototypeAnalysis;
+  data: ServerPrototypeAnalysis;
   cachedAt: string;
   params: {
     limit: number;
@@ -49,7 +52,7 @@ export type GetAnalysisResult = GetAnalysisSuccess | GetAnalysisFailure;
 type GetAllAnalysesSuccess = {
   ok: true;
   data: Array<{
-    analysis: PrototypeAnalysis;
+    analysis: ServerPrototypeAnalysis;
     cachedAt: string;
     params: {
       limit: number;
@@ -150,7 +153,9 @@ export async function getLatestAnalysis(options?: {
 
       if (hydrateResult.data.length > 0) {
         const analysisStart = performance.now();
-        const analysis = analyzePrototypes(hydrateResult.data, { logger });
+        const analysis = analyzePrototypesForServer(hydrateResult.data, {
+          logger,
+        });
         const analysisElapsedMs =
           Math.round((performance.now() - analysisStart) * 100) / 100;
 
@@ -231,8 +236,6 @@ export async function getLatestAnalysis(options?: {
           uniqueTags: a.topTags.length, // approximation (already top 10)
           uniqueTeams: a.topTeams.length, // approximation
           averageAgeInDays: a.averageAgeInDays,
-          birthdayCount: a.anniversaries.birthdayCount,
-          newbornCount: a.anniversaries.newbornCount,
           elapsedMs,
         },
       },
@@ -244,18 +247,10 @@ export async function getLatestAnalysis(options?: {
     const a = cached.analysis;
     const analysisDebugSample = {
       totalCount: a.totalCount,
-      birthdayCount: a.anniversaries.birthdayCount,
-      newbornCount: a.anniversaries.newbornCount,
       statusKeys: Object.keys(a.statusDistribution),
       yearKeys: Object.keys(a.yearDistribution),
       topTags: a.topTags.map((t) => t.tag),
       topTeams: a.topTeams.map((t) => t.team),
-      sampleBirthdays: a.anniversaries.birthdayPrototypes
-        .slice(0, 5)
-        .map(({ id, releaseDate }) => ({ id, releaseDate })),
-      sampleNewborns: a.anniversaries.newbornPrototypes
-        .slice(0, 5)
-        .map(({ id, releaseDate }) => ({ id, releaseDate })),
     };
     logger.debug(
       { analysis: analysisDebugSample },
@@ -330,18 +325,10 @@ export async function getAnalysisForParams(params: {
     const a = cached.analysis;
     const analysisDebugSample = {
       totalCount: a.totalCount,
-      birthdayCount: a.anniversaries.birthdayCount,
-      newbornCount: a.anniversaries.newbornCount,
       statusKeys: Object.keys(a.statusDistribution),
       yearKeys: Object.keys(a.yearDistribution),
       topTags: a.topTags.map((t) => t.tag),
       topTeams: a.topTeams.map((t) => t.team),
-      sampleBirthdays: a.anniversaries.birthdayPrototypes
-        .slice(0, 3)
-        .map(({ id, releaseDate }) => ({ id, releaseDate })),
-      sampleNewborns: a.anniversaries.newbornPrototypes
-        .slice(0, 3)
-        .map(({ id, releaseDate }) => ({ id, releaseDate })),
     };
     logger.debug(
       { analysis: analysisDebugSample },
@@ -407,8 +394,6 @@ export async function getAllAnalyses(): Promise<GetAllAnalysesResult> {
       key: c.key,
       cachedAt: c.cachedAt.toISOString(),
       totalCount: c.analysis.totalCount,
-      birthdayCount: c.analysis.anniversaries.birthdayCount,
-      newbornCount: c.analysis.anniversaries.newbornCount,
     }));
     logger.debug(
       {

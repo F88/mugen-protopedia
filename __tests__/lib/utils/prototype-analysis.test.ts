@@ -1,6 +1,43 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
-import { analyzePrototypes } from '@/lib/utils/prototype-analysis';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/utils/prototype-analysis-helpers';
+import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+
+// Helper function for tests
+function analyzePrototypes(
+  prototypes: NormalizedPrototype[],
+  options?: Parameters<typeof analyzePrototypesForServer>[1],
+): PrototypeAnalysis {
+  const serverAnalysis = analyzePrototypesForServer(prototypes, options);
+
+  if (prototypes.length === 0) {
+    return {
+      ...serverAnalysis,
+      anniversaries: {
+        birthdayCount: 0,
+        birthdayPrototypes: [],
+        newbornCount: 0,
+        newbornPrototypes: [],
+      },
+    };
+  }
+
+  const { birthdayPrototypes, newbornPrototypes } =
+    buildAnniversaries(prototypes);
+  const anniversaries = buildAnniversarySlice(
+    birthdayPrototypes,
+    newbornPrototypes,
+  );
+
+  return {
+    ...serverAnalysis,
+    anniversaries,
+  };
+}
 
 // Mock the logger to avoid actual logging during tests
 vi.mock('@/lib/logger.client', () => ({

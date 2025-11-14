@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getPrototypes } from '@/lib/fetcher/get-prototypes';
-import {
-  analyzePrototypes,
-  type PrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis';
+import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
+import type {
+  PrototypeAnalysis,
+  ServerPrototypeAnalysis,
+} from '@/lib/utils/prototype-analysis.types';
 
 export type ClientAnniversariesState = {
   anniversaries: PrototypeAnalysis['anniversaries'] | null;
@@ -15,18 +15,21 @@ export type ClientAnniversariesState = {
 
 /**
  * Recomputes anniversaries (birthdays/newborns) on the client using the user's
- * local timezone by fetching a snapshot of prototypes and running
- * `analyzePrototypes` in the browser.
+ * local timezone by fetching only candidate prototypes (filtered by UTC windows)
+ * and running `analyzePrototypes` in the browser.
  *
- * Notes:
- * - This may fetch a large payload (up to 10,000 items) depending on upstream
- *   snapshot size. Use only when TZ-accurate anniversaries are required.
- * - Other analysis stats are not recomputed nor returned here — only the
- *   `anniversaries` slice is exposed for UI replacement.
+ * This uses `anniversaryCandidates` metadata from server analysis to fetch a
+ * minimal subset of prototypes, rather than fetching the entire dataset.
+ *
+ * @param serverAnalysis - Server analysis result containing anniversaryCandidates metadata
+ * @param options - Optional configuration (enabled flag)
  */
-export function useClientAnniversaries(options?: {
-  enabled?: boolean;
-}): ClientAnniversariesState {
+export function useClientAnniversaries(
+  serverAnalysis: ServerPrototypeAnalysis | null,
+  options?: {
+    enabled?: boolean;
+  },
+): ClientAnniversariesState {
   const enabled = options?.enabled !== undefined ? options.enabled : true;
   const [state, setState] = useState<{
     anniversaries: PrototypeAnalysis['anniversaries'] | null;
@@ -36,16 +39,21 @@ export function useClientAnniversaries(options?: {
 
   const run = useCallback(
     async (signal?: AbortSignal) => {
-      if (!enabled) {
+      if (!enabled || !serverAnalysis) {
         setState((prev) => ({ ...prev, isLoading: false }));
         return;
       }
       try {
-        // Fetch a broad snapshot to ensure we don't miss edge cases around TZ.
-        const prototypes = await getPrototypes({ limit: 10_000, offset: 0 });
+        const { anniversaryCandidates } = serverAnalysis;
+
+        // Use pre-filtered candidate prototypes from server (3-day window)
+        // No need to fetch 10,000 items - server already filtered candidates
+        const candidatePrototypes = anniversaryCandidates.prototypes;
+
         if (signal?.aborted) return;
 
-        const analysis = analyzePrototypes(prototypes);
+        // Run anniversary analysis on candidate subset in user's timezone
+        const analysis = analyzeCandidates(candidatePrototypes);
         if (signal?.aborted) return;
 
         setState({
@@ -65,7 +73,7 @@ export function useClientAnniversaries(options?: {
         });
       }
     },
-    [enabled],
+    [enabled, serverAnalysis],
   );
 
   useEffect(() => {
@@ -76,13 +84,13 @@ export function useClientAnniversaries(options?: {
   }, [run]);
 
   const refresh = useCallback(() => {
-    if (!enabled) {
+    if (!enabled || !serverAnalysis) {
       setState((prev) => ({ ...prev, isLoading: false }));
       return;
     }
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     void run();
-  }, [enabled, run]);
+  }, [enabled, serverAnalysis, run]);
 
   return useMemo(
     () => ({
