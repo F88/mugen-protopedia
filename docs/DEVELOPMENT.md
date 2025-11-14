@@ -248,7 +248,45 @@ Defaults:
 - Don’t import `@/lib/logger.server` in client components or stories.
 - Note: `pino-pretty` is statically imported to avoid Next.js bundling issues with worker-based transports.
 
----
+## High-level system diagram
+
+```mermaid
+%% High-level system diagram emphasizing two client access modes (Browser vs Installed PWA) %%
+%%{init: { 'flowchart': { 'nodeSpacing': 36, 'rankSpacing': 60 } }}%%
+flowchart TB
+   subgraph Client["Client Device"]
+      Browser["Web Browser"]
+      PWA["PWA (Installed app)"]
+      UI["Next.js UI"]
+      Browser <--> UI
+      PWA <--> UI
+   end
+
+   subgraph Vercel["Vercel Platform"]
+      Edge["Delivery Network"]
+      subgraph Runtime["Vercel Functions"]
+         RSC["Server Components"]
+         SA["Server Functions"]
+         MapStore["prototypeMapStore"]
+         AnalysisCache["analysisCache"]
+         APIClient["ProtoPedia API Ver 2.0 Client for Javascript"]
+      end
+   end
+
+   ProtoPedia["ProtoPedia API v2"]
+
+   UI --> Edge --> RSC --> SA --> APIClient --> ProtoPedia
+   SA --> MapStore
+   SA --> AnalysisCache
+   MapStore --> SA
+   AnalysisCache --> SA
+   RSC --> Edge --> UI
+```
+
+Access Modes:
+
+- Web Browser: 標準アクセス。インストール不要で最新リソースを都度取得
+- PWA App: インストール済みアイコンから起動
 
 ## Anniversaries (Birthdays & Newborns)
 
@@ -266,3 +304,4 @@ Defaults:
 - Implementation: - Hook: `lib/hooks/use-client-anniversaries.ts` - It fetches a broad snapshot (up to 10,000 items) and runs
   `analyzePrototypes` locally. The UI falls back to server analysis while
   loading or on errors.
+
