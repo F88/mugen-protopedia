@@ -474,7 +474,7 @@ export function AnalysisDashboard({
           🎉 {birthdayCount.toLocaleString()}
         </span>
         <span className="text-sm sm:text-base">
-          👶 {newbornCount.toLocaleString()}
+          🐣 {newbornCount.toLocaleString()}
         </span>
       </SummaryBar>
 
