@@ -25,6 +25,7 @@ export default defineConfig({
         '**/*.stories.*',
         '**/*.test.*',
         '**/__tests__/**',
+        'lib/utils/prototype-analysis.types.ts',
         '.next/**',
         'coverage/**',
         'node_modules/**',
