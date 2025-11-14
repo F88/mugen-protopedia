@@ -375,7 +375,7 @@ type AnalysisDashboardProps = {
 export function AnalysisDashboard({
   defaultExpanded = true,
   useLatestAnalysisHook,
-  preferClientTimezoneAnniversaries = false,
+  preferClientTimezoneAnniversaries = true,
   clientAnniversariesOverride = null,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
