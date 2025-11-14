@@ -191,8 +191,10 @@ function TopTags({
  */
 function BirthdayPrototypes({
   anniversaries,
+  isLoading = false,
 }: {
   anniversaries: PrototypeAnalysis['anniversaries'];
+  isLoading?: boolean;
 }) {
   const { birthdayCount, birthdayPrototypes } = anniversaries;
 
@@ -202,43 +204,57 @@ function BirthdayPrototypes({
     if (aTime !== bTime) return aTime - bTime; // oldest first
     return a.id - b.id; // tie-breaker by ID ascending
   });
+
+  let birthdayBody: ReactNode;
+  if (isLoading) {
+    birthdayBody = (
+      <div className="flex items-center gap-2 text-sm text-gray-500">
+        <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+        <span>Loading birthdays…</span>
+      </div>
+    );
+  } else if (birthdayCount === 0) {
+    birthdayBody = (
+      <div className="text-sm text-gray-500">No birthdays today</div>
+    );
+  } else {
+    birthdayBody = (
+      <div className="space-y-1">
+        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+          {birthdayCount.toLocaleString()} prototypes celebrating today!
+        </div>
+        {sortedBirthdayPrototypes.slice(0, 5).map((prototype) => (
+          <div
+            key={prototype.id}
+            className="flex items-start justify-between gap-3 text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded"
+          >
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                ID: {prototype.id}
+              </span>
+              <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                {prototype.title}
+              </span>
+            </div>
+            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold shrink-0 self-start">
+              🎂 {calculateAge(prototype.releaseDate).years} 歳
+            </span>
+          </div>
+        ))}
+        {birthdayCount > 5 && (
+          <div className="text-xs text-gray-500">
+            +{birthdayCount - 5} more prototypes
+          </div>
+        )}
+      </div>
+    );
+  }
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
         🎉 Birthday Prototypes Today
       </h4>
-      {birthdayCount === 0 ? (
-        <div className="text-sm text-gray-500">No birthdays today</div>
-      ) : (
-        <div className="space-y-1">
-          <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-            {birthdayCount.toLocaleString()} prototypes celebrating today!
-          </div>
-          {sortedBirthdayPrototypes.slice(0, 5).map((prototype) => (
-            <div
-              key={prototype.id}
-              className="flex items-start justify-between gap-3 text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded"
-            >
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                  ID: {prototype.id}
-                </span>
-                <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                  {prototype.title}
-                </span>
-              </div>
-              <span className="text-base text-blue-600 dark:text-blue-400 font-semibold shrink-0 self-start">
-                🎂 {calculateAge(prototype.releaseDate).years} 歳
-              </span>
-            </div>
-          ))}
-          {birthdayCount > 5 && (
-            <div className="text-xs text-gray-500">
-              +{birthdayCount - 5} more prototypes
-            </div>
-          )}
-        </div>
-      )}
+      {birthdayBody}
     </div>
   );
 }
@@ -258,8 +274,10 @@ function BirthdayPrototypes({
  */
 function NewbornPrototypes({
   anniversaries,
+  isLoading = false,
 }: {
   anniversaries: PrototypeAnalysis['anniversaries'];
+  isLoading?: boolean;
 }) {
   const { newbornCount, newbornPrototypes } = anniversaries;
 
@@ -267,43 +285,57 @@ function NewbornPrototypes({
     (a, b) =>
       new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime(),
   );
+
+  let newbornBody: ReactNode;
+  if (isLoading) {
+    newbornBody = (
+      <div className="flex items-center gap-2 text-sm text-gray-500">
+        <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+        <span>Loading newborns…</span>
+      </div>
+    );
+  } else if (newbornCount === 0) {
+    newbornBody = (
+      <div className="text-sm text-gray-500">No newborns today</div>
+    );
+  } else {
+    newbornBody = (
+      <div className="space-y-1">
+        <div className="text-lg font-bold text-green-600 dark:text-green-400">
+          {newbornCount.toLocaleString()} new prototypes published today!
+        </div>
+        {sortedNewbornPrototypes.map((prototype) => (
+          <div
+            key={prototype.id}
+            className="flex items-start justify-between gap-3 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded"
+          >
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                ID: {prototype.id}
+              </span>
+              <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                {prototype.title}
+              </span>
+            </div>
+            <span className="text-base text-green-700 dark:text-green-300">
+              {`🎉 ` +
+                new Date(prototype.releaseDate).toLocaleTimeString('ja-JP', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                })}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
         🐣 Newborn Prototypes Today
       </h4>
-      {newbornCount === 0 ? (
-        <div className="text-sm text-gray-500">No newborns today</div>
-      ) : (
-        <div className="space-y-1">
-          <div className="text-lg font-bold text-green-600 dark:text-green-400">
-            {newbornCount.toLocaleString()} new prototypes published today!
-          </div>
-          {sortedNewbornPrototypes.map((prototype) => (
-            <div
-              key={prototype.id}
-              className="flex items-start justify-between gap-3 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded"
-            >
-              <div className="flex min-w-0 flex-col gap-1">
-                <span className="text-xs font-semibold text-green-700 dark:text-green-300">
-                  ID: {prototype.id}
-                </span>
-                <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                  {prototype.title}
-                </span>
-              </div>
-              <span className="text-base text-green-700 dark:text-green-300">
-                {`🎉 ` +
-                  new Date(prototype.releaseDate).toLocaleTimeString('ja-JP', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                  })}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      {newbornBody}
     </div>
   );
 }
@@ -424,6 +456,12 @@ export function AnalysisDashboard({
     hour: '2-digit',
     minute: '2-digit',
   });
+
+  const anniversariesLoading =
+    preferClientTimezoneAnniversaries &&
+    (clientAnniversariesOverride
+      ? clientAnniversariesOverride.isLoading
+      : clientTZ.isLoading);
 
   const effectiveAnniversaries = (() => {
     if (preferClientTimezoneAnniversaries) {
@@ -546,11 +584,17 @@ export function AnalysisDashboard({
           </div>
 
           <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-            <BirthdayPrototypes anniversaries={effectiveAnniversaries} />
+            <BirthdayPrototypes
+              anniversaries={effectiveAnniversaries}
+              isLoading={anniversariesLoading}
+            />
           </div>
 
           <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-            <NewbornPrototypes anniversaries={effectiveAnniversaries} />
+            <NewbornPrototypes
+              anniversaries={effectiveAnniversaries}
+              isLoading={anniversariesLoading}
+            />
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
