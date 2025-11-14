@@ -65,7 +65,7 @@ Each spec should cover the following:
 
 ## Existing Specs
 
-- `docs/specs/anniversaries.md` – Birthdays & newborn aggregation rules。UI 要件・タイムゾーン方針・クライアント再計算フローをまとめています。
+- `docs/specs/analysis.md` – 全体の分析仕様、Anniversary ルール、UI 連携、TZ 方針を集約。
 - `docs/specs/data-fetching-strategy.md` – API paging, caching, and measurement guidance.
 - `docs/specs/slot-and-scroll-behavior.md` – Slot panel UX and scroll handling.
 

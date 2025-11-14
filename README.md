@@ -100,7 +100,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 - Development Guide: [`docs/development.md`](./docs/development.md)
 - Data Fetching Strategy: [`docs/specs/data-fetching-strategy.md`](./docs/specs/data-fetching-strategy.md)
-- Anniversary Detection: [`docs/specs/anniversaries.md`](./docs/specs/anniversaries.md)
+- Analysis Specification: [`docs/specs/analysis.md`](./docs/specs/analysis.md)
 
 ## License
 
