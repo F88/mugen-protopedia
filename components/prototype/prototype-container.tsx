@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import React, { useId } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 
@@ -44,6 +44,7 @@ export const PrototypeContainer = ({
         errorMessage={errorMessage}
         isFocused={isFocused}
         randomVariant={true}
+        disableAnimation={!!errorMessage}
       />
     ) : (
       <PrototypeSkeletonCard
@@ -51,6 +52,7 @@ export const PrototypeContainer = ({
         errorMessage={errorMessage}
         isFocused={isFocused}
         randomVariant={true}
+        disableAnimation={!!errorMessage}
       />
     );
 
