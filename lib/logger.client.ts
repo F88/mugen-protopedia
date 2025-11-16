@@ -9,7 +9,7 @@ export type Logger = {
   child: (bindings: Record<string, unknown>) => Logger;
 };
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
 const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 0,
@@ -19,7 +19,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   silent: 4,
 };
 
-function getClientLogLevel(): LogLevel {
+export function getClientLogLevel(): LogLevel {
   const envLevel = process.env.NEXT_PUBLIC_CLIENT_LOG_LEVEL?.toLowerCase();
   const validLevels: LogLevel[] = ['debug', 'info', 'warn', 'error', 'silent'];
 
