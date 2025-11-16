@@ -91,7 +91,7 @@ describe('resolvePlayMode', () => {
       directLaunchResult,
     });
 
-    if (playMode.playmode !== 'playlist') {
+    if (playMode.type !== 'playlist') {
       throw new Error('Expected playlist mode');
     }
 

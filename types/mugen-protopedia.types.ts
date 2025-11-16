@@ -6,7 +6,7 @@
 export type PlayMode = 'normal' | 'playlist';
 
 type BasePlayModeState<T extends PlayMode> = {
-  playmode: T;
+  type: T;
 };
 
 export type NormalPlayModeState = BasePlayModeState<'normal'>;

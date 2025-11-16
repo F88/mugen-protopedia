@@ -18,13 +18,13 @@ export type ResolvePlayModeArgs = {
 };
 
 export const buildNormalPlayModeState = (): NormalPlayModeState => ({
-  playmode: 'normal',
+  type: 'normal',
 });
 
 export const buildPlaylistPlayModeState = (
   params: DirectLaunchParams,
 ): PlaylistPlayModeState => ({
-  playmode: 'playlist',
+  type: 'playlist',
   ids: params.ids,
   title: params.title,
 });

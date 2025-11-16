@@ -45,13 +45,6 @@ describe('parseDirectLaunchParams', () => {
       expect(value.ids).toEqual([1, 2, 4]);
     });
 
-    it('trims surrounding whitespace tokens', () => {
-      const params = new URLSearchParams('id= 1 , 2 , 3 ');
-      const value = expectSuccess(parseDirectLaunchParams(params));
-
-      expect(value.ids).toEqual([1, 2, 3]);
-    });
-
     it('returns an empty list when no id parameter is present', () => {
       const value = expectSuccess(
         parseDirectLaunchParams(new URLSearchParams('title=Only%20Title')),

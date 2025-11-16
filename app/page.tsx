@@ -61,15 +61,15 @@ const arePlayModeStatesEqual = (
   left: PlayModeState,
   right: PlayModeState,
 ): boolean => {
-  if (left.playmode !== right.playmode) {
+  if (left.type !== right.type) {
     return false;
   }
 
-  if (left.playmode === 'normal' && right.playmode === 'normal') {
+  if (left.type === 'normal' && right.type === 'normal') {
     return true;
   }
 
-  if (left.playmode === 'playlist' && right.playmode === 'playlist') {
+  if (left.type === 'playlist' && right.type === 'playlist') {
     if (left.ids.length !== right.ids.length) {
       return false;
     }
@@ -110,7 +110,7 @@ function HomeContent() {
       )
         ? previousState
         : resolvedPlayMode;
-      logger.debug('Play mode:', newPlayMode.playmode);
+      logger.debug('Play mode:', newPlayMode.type);
       return newPlayMode;
     });
   }, [directLaunchResult]);
@@ -252,7 +252,7 @@ function HomeContent() {
 
   // Adjust layout based on headerHeight and playlistTitle
   const playlistTitle =
-    playModeState.playmode === 'playlist' ? playModeState.title : undefined;
+    playModeState.type === 'playlist' ? playModeState.title : undefined;
 
   useLayoutEffect(() => {
     if (scrollContainerRef.current) {
@@ -269,7 +269,7 @@ function HomeContent() {
         playlistTitleRef.current.style.top = `${headerHeight}px`;
       }
     }
-  }, [headerHeight, playModeState.playmode, playlistTitle, processedCount]); // Recalculate when headerHeight or playlistTitle changes
+  }, [headerHeight, playModeState.type, playlistTitle, processedCount]); // Recalculate when headerHeight or playlistTitle changes
 
   // Scrolling & focus behavior
   const {
@@ -461,14 +461,14 @@ function HomeContent() {
   // Prepare playlist queue when entering playlist mode with new parameters
   useEffect(() => {
     // If not in playlist mode, reset playlist state
-    if (playModeState.playmode !== 'playlist') {
+    if (playModeState.type !== 'playlist') {
       lastProcessedPlaylistSignatureRef.current = null;
       playlistQueueRef.current = [];
       setIsPlaylistPlaying(false);
       setProcessedCount(0);
     }
 
-    switch (playModeState.playmode) {
+    switch (playModeState.type) {
       case 'normal':
         logger.debug('Switched to normal play mode');
         break;
@@ -508,7 +508,7 @@ function HomeContent() {
       playlistProcessingTimeoutRef.current = null;
     }
 
-    if (playModeState.playmode !== 'playlist') {
+    if (playModeState.type !== 'playlist') {
       return undefined;
     }
 
@@ -583,7 +583,7 @@ function HomeContent() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
-        playMode={playModeState.playmode}
+        playMode={playModeState.type}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
@@ -609,7 +609,7 @@ function HomeContent() {
             />
             {
               // directLaunchSucceeded ? (
-              playModeState.playmode === 'playlist' ? (
+              playModeState.type === 'playlist' ? (
                 <PlaylistTitle
                   className="mt-2 bg-transparent p-0"
                   ids={playModeState.ids}
