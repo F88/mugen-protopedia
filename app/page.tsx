@@ -17,7 +17,7 @@ import {
 } from 'react';
 
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
-import type { PlayMode } from '@/types/mugen-protopedia.types';
+import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
@@ -27,6 +27,11 @@ import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
+import {
+  buildNormalPlayModeState,
+  buildPlaylistPlayModeState,
+  resolvePlayMode,
+} from '@/lib/utils/resolve-play-mode';
 
 // hooks
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
@@ -53,24 +58,24 @@ const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
 function HomeContent() {
-  const directLaunchResult = useDirectLaunch();
-  const { ids, title: playlistTitle } =
-    directLaunchResult.type === 'success'
-      ? directLaunchResult.value
-      : { ids: [], title: undefined };
-  const directLaunchSucceeded = directLaunchResult.type === 'success';
-
   const headerRef = useRef<HTMLDivElement | null>(null);
   const playlistTitleRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  // Playmode state
-  const [playMode, setPlayMode] = useState<PlayMode>('normal');
-  const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
-
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
+
+  // Direct launch & play mode
+  const directLaunchResult = useDirectLaunch();
+  const [playModeState, setPlayModeState] = useState<PlayModeState>(() =>
+    resolvePlayMode({ directLaunchResult }),
+  );
+  // PlayMode - playlist
+  // const { ids, title: playlistTitle } =
+  //   directLaunchResult.type === 'success'
+  //     ? directLaunchResult.value
+  //     : { ids: [], title: undefined };
+  const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
 
   // Slot & concurrency management
   const {
@@ -213,7 +218,7 @@ function HomeContent() {
         playlistTitleRef.current.style.top = `${headerHeight}px`;
       }
     }
-  }, [headerHeight, playlistTitle]); // Recalculate when headerHeight or playlistTitle changes
+  }, [headerHeight]); // Recalculate when headerHeight or playlistTitle changes
 
   // Scrolling & focus behavior
   const {
@@ -245,7 +250,7 @@ function HomeContent() {
       }
 
       const clonedPrototype = clonePrototype(prototype);
-      // console.debug('Selected random prototype', { clonedPrototype });
+      logger.debug('Selected random prototype', { clonedPrototype });
       return clonedPrototype;
     }, [getRandomPrototype, clonePrototype]);
 
@@ -382,60 +387,6 @@ function HomeContent() {
     await handleGetPrototypeById(parsedId);
   };
 
-  const playlistQueueRef = useRef<number[]>([]);
-  const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
-
-  // Start the playlist
-  useEffect(() => {
-    if (ids.length === 0) {
-      lastProcessedPlaylistSignatureRef.current = null;
-      return;
-    }
-
-    const signature = `${ids.join(',')}|${playlistTitle ?? ''}`;
-    if (lastProcessedPlaylistSignatureRef.current === signature) {
-      return;
-    }
-
-    if (isPlaylistPlaying) return;
-
-    lastProcessedPlaylistSignatureRef.current = signature;
-    playlistQueueRef.current = [...ids];
-    setProcessedCount(0);
-    setIsPlaylistPlaying(true);
-    setPlayMode('playlist');
-    clearSlots();
-  }, [ids, playlistTitle, clearSlots, isPlaylistPlaying]);
-
-  // Process the playlist queue and monitor for completion
-  useEffect(() => {
-    if (!isPlaylistPlaying) return;
-
-    const processQueue = () => {
-      while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
-        const id = playlistQueueRef.current.shift();
-        if (id !== undefined) {
-          void handleGetPrototypeById(id);
-        }
-      }
-    };
-
-    processQueue();
-
-    // Check for completion
-    if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
-      setIsPlaylistPlaying(false);
-    }
-  }, [
-    isPlaylistPlaying,
-    canFetchMorePrototypes,
-    inFlightRequests,
-    handleGetPrototypeById,
-  ]);
-
-  // Removed inlined scroll/focus/concurrency logic now handled by hooks
-
-  // Open current prototype in Protopedia
   /**
    * Open the currently focused prototype in a new browser tab on ProtoPedia.
    * Uses noopener/noreferrer for security.
@@ -453,6 +404,66 @@ function HomeContent() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
+  // const playlistQueueRef = useRef<number[]>([]);
+  // const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
+
+  // Start the playlist
+  // useEffect(() => {
+  //   // if (ids.length === 0) {
+  //   // lastProcessedPlaylistSignatureRef.current = null;
+  //   // setPlayModeState(buildNormalPlayModeState());
+  //   // return;
+  //   // }
+
+  //   // const signature = `${ids.join(',')}|${playlistTitle ?? ''}`;
+  //   // if (lastProcessedPlaylistSignatureRef.current === signature) {
+  //   // return;
+  //   // }
+
+  //   // if (isPlaylistPlaying) return;
+
+  //   // lastProcessedPlaylistSignatureRef.current = signature;
+  //   playlistQueueRef.current = [...ids];
+
+  //   setProcessedCount(0);
+  //   setIsPlaylistPlaying(true);
+  //   setPlayModeState(
+  //     buildPlaylistPlayModeState({
+  //       ids,
+  //       title: playlistTitle,
+  //     }),
+  //   );
+  //   clearSlots();
+  // }, [ isPlaylistPlaying, setPlayModeState]);
+
+  // Process the playlist queue and monitor for completion
+  // useEffect(() => {
+  //   if (!isPlaylistPlaying) return;
+
+  //   const processQueue = () => {
+  //     while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
+  //       const id = playlistQueueRef.current.shift();
+  //       if (id !== undefined) {
+  //         void handleGetPrototypeById(id);
+  //       }
+  //     }
+  //   };
+
+  //   processQueue();
+
+  //   // Check for completion
+  //   if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
+  //     setIsPlaylistPlaying(false);
+  //   }
+  // }, [
+  //   isPlaylistPlaying,
+  //   canFetchMorePrototypes,
+  //   inFlightRequests,
+  //   handleGetPrototypeById,
+  // ]);
+
+  // Removed inlined scroll/focus/concurrency logic now handled by hooks
+
   /**
    * Main application layout
    */
@@ -466,7 +477,7 @@ function HomeContent() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
-        playMode={playMode}
+        playMode={playModeState.playmode}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
@@ -490,15 +501,18 @@ function HomeContent() {
               successMessage="Direct launch parameters validated successfully."
               failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
             />
-            {directLaunchSucceeded ? (
-              <PlaylistTitle
-                className="mt-2 bg-transparent p-0"
-                ids={ids}
-                title={playlistTitle}
-                processedCount={processedCount}
-                totalCount={ids.length}
-              />
-            ) : null}
+            {
+              // directLaunchSucceeded ? (
+              playModeState.playmode === 'playlist' ? (
+                <PlaylistTitle
+                  className="mt-2 bg-transparent p-0"
+                  ids={playModeState.ids}
+                  title={playModeState.title}
+                  processedCount={processedCount}
+                  totalCount={playModeState.ids.length}
+                />
+              ) : null
+            }
           </div>
 
           {/* Prototypes display area - Takes available space */}
