@@ -27,11 +27,7 @@ import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
-import {
-  buildNormalPlayModeState,
-  buildPlaylistPlayModeState,
-  resolvePlayMode,
-} from '@/lib/utils/resolve-play-mode';
+import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
@@ -57,6 +53,35 @@ const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
+const arePlayModeStatesEqual = (
+  left: PlayModeState,
+  right: PlayModeState,
+): boolean => {
+  if (left.playmode !== right.playmode) {
+    return false;
+  }
+
+  if (left.playmode === 'normal' && right.playmode === 'normal') {
+    return true;
+  }
+
+  if (left.playmode === 'playlist' && right.playmode === 'playlist') {
+    if (left.ids.length !== right.ids.length) {
+      return false;
+    }
+
+    for (let index = 0; index < left.ids.length; index += 1) {
+      if (left.ids[index] !== right.ids[index]) {
+        return false;
+      }
+    }
+
+    return left.title === right.title;
+  }
+
+  return false;
+};
+
 function HomeContent() {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const playlistTitleRef = useRef<HTMLDivElement | null>(null);
@@ -70,12 +95,30 @@ function HomeContent() {
   const [playModeState, setPlayModeState] = useState<PlayModeState>(() =>
     resolvePlayMode({ directLaunchResult }),
   );
+
+  // Sync play mode based on the latest direct launch parameters
+  useEffect(() => {
+    const resolvedPlayMode = resolvePlayMode({ directLaunchResult });
+    setPlayModeState((previousState) => {
+      const newPlayMode = arePlayModeStatesEqual(
+        previousState,
+        resolvedPlayMode,
+      )
+        ? previousState
+        : resolvedPlayMode;
+      logger.debug('Play mode:', newPlayMode.playmode);
+      return newPlayMode;
+    });
+  }, [directLaunchResult]);
+
   // PlayMode - playlist
   // const { ids, title: playlistTitle } =
   //   directLaunchResult.type === 'success'
   //     ? directLaunchResult.value
   //     : { ids: [], title: undefined };
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
+  const playlistQueueRef = useRef<number[]>([]);
+  const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
 
   // Slot & concurrency management
   const {
@@ -203,6 +246,9 @@ function HomeContent() {
   }, []); // Run only once on mount
 
   // Adjust layout based on headerHeight and playlistTitle
+  const playlistTitle =
+    playModeState.playmode === 'playlist' ? playModeState.title : undefined;
+
   useLayoutEffect(() => {
     if (scrollContainerRef.current) {
       const playlistTitleHeight = playlistTitleRef.current?.offsetHeight ?? 0;
@@ -218,7 +264,7 @@ function HomeContent() {
         playlistTitleRef.current.style.top = `${headerHeight}px`;
       }
     }
-  }, [headerHeight]); // Recalculate when headerHeight or playlistTitle changes
+  }, [headerHeight, playModeState.playmode, playlistTitle, processedCount]); // Recalculate when headerHeight or playlistTitle changes
 
   // Scrolling & focus behavior
   const {
@@ -404,63 +450,73 @@ function HomeContent() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
-  // const playlistQueueRef = useRef<number[]>([]);
-  // const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
+  // Prepare playlist queue when entering playlist mode with new parameters
+  useEffect(() => {
+    if (playModeState.playmode !== 'playlist') {
+      lastProcessedPlaylistSignatureRef.current = null;
+      playlistQueueRef.current = [];
+      setIsPlaylistPlaying(false);
+      setProcessedCount(0);
+      return;
+    }
 
-  // Start the playlist
-  // useEffect(() => {
-  //   // if (ids.length === 0) {
-  //   // lastProcessedPlaylistSignatureRef.current = null;
-  //   // setPlayModeState(buildNormalPlayModeState());
-  //   // return;
-  //   // }
+    const { ids, title } = playModeState;
+    if (ids.length === 0) {
+      lastProcessedPlaylistSignatureRef.current = null;
+      playlistQueueRef.current = [];
+      setIsPlaylistPlaying(false);
+      setProcessedCount(0);
+      return;
+    }
 
-  //   // const signature = `${ids.join(',')}|${playlistTitle ?? ''}`;
-  //   // if (lastProcessedPlaylistSignatureRef.current === signature) {
-  //   // return;
-  //   // }
+    const signature = `${ids.join(',')}|${title ?? ''}`;
+    if (lastProcessedPlaylistSignatureRef.current === signature) {
+      return;
+    }
 
-  //   // if (isPlaylistPlaying) return;
+    logger.debug({ ids, title }, 'Starting playlist playback');
+    lastProcessedPlaylistSignatureRef.current = signature;
+    playlistQueueRef.current = [...ids];
+    setProcessedCount(0);
+    setIsPlaylistPlaying(true);
+    // clearSlots(); // not required
+  }, [
+    playModeState,
+    // , clearSlots
+  ]);
 
-  //   // lastProcessedPlaylistSignatureRef.current = signature;
-  //   playlistQueueRef.current = [...ids];
+  // Process the playlist queue while in playlist mode
+  useEffect(() => {
+    if (playModeState.playmode !== 'playlist') {
+      return;
+    }
 
-  //   setProcessedCount(0);
-  //   setIsPlaylistPlaying(true);
-  //   setPlayModeState(
-  //     buildPlaylistPlayModeState({
-  //       ids,
-  //       title: playlistTitle,
-  //     }),
-  //   );
-  //   clearSlots();
-  // }, [ isPlaylistPlaying, setPlayModeState]);
+    if (!isPlaylistPlaying) {
+      return;
+    }
 
-  // Process the playlist queue and monitor for completion
-  // useEffect(() => {
-  //   if (!isPlaylistPlaying) return;
+    const processQueue = () => {
+      while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
+        const id = playlistQueueRef.current.shift();
+        if (id !== undefined) {
+          void handleGetPrototypeById(id);
+        }
+      }
+    };
 
-  //   const processQueue = () => {
-  //     while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
-  //       const id = playlistQueueRef.current.shift();
-  //       if (id !== undefined) {
-  //         void handleGetPrototypeById(id);
-  //       }
-  //     }
-  //   };
+    processQueue();
 
-  //   processQueue();
-
-  //   // Check for completion
-  //   if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
-  //     setIsPlaylistPlaying(false);
-  //   }
-  // }, [
-  //   isPlaylistPlaying,
-  //   canFetchMorePrototypes,
-  //   inFlightRequests,
-  //   handleGetPrototypeById,
-  // ]);
+    if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
+      logger.debug('Playlist playback completed');
+      setIsPlaylistPlaying(false);
+    }
+  }, [
+    playModeState,
+    isPlaylistPlaying,
+    canFetchMorePrototypes,
+    inFlightRequests,
+    handleGetPrototypeById,
+  ]);
 
   // Removed inlined scroll/focus/concurrency logic now handled by hooks
 
