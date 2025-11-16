@@ -44,8 +44,8 @@ import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
-// const PLAYLIST_FETCH_INTERVAL_MS = 500;
-const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
+const PLAYLIST_FETCH_INTERVAL_MS = 500;
+// const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
@@ -55,7 +55,6 @@ const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
  */
 const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
-
 
 const arePlayModeStatesEqual = (
   left: PlayModeState,
@@ -335,7 +334,10 @@ function HomeContent() {
    * Respects concurrency cap; removes placeholder on null result or error.
    */
   const handleGetRandomPrototype = useCallback(async () => {
-    if (isPlaylistPlaying) return;
+    if (isPlaylistPlaying) {
+      console.warn('Cannot fetch random prototype while playlist is playing.');
+      return;
+    }
     if (!tryIncrementInFlightRequests()) {
       console.warn('Maximum concurrent fetches reached.');
       return;
@@ -525,6 +527,11 @@ function HomeContent() {
       }
 
       if (!canFetchMorePrototypes) {
+        console.warn(
+          'Cannot fetch more prototypes while playlist is playing. Retry in ' +
+            PLAYLIST_FETCH_INTERVAL_MS +
+            'ms',
+        );
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
           PLAYLIST_FETCH_INTERVAL_MS,
@@ -534,7 +541,7 @@ function HomeContent() {
 
       const id = playlistQueueRef.current.shift();
       if (id !== undefined) {
-        logger.debug('Processing playlist ID:', id);
+        logger.debug('Proessing playlist ID:', id);
         void handleGetPrototypeById(id);
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
