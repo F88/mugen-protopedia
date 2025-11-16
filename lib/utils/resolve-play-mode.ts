@@ -11,7 +11,6 @@ import type {
   DirectLaunchParams,
   ValidationError,
 } from '@/lib/utils/validation';
-import { logger } from '../logger.client';
 
 export type ResolvePlayModeArgs = {
   directLaunchResult?: Result<DirectLaunchParams, ValidationError>;
@@ -32,8 +31,6 @@ export const buildPlaylistPlayModeState = (
 export const resolvePlayMode = ({
   directLaunchResult,
 }: ResolvePlayModeArgs): PlayModeState => {
-  // logger.debug({ directLaunchResult }, 'Resolving play mode');
-
   // Early return if direct launch result is missing or failed
   if (!directLaunchResult || directLaunchResult.type !== 'success') {
     return buildNormalPlayModeState();
