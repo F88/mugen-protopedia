@@ -41,8 +41,8 @@ import { PlaylistTitle } from '@/components/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 // const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
-const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
+const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
@@ -52,6 +52,8 @@ const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
  */
 const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
+
+const PLAYLIST_FETCH_INTERVAL_MS = 500;
 
 const arePlayModeStatesEqual = (
   left: PlayModeState,
@@ -119,6 +121,7 @@ function HomeContent() {
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
   const playlistQueueRef = useRef<number[]>([]);
   const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
+  const playlistProcessingTimeoutRef = useRef<number | null>(null);
 
   // Slot & concurrency management
   const {
@@ -452,34 +455,42 @@ function HomeContent() {
 
   // Prepare playlist queue when entering playlist mode with new parameters
   useEffect(() => {
+    // If not in playlist mode, reset playlist state
     if (playModeState.playmode !== 'playlist') {
       lastProcessedPlaylistSignatureRef.current = null;
       playlistQueueRef.current = [];
       setIsPlaylistPlaying(false);
       setProcessedCount(0);
-      return;
     }
 
-    const { ids, title } = playModeState;
-    if (ids.length === 0) {
-      lastProcessedPlaylistSignatureRef.current = null;
-      playlistQueueRef.current = [];
-      setIsPlaylistPlaying(false);
-      setProcessedCount(0);
-      return;
-    }
+    switch (playModeState.playmode) {
+      case 'normal':
+        logger.debug('Switched to normal play mode');
+        break;
 
-    const signature = `${ids.join(',')}|${title ?? ''}`;
-    if (lastProcessedPlaylistSignatureRef.current === signature) {
-      return;
-    }
+      case 'playlist':
+        logger.debug('Switched to playlist play mode');
+        const { ids, title } = playModeState;
+        if (ids.length === 0) {
+          lastProcessedPlaylistSignatureRef.current = null;
+          playlistQueueRef.current = [];
+          setIsPlaylistPlaying(false);
+          setProcessedCount(0);
+          return;
+        }
 
-    logger.debug({ ids, title }, 'Starting playlist playback');
-    lastProcessedPlaylistSignatureRef.current = signature;
-    playlistQueueRef.current = [...ids];
-    setProcessedCount(0);
-    setIsPlaylistPlaying(true);
-    // clearSlots(); // not required
+        const signature = `${ids.join(',')}|${title ?? ''}`;
+        if (lastProcessedPlaylistSignatureRef.current === signature) {
+          return;
+        }
+
+        logger.debug({ ids, title }, 'Starting playlist playback');
+        lastProcessedPlaylistSignatureRef.current = signature;
+        playlistQueueRef.current = [...ids];
+        setProcessedCount(0);
+        setIsPlaylistPlaying(true);
+      // clearSlots(); // not required
+    }
   }, [
     playModeState,
     // , clearSlots
@@ -487,29 +498,57 @@ function HomeContent() {
 
   // Process the playlist queue while in playlist mode
   useEffect(() => {
+    if (playlistProcessingTimeoutRef.current !== null) {
+      window.clearTimeout(playlistProcessingTimeoutRef.current);
+      playlistProcessingTimeoutRef.current = null;
+    }
+
     if (playModeState.playmode !== 'playlist') {
-      return;
+      return undefined;
     }
 
     if (!isPlaylistPlaying) {
-      return;
+      return undefined;
     }
 
-    const processQueue = () => {
-      while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
-        const id = playlistQueueRef.current.shift();
-        if (id !== undefined) {
-          void handleGetPrototypeById(id);
+    const processNext = () => {
+      playlistProcessingTimeoutRef.current = null;
+
+      if (playlistQueueRef.current.length === 0) {
+        if (inFlightRequests === 0) {
+          logger.debug('Playlist playback completed');
+          setIsPlaylistPlaying(false);
         }
+        return;
+      }
+
+      if (!canFetchMorePrototypes) {
+        playlistProcessingTimeoutRef.current = window.setTimeout(
+          processNext,
+          PLAYLIST_FETCH_INTERVAL_MS,
+        );
+        return;
+      }
+
+      const id = playlistQueueRef.current.shift();
+      if (id !== undefined) {
+        logger.debug('Processing playlist ID:', id);
+        void handleGetPrototypeById(id);
+        playlistProcessingTimeoutRef.current = window.setTimeout(
+          processNext,
+          PLAYLIST_FETCH_INTERVAL_MS,
+        );
       }
     };
 
-    processQueue();
+    playlistProcessingTimeoutRef.current = window.setTimeout(processNext, 0);
 
-    if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
-      logger.debug('Playlist playback completed');
-      setIsPlaylistPlaying(false);
-    }
+    return () => {
+      if (playlistProcessingTimeoutRef.current !== null) {
+        window.clearTimeout(playlistProcessingTimeoutRef.current);
+        playlistProcessingTimeoutRef.current = null;
+      }
+    };
   }, [
     playModeState,
     isPlaylistPlaying,
