@@ -471,6 +471,17 @@ export function AnalysisDashboard({
       if (clientTZ.anniversaries) {
         return clientTZ.anniversaries;
       }
+      // If server analysis is present but client anniversaries are not yet
+      // available (and not in an error state), it implies client-side
+      // computation is pending. Fall back to empty data to avoid errors.
+      if (analysis && !clientTZ.anniversaries && !clientTZ.error) {
+        return {
+          birthdayCount: 0,
+          birthdayPrototypes: [],
+          newbornCount: 0,
+          newbornPrototypes: [],
+        };
+      }
       if (clientTZ.isLoading || clientTZ.error) {
         return {
           birthdayCount: 0,
