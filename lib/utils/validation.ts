@@ -44,7 +44,7 @@ export const directLaunchSchema = z.object({
     .optional(),
   title: z
     .string()
-    .max(1_000, { message: 'Title must be 1,000 characters or less.' })
+    .max(100, { message: 'Title must be 100 characters or less.' })
     .nullable()
     .optional(),
 });
@@ -68,6 +68,7 @@ export const parseDirectLaunchParams = (
     title: rawTitle,
   });
 
+  // Error aggregation
   if (!parseResult.success) {
     const errors = parseResult.error.issues.map((issue) => issue.message);
     return {
@@ -79,9 +80,9 @@ export const parseDirectLaunchParams = (
     };
   }
 
+  // Successful
   const normalizedTitle =
     parseResult.data.title === null ? undefined : parseResult.data.title;
-
   return {
     type: 'success',
     value: {

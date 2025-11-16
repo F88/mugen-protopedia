@@ -1,7 +1,17 @@
-import { parseDirectLaunchParams } from '@/lib/utils/validation';
+import { describe, expect, it } from 'vitest';
 
-const expectSuccess = (result: ReturnType<typeof parseDirectLaunchParams>) => {
+import { parseDirectLaunchParams } from '@/lib/utils/validation';
+import type { DirectLaunchParams } from '@/lib/utils/validation';
+
+const expectSuccess = (
+  result: ReturnType<typeof parseDirectLaunchParams>,
+): DirectLaunchParams => {
   expect(result.type).toBe('success');
+
+  if (result.type !== 'success') {
+    throw new Error('Expected success result');
+  }
+
   return result.value;
 };
 
@@ -12,7 +22,10 @@ const expectFailure = (
   expect(result.type).toBe('failure');
 
   if (expectedMessage) {
-    expect(result.error.errors).toContain(expectedMessage);
+    // expect(result.error.errors).toContain(expectedMessage);
+    expect(result.type === 'failure' ? result.error.errors : []).toContain(
+      expectedMessage,
+    );
   }
 };
 
@@ -105,12 +118,12 @@ describe('parseDirectLaunchParams', () => {
       expect(value.title).toBeUndefined();
     });
 
-    it('rejects titles longer than 1,000 characters', () => {
-      const longTitle = 'a'.repeat(1_001);
+    it('rejects titles longer than 100 characters', () => {
+      const longTitle = 'a'.repeat(101);
       const params = new URLSearchParams(`title=${longTitle}`);
       const result = parseDirectLaunchParams(params);
 
-      expectFailure(result, 'Title must be 1,000 characters or less.');
+      expectFailure(result, 'Title must be 100 characters or less.');
     });
   });
 
@@ -124,7 +137,7 @@ describe('parseDirectLaunchParams', () => {
     });
 
     it('rejects when both ids and title are invalid', () => {
-      const longTitle = 'a'.repeat(1_001);
+      const longTitle = 'a'.repeat(101);
       const params = new URLSearchParams(`id=1,a,3&title=${longTitle}`);
       const result = parseDirectLaunchParams(params);
 
@@ -134,7 +147,7 @@ describe('parseDirectLaunchParams', () => {
         expect(result.error.errors).toEqual(
           expect.arrayContaining([
             'IDs must contain only digits and commas.',
-            'Title must be 1,000 characters or less.',
+            'Title must be 100 characters or less.',
           ]),
         );
       }
