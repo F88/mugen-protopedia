@@ -1,15 +1,19 @@
 import { forwardRef, type ReactNode } from 'react';
 
+import type { PlayMode } from '@/types/mugen-protopedia.types';
+
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
+import { Badge } from './ui/badge';
 
 interface HeaderProps {
   dashboard: DashboardProps;
   analysisDashboard?: ReactNode; // allow injection for Storybook/tests
+  playMode: PlayMode;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard, analysisDashboard },
+  { dashboard, analysisDashboard, playMode },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -22,6 +26,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
 
+  const showPlayMode = playMode === 'playlist';
+  // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
+  const playModeLabel = playMode === 'playlist' ? ' ▶️' : 'Normal';
+
   return (
     <div
       ref={ref}
@@ -33,6 +41,16 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             <span className="sm:hidden">{shortTitle}</span>
             <span className="hidden sm:inline">{longTitle}</span>
           </h1>
+
+          {/* Play mode */}
+          {showPlayMode && (
+            <>
+              {/* <Badge variant={'default'} className="uppercase tracking-wide"> */}
+              {playModeLabel}
+              {/* </Badge> */}
+            </>
+          )}
+
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Dashboard */}
             <Dashboard

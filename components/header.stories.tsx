@@ -1,21 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { Header } from './header';
-import { AnalysisDashboard } from './analysis-dashboard';
-import { sampleAnalysis } from '@/.storybook/analysis.fixture';
 
-const useLatestAnalysisMock = () => ({
-  data: sampleAnalysis,
-  isLoading: false,
-  error: null,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  refresh: (_opts?: { forceRecompute?: boolean }) => {},
-});
-
-const clientAnniversariesOverride = {
-  anniversaries: sampleAnalysis.anniversaries,
-  isLoading: false,
-  error: null,
-} as const;
+const MockAnalysisDashboard = () => (
+  <div className="text-xs text-muted-foreground">Mocked Analysis Dashboard</div>
+);
 
 const meta = {
   title: 'Components/Header',
@@ -39,14 +27,8 @@ const meta = {
       inFlightRequests: 0,
       maxConcurrentFetches: 2,
     },
-    analysisDashboard: (
-      <AnalysisDashboard
-        defaultExpanded={false}
-        useLatestAnalysisHook={useLatestAnalysisMock}
-        preferClientTimezoneAnniversaries
-        clientAnniversariesOverride={clientAnniversariesOverride}
-      />
-    ),
+    playMode: 'normal',
+    analysisDashboard: <MockAnalysisDashboard />,
   },
 } satisfies Meta<typeof Header>;
 
@@ -54,6 +36,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Minimal: Story = {
+  name: 'Minimal dashboard',
+  args: {
+    dashboard: {
+      prototypeCount: 0,
+      inFlightRequests: 0,
+      maxConcurrentFetches: 1,
+    },
+    analysisDashboard: null,
+    playMode: 'normal',
+  },
+};
 
 export const Busy: Story = {
   name: 'Busy (large numbers)',
@@ -63,15 +58,28 @@ export const Busy: Story = {
       inFlightRequests: 8,
       maxConcurrentFetches: 8,
     },
+    playMode: 'normal',
   },
 };
 
-export const Mobile: Story = {
-  name: 'Mobile viewport',
-  parameters: {
-    viewport: {
-      defaultViewport: 'iphone14',
+export const Mode_Normal: Story = {
+  args: {
+    dashboard: {
+      prototypeCount: 12345,
+      inFlightRequests: 8,
+      maxConcurrentFetches: 8,
     },
+    playMode: 'normal',
   },
-  args: {},
+};
+
+export const Mode_Playlist: Story = {
+  args: {
+    dashboard: {
+      prototypeCount: 12345,
+      inFlightRequests: 8,
+      maxConcurrentFetches: 8,
+    },
+    playMode: 'playlist',
+  },
 };
