@@ -32,7 +32,7 @@ export const buildPlaylistPlayModeState = (
 export const resolvePlayMode = ({
   directLaunchResult,
 }: ResolvePlayModeArgs): PlayModeState => {
-  logger.debug({ directLaunchResult }, 'Resolving play mode');
+  // logger.debug({ directLaunchResult }, 'Resolving play mode');
 
   // Early return if direct launch result is missing or failed
   if (!directLaunchResult || directLaunchResult.type !== 'success') {
