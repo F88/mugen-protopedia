@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { Result } from './result';
 
-interface ValidationError {
+export interface ValidationError {
   status: 'error';
   errors: string[];
 }
