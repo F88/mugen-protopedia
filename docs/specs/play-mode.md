@@ -7,11 +7,11 @@
 - normal
 - playlist
 
-## normal
+## `normal`: Normal Mode
 
 - コントロールパネルから個別にプロトタイプを表示出来る。
 
-### playlist
+### `playlist`: Play playlist Mode
 
 - 指定されたプロトタイプIDのリストに基づいて、連続的にプロトタイプを表示するモード。
 - 指定されたプロトタイプID全てを処理した後も、プレイモードは変わらない。
