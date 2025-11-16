@@ -25,7 +25,8 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
 
-  const showPlayMode = playMode === 'playlist';
+  // const showPlayMode = playMode === 'playlist';
+  const showPlayMode = true; // temporary always show play mode for easier testing
   // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
   const playModeLabel = playMode === 'playlist' ? ' ▶️' : 'Normal';
 
