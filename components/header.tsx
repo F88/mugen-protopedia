@@ -4,7 +4,6 @@ import type { PlayMode } from '@/types/mugen-protopedia.types';
 
 import { Dashboard, type DashboardProps } from './dashboard';
 import { ThemeToggle } from './theme-toggle';
-import { Badge } from './ui/badge';
 
 interface HeaderProps {
   dashboard: DashboardProps;
