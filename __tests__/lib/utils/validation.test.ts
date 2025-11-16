@@ -74,6 +74,27 @@ describe('parseDirectLaunchParams', () => {
       expectFailure(result, 'IDs must contain only digits and commas.');
     });
 
+    it('rejects tokens containing internal whitespace', () => {
+      const params = new URLSearchParams('id=1%202');
+      const result = parseDirectLaunchParams(params);
+
+      expectFailure(result, 'IDs must contain only digits and commas.');
+    });
+
+    it('rejects tokens with leading or trailing whitespace', () => {
+      const params = new URLSearchParams('id=%201');
+      const result = parseDirectLaunchParams(params);
+
+      expectFailure(result, 'IDs must contain only digits and commas.');
+    });
+
+    it('rejects tokens separated by comma and space', () => {
+      const params = new URLSearchParams('id=1,%202');
+      const result = parseDirectLaunchParams(params);
+
+      expectFailure(result, 'IDs must contain only digits and commas.');
+    });
+
     it('rejects negative numbers', () => {
       const params = new URLSearchParams('id=-1,2');
       const result = parseDirectLaunchParams(params);

@@ -16,13 +16,16 @@ export const directLaunchSchema = z.object({
   id: z
     .string()
     .superRefine((value, ctx) => {
-      const normalized = value.replace(/\s+/g, '');
+      const tokens = value.split(',');
+      const hasInvalidToken = tokens.some((token) => {
+        if (token.length === 0) {
+          return false;
+        }
 
-      if (normalized.length === 0) {
-        return;
-      }
+        return !/^[0-9]+$/.test(token);
+      });
 
-      if (!/^[0-9,]*$/.test(normalized)) {
+      if (hasInvalidToken) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'IDs must contain only digits and commas.',
@@ -30,18 +33,16 @@ export const directLaunchSchema = z.object({
       }
     })
     .transform((value) => {
-      const tokens = value
-        .split(',')
-        .map((token) => token.trim())
-        .filter((token) => token.length > 0);
+      const tokens = value.split(',').filter((token) => token.length > 0);
 
       if (tokens.length === 0) {
         return [];
       }
 
-      return tokens.map((token) => Number(token));
+      return tokens.map((token) => Number.parseInt(token, 10));
     })
     .optional(),
+
   title: z
     .string()
     .max(100, { message: 'Title must be 100 characters or less.' })
