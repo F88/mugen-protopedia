@@ -15,18 +15,31 @@ export type DirectLaunchParams = {
 export const directLaunchSchema = z.object({
   id: z
     .string()
-    .regex(/^[0-9,]*$/, {
-      message: 'IDs must contain only digits and commas.',
+    .superRefine((value, ctx) => {
+      const normalized = value.replace(/\s+/g, '');
+
+      if (normalized.length === 0) {
+        return;
+      }
+
+      if (!/^[0-9,]*$/.test(normalized)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'IDs must contain only digits and commas.',
+        });
+      }
     })
-    .transform((val) => {
-      // Split by comma, trim spaces, filter out empty strings, convert to number
-      const ids = val
+    .transform((value) => {
+      const tokens = value
         .split(',')
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0)
-        .map(Number);
-      // Filter out NaN values
-      return ids.filter((id) => !isNaN(id));
+        .map((token) => token.trim())
+        .filter((token) => token.length > 0);
+
+      if (tokens.length === 0) {
+        return [];
+      }
+
+      return tokens.map((token) => Number(token));
     })
     .optional(),
   title: z
@@ -36,16 +49,13 @@ export const directLaunchSchema = z.object({
     .optional(),
 });
 
-const isPositiveInteger = (value: number): boolean =>
-  Number.isInteger(value) && value > 0;
+const normalizeIdsInput = (rawValues: string[]): string | undefined => {
+  if (rawValues.length === 0) {
+    return undefined;
+  }
 
-const splitIds = (rawValues: string[]): string[] =>
-  rawValues.flatMap((rawValue) =>
-    rawValue
-      .split(',')
-      .map((token) => token.trim())
-      .filter((token) => token.length > 0),
-  );
+  return rawValues.join(',');
+};
 
 export const parseDirectLaunchParams = (
   searchParams: URLSearchParams,
@@ -53,12 +63,10 @@ export const parseDirectLaunchParams = (
   const rawIds = searchParams.getAll('id');
   const rawTitle = searchParams.get('title');
 
-  const tokens = splitIds(rawIds);
-  const ids = tokens
-    .map((token) => Number(token))
-    .filter((numeric) => !Number.isNaN(numeric) && isPositiveInteger(numeric));
-
-  const parseResult = directLaunchSchema.safeParse({ title: rawTitle });
+  const parseResult = directLaunchSchema.safeParse({
+    id: normalizeIdsInput(rawIds),
+    title: rawTitle,
+  });
 
   if (!parseResult.success) {
     const errors = parseResult.error.issues.map((issue) => issue.message);
@@ -77,7 +85,7 @@ export const parseDirectLaunchParams = (
   return {
     type: 'success',
     value: {
-      ids,
+      ids: parseResult.data.id ?? [],
       title: normalizedTitle,
     },
   };
