@@ -44,7 +44,8 @@ import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
-const PLAYLIST_FETCH_INTERVAL_MS = 500;
+// const PLAYLIST_FETCH_INTERVAL_MS = 500;
+const PLAYLIST_FETCH_INTERVAL_MS = 200;
 // const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
 /**
@@ -530,7 +531,8 @@ function HomeContent() {
         console.warn(
           'Cannot fetch more prototypes while playlist is playing. Retry in ' +
             PLAYLIST_FETCH_INTERVAL_MS +
-            'ms',
+            'ms' +
+            ' for processing next id',
         );
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
