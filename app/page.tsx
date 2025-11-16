@@ -7,24 +7,41 @@
  */
 
 import type { ChangeEvent } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
+import type { PlayMode } from '@/types/mugen-protopedia.types';
 
+// lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
-import { usePrototype } from '@/lib/hooks/use-prototype';
-import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
-import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
-import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
-
-import { ControlPanel } from '@/components/control-panel';
-import { Header } from '@/components/header';
-import { AnalysisDashboard } from '@/components/analysis-dashboard';
 import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
+import { usePrototype } from '@/lib/hooks/use-prototype';
+import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
+import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
+import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
+import { logger } from '@/lib/logger.client';
+
+// hooks
+import { useDirectLaunch } from '@/hooks/use-direct-launch';
+
+// components
+import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { ControlPanel } from '@/components/control-panel';
+import { DirectLaunchResult } from '@/components/direct-launch-result';
+import { Header } from '@/components/header';
+import { PlaylistTitle } from '@/components/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
-const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
-// const SIMULATED_DELAY_RANGE = null;
+// const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
+const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
@@ -35,10 +52,25 @@ const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
 const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
-export default function Home() {
+function HomeContent() {
+  const directLaunchResult = useDirectLaunch();
+  const { ids, title: playlistTitle } =
+    directLaunchResult.type === 'success'
+      ? directLaunchResult.value
+      : { ids: [], title: undefined };
+  const directLaunchSucceeded = directLaunchResult.type === 'success';
+
   const headerRef = useRef<HTMLDivElement | null>(null);
+  const playlistTitleRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Playmode state
+  const [playMode, setPlayMode] = useState<PlayMode>('normal');
+  const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
+
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [processedCount, setProcessedCount] = useState(0);
 
   // Slot & concurrency management
   const {
@@ -94,7 +126,7 @@ export default function Home() {
 
   const {
     getRandomPrototype,
-    // isLoading: isLoadingRandomPrototype,
+    // isLoading: isLoadingPrototype,
     // error: randomPrototypeError,
   } = useRandomPrototype();
 
@@ -105,8 +137,10 @@ export default function Home() {
    * data shape (plain objects). If richer types are added later, replace with
    * a safer cloning strategy.
    */
-  const clonePrototype = (prototype: Prototype): Prototype =>
-    JSON.parse(JSON.stringify(prototype));
+  const clonePrototype = useCallback(
+    (prototype: Prototype): Prototype => JSON.parse(JSON.stringify(prototype)),
+    [],
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -148,6 +182,39 @@ export default function Home() {
   // console.info('Prototype has any notable highlights!!', { highlights });
   // };
 
+  // Observe Header height changes
+  useLayoutEffect(() => {
+    const headerElement = headerRef.current;
+    if (!headerElement) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      setHeaderHeight(headerElement.offsetHeight);
+    });
+
+    resizeObserver.observe(headerElement);
+
+    // Cleanup observer on unmount
+    return () => resizeObserver.disconnect();
+  }, []); // Run only once on mount
+
+  // Adjust layout based on headerHeight and playlistTitle
+  useLayoutEffect(() => {
+    if (scrollContainerRef.current) {
+      const playlistTitleHeight = playlistTitleRef.current?.offsetHeight ?? 0;
+      const totalOffset = headerHeight + playlistTitleHeight;
+
+      // Update CSS variable for header offset
+      document.documentElement.style.setProperty(
+        '--header-offset',
+        `${totalOffset}px`,
+      );
+      // Set top position for PlaylistTitle
+      if (playlistTitleRef.current) {
+        playlistTitleRef.current.style.top = `${headerHeight}px`;
+      }
+    }
+  }, [headerHeight, playlistTitle]); // Recalculate when headerHeight or playlistTitle changes
+
   // Scrolling & focus behavior
   const {
     currentFocusIndex,
@@ -180,7 +247,7 @@ export default function Home() {
       const clonedPrototype = clonePrototype(prototype);
       // console.debug('Selected random prototype', { clonedPrototype });
       return clonedPrototype;
-    }, [getRandomPrototype]);
+    }, [getRandomPrototype, clonePrototype]);
 
   /**
    * Handle change for explicit ID input field.
@@ -203,14 +270,16 @@ export default function Home() {
    * Clear all prototype slots.
    */
   const handleClearPrototypes = useCallback(() => {
+    if (isPlaylistPlaying) return;
     clearSlots();
-  }, [clearSlots]);
+  }, [clearSlots, isPlaylistPlaying]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
    * Respects concurrency cap; removes placeholder on null result or error.
    */
   const handleGetRandomPrototype = useCallback(async () => {
+    if (isPlaylistPlaying) return;
     if (!tryIncrementInFlightRequests()) {
       console.warn('Maximum concurrent fetches reached.');
       return;
@@ -238,13 +307,67 @@ export default function Home() {
     removeSlotById,
     replacePrototypeInSlot,
     decrementInFlightRequests,
+    isPlaylistPlaying,
   ]);
 
   /**
    * Fetch a prototype by explicit ID and insert it into a newly appended slot.
    * Validates input, respects concurrency cap, and sets error states on failure.
    */
-  const handleGetPrototypeById = async () => {
+  const handleGetPrototypeById = useCallback(
+    async (id: number) => {
+      logger.debug('Fetching prototype by ID', { id });
+      // Validation
+      if (id < 0) {
+        console.error('Invalid prototype ID:', id);
+        return;
+      }
+
+      // Fetching
+      if (!tryIncrementInFlightRequests()) {
+        console.warn('Maximum concurrent fetches reached.');
+        return;
+      }
+
+      const slotId = appendPlaceholder({ expectedPrototypeId: id });
+      setPrototypeIdError(null);
+
+      try {
+        const prototype = await fetchPrototype(id);
+        if (!prototype) {
+          setPrototypeIdError('Not found.');
+          setSlotError(slotId, 'Not found.');
+          return;
+        }
+
+        const clonedPrototype = clonePrototype(prototype);
+        await replacePrototypeInSlot(slotId, clonedPrototype);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to fetch prototype.';
+        setPrototypeIdError(message);
+        setSlotError(slotId, message);
+      } finally {
+        decrementInFlightRequests();
+        setProcessedCount((c) => c + 1);
+      }
+    },
+    [
+      tryIncrementInFlightRequests,
+      appendPlaceholder,
+      fetchPrototype,
+      setPrototypeIdError,
+      setSlotError,
+      clonePrototype,
+      replacePrototypeInSlot,
+      decrementInFlightRequests,
+      setProcessedCount,
+    ],
+  );
+
+  const handleGetPrototypeByIdFromInput = async () => {
+    logger.debug('Fetching prototype by ID from input:', prototypeIdInput);
+
     // Validation
     const trimmed = prototypeIdInput.trim();
     if (trimmed === '') {
@@ -256,35 +379,59 @@ export default function Home() {
       setPrototypeIdError('Prototype ID must be a non-negative number.');
       return;
     }
+    await handleGetPrototypeById(parsedId);
+  };
 
-    // Fetching
-    if (!tryIncrementInFlightRequests()) {
-      console.warn('Maximum concurrent fetches reached.');
+  const playlistQueueRef = useRef<number[]>([]);
+  const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
+
+  // Start the playlist
+  useEffect(() => {
+    if (ids.length === 0) {
+      lastProcessedPlaylistSignatureRef.current = null;
       return;
     }
 
-    const slotId = appendPlaceholder({ expectedPrototypeId: parsedId });
-    setPrototypeIdError(null);
-
-    try {
-      const prototype = await fetchPrototype(parsedId);
-      if (!prototype) {
-        setPrototypeIdError('Not found.');
-        setSlotError(slotId, 'Not found.');
-        return;
-      }
-
-      const clonedPrototype = clonePrototype(prototype);
-      await replacePrototypeInSlot(slotId, clonedPrototype);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to fetch prototype.';
-      setPrototypeIdError(message);
-      setSlotError(slotId, message);
-    } finally {
-      decrementInFlightRequests();
+    const signature = `${ids.join(',')}|${playlistTitle ?? ''}`;
+    if (lastProcessedPlaylistSignatureRef.current === signature) {
+      return;
     }
-  };
+
+    if (isPlaylistPlaying) return;
+
+    lastProcessedPlaylistSignatureRef.current = signature;
+    playlistQueueRef.current = [...ids];
+    setProcessedCount(0);
+    setIsPlaylistPlaying(true);
+    setPlayMode('playlist');
+    clearSlots();
+  }, [ids, playlistTitle, clearSlots, isPlaylistPlaying]);
+
+  // Process the playlist queue and monitor for completion
+  useEffect(() => {
+    if (!isPlaylistPlaying) return;
+
+    const processQueue = () => {
+      while (canFetchMorePrototypes && playlistQueueRef.current.length > 0) {
+        const id = playlistQueueRef.current.shift();
+        if (id !== undefined) {
+          void handleGetPrototypeById(id);
+        }
+      }
+    };
+
+    processQueue();
+
+    // Check for completion
+    if (playlistQueueRef.current.length === 0 && inFlightRequests === 0) {
+      setIsPlaylistPlaying(false);
+    }
+  }, [
+    isPlaylistPlaying,
+    canFetchMorePrototypes,
+    inFlightRequests,
+    handleGetPrototypeById,
+  ]);
 
   // Removed inlined scroll/focus/concurrency logic now handled by hooks
 
@@ -319,6 +466,7 @@ export default function Home() {
           inFlightRequests,
           maxConcurrentFetches: maxConcurrentFetches,
         }}
+        playMode={playMode}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
@@ -328,39 +476,55 @@ export default function Home() {
         }
       />
 
-      {/* {(prototypeError || randomPrototypeError) && (
-        <p className="text-center text-red-500 dark:text-red-400 py-8">
-          {prototypeError ?? randomPrototypeError}
-        </p>
-      )} */}
+      {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
+      {headerHeight > 0 && (
+        <>
+          <div
+            ref={playlistTitleRef}
+            className="sticky z-60"
+            // topスタイルはuseLayoutEffectで動的に設定される
+          >
+            <DirectLaunchResult
+              className="bg-transparent p-0 text-left"
+              directLaunchResult={directLaunchResult}
+              successMessage="Direct launch parameters validated successfully."
+              failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
+            />
+            {directLaunchSucceeded ? (
+              <PlaylistTitle
+                className="mt-2 bg-transparent p-0"
+                ids={ids}
+                title={playlistTitle}
+                processedCount={processedCount}
+                totalCount={ids.length}
+              />
+            ) : null}
+          </div>
 
-      {/* {(isLoadingPrototype || isLoadingRandomPrototype) && (
-        <p className="text-center py-8 text-gray-600 dark:text-gray-300">
-          Loading...
-        </p>
-      )} */}
-
-      {/* Prototypes display area - Takes available space */}
-      <div
-        ref={scrollContainerRef}
-        className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
-      >
-        <PrototypeGrid
-          prototypeSlots={prototypeSlots}
-          currentFocusIndex={currentFocusIndex}
-          onCardClick={handleCardClick}
-        />
-      </div>
+          {/* Prototypes display area - Takes available space */}
+          <div
+            ref={scrollContainerRef}
+            className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
+          >
+            <PrototypeGrid
+              prototypeSlots={prototypeSlots}
+              currentFocusIndex={currentFocusIndex}
+              onCardClick={handleCardClick}
+            />
+          </div>
+        </>
+      )}
 
       {/* Control panel - Fixed overlay at bottom */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
         <div className="container mx-auto p-4">
           <ControlPanel
+            controlPanelMode={isPlaylistPlaying ? 'loadingPlaylist' : 'normal'}
             onGetRandomPrototype={handleGetRandomPrototype}
             onClear={handleClearPrototypes}
             prototypeIdInput={prototypeIdInput}
             onPrototypeIdInputChange={handlePrototypeIdInputChange}
-            onGetPrototypeById={handleGetPrototypeById}
+            onGetPrototypeById={handleGetPrototypeByIdFromInput}
             onPrototypeIdInputSet={handlePrototypeIdInputSet}
             canFetchMorePrototypes={canFetchMorePrototypes}
             prototypeIdError={prototypeIdError}
@@ -381,5 +545,13 @@ export default function Home() {
         />
       </div> */}
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
