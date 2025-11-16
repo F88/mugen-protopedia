@@ -44,6 +44,9 @@ import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
+// const PLAYLIST_FETCH_INTERVAL_MS = 500;
+const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
+
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
  *
@@ -53,7 +56,6 @@ const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 const urlOfPageForPrototype = (prototype: Prototype): string =>
   `https://protopedia.net/prototype/${prototype.id}`;
 
-const PLAYLIST_FETCH_INTERVAL_MS = 500;
 
 const arePlayModeStatesEqual = (
   left: PlayModeState,
