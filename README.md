@@ -66,9 +66,9 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
-### 2025-11-15
+### 2025-11-16
 
-- 🌟 **** ********** ** Ids
+- ▶️📋 プレイリスト再生モードを追加
 
 ### 2025-11-14
 
