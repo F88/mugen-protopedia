@@ -132,12 +132,12 @@ describe('parseDirectLaunchParams', () => {
       expect(value.title).toBeUndefined();
     });
 
-    it('rejects titles longer than 100 characters', () => {
-      const longTitle = 'a'.repeat(101);
+    it('rejects titles longer than 300 characters', () => {
+      const longTitle = 'a'.repeat(301);
       const params = new URLSearchParams(`title=${longTitle}`);
       const result = parseDirectLaunchParams(params);
 
-      expectFailure(result, 'Title must be 100 characters or less.');
+      expectFailure(result, 'Title must be 300 characters or less.');
     });
   });
 
@@ -151,7 +151,7 @@ describe('parseDirectLaunchParams', () => {
     });
 
     it('rejects when both ids and title are invalid', () => {
-      const longTitle = 'a'.repeat(101);
+      const longTitle = 'a'.repeat(301);
       const params = new URLSearchParams(`id=1,a,3&title=${longTitle}`);
       const result = parseDirectLaunchParams(params);
 
@@ -161,7 +161,7 @@ describe('parseDirectLaunchParams', () => {
         expect(result.error.errors).toEqual(
           expect.arrayContaining([
             'IDs must contain only digits and commas.',
-            'Title must be 100 characters or less.',
+            'Title must be 300 characters or less.',
           ]),
         );
       }

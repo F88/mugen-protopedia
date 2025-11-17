@@ -15,22 +15,8 @@ export type DirectLaunchParams = {
 export const directLaunchSchema = z.object({
   id: z
     .string()
-    .superRefine((value, ctx) => {
-      const tokens = value.split(',');
-      const hasInvalidToken = tokens.some((token) => {
-        if (token.length === 0) {
-          return false;
-        }
-
-        return !/^[0-9]+$/.test(token);
-      });
-
-      if (hasInvalidToken) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'IDs must contain only digits and commas.',
-        });
-      }
+    .regex(/^[0-9,]*$/, {
+      message: 'IDs must contain only digits and commas.',
     })
     .transform((value) => {
       const tokens = value.split(',').filter((token) => token.length > 0);
@@ -45,7 +31,7 @@ export const directLaunchSchema = z.object({
 
   title: z
     .string()
-    .max(100, { message: 'Title must be 100 characters or less.' })
+    .max(300, { message: 'Title must be 300 characters or less.' })
     .nullable()
     .optional(),
 });
@@ -55,7 +41,8 @@ const normalizeIdsInput = (rawValues: string[]): string | undefined => {
     return undefined;
   }
 
-  return rawValues.join(',');
+  const joined = rawValues.join(',');
+  return joined.length > 0 ? joined : undefined;
 };
 
 export const parseDirectLaunchParams = (
