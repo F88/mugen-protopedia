@@ -44,6 +44,8 @@ import {
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 
+// Base document title used when not in playlist mode or when playlist title invalid.
+const BASE_DOCUMENT_TITLE = '無限ProtoPedia';
 const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
@@ -289,6 +291,19 @@ function HomeContent() {
         fontFamily: playlistFont,
       }
     : null;
+
+  // Dynamically update the document title based on playlist title when available.
+  useEffect(() => {
+    if (
+      playModeState.type === 'playlist' &&
+      typeof playModeState.title === 'string' &&
+      playModeState.title.trim().length > 0
+    ) {
+      document.title = `${playModeState.title} | ${BASE_DOCUMENT_TITLE}`;
+    } else {
+      document.title = BASE_DOCUMENT_TITLE;
+    }
+  }, [playModeState]);
 
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
