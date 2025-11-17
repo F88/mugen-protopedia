@@ -38,8 +38,13 @@ export const resolvePlayMode = ({
 
   // Determine PlayMode
   const directLaunchParams = directLaunchResult.value;
+  const hasIds = directLaunchParams.ids.length > 0;
+  const hasTitle =
+    typeof directLaunchParams.title === 'string' &&
+    directLaunchParams.title.trim().length > 0;
 
-  if (directLaunchParams.ids.length > 0) {
+  // Playlist mode
+  if (hasIds || hasTitle) {
     return buildPlaylistPlayModeState({
       ids: directLaunchParams.ids,
       title: directLaunchParams.title,

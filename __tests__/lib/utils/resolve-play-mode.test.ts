@@ -42,8 +42,22 @@ describe('resolvePlayMode', () => {
     });
   });
 
-  it('falls back to normal mode when playlist has no ids', () => {
-    const directLaunchResult = successResult({ ids: [], title: 'Empty' });
+  it('returns playlist mode when playlist has no ids but has a title', () => {
+    const directLaunchResult = successResult({ ids: [], title: 'Title Only' });
+
+    const playMode = resolvePlayMode({
+      directLaunchResult,
+    });
+
+    expect(playMode).toEqual({
+      type: 'playlist',
+      ids: [],
+      title: 'Title Only',
+    });
+  });
+
+  it('falls back to normal mode when playlist has no ids and an empty title', () => {
+    const directLaunchResult = successResult({ ids: [], title: '' });
 
     const playMode = resolvePlayMode({
       directLaunchResult,
