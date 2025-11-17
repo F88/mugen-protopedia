@@ -142,7 +142,7 @@ export function PlaylistTitleCard({
 
   const titleSpan = (
     <span
-      className="whitespace-normal wrap-break-word"
+      className="whitespace-normal break-words"
       title={isTitleTruncated ? title : undefined}
     >
       {displayedTitle}
@@ -152,7 +152,7 @@ export function PlaylistTitleCard({
   const titleWithTooltip = isTitleTruncated ? (
     <Tooltip>
       <TooltipTrigger asChild>{titleSpan}</TooltipTrigger>
-      <TooltipContent side="top" className="max-w-xs wrap-break-word text-left">
+      <TooltipContent side="top" className="max-w-xs break-words text-left">
         {title}
       </TooltipContent>
     </Tooltip>
@@ -185,7 +185,7 @@ export function PlaylistTitleCard({
         {hasTitle && (
           <h1
             aria-label={headingLabel}
-            className="text-xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
+            className="text-xl font-bold whitespace-normal break-words flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
           >
             <span className="flex flex-wrap items-center justify-center gap-3">
               {hasTitle ? titleWithTooltip : headingLabel}
