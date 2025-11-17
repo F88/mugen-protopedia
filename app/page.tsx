@@ -3,12 +3,12 @@
  * and sets dynamic metadata based on direct launch query parameters.
  */
 
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next';
 import { Suspense } from 'react';
 
 import { HomeContent } from './home-content';
 
-import { APP_TITLE } from '@/lib/config/app-constants';
+import { APP_TITLE, APP_URL } from '@/lib/config/app-constants';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
 import { parseDirectLaunchParams } from '@/lib/utils/validation';
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
@@ -71,20 +71,46 @@ const buildTitleFromSearchParams = (
   return computeDocumentTitle(playlistState);
 };
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}): Promise<Metadata> {
+export async function generateMetadata(
+  {
+    searchParams,
+  }: {
+    searchParams: Promise<SearchParams>;
+  },
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const resolved = await searchParams;
   const title = buildTitleFromSearchParams(resolved);
+  const params = buildURLSearchParams(resolved);
+  const pathWithQuery = params.toString() ? `/?${params.toString()}` : '/';
+  const absoluteUrl = new URL(pathWithQuery, APP_URL).toString();
+  const hasQuery = params.toString().length > 0;
+
+  // Note on merging:
+  // Metadata objects are shallowly merged. Defining `openGraph` (or `twitter`)
+  // at this level replaces the parent's entire object. To preserve fields like
+  // siteName, images, and card settings, extend from the parent metadata.
+  const parentMetadata = await parent;
+  const parentOpenGraph = parentMetadata.openGraph ?? {};
+  const parentTwitter = parentMetadata.twitter ?? {};
+  const parentAlternates = parentMetadata.alternates ?? {};
 
   return {
     title,
+    // Align canonical with the concrete content URL when query exists.
+    // This helps search engines disambiguate versions. Preserve other alternates.
+    alternates: {
+      ...parentAlternates,
+      canonical: hasQuery ? absoluteUrl : APP_URL,
+    },
     openGraph: {
+      ...parentOpenGraph,
       title,
+      // Provide absolute URL to ensure override of layout-level value
+      url: absoluteUrl,
     },
     twitter: {
+      ...parentTwitter,
       title,
     },
   };
