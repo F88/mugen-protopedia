@@ -44,8 +44,8 @@ import {
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 
-// const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
-const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
+const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
 
 const PLAYLIST_FETCH_INTERVAL_MS = 500;
