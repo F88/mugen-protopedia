@@ -24,7 +24,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(title);
-    expect(screen.getByText('❓')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
   });
 
   it('truncates a title that exceeds the limit', () => {
@@ -44,7 +44,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(truncatedTitle);
-    expect(screen.getByText('❓')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
   });
 
   it('does not truncate a title that meets the limit', () => {
@@ -63,7 +63,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(exactLengthTitle);
-    expect(screen.getByText('❓')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
   });
 
   it('shows truncated title and progress while playing', () => {
@@ -84,7 +84,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(truncatedTitle);
-    expect(screen.getByText('▶️')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(2 / 5)')).toBeInTheDocument();
   });
 
@@ -104,7 +104,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(title);
-    expect(screen.getByText('⏸️')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(3)')).toBeInTheDocument();
   });
 
@@ -116,7 +116,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName('Playlist');
-    expect(screen.getByText('❓')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
   });
 
   it('shows progress with the default label when title is missing', () => {
@@ -127,7 +127,7 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName('Playlist');
-    expect(screen.getByText('⏸️')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(1)')).toBeInTheDocument();
   });
 
@@ -147,17 +147,17 @@ describe('PlaylistTitle', () => {
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(specialTitle);
-    expect(screen.getByText('❓')).toBeInTheDocument();
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
   });
 
   it('shows completed status when all items processed', () => {
     render(<PlaylistTitle ids={[1, 2]} processedCount={2} totalCount={2} />);
 
-    expect(screen.getByText('📋')).toBeInTheDocument();
     const headingElement = screen.getByRole('heading', {
       name: 'Playlist',
     });
     expect(headingElement).toHaveAccessibleName('Playlist');
+    expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(2)')).toBeInTheDocument();
   });
 });

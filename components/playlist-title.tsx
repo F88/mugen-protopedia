@@ -3,6 +3,8 @@
 import React from 'react';
 import { cn, truncateString } from '@/lib/utils';
 
+import { ListVideo } from 'lucide-react';
+
 type PlaylistTitleProps = {
   ids: number[];
   title?: string;
@@ -34,16 +36,37 @@ export function PlaylistTitle({
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : 'Playlist';
-  const statusText = (() => {
+
+  // const statusText = (() => {
+  //   if (isPlaying) {
+  //     return '▶️';
+  //   }
+
+  //   if (totalCount > 0) {
+  //     return processedCount >= totalCount ? '📋' : '⏸️';
+  //   }
+
+  //   return '❓';
+  // })();
+
+  const statusIcon = (() => {
+    const baseIcon = (
+      <ListVideo
+        aria-hidden="true"
+        className="w-6 h-6"
+        data-testid="playlist-status-icon"
+      />
+    );
+
     if (isPlaying) {
-      return '▶️';
+      return baseIcon;
     }
 
     if (totalCount > 0) {
-      return processedCount >= totalCount ? '📋' : '⏸️';
+      return baseIcon;
     }
 
-    return '❓';
+    return baseIcon;
   })();
 
   const progressText = isPlaying
@@ -57,12 +80,15 @@ export function PlaylistTitle({
         className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
       >
         <span className="flex items-center gap-2">
-          <span className="whitespace-nowrap">{statusText}</span>
+          <span className="whitespace-normal wrap-break-word">
+            {statusIcon}
+            {/* {statusText} */}
+          </span>
           <span className="whitespace-normal wrap-break-word">
             {displayedTitle}
           </span>
           {progressText && (
-            <span className="text-base font-medium text-muted-foreground whitespace-nowrap">
+            <span className="whitespace-nowrap text-muted-foreground ">
               {progressText}
             </span>
           )}
