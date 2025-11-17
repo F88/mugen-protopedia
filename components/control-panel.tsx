@@ -1,13 +1,17 @@
 'use client';
 
-import { useState, type ChangeEvent, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { useState, type ChangeEvent } from 'react';
+
+import type { ControlpanelMode } from '@/types/mugen-protopedia.types';
+
+import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
+import { cn } from '@/lib/utils';
 
 import { ChevronDown, ChevronUp, Square } from 'lucide-react';
 import { BsFillDice3Fill } from 'react-icons/bs';
-import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 // Shared styles
 const PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
@@ -28,14 +32,16 @@ export type MainPanelProps = {
   onClear: () => void;
   onGetRandomPrototype: () => void;
   canFetchMorePrototypes: boolean;
-  isClearDisabled?: boolean;
+  canGetPrototypes?: boolean;
+  canClearDisabled?: boolean;
 };
 
 function MainPanel({
   onClear,
   onGetRandomPrototype,
   canFetchMorePrototypes,
-  isClearDisabled,
+  canGetPrototypes = true,
+  canClearDisabled = true,
 }: MainPanelProps) {
   const navigationHintContent = (
     <>
@@ -57,17 +63,6 @@ function MainPanel({
   );
 
   return (
-    // Responsive layout spec:
-    // - Small screens (default):
-    //   * Container spans full width (w-full)
-    //   * Left block aligns left, right block aligns right
-    //   * Middle column shrinks to minimal width via auto track
-    //   * Navigation hint is hidden; 1px placeholder keeps 3-column grid
-    // - Wide screens (sm+):
-    //   * Container fits content width (sm:w-fit) and is horizontally centered (mx-auto)
-    //   * Left block aligns right, right block aligns left to balance the row
-    //   * Middle column stays minimal width (auto)
-    //   * Navigation hint becomes visible in the middle
     <div
       className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
     >
@@ -83,7 +78,7 @@ function MainPanel({
             className="gap-2"
             title="Reset (R)"
             aria-label="Reset"
-            disabled={isClearDisabled}
+            disabled={!canClearDisabled}
           >
             <Square className="h-4 w-4" />
             RESET
@@ -121,7 +116,7 @@ function MainPanel({
             title="Prototype"
             aria-label="Prototype"
             aria-describedby="kbd-prototype-hint"
-            disabled={!canFetchMorePrototypes}
+            disabled={!canFetchMorePrototypes || !canGetPrototypes}
           >
             <BsFillDice3Fill className="h-5 w-5" />
             PROTOTYPE
@@ -138,14 +133,14 @@ function MainPanel({
   );
 }
 
-// Sub panel (collapsible) below main panel
-export type SubPanelProps = {
+type SubPanelProps = {
   prototypeIdInput: string;
   onPrototypeIdInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onPrototypeIdInputSet: (value: number) => void;
   onGetPrototypeById: () => void;
-  canFetchMorePrototypes: boolean;
   maxPrototypeId: number;
+  canFetchMorePrototypes: boolean;
+  canGetPrototypes?: boolean;
 };
 
 function SubPanel({
@@ -155,10 +150,10 @@ function SubPanel({
   onGetPrototypeById,
   canFetchMorePrototypes,
   maxPrototypeId,
+  canGetPrototypes = true,
 }: SubPanelProps) {
   return (
     <div className="flex gap-3 items-center justify-center">
-      {/* Random fill button */}
       <Button
         type="button"
         variant="ghost"
@@ -169,11 +164,11 @@ function SubPanel({
         className="gap-2 h-auto"
         title="Fill with random prototype ID"
         aria-label="Fill input with random prototype ID"
+        disabled={!canGetPrototypes}
       >
         <BsFillDice3Fill className="size-6" />
       </Button>
 
-      {/* Prototype ID input */}
       <input
         type="number"
         inputMode="numeric"
@@ -183,15 +178,19 @@ function SubPanel({
         onChange={onPrototypeIdInputChange}
         className={`${PANEL_BORDER} w-24 rounded p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200`}
         placeholder="ID"
+        disabled={!canGetPrototypes}
       />
 
-      {/* Show button */}
       <Button
         onClick={onGetPrototypeById}
         className="gap-2"
         title="Show specified Prototype"
         aria-label="Show Prototype with specified ID"
-        disabled={prototypeIdInput === '' || !canFetchMorePrototypes}
+        disabled={
+          prototypeIdInput === '' ||
+          !canFetchMorePrototypes ||
+          !canGetPrototypes
+        }
       >
         SHOW
       </Button>
@@ -208,8 +207,8 @@ export type ControlPanelProps = {
   onClear: () => void;
   canFetchMorePrototypes: boolean;
   prototypeIdError: string | null;
-  isClearDisabled?: boolean;
   maxPrototypeId: number;
+  controlPanelMode?: ControlpanelMode;
   // Keyboard shortcuts
   onScrollNext: () => void;
   onScrollPrev: () => void;
@@ -225,13 +224,14 @@ export function ControlPanel({
   onClear,
   canFetchMorePrototypes,
   // prototypeIdError,
-  isClearDisabled,
   onScrollNext,
   onScrollPrev,
   onOpenPrototype,
   maxPrototypeId,
+  controlPanelMode = 'normal',
 }: ControlPanelProps) {
   const [isSubPanelExpanded, setIsSubPanelExpanded] = useState(false);
+  const isPlaylistMode = controlPanelMode === 'loadingPlaylist';
 
   // Keyboard shortcuts
   useKeyboardShortcuts({
@@ -248,7 +248,8 @@ export function ControlPanel({
         onClear={onClear}
         onGetRandomPrototype={onGetRandomPrototype}
         canFetchMorePrototypes={canFetchMorePrototypes}
-        isClearDisabled={isClearDisabled}
+        canGetPrototypes={!isPlaylistMode}
+        canClearDisabled={!isPlaylistMode}
       />
 
       {/* Collapsible sub panel */}
@@ -282,6 +283,7 @@ export function ControlPanel({
               canFetchMorePrototypes={canFetchMorePrototypes}
               onPrototypeIdInputSet={onPrototypeIdInputSet}
               maxPrototypeId={maxPrototypeId}
+              canGetPrototypes={!isPlaylistMode}
             />
           </div>
         )}

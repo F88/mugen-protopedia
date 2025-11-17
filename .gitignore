@@ -115,6 +115,7 @@ tools/sample-data/
 .coverage
 coverage/
 .vercel
+.todo-temp
 
 # Tools
 cleanup-vercel-deployments.js

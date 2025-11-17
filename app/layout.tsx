@@ -19,28 +19,13 @@ import { ServiceWorkerRegister } from '@/components/sw-register';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Centralized metadata constants to avoid duplication and ease future updates.
-const APP_TITLE = '無限ProtoPedia';
-const APP_DESCRIPTION =
-  '仕事中のおさぼりから酒宴のつまみにも、寝酒のお供に、気付けば夜更け、朝ぼらけ';
-const APP_URL = 'https://mugen-pp.vercel.app';
-// const APP_OG_IMAGE = `${APP_URL}/screenshots/ss-fhd-light.png`;
-const APP_OG_IMAGE = `${APP_URL}/img/MPP-3-0-1200x630-OG.png`;
-const APP_KEYWORDS = [
-  'ProtoPedia',
-  'プロトタイプ',
-  'プロトタイピング',
-  '無限',
-  '無限Viewer',
-  'IoT',
-  'Maker',
-  'メイカー',
-  'ものづくり',
-  'ハッカソン',
-  'コンテスト',
-  '電子工作',
-];
-const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION_TOKEN;
+// Import centralized constants and metadata builders.
+import {
+  APP_TITLE,
+  APP_DESCRIPTION,
+  APP_URL,
+} from '@/lib/config/app-constants';
+import { buildBaseMetadata, buildViewport } from '@/lib/config/metadata';
 
 /**
  * Site‑wide metadata consumed by Next.js at build/runtime.
@@ -59,71 +44,7 @@ const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION_TOKEN;
  * see Functions: generateMetadata | Next.js https://nextjs.org/docs/app/api-reference/functions/generate-metadata
  * see Functions: generateViewport | Next.js https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  */
-export const metadata: Metadata = {
-  metadataBase: new URL(APP_URL),
-  title: APP_TITLE,
-  description: APP_DESCRIPTION,
-  keywords: APP_KEYWORDS,
-  applicationName: APP_TITLE,
-  authors: [{ name: 'F88', url: 'https://github.com/F88' }],
-  creator: 'F88',
-  publisher: 'F88',
-  alternates: {
-    canonical: APP_URL,
-  },
-  icons: {
-    // Generic icons (optional but useful for some platforms)
-    icon: [
-      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
-      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    shortcut: [{ url: '/icons/favicon.ico' }],
-    // Apple touch icon generated in <head> automatically by Next.js
-    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: APP_TITLE,
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  openGraph: {
-    type: 'website',
-    url: APP_URL,
-    siteName: APP_TITLE,
-    title: APP_TITLE,
-    description: APP_DESCRIPTION,
-    images: [
-      {
-        url: APP_OG_IMAGE,
-        width: 2300,
-        height: 1294,
-        alt: `${APP_TITLE} - ${APP_DESCRIPTION}`,
-      },
-    ],
-    locale: 'ja_JP',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: APP_TITLE,
-    description: APP_DESCRIPTION,
-    images: [APP_OG_IMAGE],
-    creator: '@F88',
-  },
-  // Add site verification meta via Next.js Metadata API when the token is provided.
-  ...(GOOGLE_SITE_VERIFICATION
-    ? {
-        verification: {
-          google: GOOGLE_SITE_VERIFICATION,
-        },
-      }
-    : {}),
-};
+export const metadata: Metadata = buildBaseMetadata();
 
 /**
  * Viewport configuration (Next.js App Router).
@@ -132,12 +53,7 @@ export const metadata: Metadata = {
  * "Unsupported metadata themeColor is configured in metadata export. Please move it to viewport export instead.".
  * See: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
  */
-export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
-  ],
-};
+export const viewport: Viewport = buildViewport();
 
 /**
  * Root layout component that wraps all application routes.

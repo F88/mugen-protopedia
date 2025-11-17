@@ -7,6 +7,7 @@
  */
 'use client';
 
+import { useCallback } from 'react';
 import useSWR from 'swr';
 import type { SWRConfiguration } from 'swr';
 
@@ -64,13 +65,16 @@ export function usePrototype(
     ...config,
   });
 
-  const fetchPrototypeById = async (prototypeId: number) => {
-    const result = await getPrototype(prototypeId);
-    if (hasId && prototypeId === id) {
-      await mutate(result, { revalidate: false });
-    }
-    return result;
-  };
+  const fetchPrototypeById = useCallback(
+    async (prototypeId: number) => {
+      const result = await getPrototype(prototypeId);
+      if (hasId && prototypeId === id) {
+        await mutate(result, { revalidate: false });
+      }
+      return result;
+    },
+    [hasId, id, mutate],
+  );
 
   return {
     prototype: data ?? null,
