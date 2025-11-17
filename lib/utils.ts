@@ -21,12 +21,18 @@ export function truncateString(str: string, maxLength: number): string {
   const splitIntoGraphemes = (input: string): string[] => {
     try {
       // Intl.Segmenter is available in Node 20+ and modern browsers
-      if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
-        const segmenter = new (Intl as any).Segmenter(undefined, {
+      if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+        const SegmenterCtor = (
+          Intl as unknown as {
+            Segmenter: typeof Intl.Segmenter;
+          }
+        ).Segmenter;
+        const segmenter = new SegmenterCtor(undefined, {
           granularity: 'grapheme',
         });
-        // segmenter.segment returns an iterable of { segment, index, isWordLike }
-        return Array.from(segmenter.segment(input), (s: any) => s.segment);
+        // segmenter.segment returns an iterable of SegmentData
+        const segments = segmenter.segment(input);
+        return Array.from(segments, (s) => s.segment);
       }
     } catch {
       // ignore and fall back
