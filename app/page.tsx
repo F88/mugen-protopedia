@@ -15,12 +15,7 @@ import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-const isPromise = <T,>(value: unknown): value is Promise<T> =>
-  value instanceof Promise;
-
-type GenerateMetadataParams = {
-  searchParams?: SearchParams;
-};
+//
 
 const DEFAULT_TITLE = APP_TITLE;
 
@@ -78,12 +73,10 @@ const buildTitleFromSearchParams = (
 
 export async function generateMetadata({
   searchParams,
-}: GenerateMetadataParams & {
-  searchParams?: SearchParams | Promise<SearchParams>;
+}: {
+  searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
-  const resolved = isPromise<SearchParams>(searchParams)
-    ? await searchParams
-    : (searchParams as SearchParams | undefined);
+  const resolved = await searchParams;
   const title = buildTitleFromSearchParams(resolved);
 
   return {
