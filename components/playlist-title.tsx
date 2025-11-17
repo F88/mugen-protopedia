@@ -9,6 +9,7 @@ type PlaylistTitleProps = {
   processedCount: number;
   totalCount: number;
   className?: string;
+  isPlaying?: boolean;
 };
 
 export const PLAYLIST_TITLE_CONTAINER_CLASS =
@@ -28,16 +29,38 @@ export function PlaylistTitle({
   processedCount,
   totalCount,
   className,
+  isPlaying = false,
 }: PlaylistTitleProps) {
   const showProgress = ids.length > 0;
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : 'Playlist';
+  const statusText = (() => {
+    if (isPlaying) {
+      return '▶️';
+    }
+
+    if (totalCount > 0) {
+      return processedCount >= totalCount ? '📋' : '⏸️';
+    }
+
+    return '❓';
+  })();
 
   return (
     <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
-      <h1 className="text-2xl font-bold whitespace-normal wrap-break-word">
-        {displayedTitle} {showProgress && `(${processedCount} / ${totalCount})`}
+      <h1 className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <span className="flex items-center gap-2">
+          <span className="whitespace-nowrap">{statusText}</span>
+          <span className="whitespace-normal wrap-break-word">
+            {displayedTitle}
+          </span>
+          {showProgress && (
+            <span className="text-base font-medium text-muted-foreground whitespace-nowrap">
+              ({processedCount} / {totalCount})
+            </span>
+          )}
+        </span>
       </h1>
     </div>
   );

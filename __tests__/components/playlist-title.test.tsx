@@ -62,10 +62,12 @@ describe('PlaylistTitle', () => {
         title={longTitle}
         processedCount={2}
         totalCount={5}
+        isPlaying
       />,
     );
     const headingElement = screen.getByRole('heading', { name: expectedTitle });
     expect(headingElement).toBeInTheDocument();
+    expect(screen.getByText('Playing')).toBeInTheDocument();
   });
 
   it('should show progress when ids are provided', () => {
@@ -88,6 +90,7 @@ describe('PlaylistTitle', () => {
     render(<PlaylistTitle ids={[]} processedCount={0} totalCount={0} />);
     const headingElement = screen.getByRole('heading', { name: 'Playlist' });
     expect(headingElement).toBeInTheDocument();
+    expect(screen.getByText('Idle')).toBeInTheDocument();
   });
 
   it('should show progress with the default label when title is missing', () => {
@@ -96,6 +99,7 @@ describe('PlaylistTitle', () => {
       name: 'Playlist (0 / 1)',
     });
     expect(headingElement).toBeInTheDocument();
+    expect(screen.getByText('Paused')).toBeInTheDocument();
   });
 
   it('should render with special characters in the title', () => {
@@ -110,5 +114,11 @@ describe('PlaylistTitle', () => {
     );
     const headingElement = screen.getByRole('heading', { name: specialTitle });
     expect(headingElement).toBeInTheDocument();
+  });
+
+  it('should show completed status when all items processed', () => {
+    render(<PlaylistTitle ids={[1, 2]} processedCount={2} totalCount={2} />);
+
+    expect(screen.getByText('Completed')).toBeInTheDocument();
   });
 });
