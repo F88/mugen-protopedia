@@ -5,10 +5,13 @@ import '@testing-library/jest-dom';
 import {
   PlaylistTitle,
   PLAYLIST_TITLE_MAX_LENGTH,
-} from '@/components/playlist-title';
+} from '../../components/playlist-title';
+
+const escapeRegExp = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 describe('PlaylistTitle', () => {
-  it('should render the title when within the limit', () => {
+  it('renders the title when within the limit', () => {
     const title = 'My Awesome Playlist';
     render(
       <PlaylistTitle
@@ -18,13 +21,17 @@ describe('PlaylistTitle', () => {
         totalCount={0}
       />,
     );
-    const headingElement = screen.getByRole('heading', { name: title });
+
+    const headingElement = screen.getByRole('heading', {
+      name: /My Awesome Playlist/,
+    });
     expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`❓ ${title}`);
   });
 
-  it('should truncate a title that exceeds the limit', () => {
+  it('truncates a title that exceeds the limit', () => {
     const longTitle = 'A'.repeat(PLAYLIST_TITLE_MAX_LENGTH + 50);
-    const expectedTitle = `${longTitle.substring(0, PLAYLIST_TITLE_MAX_LENGTH)}...`;
+    const truncatedTitle = `${longTitle.substring(0, PLAYLIST_TITLE_MAX_LENGTH)}...`;
     render(
       <PlaylistTitle
         ids={[]}
@@ -33,11 +40,15 @@ describe('PlaylistTitle', () => {
         totalCount={0}
       />,
     );
-    const headingElement = screen.getByRole('heading', { name: expectedTitle });
+
+    const headingElement = screen.getByRole('heading', {
+      name: new RegExp(escapeRegExp(truncatedTitle)),
+    });
     expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`❓ ${truncatedTitle}`);
   });
 
-  it('should not truncate a title that exactly meets the limit', () => {
+  it('does not truncate a title that meets the limit', () => {
     const exactLengthTitle = 'B'.repeat(PLAYLIST_TITLE_MAX_LENGTH);
     render(
       <PlaylistTitle
@@ -47,15 +58,17 @@ describe('PlaylistTitle', () => {
         totalCount={0}
       />,
     );
+
     const headingElement = screen.getByRole('heading', {
       name: exactLengthTitle,
     });
     expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`❓ ${exactLengthTitle}`);
   });
 
-  it('should append progress to a truncated title', () => {
+  it('shows truncated title and progress while playing', () => {
     const longTitle = 'C'.repeat(PLAYLIST_TITLE_MAX_LENGTH + 10);
-    const expectedTitle = `${longTitle.substring(0, PLAYLIST_TITLE_MAX_LENGTH)}... (2 / 5)`;
+    const truncatedTitle = `${longTitle.substring(0, PLAYLIST_TITLE_MAX_LENGTH)}...`;
     render(
       <PlaylistTitle
         ids={[10, 20, 30]}
@@ -65,12 +78,17 @@ describe('PlaylistTitle', () => {
         isPlaying
       />,
     );
-    const headingElement = screen.getByRole('heading', { name: expectedTitle });
+
+    const headingElement = screen.getByRole('heading', {
+      name: new RegExp(`${escapeRegExp(truncatedTitle)} \\(2 / 5\\)`),
+    });
     expect(headingElement).toBeInTheDocument();
-    expect(screen.getByText('Playing')).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`▶️ ${truncatedTitle} (2 / 5)`);
+    expect(screen.getByText('▶️')).toBeInTheDocument();
+    expect(screen.getByText('(2 / 5)')).toBeInTheDocument();
   });
 
-  it('should show progress when ids are provided', () => {
+  it('shows progress when ids are provided', () => {
     const title = 'Progress Playlist';
     render(
       <PlaylistTitle
@@ -80,29 +98,40 @@ describe('PlaylistTitle', () => {
         totalCount={3}
       />,
     );
+
     const headingElement = screen.getByRole('heading', {
-      name: `${title} (1 / 3)`,
+      name: new RegExp(`${escapeRegExp(title)} \\(1 / 3\\)`),
     });
     expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`⏸️ ${title} (1 / 3)`);
+    expect(screen.getByText('⏸️')).toBeInTheDocument();
+    expect(screen.getByText('(1 / 3)')).toBeInTheDocument();
   });
 
-  it('should fall back to default label when title is missing', () => {
+  it('falls back to default label when title is missing', () => {
     render(<PlaylistTitle ids={[]} processedCount={0} totalCount={0} />);
-    const headingElement = screen.getByRole('heading', { name: 'Playlist' });
-    expect(headingElement).toBeInTheDocument();
-    expect(screen.getByText('Idle')).toBeInTheDocument();
-  });
 
-  it('should show progress with the default label when title is missing', () => {
-    render(<PlaylistTitle ids={[7]} processedCount={0} totalCount={1} />);
     const headingElement = screen.getByRole('heading', {
-      name: 'Playlist (0 / 1)',
+      name: /Playlist/,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(screen.getByText('Paused')).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName('❓ Playlist');
+    expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
-  it('should render with special characters in the title', () => {
+  it('shows progress with the default label when title is missing', () => {
+    render(<PlaylistTitle ids={[7]} processedCount={0} totalCount={1} />);
+
+    const headingElement = screen.getByRole('heading', {
+      name: /Playlist \(0 \/ 1\)/,
+    });
+    expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName('⏸️ Playlist (0 / 1)');
+    expect(screen.getByText('⏸️')).toBeInTheDocument();
+    expect(screen.getByText('(0 / 1)')).toBeInTheDocument();
+  });
+
+  it('renders special characters in the title', () => {
     const specialTitle = 'Playlist with special characters: !@#$%^&*()_+';
     render(
       <PlaylistTitle
@@ -112,13 +141,21 @@ describe('PlaylistTitle', () => {
         totalCount={0}
       />,
     );
-    const headingElement = screen.getByRole('heading', { name: specialTitle });
+
+    const headingElement = screen.getByRole('heading', {
+      name: new RegExp(escapeRegExp(specialTitle)),
+    });
     expect(headingElement).toBeInTheDocument();
+    expect(headingElement).toHaveAccessibleName(`❓ ${specialTitle}`);
   });
 
-  it('should show completed status when all items processed', () => {
+  it('shows completed status when all items processed', () => {
     render(<PlaylistTitle ids={[1, 2]} processedCount={2} totalCount={2} />);
 
-    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getByText('📋')).toBeInTheDocument();
+    const headingElement = screen.getByRole('heading', {
+      name: /Playlist \(2 \/ 2\)/,
+    });
+    expect(headingElement).toHaveAccessibleName('📋 Playlist (2 / 2)');
   });
 });

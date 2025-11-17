@@ -47,21 +47,21 @@ export function PlaylistTitle({
     return '❓';
   })();
 
-  const progressText = (() => {
-    if (!showProgress) {
-      return null;
-    }
-
-    if (isPlaying) {
-      return `(${processedCount} / ${totalCount})`;
-    }
-
-    return `(${totalCount})`;
-  })();
+  const progressText = showProgress
+    ? `(${processedCount} / ${totalCount})`
+    : null;
+  const ariaLabel = [statusText, displayedTitle, progressText]
+    .filter(
+      (value): value is string => typeof value === 'string' && value.length > 0,
+    )
+    .join(' ');
 
   return (
     <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
-      <h1 className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      <h1
+        aria-label={ariaLabel}
+        className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
+      >
         <span className="flex items-center gap-2">
           <span className="whitespace-nowrap">{statusText}</span>
           <span className="whitespace-normal wrap-break-word">
