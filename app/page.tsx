@@ -582,7 +582,7 @@ function HomeContent() {
 
       // Next ID to process
       const id = playlistQueueRef.current.shift();
-      logger.debug('Proessing playlist ID:', id);
+      logger.debug('Processing playlist ID:', id);
 
       if (id !== undefined) {
         // Fetch
@@ -657,7 +657,7 @@ function HomeContent() {
                   />
                 </div>
               )}
-              {/* Show playlist title when sticky banner is visibles */}
+              {/* Show playlist title when sticky banner is visible */}
               {isPlaylistMode && playlistTitleCardProps && (
                 <div
                   className={`transition-all duration-3000 ease-out transform-gpu ${
