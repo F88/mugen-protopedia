@@ -37,7 +37,10 @@ import { AnalysisDashboard } from '@/components/analysis-dashboard';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
-import { PlaylistTitleCard } from '@/components/playlist-title-card';
+import {
+  PlaylistTitleCard,
+  type PlaylistTitleCardVariant,
+} from '@/components/playlist-title-card';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 // const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
@@ -121,6 +124,10 @@ function HomeContent() {
   const playlistQueueRef = useRef<number[]>([]);
   const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
   const playlistProcessingTimeoutRef = useRef<number | null>(null);
+
+  // Random variant selection for PlaylistTitleCard
+  const [playlistVariant, setPlaylistVariant] =
+    useState<PlaylistTitleCardVariant>('default');
 
   // Slot & concurrency management
   const {
@@ -250,6 +257,32 @@ function HomeContent() {
   const isPlaylistMode = playModeState.type === 'playlist';
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
+  // Select random variant when playlist starts
+  useEffect(() => {
+    if (isPlaylistMode && playModeState.type === 'playlist') {
+      const variants: PlaylistTitleCardVariant[] = [
+        'default',
+        'frame',
+        'cyberpunk',
+        'anime',
+        'retro',
+        'elegant',
+        'space',
+        'neon',
+        'pastel',
+        'monochrome',
+        'gradient',
+        'minimal',
+        'glass',
+        'sunset',
+        'ocean',
+        'forest',
+      ];
+      const randomIndex = Math.floor(Math.random() * variants.length);
+      setPlaylistVariant(variants[randomIndex]);
+    }
+  }, [isPlaylistMode, playModeState]);
+
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
 
   // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
@@ -258,13 +291,14 @@ function HomeContent() {
   // Common props for PlaylistTitleCard
   const playlistTitleCardProps = isPlaylistMode
     ? {
-        className: 'mx-auto bg-yellow-100! dark:bg-yellow-900!',
+        className: 'mx-auto',
         ids: playModeState.ids,
         title: playModeState.title,
         processedCount,
         totalCount: playlistTotalCount,
         isCompleted: isPlaylistCompleted,
         isPlaying: isPlaylistPlaying,
+        variant: playlistVariant,
       }
     : null;
 

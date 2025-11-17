@@ -1,7 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { PlaylistTitleCard } from '@/components/playlist-title-card';
+import {
+  PlaylistTitleCard,
+  type PlaylistTitleCardVariant,
+} from '@/components/playlist-title-card';
 
 describe('PlaylistTitleCard', () => {
   const defaultProps = {
@@ -132,5 +135,47 @@ describe('PlaylistTitleCard', () => {
       <PlaylistTitleCard {...defaultProps} totalCount={0} isPlaying={true} />,
     );
     expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  describe('variant', () => {
+    it('variant prop is optional and defaults to default', () => {
+      render(<PlaylistTitleCard {...defaultProps} />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with default variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="default" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with frame variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="frame" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with cyberpunk variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="cyberpunk" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with anime variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="anime" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with retro variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="retro" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with elegant variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="elegant" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
+
+    it('renders with space variant', () => {
+      render(<PlaylistTitleCard {...defaultProps} variant="space" />);
+      expect(screen.getByText('Playlist')).toBeDefined();
+    });
   });
 });

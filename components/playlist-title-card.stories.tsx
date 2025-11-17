@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { PlaylistTitleCard } from './playlist-title-card';
+import {
+  PlaylistTitleCard,
+  type PlaylistTitleCardVariant,
+} from './playlist-title-card';
 
 const meta = {
   title: 'Components/PlaylistTitleCard',
@@ -28,6 +31,28 @@ const meta = {
     isCompleted: {
       control: 'boolean',
       description: 'Whether playlist playback is completed',
+    },
+    variant: {
+      control: 'select',
+      options: [
+        'default',
+        'frame',
+        'cyberpunk',
+        'anime',
+        'retro',
+        'elegant',
+        'space',
+        'neon',
+        'pastel',
+        'monochrome',
+        'gradient',
+        'minimal',
+        'glass',
+        'sunset',
+        'ocean',
+        'forest',
+      ],
+      description: 'Visual style variant',
     },
   },
 } satisfies Meta<typeof PlaylistTitleCard>;
@@ -165,5 +190,228 @@ export const Paused: Story = {
     totalCount: 5,
     isPlaying: false,
     isCompleted: false,
+  },
+};
+
+// All variants showcase
+export const AllVariants: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Variant Showcase',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+  },
+  parameters: {
+    layout: 'padded',
+  },
+  render: () => {
+    const variants: Array<{
+      variant: PlaylistTitleCardVariant;
+      title: string;
+    }> = [
+      { variant: 'default', title: 'Default Style' },
+      { variant: 'frame', title: 'Classic Frame' },
+      { variant: 'cyberpunk', title: 'Neon Cyberpunk' },
+      { variant: 'anime', title: 'Colorful Anime' },
+      { variant: 'retro', title: 'Pixel Art Retro' },
+      { variant: 'elegant', title: 'Elegant Gold' },
+      { variant: 'space', title: 'Space Odyssey' },
+      { variant: 'neon', title: 'Neon Lights' },
+      { variant: 'pastel', title: 'Soft Pastel' },
+      { variant: 'monochrome', title: 'Black & White' },
+      { variant: 'gradient', title: 'Vibrant Gradient' },
+      { variant: 'minimal', title: 'Clean Minimal' },
+      { variant: 'glass', title: 'Glassmorphism' },
+      { variant: 'sunset', title: 'Sunset Glow' },
+      { variant: 'ocean', title: 'Ocean Waves' },
+      { variant: 'forest', title: 'Deep Forest' },
+    ];
+
+    return (
+      <div className="flex flex-col gap-8 p-8 w-full">
+        {variants.map(({ variant, title }) => (
+          <div key={variant} className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+              {variant}
+            </h3>
+            <PlaylistTitleCard
+              ids={[1, 2, 3, 4, 5]}
+              title={title}
+              processedCount={2}
+              totalCount={5}
+              isPlaying={true}
+              variant={variant}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+};
+
+// Variant examples
+export const FrameVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Classic Frame Style',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'frame',
+  },
+};
+
+export const CyberpunkVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Neon Cyberpunk',
+    processedCount: 3,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'cyberpunk',
+  },
+};
+
+export const AnimeVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Colorful Anime',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'anime',
+  },
+};
+
+export const RetroVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Pixel Art Retro',
+    processedCount: 1,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'retro',
+  },
+};
+
+export const ElegantVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Elegant Gold',
+    processedCount: 4,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'elegant',
+  },
+};
+
+export const SpaceVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Space Odyssey',
+    processedCount: 3,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'space',
+  },
+};
+
+export const NeonVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Neon Lights',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'neon',
+  },
+};
+
+export const PastelVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Soft Pastel',
+    processedCount: 3,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'pastel',
+  },
+};
+
+export const MonochromeVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Black & White',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'monochrome',
+  },
+};
+
+export const GradientVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Vibrant Gradient',
+    processedCount: 4,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'gradient',
+  },
+};
+
+export const MinimalVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Clean Minimal',
+    processedCount: 1,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'minimal',
+  },
+};
+
+export const GlassVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Glassmorphism',
+    processedCount: 3,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'glass',
+  },
+};
+
+export const SunsetVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Sunset Glow',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'sunset',
+  },
+};
+
+export const OceanVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Ocean Waves',
+    processedCount: 4,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'ocean',
+  },
+};
+
+export const ForestVariant: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Deep Forest',
+    processedCount: 3,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'forest',
   },
 };
