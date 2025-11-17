@@ -7,10 +7,23 @@ const meta = {
   title: 'Components/PlaylistTitle',
   component: PlaylistTitle,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen',
+  },
+  decorators: [
+    (Story) => (
+      <div className="flex min-h-screen items-center justify-center bg-muted/40 p-6">
+        <div className="w-full max-w-5xl">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
   args: {
     ids: [101, 202, 303],
     processedCount: 1,
     totalCount: 3,
+    className: 'mx-auto',
   },
 } satisfies Meta<typeof PlaylistTitle>;
 
@@ -75,5 +88,67 @@ export const Empty: Story = {
     ids: [],
     processedCount: 0,
     totalCount: 0,
+  },
+};
+
+export const Playing: Story = {
+  args: {
+    title: 'Morning Demo Playlist',
+    ids: [1001, 1002, 1003, 1004],
+    processedCount: 3,
+    totalCount: 4,
+    isPlaying: true,
+  },
+};
+
+export const LargeQueue: Story = {
+  args: {
+    title: 'Weekend Mega Showcase',
+    ids: Array.from({ length: 12 }, (_, index) => index + 1),
+    processedCount: 5,
+    totalCount: 12,
+  },
+};
+
+export const SingleItem: Story = {
+  args: {
+    title: 'Single Prototype Spotlight',
+    ids: [404],
+    processedCount: 1,
+    totalCount: 1,
+  },
+};
+
+export const TitleOnlyNoItems: Story = {
+  args: {
+    title: 'Empty Queue Placeholder',
+    ids: [],
+    processedCount: 0,
+    totalCount: 0,
+  },
+};
+
+export const CustomSpacing: Story = {
+  args: {
+    title: 'Inline Playlist Banner',
+    ids: [71, 72, 73],
+    processedCount: 1,
+    totalCount: 3,
+    className: 'mx-auto my-6 max-w-3xl',
+  },
+};
+
+export const NarrowViewport: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1',
+    },
+  },
+  args: {
+    title: 'Compact Playlist Cue',
+    ids: [11, 22],
+    processedCount: 0,
+    totalCount: 2,
+    className: 'mx-auto',
   },
 };

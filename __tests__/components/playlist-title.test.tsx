@@ -27,6 +27,9 @@ describe('PlaylistTitle', () => {
     expect(
       screen.queryByTestId('playlist-status-icon'),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
+    ).not.toBeInTheDocument();
   });
 
   it('truncates a title that exceeds the limit', () => {
@@ -49,6 +52,13 @@ describe('PlaylistTitle', () => {
     expect(
       screen.queryByTestId('playlist-status-icon'),
     ).not.toBeInTheDocument();
+    expect(screen.getByText(truncatedTitle)).toHaveAttribute(
+      'title',
+      longTitle,
+    );
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not truncate a title that meets the limit', () => {
@@ -69,6 +79,10 @@ describe('PlaylistTitle', () => {
     expect(headingElement).toHaveAccessibleName(exactLengthTitle);
     expect(
       screen.queryByTestId('playlist-status-icon'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(exactLengthTitle)).not.toHaveAttribute('title');
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
     ).not.toBeInTheDocument();
   });
 
@@ -92,6 +106,17 @@ describe('PlaylistTitle', () => {
     expect(headingElement).toHaveAccessibleName(truncatedTitle);
     expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(2 / 5)')).toBeInTheDocument();
+    expect(screen.getByText(truncatedTitle)).toHaveAttribute(
+      'title',
+      longTitle,
+    );
+    const playingProgress = screen.getByRole('progressbar', {
+      name: 'Playlist progress',
+    });
+    expect(playingProgress).toBeInTheDocument();
+    expect(Number(playingProgress.getAttribute('aria-valuenow'))).toBeCloseTo(
+      40,
+    );
   });
 
   it('shows progress when ids are provided', () => {
@@ -112,6 +137,14 @@ describe('PlaylistTitle', () => {
     expect(headingElement).toHaveAccessibleName(title);
     expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(3)')).toBeInTheDocument();
+    const progressBar = screen.getByRole('progressbar', {
+      name: 'Playlist progress',
+    });
+    expect(progressBar).toBeInTheDocument();
+    expect(Number(progressBar.getAttribute('aria-valuenow'))).toBeCloseTo(
+      33.33,
+      1,
+    );
   });
 
   it('hides progress text when total count is zero', () => {
@@ -134,6 +167,9 @@ describe('PlaylistTitle', () => {
     expect(
       screen.queryByTestId('playlist-status-icon'),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
+    ).not.toBeInTheDocument();
   });
 
   it('falls back to default label when title is missing', () => {
@@ -147,6 +183,9 @@ describe('PlaylistTitle', () => {
     expect(
       screen.queryByTestId('playlist-status-icon'),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows progress with the default label when title is missing', () => {
@@ -159,6 +198,13 @@ describe('PlaylistTitle', () => {
     expect(headingElement).toHaveAccessibleName('Playlist');
     expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(1)')).toBeInTheDocument();
+    const defaultLabelProgress = screen.getByRole('progressbar', {
+      name: 'Playlist progress',
+    });
+    expect(defaultLabelProgress).toBeInTheDocument();
+    expect(
+      Number(defaultLabelProgress.getAttribute('aria-valuenow')),
+    ).toBeCloseTo(0);
   });
 
   it('renders special characters in the title', () => {
@@ -180,6 +226,10 @@ describe('PlaylistTitle', () => {
     expect(
       screen.queryByTestId('playlist-status-icon'),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('progressbar', { name: 'Playlist progress' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(specialTitle)).not.toHaveAttribute('title');
   });
 
   it('shows completed status when all items processed', () => {
@@ -191,5 +241,12 @@ describe('PlaylistTitle', () => {
     expect(headingElement).toHaveAccessibleName('Playlist');
     expect(screen.getByTestId('playlist-status-icon')).toBeInTheDocument();
     expect(screen.getByText('(2)')).toBeInTheDocument();
+    const completedProgress = screen.getByRole('progressbar', {
+      name: 'Playlist progress',
+    });
+    expect(completedProgress).toBeInTheDocument();
+    expect(Number(completedProgress.getAttribute('aria-valuenow'))).toBeCloseTo(
+      100,
+    );
   });
 });
