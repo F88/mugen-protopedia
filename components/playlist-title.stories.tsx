@@ -72,6 +72,7 @@ export const Processing: Story = {
     ids: [11, 22, 33, 44],
     processedCount: 2,
     totalCount: 4,
+    isPlaying: true,
   },
 };
 
@@ -80,6 +81,7 @@ export const Completed: Story = {
     ids: [1, 2, 3],
     processedCount: 3,
     totalCount: 3,
+    isPlaying: false,
   },
 };
 
