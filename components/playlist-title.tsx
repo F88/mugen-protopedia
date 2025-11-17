@@ -48,6 +48,7 @@ export function PlaylistTitle({
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : '';
+  const hasTitle = displayedTitle.length > 0;
   const isTitleTruncated =
     typeof title === 'string' && title.length > 0 && displayedTitle !== title;
 
@@ -61,6 +62,7 @@ export function PlaylistTitle({
     showProgress && totalCount > 0 ? (clampedProcessed / totalCount) * 100 : 0;
 
   const badgeText = totalCount > 0 ? 'Playlist' : 'Playlist';
+  const headingLabel = hasTitle ? displayedTitle : 'Playlist';
 
   const titleSpan = (
     <span
@@ -106,13 +108,14 @@ export function PlaylistTitle({
           )}
         </span>
 
-        {displayedTitle.length > 0 && (
+        {/* Display the title if it exists */}
+        {hasTitle && (
           <h1
-            aria-label={displayedTitle}
+            aria-label={headingLabel}
             className="text-xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
           >
             <span className="flex flex-wrap items-center justify-center gap-3">
-              {titleWithTooltip}
+              {hasTitle ? titleWithTooltip : headingLabel}
             </span>
           </h1>
         )}
