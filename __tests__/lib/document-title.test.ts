@@ -154,10 +154,10 @@ describe('computeDocumentTitle', () => {
         ).toBe(`${jp} | ${APP_TITLE}`);
       });
 
-      it('truncates long emoji title (>100 code units)', () => {
+      it('truncates long emoji title by grapheme count (>100 graphemes)', () => {
         const emoji = '🎉';
-        const longEmojiTitle = emoji.repeat(120);
-        const expected = longEmojiTitle.slice(0, 100) + '...';
+        const longEmojiTitle = emoji.repeat(120); // 120 graphemes
+        const expected = emoji.repeat(100) + '...';
         expect(
           computeDocumentTitle({
             type: 'playlist',
@@ -167,20 +167,16 @@ describe('computeDocumentTitle', () => {
         ).toBe(`${expected} | ${APP_TITLE}`);
       });
 
-      it('truncates multi-codepoint emoji cluster sequence (>100)', () => {
-        const complexEmoji = '👩‍💻';
-        const longComplex = complexEmoji.repeat(60); // likely >100 code units
-        const truncated =
-          longComplex.length > 100
-            ? longComplex.slice(0, 100) + '...'
-            : longComplex;
+      it('does not truncate multi-codepoint emoji clusters under 100 graphemes', () => {
+        const complexEmoji = '👩‍💻'; // single grapheme but multiple code points via ZWJ
+        const longComplex = complexEmoji.repeat(60); // 60 graphemes (< 100)
         expect(
           computeDocumentTitle({
             type: 'playlist',
             ids: [],
             title: longComplex,
           }),
-        ).toBe(`${truncated} | ${APP_TITLE}`);
+        ).toBe(`${longComplex} | ${APP_TITLE}`);
       });
     });
 
