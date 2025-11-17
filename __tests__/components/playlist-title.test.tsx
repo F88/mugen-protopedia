@@ -7,9 +7,6 @@ import {
   PLAYLIST_TITLE_MAX_LENGTH,
 } from '../../components/playlist-title';
 
-const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 describe('PlaylistTitle', () => {
   it('renders the title when within the limit', () => {
     const title = 'My Awesome Playlist';
@@ -23,10 +20,11 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: /My Awesome Playlist/,
+      name: title,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`❓ ${title}`);
+    expect(headingElement).toHaveAccessibleName(title);
+    expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
   it('truncates a title that exceeds the limit', () => {
@@ -42,10 +40,11 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: new RegExp(escapeRegExp(truncatedTitle)),
+      name: truncatedTitle,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`❓ ${truncatedTitle}`);
+    expect(headingElement).toHaveAccessibleName(truncatedTitle);
+    expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
   it('does not truncate a title that meets the limit', () => {
@@ -60,10 +59,11 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: new RegExp(`^❓ ${escapeRegExp(exactLengthTitle)}$`),
+      name: exactLengthTitle,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`❓ ${exactLengthTitle}`);
+    expect(headingElement).toHaveAccessibleName(exactLengthTitle);
+    expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
   it('shows truncated title and progress while playing', () => {
@@ -80,10 +80,10 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: new RegExp(`${escapeRegExp(truncatedTitle)} \\(2 / 5\\)`),
+      name: truncatedTitle,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`▶️ ${truncatedTitle} (2 / 5)`);
+    expect(headingElement).toHaveAccessibleName(truncatedTitle);
     expect(screen.getByText('▶️')).toBeInTheDocument();
     expect(screen.getByText('(2 / 5)')).toBeInTheDocument();
   });
@@ -100,22 +100,22 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: new RegExp(`${escapeRegExp(title)} \\(1 / 3\\)`),
+      name: title,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`⏸️ ${title} (1 / 3)`);
+    expect(headingElement).toHaveAccessibleName(title);
     expect(screen.getByText('⏸️')).toBeInTheDocument();
-    expect(screen.getByText('(1 / 3)')).toBeInTheDocument();
+    expect(screen.getByText('(3)')).toBeInTheDocument();
   });
 
   it('falls back to default label when title is missing', () => {
     render(<PlaylistTitle ids={[]} processedCount={0} totalCount={0} />);
 
     const headingElement = screen.getByRole('heading', {
-      name: /Playlist/,
+      name: 'Playlist',
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName('❓ Playlist');
+    expect(headingElement).toHaveAccessibleName('Playlist');
     expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
@@ -123,12 +123,12 @@ describe('PlaylistTitle', () => {
     render(<PlaylistTitle ids={[7]} processedCount={0} totalCount={1} />);
 
     const headingElement = screen.getByRole('heading', {
-      name: /Playlist \(0 \/ 1\)/,
+      name: 'Playlist',
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName('⏸️ Playlist (0 / 1)');
+    expect(headingElement).toHaveAccessibleName('Playlist');
     expect(screen.getByText('⏸️')).toBeInTheDocument();
-    expect(screen.getByText('(0 / 1)')).toBeInTheDocument();
+    expect(screen.getByText('(1)')).toBeInTheDocument();
   });
 
   it('renders special characters in the title', () => {
@@ -143,10 +143,11 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: new RegExp(escapeRegExp(specialTitle)),
+      name: specialTitle,
     });
     expect(headingElement).toBeInTheDocument();
-    expect(headingElement).toHaveAccessibleName(`❓ ${specialTitle}`);
+    expect(headingElement).toHaveAccessibleName(specialTitle);
+    expect(screen.getByText('❓')).toBeInTheDocument();
   });
 
   it('shows completed status when all items processed', () => {
@@ -154,8 +155,9 @@ describe('PlaylistTitle', () => {
 
     expect(screen.getByText('📋')).toBeInTheDocument();
     const headingElement = screen.getByRole('heading', {
-      name: /Playlist \(2 \/ 2\)/,
+      name: 'Playlist',
     });
-    expect(headingElement).toHaveAccessibleName('📋 Playlist (2 / 2)');
+    expect(headingElement).toHaveAccessibleName('Playlist');
+    expect(screen.getByText('(2)')).toBeInTheDocument();
   });
 });

@@ -24,14 +24,13 @@ export const PLAYLIST_TITLE_CONTAINER_CLASS =
 export const PLAYLIST_TITLE_MAX_LENGTH = 200;
 
 export function PlaylistTitle({
-  ids,
+  // ids,
   title,
   processedCount,
   totalCount,
   className,
   isPlaying = false,
 }: PlaylistTitleProps) {
-  const showProgress = ids.length > 0;
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : 'Playlist';
@@ -47,19 +46,14 @@ export function PlaylistTitle({
     return '❓';
   })();
 
-  const progressText = showProgress
+  const progressText = isPlaying
     ? `(${processedCount} / ${totalCount})`
-    : null;
-  const ariaLabel = [statusText, displayedTitle, progressText]
-    .filter(
-      (value): value is string => typeof value === 'string' && value.length > 0,
-    )
-    .join(' ');
+    : `(${totalCount})`;
 
   return (
     <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
       <h1
-        aria-label={ariaLabel}
+        aria-label={displayedTitle}
         className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
       >
         <span className="flex items-center gap-2">
