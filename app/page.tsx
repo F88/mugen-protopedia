@@ -117,6 +117,7 @@ function HomeContent() {
 
   // PlayMode - playlist
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
+  const [isPlaylistCompleted, setIsPlaylistCompleted] = useState(false);
   const playlistQueueRef = useRef<number[]>([]);
   const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
   const playlistProcessingTimeoutRef = useRef<number | null>(null);
@@ -248,24 +249,19 @@ function HomeContent() {
 
   const isPlaylistMode = playModeState.type === 'playlist';
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
-  const shouldShowPlaylistSticky = isPlaylistMode && isPlaylistPlaying;
+
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
-  // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
-  const shouldShowStickyBanner = true;
+  const shouldShowPlaylistSticky = isPlaylistMode && isPlaylistPlaying;
+
+  const shouldShowStickyBanner =
+    shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
 
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
       '--header-offset',
       `${headerHeight}px`,
     );
-    document.documentElement.style.setProperty(
-      '--header-height',
-      `${headerHeight}px`,
-    );
-    if (stickyBannerRef.current) {
-      stickyBannerRef.current.style.top = `${headerHeight}px`;
-    }
-  }, [headerHeight, shouldShowStickyBanner]);
+  }, [headerHeight]);
 
   // Scrolling & focus behavior
   const {
@@ -463,6 +459,7 @@ function HomeContent() {
       lastProcessedPlaylistSignatureRef.current = null;
       playlistQueueRef.current = [];
       setIsPlaylistPlaying(false);
+      setIsPlaylistCompleted(false);
       setProcessedCount(0);
     }
 
@@ -492,6 +489,7 @@ function HomeContent() {
         playlistQueueRef.current = [...ids];
         setProcessedCount(0);
         setIsPlaylistPlaying(true);
+        setIsPlaylistCompleted(false);
       // clearSlots(); // not required
     }
   }, [
@@ -522,6 +520,7 @@ function HomeContent() {
         if (inFlightRequests === 0) {
           logger.debug('Playlist playback completed');
           setIsPlaylistPlaying(false);
+          setIsPlaylistCompleted(true);
         }
         return;
       }
@@ -605,32 +604,30 @@ function HomeContent() {
           {shouldShowStickyBanner ? (
             <div
               ref={stickyBannerRef}
-              className="sticky z-60 header-offset-padding-top"
+              className="sticky z-60 header-offset-top p-2"
             >
-              <div className="bg-amber-200/20 dark:bg-amber-900/30">
-                <div className="p-8">
-                  {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
-                  {shouldShowDirectLaunchBanner && (
-                    <DirectLaunchResult
-                      className="bg-transparent p-0 text-left"
-                      directLaunchResult={directLaunchResult}
-                      successMessage="Direct launch parameters validated successfully."
-                      failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
-                    />
-                  )}
-                  {/* Show playlist title when sticky banner is visibles */}
-                  {shouldShowPlaylistSticky && isPlaylistMode ? (
-                    <PlaylistTitle
-                      className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
-                      ids={playModeState.ids}
-                      title={playModeState.title}
-                      processedCount={processedCount}
-                      totalCount={playlistTotalCount}
-                      isPlaying={isPlaylistPlaying}
-                    />
-                  ) : null}
-                </div>
-              </div>
+              {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
+              {shouldShowDirectLaunchBanner && (
+                <DirectLaunchResult
+                  className="bg-transparent p-0 text-left"
+                  directLaunchResult={directLaunchResult}
+                  successMessage="Direct launch parameters validated successfully."
+                  failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
+                />
+              )}
+              {/* Show playlist title when sticky banner is visibles */}
+              {/* {shouldShowPlaylistSticky && isPlaylistMode ? ( */}
+              {shouldShowPlaylistSticky && !isPlaylistCompleted ? (
+                <PlaylistTitle
+                  className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
+                  ids={playModeState.ids}
+                  title={playModeState.title}
+                  processedCount={processedCount}
+                  totalCount={playlistTotalCount}
+                  isPlaying={isPlaylistPlaying}
+                  isCompleted={isPlaylistCompleted}
+                />
+              ) : null}
             </div>
           ) : null}
 
@@ -639,7 +636,7 @@ function HomeContent() {
             ref={scrollContainerRef}
             className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
           >
-            {isPlaylistMode && !isPlaylistPlaying ? (
+            {isPlaylistMode && isPlaylistCompleted ? (
               <PlaylistTitle
                 className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
                 ids={playModeState.ids}
@@ -647,6 +644,7 @@ function HomeContent() {
                 processedCount={processedCount}
                 totalCount={playlistTotalCount}
                 isPlaying={false}
+                isCompleted={isPlaylistCompleted}
               />
             ) : null}
 
