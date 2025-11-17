@@ -32,7 +32,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   return (
     <div
       ref={ref}
-      className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-gray-900/50 transition-colors duration-200"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-gray-900/50 transition-colors duration-200"
     >
       <div className="p-2 sm:p-4 space-y-1.5 sm:space-y-4">
         <div className="flex items-center justify-between gap-1.5 sm:gap-4">
