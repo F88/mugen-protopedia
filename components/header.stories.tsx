@@ -29,6 +29,7 @@ const meta = {
     },
     playMode: 'normal',
     analysisDashboard: <MockAnalysisDashboard />,
+    showPlayMode: false,
   },
 } satisfies Meta<typeof Header>;
 
@@ -47,6 +48,7 @@ export const Minimal: Story = {
     },
     analysisDashboard: null,
     playMode: 'normal',
+    showPlayMode: false,
   },
 };
 
@@ -59,27 +61,21 @@ export const Busy: Story = {
       maxConcurrentFetches: 8,
     },
     playMode: 'normal',
+    showPlayMode: false,
   },
 };
 
-export const Mode_Normal: Story = {
+export const PlayModeIndicator: Story = {
+  name: 'Play mode (normal)',
   args: {
-    dashboard: {
-      prototypeCount: 12345,
-      inFlightRequests: 8,
-      maxConcurrentFetches: 8,
-    },
-    playMode: 'normal',
+    showPlayMode: true,
   },
 };
 
-export const Mode_Playlist: Story = {
+export const PlaylistMode: Story = {
+  name: 'Play mode (playlist)',
   args: {
-    dashboard: {
-      prototypeCount: 12345,
-      inFlightRequests: 8,
-      maxConcurrentFetches: 8,
-    },
     playMode: 'playlist',
+    showPlayMode: true,
   },
 };

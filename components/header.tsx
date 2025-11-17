@@ -9,10 +9,11 @@ interface HeaderProps {
   dashboard: DashboardProps;
   analysisDashboard?: ReactNode; // allow injection for Storybook/tests
   playMode: PlayMode;
+  showPlayMode?: boolean;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard, analysisDashboard, playMode },
+  { dashboard, analysisDashboard, playMode, showPlayMode = false },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -25,8 +26,6 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
 
-  // const showPlayMode = playMode === 'playlist';
-  const showPlayMode = true; // temporary always show play mode for easier testing
   // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
   const playModeLabel = playMode === 'playlist' ? ' ▶️' : 'Normal';
 
