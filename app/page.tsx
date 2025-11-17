@@ -368,7 +368,7 @@ function HomeContent() {
    */
   const handleGetRandomPrototype = useCallback(async () => {
     if (isPlaylistPlaying) {
-      console.warn('Cannot fetch random prototype while playlist is playing.');
+      logger.warn('Cannot fetch random prototype while playlist is playing.');
       return;
     }
     if (!tryIncrementInFlightRequests()) {
