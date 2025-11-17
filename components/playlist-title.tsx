@@ -38,13 +38,6 @@ export function PlaylistTitle({
   className,
   isPlaying = false,
 }: PlaylistTitleProps) {
-  console.debug('PlaylistTitle', {
-    title,
-    processedCount,
-    totalCount,
-    isPlaying,
-  });
-
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : '';
