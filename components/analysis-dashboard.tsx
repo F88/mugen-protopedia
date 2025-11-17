@@ -1,16 +1,18 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { calculateAge } from '@/lib/utils/anniversary-nerd';
+
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
+import { calculateAge } from '@/lib/utils/anniversary-nerd';
 
 // The hook is injected to avoid importing server actions in Storybook bundles.
 // Do NOT import the real hook here.
 import type {
-  ServerPrototypeAnalysis,
   PrototypeAnalysis,
+  ServerPrototypeAnalysis,
 } from '@/lib/utils/prototype-analysis.types';
 
 import { RefreshCw } from 'lucide-react';
 
+import { AnalysisSummary } from '@/components/analysis-summary';
 import { StatBadge } from '@/components/ui/badges/stat-badge';
 import { StatusBadge } from '@/components/ui/badges/status-badge';
 import { Button } from '@/components/ui/button';
@@ -24,51 +26,6 @@ import {
 } from '@/components/ui/dialog';
 
 const title = 'Prototype Analysis';
-
-type SummaryBarProps = {
-  children: ReactNode;
-  actions?: ReactNode;
-  tone?: 'default' | 'error';
-  density?: 'normal' | 'compact';
-};
-
-function SummaryBar({
-  children,
-  actions,
-  tone = 'default',
-  density = 'normal',
-}: SummaryBarProps) {
-  const baseClass = 'flex flex-wrap items-center justify-between rounded-lg';
-  const spacingClass =
-    density === 'compact'
-      ? 'gap-2 px-2 py-1.5 text-xs'
-      : 'gap-3 px-3 py-2 text-sm';
-  const minHeightClass =
-    density === 'compact' ? 'min-h-[32px]' : 'min-h-[48px]';
-  const toneClass =
-    tone === 'error'
-      ? 'text-red-700 dark:text-red-300'
-      : 'text-gray-700 dark:text-gray-200';
-
-  return (
-    <div
-      className={`${baseClass} ${spacingClass} ${minHeightClass} ${toneClass}`}
-    >
-      <div
-        className={`flex flex-wrap items-center ${density === 'compact' ? 'gap-2' : 'gap-3'}`}
-      >
-        {children}
-      </div>
-      {actions && (
-        <div
-          className={`flex items-center ${density === 'compact' ? 'gap-1.5' : 'gap-2'}`}
-        >
-          {actions}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /**
  * Component to display a single analysis statistic
@@ -400,17 +357,17 @@ export function AnalysisDashboard({
 
   if (isLoading) {
     return (
-      <SummaryBar density="compact">
+      <AnalysisSummary density="compact">
         <span className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4 animate-spin" />
         </span>
-      </SummaryBar>
+      </AnalysisSummary>
     );
   }
 
   if (error) {
     return (
-      <SummaryBar
+      <AnalysisSummary
         tone="error"
         density="compact"
         actions={
@@ -425,13 +382,13 @@ export function AnalysisDashboard({
         }
       >
         <span className="max-w-full truncate">{error}</span>
-      </SummaryBar>
+      </AnalysisSummary>
     );
   }
 
   if (!analysis) {
     return (
-      <SummaryBar
+      <AnalysisSummary
         density="compact"
         actions={
           <Button
@@ -445,7 +402,7 @@ export function AnalysisDashboard({
         }
       >
         <span>No data</span>
-      </SummaryBar>
+      </AnalysisSummary>
     );
   }
 
@@ -516,7 +473,7 @@ export function AnalysisDashboard({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <SummaryBar
+      <AnalysisSummary
         density="compact"
         actions={
           <>
@@ -553,7 +510,7 @@ export function AnalysisDashboard({
         <span className="text-sm sm:text-base">
           🐣 {newbornCount.toLocaleString()}
         </span>
-      </SummaryBar>
+      </AnalysisSummary>
 
       <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-4xl">
         <DialogHeader className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">

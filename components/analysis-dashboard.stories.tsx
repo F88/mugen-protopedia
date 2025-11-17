@@ -1,17 +1,22 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
-import {
-  buildAnniversaries,
-  buildAnniversarySlice,
-} from '@/lib/utils/prototype-analysis-helpers';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
   anniversaryMinimalPrototype,
   fullfilledPrototype,
   minimalPrototype,
 } from '@/.storybook/prototypes.fixture';
+import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+  buildStatusDistribution,
+  buildTopTags,
+  buildTopTeams,
+  buildYearDistribution,
+  computeAverageAgeInDays,
+  countPrototypesWithAwards,
+} from '@/lib/utils/prototype-analysis-helpers';
+import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import { faker } from '@faker-js/faker';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 
 import { AnalysisDashboard } from './analysis-dashboard';
 
@@ -19,29 +24,68 @@ import { AnalysisDashboard } from './analysis-dashboard';
 function analyzePrototypes(
   prototypes: NormalizedPrototype[],
 ): PrototypeAnalysis {
-  const serverAnalysis = analyzePrototypesForServer(prototypes);
+  const referenceDate = new Date();
+  const totalCount = prototypes.length;
+  const statusDistribution = buildStatusDistribution(prototypes);
+  const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  const { topTags } = buildTopTags(prototypes);
+  const { topTeams } = buildTopTeams(prototypes);
+  const averageAgeInDays =
+    totalCount > 0
+      ? Math.round(computeAverageAgeInDays(prototypes, referenceDate) * 100) /
+        100
+      : 0;
+  const yearDistribution = buildYearDistribution(prototypes);
 
-  if (prototypes.length === 0) {
-    return {
-      ...serverAnalysis,
-      anniversaries: {
-        birthdayCount: 0,
-        birthdayPrototypes: [],
-        newbornCount: 0,
-        newbornPrototypes: [],
+  const anniversariesSliceSource = buildAnniversaries(prototypes);
+  const anniversaries = buildAnniversarySlice(
+    anniversariesSliceSource.birthdayPrototypes,
+    anniversariesSliceSource.newbornPrototypes,
+  );
+
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const anniversaryCandidates = {
+    metadata: {
+      computedAt: referenceDate.toISOString(),
+      windowUTC: {
+        fromISO: new Date(referenceDate.getTime() - oneDayMs).toISOString(),
+        toISO: new Date(referenceDate.getTime() + oneDayMs).toISOString(),
       },
+    },
+    mmdd: prototypes
+      .filter((prototype) => Boolean(prototype.releaseDate))
+      .map((prototype) => ({
+        id: prototype.id,
+        title: prototype.prototypeNm ?? '',
+        releaseDate: prototype.releaseDate,
+      })),
+  } as const;
+
+  if (totalCount === 0) {
+    return {
+      totalCount,
+      statusDistribution,
+      prototypesWithAwards,
+      topTags,
+      averageAgeInDays,
+      yearDistribution,
+      topTeams,
+      analyzedAt: referenceDate.toISOString(),
+      anniversaryCandidates,
+      anniversaries,
     };
   }
 
-  const { birthdayPrototypes, newbornPrototypes } =
-    buildAnniversaries(prototypes);
-  const anniversaries = buildAnniversarySlice(
-    birthdayPrototypes,
-    newbornPrototypes,
-  );
-
   return {
-    ...serverAnalysis,
+    totalCount,
+    statusDistribution,
+    prototypesWithAwards,
+    topTags,
+    averageAgeInDays,
+    yearDistribution,
+    topTeams,
+    analyzedAt: referenceDate.toISOString(),
+    anniversaryCandidates,
     anniversaries,
   };
 }

@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { Header } from './header';
+import { AnalysisDashboardStoryWrapper } from './storybook/analysis-dashboard-wrapper';
 
-const MockAnalysisDashboard = () => (
-  <div className="text-xs text-muted-foreground">Mocked Analysis Dashboard</div>
-);
+import { Header } from './header';
 
 const meta = {
   title: 'Components/Header',
@@ -28,7 +26,7 @@ const meta = {
       maxConcurrentFetches: 2,
     },
     playMode: 'normal',
-    analysisDashboard: <MockAnalysisDashboard />,
+    analysisDashboard: <AnalysisDashboardStoryWrapper />,
     showPlayMode: false,
   },
 } satisfies Meta<typeof Header>;
