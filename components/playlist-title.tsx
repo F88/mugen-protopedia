@@ -15,7 +15,7 @@ type PlaylistTitleProps = {
 };
 
 export const PLAYLIST_TITLE_CONTAINER_CLASS =
-  'bg-gray-100 dark:bg-gray-800 p-4 text-center';
+  'w-fit max-w-full bg-card text-card-foreground p-4 text-center rounded-lg border border-border';
 
 /**
  * Renders the title of a playlist, typically used for direct launch scenarios.
@@ -25,6 +25,28 @@ export const PLAYLIST_TITLE_CONTAINER_CLASS =
  */
 export const PLAYLIST_TITLE_MAX_LENGTH = 200;
 
+type ProgressTextParams = {
+  isPlaying: boolean;
+  processedCount: number;
+  totalCount: number;
+};
+
+function getProgressText({
+  isPlaying,
+  processedCount,
+  totalCount,
+}: ProgressTextParams): string {
+  if (totalCount <= 0) {
+    return '';
+  }
+
+  if (isPlaying) {
+    return `(${processedCount} / ${totalCount})`;
+  }
+
+  return `(${totalCount})`;
+}
+
 export function PlaylistTitle({
   // ids,
   title,
@@ -33,6 +55,13 @@ export function PlaylistTitle({
   className,
   isPlaying = false,
 }: PlaylistTitleProps) {
+  console.debug('PlaylistTitle', {
+    title,
+    processedCount,
+    totalCount,
+    isPlaying,
+  });
+
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : 'Playlist';
@@ -69,21 +98,25 @@ export function PlaylistTitle({
     return baseIcon;
   })();
 
-  const progressText = isPlaying
-    ? `(${processedCount} / ${totalCount})`
-    : `(${totalCount})`;
+  const progressText = getProgressText({
+    isPlaying,
+    processedCount,
+    totalCount,
+  });
 
   return (
-    <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
+    <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className, 'mx-auto')}>
       <h1
         aria-label={displayedTitle}
         className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1"
       >
         <span className="flex items-center gap-2">
-          <span className="whitespace-normal wrap-break-word">
-            {statusIcon}
-            {/* {statusText} */}
-          </span>
+          {totalCount > 0 && (
+            <span className="whitespace-normal wrap-break-word">
+              {statusIcon}
+              {/* {statusText} */}
+            </span>
+          )}
           <span className="whitespace-normal wrap-break-word">
             {displayedTitle}
           </span>
