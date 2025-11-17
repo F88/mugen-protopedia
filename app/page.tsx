@@ -42,6 +42,7 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist-title-card';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
+import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 
 // const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
 const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
@@ -128,6 +129,9 @@ function HomeContent() {
   // Random variant selection for PlaylistTitleCard
   const [playlistVariant, setPlaylistVariant] =
     useState<PlaylistTitleCardVariant>('default');
+  const [playlistFont, setPlaylistFont] = useState<'sans' | 'serif' | 'mono'>(
+    'sans',
+  );
 
   // Slot & concurrency management
   const {
@@ -260,26 +264,9 @@ function HomeContent() {
   // Select random variant when playlist starts
   useEffect(() => {
     if (isPlaylistMode && playModeState.type === 'playlist') {
-      const variants: PlaylistTitleCardVariant[] = [
-        'default',
-        'frame',
-        'cyberpunk',
-        'anime',
-        'retro',
-        'elegant',
-        'space',
-        'neon',
-        'pastel',
-        'monochrome',
-        'gradient',
-        'minimal',
-        'glass',
-        'sunset',
-        'ocean',
-        'forest',
-      ];
-      const randomIndex = Math.floor(Math.random() * variants.length);
-      setPlaylistVariant(variants[randomIndex]);
+      const style = getRandomPlaylistStyle();
+      setPlaylistVariant(style.variant);
+      setPlaylistFont(style.fontFamily);
     }
   }, [isPlaylistMode, playModeState]);
 
@@ -299,6 +286,7 @@ function HomeContent() {
         isCompleted: isPlaylistCompleted,
         isPlaying: isPlaylistPlaying,
         variant: playlistVariant,
+        fontFamily: playlistFont,
       }
     : null;
 
