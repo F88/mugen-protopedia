@@ -165,7 +165,7 @@ export function PlaylistTitleCard({
         <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-primary/80">
           {badgeText}
           {totalCount > 0 && (
-            <span className="text-[0.6rem] font-medium normal-case tracking-normal text-primary/60">
+            <span className="text-[0.8rem] font-medium normal-case tracking-normal text-primary/60">
               {totalCount > 1 ? `${totalCount} items` : `${totalCount} item`}
             </span>
           )}
