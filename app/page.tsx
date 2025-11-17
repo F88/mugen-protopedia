@@ -40,9 +40,9 @@ import { Header } from '@/components/header';
 import { PlaylistTitle } from '@/components/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
-const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
+const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
 
 const PLAYLIST_FETCH_INTERVAL_MS = 500;
 // const PLAYLIST_FETCH_INTERVAL_MS = 200;
@@ -250,31 +250,22 @@ function HomeContent() {
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
   const shouldShowPlaylistSticky = isPlaylistMode && isPlaylistPlaying;
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
-  const shouldShowStickyBanner =
-    shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
+  // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
+  const shouldShowStickyBanner = true;
 
   useLayoutEffect(() => {
-    const bannerHeight =
-      shouldShowStickyBanner && stickyBannerRef.current
-        ? stickyBannerRef.current.offsetHeight
-        : 0;
-
-    const totalOffset = headerHeight + bannerHeight;
-
     document.documentElement.style.setProperty(
       '--header-offset',
-      `${totalOffset}px`,
+      `${headerHeight}px`,
     );
-
+    document.documentElement.style.setProperty(
+      '--header-height',
+      `${headerHeight}px`,
+    );
     if (stickyBannerRef.current) {
       stickyBannerRef.current.style.top = `${headerHeight}px`;
     }
-  }, [
-    headerHeight,
-    shouldShowStickyBanner,
-    processedCount,
-    playlistTotalCount,
-  ]);
+  }, [headerHeight, shouldShowStickyBanner]);
 
   // Scrolling & focus behavior
   const {
@@ -611,10 +602,13 @@ function HomeContent() {
       {headerHeight > 0 && (
         <>
           {/* Sticky banner container */}
-          <div className="bg-amber-200 dark:bg-amber-900/30">
-            {shouldShowStickyBanner ? (
-              <div ref={stickyBannerRef} className="sticky z-60">
-                <div className="px-4 pb-4 pt-0">
+          {shouldShowStickyBanner ? (
+            <div
+              ref={stickyBannerRef}
+              className="sticky z-60 header-offset-padding-top"
+            >
+              <div className="bg-amber-200/20 dark:bg-amber-900/30">
+                <div className="p-8">
                   {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
                   {shouldShowDirectLaunchBanner && (
                     <DirectLaunchResult
@@ -627,7 +621,7 @@ function HomeContent() {
                   {/* Show playlist title when sticky banner is visibles */}
                   {shouldShowPlaylistSticky && isPlaylistMode ? (
                     <PlaylistTitle
-                      className="mx-auto px-4 sm:px-8 lg:px-10"
+                      className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
                       ids={playModeState.ids}
                       title={playModeState.title}
                       processedCount={processedCount}
@@ -637,8 +631,8 @@ function HomeContent() {
                   ) : null}
                 </div>
               </div>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
 
           {/* Scrollable container for prototypes and other content */}
           <div
