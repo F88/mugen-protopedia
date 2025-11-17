@@ -16,6 +16,8 @@ import {
   useState,
 } from 'react';
 
+import Head from 'next/head';
+
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
@@ -291,10 +293,7 @@ function HomeContent() {
       }
     : null;
 
-  // Dynamically update the document title based on play mode.
-  useEffect(() => {
-    document.title = computeDocumentTitle(playModeState);
-  }, [playModeState]);
+  const documentTitle = computeDocumentTitle(playModeState);
 
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
@@ -618,117 +617,124 @@ function HomeContent() {
    * Main application layout
    */
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-      {/* Header */}
-      <Header
-        ref={headerRef}
-        dashboard={{
-          prototypeCount: prototypeSlots.length,
-          inFlightRequests,
-          maxConcurrentFetches: maxConcurrentFetches,
-        }}
-        playMode={playModeState.type}
-        showPlayMode={false}
-        analysisDashboard={
-          <AnalysisDashboard
-            defaultExpanded={false}
-            useLatestAnalysisHook={useLatestAnalysis}
-            preferClientTimezoneAnniversaries={true}
-          />
-        }
-      />
+    <>
+      <Head>
+        <title>{documentTitle}</title>
+      </Head>
+      <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+        {/* Header */}
+        <Header
+          ref={headerRef}
+          dashboard={{
+            prototypeCount: prototypeSlots.length,
+            inFlightRequests,
+            maxConcurrentFetches: maxConcurrentFetches,
+          }}
+          playMode={playModeState.type}
+          showPlayMode={false}
+          analysisDashboard={
+            <AnalysisDashboard
+              defaultExpanded={false}
+              useLatestAnalysisHook={useLatestAnalysis}
+              preferClientTimezoneAnniversaries={true}
+            />
+          }
+        />
 
-      {headerHeight > 0 && (
-        <>
-          {/* Sticky banner container */}
-          {shouldShowStickyBanner ? (
+        {headerHeight > 0 && (
+          <>
+            {/* Sticky banner container */}
+            {shouldShowStickyBanner ? (
+              <div
+                ref={stickyBannerRef}
+                className="sticky z-60 header-offset-top"
+              >
+                {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
+                {shouldShowDirectLaunchBanner && (
+                  <div className="p-4">
+                    <DirectLaunchResult
+                      className="bg-transparent p-0 text-left"
+                      directLaunchResult={directLaunchResult}
+                      successMessage="Direct launch parameters validated successfully."
+                      failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
+                    />
+                  </div>
+                )}
+                {/* Show playlist title when sticky banner is visible */}
+                {isPlaylistMode && playlistTitleCardProps && (
+                  <div
+                    className={`transition-all duration-3000 ease-out transform-gpu ${
+                      !isPlaylistCompleted
+                        ? 'opacity-100 translate-y-0 max-h-96 p-4'
+                        : 'opacity-0 -translate-y-8 max-h-0 overflow-hidden p-0'
+                    }`}
+                  >
+                    <PlaylistTitleCard {...playlistTitleCardProps} />
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* Scrollable container for prototypes and other content */}
             <div
-              ref={stickyBannerRef}
-              className="sticky z-60 header-offset-top"
+              ref={scrollContainerRef}
+              className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
             >
-              {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
-              {shouldShowDirectLaunchBanner && (
-                <div className="p-4">
-                  <DirectLaunchResult
-                    className="bg-transparent p-0 text-left"
-                    directLaunchResult={directLaunchResult}
-                    successMessage="Direct launch parameters validated successfully."
-                    failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
-                  />
-                </div>
-              )}
-              {/* Show playlist title when sticky banner is visible */}
               {isPlaylistMode && playlistTitleCardProps && (
                 <div
-                  className={`transition-all duration-3000 ease-out transform-gpu ${
-                    !isPlaylistCompleted
-                      ? 'opacity-100 translate-y-0 max-h-96 p-4'
-                      : 'opacity-0 -translate-y-8 max-h-0 overflow-hidden p-0'
+                  // delay-3000 waits until the sticky PlaylistTitleCard fades out before showing this one.
+                  className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
+                    isPlaylistCompleted
+                      ? 'opacity-100'
+                      : 'opacity-0 max-h-0 overflow-hidden p-0'
                   }`}
                 >
                   <PlaylistTitleCard {...playlistTitleCardProps} />
                 </div>
               )}
+
+              <PrototypeGrid
+                prototypeSlots={prototypeSlots}
+                currentFocusIndex={currentFocusIndex}
+                onCardClick={handleCardClick}
+              />
             </div>
-          ) : null}
+          </>
+        )}
 
-          {/* Scrollable container for prototypes and other content */}
-          <div
-            ref={scrollContainerRef}
-            className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
-          >
-            {isPlaylistMode && playlistTitleCardProps && (
-              <div
-                // delay-3000 waits until the sticky PlaylistTitleCard fades out before showing this one.
-                className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
-                  isPlaylistCompleted
-                    ? 'opacity-100'
-                    : 'opacity-0 max-h-0 overflow-hidden p-0'
-                }`}
-              >
-                <PlaylistTitleCard {...playlistTitleCardProps} />
-              </div>
-            )}
-
-            <PrototypeGrid
-              prototypeSlots={prototypeSlots}
-              currentFocusIndex={currentFocusIndex}
-              onCardClick={handleCardClick}
+        {/* Control panel - Fixed overlay at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
+          <div className="container mx-auto p-4">
+            <ControlPanel
+              controlPanelMode={
+                isPlaylistPlaying ? 'loadingPlaylist' : 'normal'
+              }
+              onGetRandomPrototype={handleGetRandomPrototype}
+              onClear={handleClearPrototypes}
+              prototypeIdInput={prototypeIdInput}
+              onPrototypeIdInputChange={handlePrototypeIdInputChange}
+              onGetPrototypeById={handleGetPrototypeByIdFromInput}
+              onPrototypeIdInputSet={handlePrototypeIdInputSet}
+              canFetchMorePrototypes={canFetchMorePrototypes}
+              prototypeIdError={prototypeIdError}
+              onScrollNext={() => scrollToPrototype('next')}
+              onScrollPrev={() => scrollToPrototype('prev')}
+              onOpenPrototype={openCurrentPrototypeInProtoPedia}
+              maxPrototypeId={maxPrototypeId}
             />
           </div>
-        </>
-      )}
-
-      {/* Control panel - Fixed overlay at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
-        <div className="container mx-auto p-4">
-          <ControlPanel
-            controlPanelMode={isPlaylistPlaying ? 'loadingPlaylist' : 'normal'}
-            onGetRandomPrototype={handleGetRandomPrototype}
-            onClear={handleClearPrototypes}
-            prototypeIdInput={prototypeIdInput}
-            onPrototypeIdInputChange={handlePrototypeIdInputChange}
-            onGetPrototypeById={handleGetPrototypeByIdFromInput}
-            onPrototypeIdInputSet={handlePrototypeIdInputSet}
-            canFetchMorePrototypes={canFetchMorePrototypes}
-            prototypeIdError={prototypeIdError}
-            onScrollNext={() => scrollToPrototype('next')}
-            onScrollPrev={() => scrollToPrototype('prev')}
-            onOpenPrototype={openCurrentPrototypeInProtoPedia}
-            maxPrototypeId={maxPrototypeId}
-          />
         </div>
-      </div>
 
-      {/* Dashboard - Floating display at bottom */}
-      {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">
+        {/* Dashboard - Floating display at bottom */}
+        {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">
         <Dashboard
           prototypeCount={prototypeSlots.length}
           inFlightRequests={inFlightRequests}
           maxConcurrentFetches={MAX_CONCURRENT_FETCHES}
         />
       </div> */}
-    </main>
+      </main>
+    </>
   );
 }
 
