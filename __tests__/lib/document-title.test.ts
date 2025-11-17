@@ -47,12 +47,28 @@ describe('computeDocumentTitle', () => {
             ids: [1, 2, 3],
             title: 'My Playlist',
           }),
-        ).toBe('My Playlist | ' + APP_TITLE);
+        ).toBe('My Playlist (3) | ' + APP_TITLE);
+      });
+
+      it('retains whitespace when title includes leading/trailing spaces', () => {
+        expect(
+          computeDocumentTitle({
+            type: 'playlist',
+            ids: [10, 11],
+            title: '  Trim Me  ',
+          }),
+        ).toBe('  Trim Me   (2) | ' + APP_TITLE);
       });
 
       it('falls back when title empty string', () => {
         expect(
           computeDocumentTitle({ type: 'playlist', ids: [5], title: '' }),
+        ).toBe(APP_TITLE);
+      });
+
+      it('falls back when title whitespace only', () => {
+        expect(
+          computeDocumentTitle({ type: 'playlist', ids: [42], title: '   ' }),
         ).toBe(APP_TITLE);
       });
 
@@ -74,7 +90,19 @@ describe('computeDocumentTitle', () => {
             ids,
             title: 'Bulk IDs Test',
           }),
-        ).toBe(`Bulk IDs Test | ${APP_TITLE}`);
+        ).toBe(`Bulk IDs Test (500) | ${APP_TITLE}`);
+      });
+
+      it('appends count even when title is truncated', () => {
+        const longTitle = 'z'.repeat(150);
+        const truncated = `${'z'.repeat(100)}...`;
+        expect(
+          computeDocumentTitle({
+            type: 'playlist',
+            ids: [7, 8],
+            title: longTitle,
+          }),
+        ).toBe(`${truncated} (2) | ${APP_TITLE}`);
       });
     });
 
@@ -129,7 +157,7 @@ describe('computeDocumentTitle', () => {
       it('truncates long emoji title (>100 code units)', () => {
         const emoji = '🎉';
         const longEmojiTitle = emoji.repeat(120);
-        const expected = emoji.repeat(100) + '...';
+        const expected = longEmojiTitle.slice(0, 100) + '...';
         expect(
           computeDocumentTitle({
             type: 'playlist',
