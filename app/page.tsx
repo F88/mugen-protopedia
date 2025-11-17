@@ -654,10 +654,10 @@ function HomeContent() {
               {/* Show playlist title when sticky banner is visibles */}
               {isPlaylistMode && playlistTitleCardProps && (
                 <div
-                  className={`transition-all duration-3000 ease-out ${
+                  className={`transition-all duration-3000 ease-out transform-gpu ${
                     !isPlaylistCompleted
-                      ? 'opacity-100 max-h-96 p-4'
-                      : 'opacity-0 max-h-0 overflow-hidden p-0'
+                      ? 'opacity-100 translate-y-0 max-h-96 p-4'
+                      : 'opacity-0 -translate-y-8 max-h-0 overflow-hidden p-0'
                   }`}
                 >
                   <PlaylistTitleCard {...playlistTitleCardProps} />
