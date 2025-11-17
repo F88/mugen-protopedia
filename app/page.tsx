@@ -657,7 +657,7 @@ function HomeContent() {
                   />
                 </div>
               )}
-              {/* Show playlist title when sticky banner is visibles */}
+              {/* Show playlist title when sticky banner is visible */}
               {isPlaylistMode && playlistTitleCardProps && (
                 <div
                   className={`transition-all duration-3000 ease-out transform-gpu ${
