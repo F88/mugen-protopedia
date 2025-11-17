@@ -73,13 +73,11 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
     - [\#ヒーローズリーグ 2025 予選 in 第二部 \(10\) \| 無限ProtoPedia](https://mugen-pp.vercel.app/?title=%23%E3%83%92%E3%83%BC%E3%83%AD%E3%83%BC%E3%82%BA%E3%83%AA%E3%83%BC%E3%82%B0+2025+%E4%BA%88%E9%81%B8+in+%E7%AC%AC%E4%BA%8C%E9%83%A8&id=7734,7747,6834,7808,6841,7736,7724,7609,7529,7603)
     - [\#ヒーローズリーグ 2025 予選 in 第三部 \(8\) \| 無限ProtoPedia](https://mugen-pp.vercel.app/?title=%23%E3%83%92%E3%83%BC%E3%83%AD%E3%83%BC%E3%82%BA%E3%83%AA%E3%83%BC%E3%82%B0+2025+%E4%BA%88%E9%81%B8+in+%E7%AC%AC%E4%B8%89%E9%83%A8&id=7652,7628,7702,7798,7752,7586,7785,7771)
 
-
 ### 2025-11-14
 
-- 📈🐣 分析情報: 新生児セクションを追加（全件表示、HH:MM:SS、空時は "No newborns today"）
-- 📈🎂 分析情報: 誕生日セクションの改善（空時は "No birthdays today"、年齢はクライアント側でローカルTZ再計算）
-- 🎉 記念日判定: UIでローカルTZ準拠の再計算をサポート。AnalysisDashboard で `preferClientTimezoneAnniversaries` を有効化し、準備完了まではサーバ分析にフォールバック
-- 🕒 Today判定の堅牢化: 世界のどこでも正しく記念日が到来(日が変わった直後は数十分程度遅れる可能性はある)
+- 📈🐣 分析情報: 新生児セクションを追加
+- 📈🎂 分析情報: 誕生日セクションの改善
+- 🎉 記念日判定: 世界のどこでも正しく記念日が到来(日が変わった直後は数十分程度遅れる可能性はある)
 
 ### 2025-11-12
 
