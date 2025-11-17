@@ -60,7 +60,7 @@ describe('PlaylistTitle', () => {
     );
 
     const headingElement = screen.getByRole('heading', {
-      name: exactLengthTitle,
+      name: new RegExp(`^❓ ${escapeRegExp(exactLengthTitle)}$`),
     });
     expect(headingElement).toBeInTheDocument();
     expect(headingElement).toHaveAccessibleName(`❓ ${exactLengthTitle}`);
