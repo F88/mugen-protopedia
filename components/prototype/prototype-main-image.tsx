@@ -33,6 +33,7 @@ export const PrototypeMainImage = ({
   return (
     <>
       <Image
+        priority={true}
         src={imageUrl}
         alt={altText}
         width={600}
