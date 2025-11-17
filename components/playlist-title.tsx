@@ -17,10 +17,31 @@ type PlaylistTitleProps = {
   totalCount: number;
   className?: string;
   isPlaying?: boolean;
+  isCompleted?: boolean;
 };
 
 export const PLAYLIST_TITLE_CONTAINER_CLASS =
   'relative w-fit min-w-[min(100%,50vw)] max-w-full overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card text-card-foreground px-4 py-4 sm:px-6 sm:py-6 lg:px-8 text-center rounded-xl border border-border shadow-lg shadow-primary/20';
+
+function getProgressValue({
+  isCompleted,
+  showProgress,
+  clampedProcessed,
+  totalCount,
+}: {
+  isCompleted: boolean;
+  showProgress: boolean;
+  clampedProcessed: number;
+  totalCount: number;
+}): number {
+  if (isCompleted) {
+    return 100;
+  }
+  if (!showProgress || totalCount <= 0) {
+    return 0;
+  }
+  return (clampedProcessed / totalCount) * 100;
+}
 
 /**
  * Renders the title of a playlist, typically used for direct launch scenarios.
@@ -37,6 +58,7 @@ export function PlaylistTitle({
   totalCount,
   className,
   isPlaying = false,
+  isCompleted = false,
 }: PlaylistTitleProps) {
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
@@ -51,8 +73,15 @@ export function PlaylistTitle({
     Math.max(processedCount, 0),
     totalCount > 0 ? totalCount : 0,
   );
-  const progressValue =
-    showProgress && totalCount > 0 ? (clampedProcessed / totalCount) * 100 : 0;
+
+  const progressValue = getProgressValue({
+    clampedProcessed,
+    totalCount,
+    showProgress,
+    isCompleted,
+  });
+
+  const shouldRenderProgress = showProgress && isPlaying;
 
   const badgeText = totalCount > 0 ? 'Playlist' : 'Playlist';
   const headingLabel = hasTitle ? displayedTitle : 'Playlist';
@@ -84,7 +113,7 @@ export function PlaylistTitle({
         aria-hidden="true"
       />
       <div className="relative flex flex-col items-center gap-4">
-        {isPlaying && showProgress && (
+        {shouldRenderProgress && (
           <Progress
             value={progressValue}
             className="h-2 w-full max-w-md bg-primary/15"
@@ -116,3 +145,4 @@ export function PlaylistTitle({
     </div>
   );
 }
+

@@ -82,6 +82,7 @@ export const Completed: Story = {
     processedCount: 3,
     totalCount: 3,
     isPlaying: false,
+    isCompleted: true,
   },
 };
 
