@@ -527,6 +527,7 @@ function HomeContent() {
         return;
       }
 
+      // Concurrency check
       if (!canFetchMorePrototypes) {
         console.warn(
           'Cannot fetch more prototypes while playlist is playing. Retry in ' +
@@ -541,10 +542,16 @@ function HomeContent() {
         return;
       }
 
+      // Next ID to process
       const id = playlistQueueRef.current.shift();
+
       if (id !== undefined) {
         logger.debug('Proessing playlist ID:', id);
+
+        // Fetch
         void handleGetPrototypeById(id);
+
+        // Update processed count
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
           PLAYLIST_FETCH_INTERVAL_MS,
@@ -616,6 +623,7 @@ function HomeContent() {
                   title={playModeState.title}
                   processedCount={processedCount}
                   totalCount={playModeState.ids.length}
+                  isPlaying={isPlaylistPlaying}
                 />
               ) : null
             }
