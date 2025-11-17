@@ -47,6 +47,18 @@ export function PlaylistTitle({
     return '❓';
   })();
 
+  const progressText = (() => {
+    if (!showProgress) {
+      return null;
+    }
+
+    if (isPlaying) {
+      return `(${processedCount} / ${totalCount})`;
+    }
+
+    return `(${totalCount})`;
+  })();
+
   return (
     <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
       <h1 className="text-2xl font-bold whitespace-normal wrap-break-word flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
@@ -55,9 +67,9 @@ export function PlaylistTitle({
           <span className="whitespace-normal wrap-break-word">
             {displayedTitle}
           </span>
-          {showProgress && (
+          {progressText && (
             <span className="text-base font-medium text-muted-foreground whitespace-nowrap">
-              ({processedCount} / {totalCount})
+              {progressText}
             </span>
           )}
         </span>
