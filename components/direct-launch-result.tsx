@@ -22,16 +22,9 @@ export function DirectLaunchResult({
   successMessage,
   failureMessage,
 }: DirectLaunchResultProps) {
-  const heading = (
-    <h2 className="text-center text-sm font-semibold text-gray-700 dark:text-gray-200">
-      Result of direct launch
-    </h2>
-  );
-
   if (directLaunchResult.type === 'success') {
     return (
       <div className={cn('p-4 text-center', className)}>
-        {heading}
         <p className="mt-2 text-center text-sm font-medium text-green-600 dark:text-green-300">
           {successMessage ?? 'Direct launch parameters validated successfully.'}
         </p>
@@ -43,7 +36,6 @@ export function DirectLaunchResult({
 
   return (
     <div className={cn('p-4 text-center', className)}>
-      {heading}
       <h1 className="mt-2 text-center text-2xl font-bold text-red-500 dark:text-red-300">
         Direct Launch Error
       </h1>
