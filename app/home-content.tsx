@@ -270,9 +270,10 @@ export function HomeContent() {
   }, [isPlaylistMode, playModeState]);
 
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
+  const shouldShowPlaylistSticky = isPlaylistMode && !isPlaylistCompleted;
 
-  // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
-  const shouldShowStickyBanner = true;
+  const shouldShowStickyBanner =
+    shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
 
   // Common props for PlaylistTitleCard
   const playlistTitleCardProps = isPlaylistMode
