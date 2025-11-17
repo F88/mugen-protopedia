@@ -38,6 +38,7 @@ type PlaylistTitleCardProps = {
   isPlaying?: boolean;
   isCompleted?: boolean;
   variant?: PlaylistTitleCardVariant;
+  fontFamily?: 'sans' | 'serif' | 'mono';
 };
 
 const variantStyles: Record<PlaylistTitleCardVariant, string> = {
@@ -74,6 +75,12 @@ const variantStyles: Record<PlaylistTitleCardVariant, string> = {
     'border-2! border-green-500! dark:border-green-400! shadow-xl! shadow-green-600/50! bg-linear-to-br! from-green-500/30! via-emerald-500/30! to-teal-600/30! dark:from-green-900/40! dark:via-emerald-900/40! dark:to-teal-900/40! ring-2! ring-emerald-500/50!',
 };
 
+const fontFamilyStyles: Record<'sans' | 'serif' | 'mono', string> = {
+  sans: 'font-sans',
+  serif: 'font-serif',
+  mono: 'font-mono',
+};
+
 function getProgressValue({
   isCompleted,
   showProgress,
@@ -104,8 +111,10 @@ export function PlaylistTitleCard({
   isPlaying = false,
   isCompleted = false,
   variant = 'default',
+  fontFamily = 'sans',
 }: PlaylistTitleCardProps) {
   const variantClassName = variantStyles[variant];
+  const fontClassName = fontFamilyStyles[fontFamily];
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : '';
@@ -152,7 +161,9 @@ export function PlaylistTitleCard({
   );
 
   return (
-    <Card className={`w-fit min-w-[50%] ${variantClassName} ${className}`}>
+    <Card
+      className={`w-fit min-w-[50%] ${fontClassName} ${variantClassName} ${className}`}
+    >
       <CardContent className="flex flex-col items-center gap-4 text-center">
         {shouldRenderProgress && (
           <Progress

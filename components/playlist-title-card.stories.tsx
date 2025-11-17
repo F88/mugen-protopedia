@@ -193,6 +193,52 @@ export const Paused: Story = {
   },
 };
 
+// All fonts showcase
+export const AllFonts: Story = {
+  args: {
+    ids: [1, 2, 3, 4, 5],
+    title: 'Font Showcase',
+    processedCount: 2,
+    totalCount: 5,
+    isPlaying: true,
+    variant: 'default',
+  },
+  parameters: {
+    layout: 'padded',
+  },
+  render: () => {
+    const fonts: Array<{
+      fontFamily: 'sans' | 'serif' | 'mono';
+      title: string;
+    }> = [
+      { fontFamily: 'sans', title: 'Sans-serif Font (System Default)' },
+      { fontFamily: 'serif', title: 'Serif Font (Traditional)' },
+      { fontFamily: 'mono', title: 'Monospace Font (Code Style)' },
+    ];
+
+    return (
+      <div className="flex flex-col gap-8 p-8 w-full">
+        {fonts.map(({ fontFamily, title }) => (
+          <div key={fontFamily} className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+              font-{fontFamily}
+            </h3>
+            <PlaylistTitleCard
+              ids={[1, 2, 3, 4, 5]}
+              title={title}
+              processedCount={2}
+              totalCount={5}
+              isPlaying={true}
+              variant="default"
+              fontFamily={fontFamily}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  },
+};
+
 // All variants showcase
 export const AllVariants: Story = {
   args: {
