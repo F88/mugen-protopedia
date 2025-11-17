@@ -255,6 +255,19 @@ function HomeContent() {
   // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
   const shouldShowStickyBanner = true;
 
+  // Common props for PlaylistTitleCard
+  const playlistTitleCardProps = isPlaylistMode
+    ? {
+        className: 'mx-auto bg-yellow-100! dark:bg-yellow-900!',
+        ids: playModeState.ids,
+        title: playModeState.title,
+        processedCount,
+        totalCount: playlistTotalCount,
+        isCompleted: isPlaylistCompleted,
+        isPlaying: isPlaylistPlaying,
+      }
+    : null;
+
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
       '--header-offset',
@@ -617,7 +630,7 @@ function HomeContent() {
                 </div>
               )}
               {/* Show playlist title when sticky banner is visibles */}
-              {isPlaylistMode && (
+              {isPlaylistMode && playlistTitleCardProps && (
                 <div
                   className={`transition-all duration-3000 ease-out ${
                     !isPlaylistCompleted
@@ -625,15 +638,7 @@ function HomeContent() {
                       : 'opacity-0 max-h-0 overflow-hidden p-0'
                   }`}
                 >
-                  <PlaylistTitleCard
-                    className="mx-auto"
-                    ids={playModeState.ids}
-                    title={playModeState.title}
-                    processedCount={processedCount}
-                    totalCount={playlistTotalCount}
-                    isPlaying={isPlaylistPlaying}
-                    isCompleted={isPlaylistCompleted}
-                  />
+                  <PlaylistTitleCard {...playlistTitleCardProps} />
                 </div>
               )}
             </div>
@@ -644,7 +649,7 @@ function HomeContent() {
             ref={scrollContainerRef}
             className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
           >
-            {isPlaylistMode && (
+            {isPlaylistMode && playlistTitleCardProps && (
               <div
                 className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
                   isPlaylistCompleted
@@ -652,15 +657,7 @@ function HomeContent() {
                     : 'opacity-0 max-h-0 overflow-hidden p-0'
                 }`}
               >
-                <PlaylistTitleCard
-                  className="mx-auto"
-                  ids={playModeState.ids}
-                  title={playModeState.title}
-                  processedCount={processedCount}
-                  totalCount={playlistTotalCount}
-                  isPlaying={false}
-                  isCompleted={isPlaylistCompleted}
-                />
+                <PlaylistTitleCard {...playlistTitleCardProps} />
               </div>
             )}
 
