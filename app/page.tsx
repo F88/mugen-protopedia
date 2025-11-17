@@ -679,6 +679,7 @@ function HomeContent() {
           >
             {isPlaylistMode && playlistTitleCardProps && (
               <div
+                // delay-3000 waits until the sticky PlaylistTitleCard fades out before showing this one.
                 className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
                   isPlaylistCompleted
                     ? 'opacity-100'
