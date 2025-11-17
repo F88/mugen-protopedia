@@ -40,12 +40,12 @@ import { Header } from '@/components/header';
 import { PlaylistTitle } from '@/components/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
-// const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
-const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
+const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 2_000, max: 3_000 } as const;
 
-// const PLAYLIST_FETCH_INTERVAL_MS = 500;
-const PLAYLIST_FETCH_INTERVAL_MS = 200;
+const PLAYLIST_FETCH_INTERVAL_MS = 500;
+// const PLAYLIST_FETCH_INTERVAL_MS = 200;
 // const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
 /**
@@ -88,7 +88,7 @@ const arePlayModeStatesEqual = (
 
 function HomeContent() {
   const headerRef = useRef<HTMLDivElement | null>(null);
-  const playlistTitleRef = useRef<HTMLDivElement | null>(null);
+  const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -116,10 +116,6 @@ function HomeContent() {
   }, [directLaunchResult]);
 
   // PlayMode - playlist
-  // const { ids, title: playlistTitle } =
-  //   directLaunchResult.type === 'success'
-  //     ? directLaunchResult.value
-  //     : { ids: [], title: undefined };
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
   const playlistQueueRef = useRef<number[]>([]);
   const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
@@ -250,26 +246,35 @@ function HomeContent() {
     return () => resizeObserver.disconnect();
   }, []); // Run only once on mount
 
-  // Adjust layout based on headerHeight and playlistTitle
-  const playlistTitle =
-    playModeState.type === 'playlist' ? playModeState.title : undefined;
+  const isPlaylistMode = playModeState.type === 'playlist';
+  const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
+  const shouldShowPlaylistSticky = isPlaylistMode && isPlaylistPlaying;
+  const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
+  const shouldShowStickyBanner =
+    shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
 
   useLayoutEffect(() => {
-    if (scrollContainerRef.current) {
-      const playlistTitleHeight = playlistTitleRef.current?.offsetHeight ?? 0;
-      const totalOffset = headerHeight + playlistTitleHeight;
+    const bannerHeight =
+      shouldShowStickyBanner && stickyBannerRef.current
+        ? stickyBannerRef.current.offsetHeight
+        : 0;
 
-      // Update CSS variable for header offset
-      document.documentElement.style.setProperty(
-        '--header-offset',
-        `${totalOffset}px`,
-      );
-      // Set top position for PlaylistTitle
-      if (playlistTitleRef.current) {
-        playlistTitleRef.current.style.top = `${headerHeight}px`;
-      }
+    const totalOffset = headerHeight + bannerHeight;
+
+    document.documentElement.style.setProperty(
+      '--header-offset',
+      `${totalOffset}px`,
+    );
+
+    if (stickyBannerRef.current) {
+      stickyBannerRef.current.style.top = `${headerHeight}px`;
     }
-  }, [headerHeight, playModeState.type, playlistTitle, processedCount]); // Recalculate when headerHeight or playlistTitle changes
+  }, [
+    headerHeight,
+    shouldShowStickyBanner,
+    processedCount,
+    playlistTotalCount,
+  ]);
 
   // Scrolling & focus behavior
   const {
@@ -374,7 +379,7 @@ function HomeContent() {
    * Validates input, respects concurrency cap, and sets error states on failure.
    */
   const handleGetPrototypeById = useCallback(
-    async (id: number) => {
+    async (id: number, options?: { isFromPlaylist?: boolean }) => {
       logger.debug('Fetching prototype by ID', { id });
       // Validation
       if (id < 0) {
@@ -408,7 +413,9 @@ function HomeContent() {
         setSlotError(slotId, message);
       } finally {
         decrementInFlightRequests();
-        setProcessedCount((c) => c + 1);
+        if (options?.isFromPlaylist) {
+          setProcessedCount((c) => c + 1);
+        }
       }
     },
     [
@@ -519,6 +526,7 @@ function HomeContent() {
     const processNext = () => {
       playlistProcessingTimeoutRef.current = null;
 
+      // Check if queue is empty
       if (playlistQueueRef.current.length === 0) {
         if (inFlightRequests === 0) {
           logger.debug('Playlist playback completed');
@@ -544,12 +552,11 @@ function HomeContent() {
 
       // Next ID to process
       const id = playlistQueueRef.current.shift();
+      logger.debug('Proessing playlist ID:', id);
 
       if (id !== undefined) {
-        logger.debug('Proessing playlist ID:', id);
-
         // Fetch
-        void handleGetPrototypeById(id);
+        void handleGetPrototypeById(id, { isFromPlaylist: true });
 
         // Update processed count
         playlistProcessingTimeoutRef.current = window.setTimeout(
@@ -591,6 +598,7 @@ function HomeContent() {
           maxConcurrentFetches: maxConcurrentFetches,
         }}
         playMode={playModeState.type}
+        showPlayMode={false}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
@@ -600,40 +608,54 @@ function HomeContent() {
         }
       />
 
-      {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
       {headerHeight > 0 && (
         <>
-          <div
-            ref={playlistTitleRef}
-            className="sticky z-60"
-            // topスタイルはuseLayoutEffectで動的に設定される
-          >
-            <DirectLaunchResult
-              className="bg-transparent p-0 text-left"
-              directLaunchResult={directLaunchResult}
-              successMessage="Direct launch parameters validated successfully."
-              failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
-            />
-            {
-              // directLaunchSucceeded ? (
-              playModeState.type === 'playlist' ? (
-                <PlaylistTitle
-                  className="mt-2 bg-transparent p-0"
-                  ids={playModeState.ids}
-                  title={playModeState.title}
-                  processedCount={processedCount}
-                  totalCount={playModeState.ids.length}
-                  isPlaying={isPlaylistPlaying}
-                />
-              ) : null
-            }
+          {/* Sticky banner container */}
+          <div className="bg-amber-200 dark:bg-amber-900/30">
+            {shouldShowStickyBanner ? (
+              <div ref={stickyBannerRef} className="sticky z-60">
+                <div className="px-4 pb-4 pt-0">
+                  {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
+                  {shouldShowDirectLaunchBanner && (
+                    <DirectLaunchResult
+                      className="bg-transparent p-0 text-left"
+                      directLaunchResult={directLaunchResult}
+                      successMessage="Direct launch parameters validated successfully."
+                      failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
+                    />
+                  )}
+                  {/* Show playlist title when sticky banner is visibles */}
+                  {shouldShowPlaylistSticky && isPlaylistMode ? (
+                    <PlaylistTitle
+                      className="mx-auto px-4 sm:px-8 lg:px-10"
+                      ids={playModeState.ids}
+                      title={playModeState.title}
+                      processedCount={processedCount}
+                      totalCount={playlistTotalCount}
+                      isPlaying={isPlaylistPlaying}
+                    />
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
           </div>
 
-          {/* Prototypes display area - Takes available space */}
+          {/* Scrollable container for prototypes and other content */}
           <div
             ref={scrollContainerRef}
             className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
           >
+            {isPlaylistMode && !isPlaylistPlaying ? (
+              <PlaylistTitle
+                className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
+                ids={playModeState.ids}
+                title={playModeState.title}
+                processedCount={processedCount}
+                totalCount={playlistTotalCount}
+                isPlaying={false}
+              />
+            ) : null}
+
             <PrototypeGrid
               prototypeSlots={prototypeSlots}
               currentFocusIndex={currentFocusIndex}
