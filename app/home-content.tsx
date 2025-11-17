@@ -637,7 +637,7 @@ export function HomeContent() {
           {shouldShowStickyBanner ? (
             <div
               ref={stickyBannerRef}
-              className="sticky z-60 header-offset-top"
+              className="sticky z-50 header-offset-top"
             >
               {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
               {shouldShowDirectLaunchBanner && (
