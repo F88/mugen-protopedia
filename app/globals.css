@@ -81,6 +81,10 @@ body {
   padding-top: var(--header-offset, 256px);
 }
 
+.header-offset-top {
+  top: var(--header-offset, 0px);
+}
+
 .card-border {
   border-color: hsl(var(--border)) !important; /* Theme-aware border color */
 }

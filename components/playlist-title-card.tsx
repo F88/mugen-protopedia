@@ -7,10 +7,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/components/ui/card';
 
-import { cn, truncateString } from '@/lib/utils';
+import { truncateString } from '@/lib/utils';
 
-type PlaylistTitleProps = {
+type PlaylistTitleCardProps = {
   ids: number[];
   title?: string;
   processedCount: number;
@@ -19,9 +20,6 @@ type PlaylistTitleProps = {
   isPlaying?: boolean;
   isCompleted?: boolean;
 };
-
-export const PLAYLIST_TITLE_CONTAINER_CLASS =
-  'relative w-fit min-w-[min(100%,50vw)] max-w-full overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card text-card-foreground px-4 py-4 sm:px-6 sm:py-6 lg:px-8 text-center rounded-xl border border-border shadow-lg shadow-primary/20';
 
 function getProgressValue({
   isCompleted,
@@ -43,23 +41,16 @@ function getProgressValue({
   return (clampedProcessed / totalCount) * 100;
 }
 
-/**
- * Renders the title of a playlist, typically used for direct launch scenarios.
- * @param directLaunchResult - The result of parsing direct launch parameters.
- * @param processedCount - The number of items processed in the playlist.
- * @param totalCount - The total number of items in the playlist.
- */
 export const PLAYLIST_TITLE_MAX_LENGTH = 100;
 
-export function PlaylistTitle({
-  // ids,
+export function PlaylistTitleCard({
   title,
   processedCount,
   totalCount,
   className,
   isPlaying = false,
   isCompleted = false,
-}: PlaylistTitleProps) {
+}: PlaylistTitleCardProps) {
   const displayedTitle = title
     ? truncateString(title, PLAYLIST_TITLE_MAX_LENGTH)
     : '';
@@ -67,7 +58,6 @@ export function PlaylistTitle({
   const isTitleTruncated =
     typeof title === 'string' && title.length > 0 && displayedTitle !== title;
 
-  // const showStatusIcon = totalCount > 0;
   const showProgress = totalCount > 0;
   const clampedProcessed = Math.min(
     Math.max(processedCount, 0),
@@ -107,12 +97,10 @@ export function PlaylistTitle({
   );
 
   return (
-    <div className={cn(PLAYLIST_TITLE_CONTAINER_CLASS, className)}>
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.3),transparent_60%)]"
-        aria-hidden="true"
-      />
-      <div className="relative flex flex-col items-center gap-4">
+    <Card
+      className={`w-fit min-w-[50%] bg-linear-to-br from-primary/10 via-card/90 to-card/90 shadow-lg border-primary/20 backdrop-blur-sm ${className}`}
+    >
+      <CardContent className="flex flex-col items-center gap-4 text-center">
         {shouldRenderProgress && (
           <Progress
             value={progressValue}
@@ -130,7 +118,6 @@ export function PlaylistTitle({
           )}
         </span>
 
-        {/* Display the title if it exists */}
         {hasTitle && (
           <h1
             aria-label={headingLabel}
@@ -141,8 +128,7 @@ export function PlaylistTitle({
             </span>
           </h1>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
-

@@ -37,12 +37,12 @@ import { AnalysisDashboard } from '@/components/analysis-dashboard';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
-import { PlaylistTitle } from '@/components/playlist-title';
+import { PlaylistTitleCard } from '@/components/playlist-title-card';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 // const SIMULATED_DELAY_RANGE = { min: 500, max: 3_000 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
-const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
+const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
 
 const PLAYLIST_FETCH_INTERVAL_MS = 500;
 // const PLAYLIST_FETCH_INTERVAL_MS = 200;
@@ -251,10 +251,9 @@ function HomeContent() {
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
-  const shouldShowPlaylistSticky = isPlaylistMode && isPlaylistPlaying;
 
-  const shouldShowStickyBanner =
-    shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
+  // const shouldShowStickyBanner = shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
+  const shouldShowStickyBanner = true;
 
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
@@ -604,30 +603,39 @@ function HomeContent() {
           {shouldShowStickyBanner ? (
             <div
               ref={stickyBannerRef}
-              className="sticky z-60 header-offset-top p-2"
+              className="sticky z-60 header-offset-top"
             >
               {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
               {shouldShowDirectLaunchBanner && (
-                <DirectLaunchResult
-                  className="bg-transparent p-0 text-left"
-                  directLaunchResult={directLaunchResult}
-                  successMessage="Direct launch parameters validated successfully."
-                  failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
-                />
+                <div className="p-4">
+                  <DirectLaunchResult
+                    className="bg-transparent p-0 text-left"
+                    directLaunchResult={directLaunchResult}
+                    successMessage="Direct launch parameters validated successfully."
+                    failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
+                  />
+                </div>
               )}
               {/* Show playlist title when sticky banner is visibles */}
-              {/* {shouldShowPlaylistSticky && isPlaylistMode ? ( */}
-              {shouldShowPlaylistSticky && !isPlaylistCompleted ? (
-                <PlaylistTitle
-                  className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
-                  ids={playModeState.ids}
-                  title={playModeState.title}
-                  processedCount={processedCount}
-                  totalCount={playlistTotalCount}
-                  isPlaying={isPlaylistPlaying}
-                  isCompleted={isPlaylistCompleted}
-                />
-              ) : null}
+              {isPlaylistMode && (
+                <div
+                  className={`transition-all duration-3000 ease-out ${
+                    !isPlaylistCompleted
+                      ? 'opacity-100 max-h-96 p-4'
+                      : 'opacity-0 max-h-0 overflow-hidden p-0'
+                  }`}
+                >
+                  <PlaylistTitleCard
+                    className="mx-auto"
+                    ids={playModeState.ids}
+                    title={playModeState.title}
+                    processedCount={processedCount}
+                    totalCount={playlistTotalCount}
+                    isPlaying={isPlaylistPlaying}
+                    isCompleted={isPlaylistCompleted}
+                  />
+                </div>
+              )}
             </div>
           ) : null}
 
@@ -636,17 +644,25 @@ function HomeContent() {
             ref={scrollContainerRef}
             className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
           >
-            {isPlaylistMode && isPlaylistCompleted ? (
-              <PlaylistTitle
-                className="mx-auto my-4 px-4 sm:my-6 sm:px-8 lg:my-10"
-                ids={playModeState.ids}
-                title={playModeState.title}
-                processedCount={processedCount}
-                totalCount={playlistTotalCount}
-                isPlaying={false}
-                isCompleted={isPlaylistCompleted}
-              />
-            ) : null}
+            {isPlaylistMode && (
+              <div
+                className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
+                  isPlaylistCompleted
+                    ? 'opacity-100'
+                    : 'opacity-0 max-h-0 overflow-hidden p-0'
+                }`}
+              >
+                <PlaylistTitleCard
+                  className="mx-auto"
+                  ids={playModeState.ids}
+                  title={playModeState.title}
+                  processedCount={processedCount}
+                  totalCount={playlistTotalCount}
+                  isPlaying={false}
+                  isCompleted={isPlaylistCompleted}
+                />
+              </div>
+            )}
 
             <PrototypeGrid
               prototypeSlots={prototypeSlots}
