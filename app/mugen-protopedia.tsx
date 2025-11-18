@@ -89,7 +89,7 @@ const arePlayModeStatesEqual = (
   return false;
 };
 
-export function HomeContent() {
+export function MugenProtoPedia() {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
