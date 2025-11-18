@@ -6,7 +6,7 @@
  * @see docs/specs/slot-and-scroll-behavior.md for formal slot & scroll specification.
  */
 
-import type { ChangeEvent } from 'react';
+import React, { type ChangeEvent } from 'react';
 import {
   useCallback,
   useEffect,
@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
@@ -90,6 +91,7 @@ const arePlayModeStatesEqual = (
 };
 
 export function HomeContent() {
+  const router = useRouter();
   const headerRef = useRef<HTMLDivElement | null>(null);
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -349,12 +351,45 @@ export function HomeContent() {
   };
 
   /**
-   * Clear all prototype slots.
+   * Clear all prototype slots and reset playlist state if in playlist mode.
+   * Also clears URL parameters to return to base state.
    */
   const handleClearPrototypes = useCallback(() => {
     if (isPlaylistPlaying) return;
+
+    // Clear prototype slots
     clearSlots();
-  }, [clearSlots, isPlaylistPlaying]);
+
+    // If in playlist mode, reset to normal mode and clear URL
+    if (playModeState.type === 'playlist') {
+      // Reset play mode to normal
+      setPlayModeState({ type: 'normal' });
+
+      // Clear playlist-related state
+      setIsPlaylistPlaying(false);
+      setIsPlaylistCompleted(false);
+      setProcessedCount(0);
+      playlistQueueRef.current = [];
+      lastProcessedPlaylistSignatureRef.current = null;
+
+      // Clear playlist processing timeout if running
+      if (playlistProcessingTimeoutRef.current !== null) {
+        window.clearTimeout(playlistProcessingTimeoutRef.current);
+        playlistProcessingTimeoutRef.current = null;
+      }
+
+      // Update URL to remove playlist parameters
+      router.replace('/', { scroll: false });
+
+      logger.debug('Playlist reset: cleared title and URL parameters');
+    }
+  }, [
+    clearSlots,
+    isPlaylistPlaying,
+    playModeState.type,
+    router,
+    setPlayModeState,
+  ]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
