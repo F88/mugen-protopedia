@@ -3,6 +3,7 @@ import { forwardRef, type ReactNode } from 'react';
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
 import { Dashboard, type DashboardProps } from './dashboard';
+import { PlaylistHeaderButton } from './playlist-header-button';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
@@ -61,6 +62,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
 
             {/* Analysis Dashboard */}
             {analysisDashboard}
+
+            {/* Playlist editor shortcut */}
+            <PlaylistHeaderButton />
 
             {/* Theme  */}
             <ThemeToggle />
