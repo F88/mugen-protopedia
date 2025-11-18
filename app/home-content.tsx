@@ -697,7 +697,7 @@ export function HomeContent() {
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
         <div className="container mx-auto p-4">
           <ControlPanel
-            controlPanelMode={isPlaylistPlaying ? 'loadingPlaylist' : 'normal'}
+            controlPanelMode={isPlaylistMode ? 'loadingPlaylist' : 'normal'}
             onGetRandomPrototype={handleGetRandomPrototype}
             onClear={handleClearPrototypes}
             prototypeIdInput={prototypeIdInput}
