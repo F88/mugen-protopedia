@@ -197,6 +197,13 @@ const validatePrototypeId = (prototypeId?: number) => {
  * }
  * ```
  */
+/**
+ * Low-level server action that always calls the upstream ProtoPedia API.
+ *
+ * - Does not read or populate the in-memory map store.
+ * - Callers that want to benefit from caching or refresh semantics should
+ *   prefer {@link getPrototypesFromCacheOrFetch} instead.
+ */
 export async function fetchPrototypes(
   params: FetchPrototypesParams = {},
 ): Promise<FetchPrototypesResult> {
@@ -385,6 +392,17 @@ export async function fetchPrototypes(
   }
 }
 
+/**
+ * Cache-aware variant of {@link fetchPrototypes} for list endpoints.
+ *
+ * Fallback / refresh behavior:
+ * - Always calls {@link fetchPrototypes} to retrieve the requested page.
+ * - When no specific `prototypeId` is requested and the canonical
+ *   snapshot is empty or expired, it schedules a background refresh of
+ *   {@link prototypeMapStore} and the analysis cache.
+ * - Returns the direct upstream result; callers never see partial or
+ *   stale data from the map store.
+ */
 export async function getPrototypesFromCacheOrFetch(
   params: FetchPrototypesParams = {},
 ): Promise<FetchPrototypesResult> {
@@ -438,6 +456,14 @@ export async function getPrototypesFromCacheOrFetch(
   return result;
 }
 
+/**
+ * Populate {@link prototypeMapStore} and analysis cache from the canonical
+ * upstream snapshot.
+ *
+ * Fallback behavior:
+ * - When the upstream request fails or exceeds size limits, the map store
+ *   is left unchanged and the error is propagated to the caller.
+ */
 const populatePrototypeMap = async (
   logger: ReturnType<typeof baseLogger.child>,
   reason: string,
@@ -503,6 +529,13 @@ const populatePrototypeMap = async (
   return result;
 };
 
+/**
+ * Run a map refresh task under the store's exclusive lock.
+ *
+ * - Ensures only one refresh runs at a time.
+ * - Swallows internal errors and surfaces them via the returned
+ *   {@link FetchPrototypesResult} when available.
+ */
 async function runPrototypeMapRefresh(
   logger: ReturnType<typeof baseLogger.child>,
   reason: string,
@@ -522,6 +555,12 @@ async function runPrototypeMapRefresh(
   return outcome;
 }
 
+/**
+ * Fire-and-forget helper to schedule a prototype map refresh.
+ *
+ * - Never throws; errors are logged inside {@link runPrototypeMapRefresh}.
+ * - Callers should not depend on the refresh having completed.
+ */
 function schedulePrototypeMapRefresh(
   logger: ReturnType<typeof baseLogger.child>,
   reason: string,
@@ -555,6 +594,17 @@ function schedulePrototypeMapRefresh(
  * // Get a random prototype from a different offset range
  * const offsetResult = await fetchRandomPrototype({ limit: 20, offset: 100 });
  * ```
+ */
+/**
+ * Random prototype selection that always uses a fresh upstream page.
+ *
+ * Fallback behavior:
+ * - Delegates to {@link fetchPrototypes} and returns an error result when
+ *   the list endpoint fails.
+ * - Does not consult or update {@link prototypeMapStore}; callers that
+ *   prefer cache-aware behavior should use
+ *   {@link getRandomPrototypeFromCacheOrFetch} or
+ *   {@link getRandomPrototypeFromMapOrFetch}.
  */
 export async function fetchRandomPrototype(
   params: FetchPrototypesParams = {},
@@ -641,6 +691,19 @@ export async function fetchRandomPrototype(
   };
 }
 
+/**
+ * Cache-aware random prototype selection using the Next.js data cache.
+ *
+ * Fallback behavior:
+ * - Delegates to {@link getPrototypesFromCacheOrFetch} to obtain a list
+ *   of candidates, benefiting from the data cache where applicable.
+ * - When the cached path fails or yields no results, the error is
+ *   returned to the caller; no additional upstream retries are performed
+ *   here.
+ * - This function does not interact with {@link prototypeMapStore}; for
+ *   in-memory map based random selection use
+ *   {@link getRandomPrototypeFromMapOrFetch} instead.
+ */
 export async function getRandomPrototypeFromCacheOrFetch(
   params: FetchPrototypesParams = {},
 ): Promise<FetchRandomPrototypeResult> {
@@ -761,6 +824,17 @@ export async function getRandomPrototypeFromCacheOrFetch(
  * // Returns { ok: false, status: 400, error: 'Invalid prototype id' }
  * ```
  */
+/**
+ * Fetch a single prototype by id directly from the upstream API.
+ *
+ * Fallback behavior:
+ * - Validates `idParam` and immediately returns a 400-style error result
+ *   for invalid ids; no API call is made in that case.
+ * - Delegates to {@link fetchPrototypes} with `prototypeId`, and
+ *   propagates upstream errors directly.
+ * - Does not read or update {@link prototypeMapStore}; callers that prefer
+ *   cache-aware behavior should use {@link getPrototypeByIdFromMapOrFetch}.
+ */
 export async function fetchPrototypeById(
   idParam: string,
 ): Promise<FetchPrototypeByIdResult> {
@@ -835,6 +909,19 @@ export async function fetchPrototypeById(
   };
 }
 
+/**
+ * Resolve the full prototype list using the in-memory map store when
+ * available, falling back to a canonical upstream snapshot otherwise.
+ *
+ * Fallback behavior:
+ * - If a non-empty snapshot exists, it is returned immediately and a
+ *   background refresh may be scheduled when expired.
+ * - When the snapshot is empty, a refresh is attempted via
+ *   {@link runPrototypeMapRefresh}. If that fails, the error result is
+ *   propagated.
+ * - As a last resort, a refreshed snapshot is inspected; if still empty,
+ *   a 503-style error is returned.
+ */
 export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesResult> {
   const logger = baseLogger.child({ action: 'getAllPrototypesFromMapOrFetch' });
 
@@ -916,6 +1003,21 @@ export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesR
   };
 }
 
+/**
+ * Cache-aware lookup for a single prototype by id using the map store.
+ *
+ * Fallback behavior:
+ * - Validates `idParam` and returns a 400-style error result when invalid.
+ * - On first lookup, checks {@link prototypeMapStore}; a hit returns
+ *   immediately and may trigger a background refresh when the snapshot is
+ *   expired.
+ * - On miss, attempts a map refresh via {@link runPrototypeMapRefresh} and
+ *   checks the refreshed snapshot.
+ * - If the refreshed snapshot still does not contain the id but is
+ *   populated, a 404-style error is returned.
+ * - When the map remains unavailable after refresh attempts, a 503-style
+ *   error is returned.
+ */
 export async function getPrototypeByIdFromMapOrFetch(
   idParam: string,
 ): Promise<FetchPrototypeByIdResult> {
@@ -1036,6 +1138,23 @@ export async function getPrototypeByIdFromMapOrFetch(
   };
 }
 
+/**
+ * Cache-aware random prototype selection backed by {@link prototypeMapStore}.
+ *
+ * Fallback behavior:
+ * - First attempts {@link prototypeMapStore.getRandom} from the current
+ *   snapshot. On hit, may schedule a background refresh when the snapshot
+ *   is expired.
+ * - On miss, runs a map refresh via {@link runPrototypeMapRefresh} and
+ *   retries {@link prototypeMapStore.getRandom}.
+ * - If the refreshed snapshot is still empty but the refresh succeeded,
+ *   returns a 404-style "No prototypes available" error.
+ * - As a final fallback when a non-empty refresh result is available but
+ *   cannot be stored in the map (e.g. size constraints), a random entry
+ *   from the refreshed list is returned.
+ * - When the map remains unavailable after all attempts, a 503-style error
+ *   is returned.
+ */
 export async function getRandomPrototypeFromMapOrFetch(): Promise<FetchRandomPrototypeResult> {
   const logger = baseLogger.child({
     action: 'getRandomPrototypeFromMapOrFetch',
@@ -1147,6 +1266,15 @@ export async function getRandomPrototypeFromMapOrFetch(): Promise<FetchRandomPro
 /**
  * Return the highest prototype identifier currently cached, or null when unavailable.
  */
+/**
+ * Return the highest prototype id currently cached in the map store.
+ *
+ * Fallback behavior:
+ * - Never triggers a refresh by itself; it only observes
+ *   {@link prototypeMapStore.getSnapshot} and {@link prototypeMapStore.getMaxId}.
+ * - When no id is available, returns `null` and logs a warning instead of
+ *   attempting an upstream fetch.
+ */
 export async function getMaxPrototypeId(): Promise<number | null> {
   const logger = baseLogger.child({ action: 'getMaxPrototypeId' });
 
@@ -1182,4 +1310,60 @@ export async function getMaxPrototypeId(): Promise<number | null> {
     'Prototype map empty, max prototype id unavailable',
   );
   return null;
+}
+
+/**
+ * Resolve prototype names for the given ids using only the server-side map store.
+ *
+ * - Does NOT perform any upstream API fetches.
+ * - Returns a sparse mapping: ids missing from the store are simply omitted.
+ *   Callers should handle missing entries (e.g. show "unknown (cache not available)").
+ */
+export async function getPrototypeNamesFromStore(
+  ids: number[],
+): Promise<Record<number, string>> {
+  const logger = baseLogger.child({ action: 'getPrototypeNamesFromStore' });
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return {};
+  }
+
+  const snapshot = prototypeMapStore.getSnapshot();
+
+  logger.info(
+    {
+      requestedCount: ids.length,
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+    },
+    'Resolving prototype names from map snapshot',
+  );
+
+  const uniqueIds = Array.from(
+    new Set(ids.filter((id) => Number.isInteger(id) && id > 0)),
+  );
+
+  const result: Record<number, string> = {};
+
+  for (const id of uniqueIds) {
+    const prototype = prototypeMapStore.getById(id);
+    if (prototype) {
+      result[id] = prototype.prototypeNm;
+    }
+  }
+
+  logger.info(
+    {
+      requestedCount: uniqueIds.length,
+      resolvedCount: Object.keys(result).length,
+      snapshotExpired: snapshot.isExpired,
+    },
+    'Resolved prototype names from map snapshot',
+  );
+
+  if (snapshot.isExpired && !prototypeMapStore.isRefreshInFlight()) {
+    schedulePrototypeMapRefresh(logger, 'ttl-expired-on-name-lookup');
+  }
+
+  return result;
 }
