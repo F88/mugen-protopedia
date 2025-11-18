@@ -28,6 +28,9 @@ export const buildPlaylistPlayModeState = (
   title: params.title,
 });
 
+/**
+ * Resolves the play mode based on the provided direct launch parameters.
+ */
 export const resolvePlayMode = ({
   directLaunchResult,
 }: ResolvePlayModeArgs): PlayModeState => {
