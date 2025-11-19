@@ -30,7 +30,7 @@ export default function PlaylistEditPage() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Playlist Editor</h1>
+        <h1 className="text-2xl font-bold">Playlist Editor (Beta)</h1>
         <Link
           href="/"
           className="text-sm text-blue-600 hover:underline dark:text-blue-400"
