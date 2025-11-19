@@ -30,6 +30,15 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
   const playModeLabel = playMode === 'playlist' ? ' ▶️' : 'Normal';
 
+  /**
+   * Tailwind screen breakpoints (min-width):
+   * - sm: 640px
+   * - md: 768px
+   * - lg: 1024px
+   * - xl: 1280px
+   * - 2xl: 1536px
+   */
+
   return (
     <div
       ref={ref}
@@ -63,8 +72,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             {/* Analysis Dashboard */}
             {analysisDashboard}
 
-            {/* Playlist editor shortcut */}
-            <PlaylistHeaderButton />
+            {/* Playlist editor shortcut (hidden on small screens) */}
+            <div className="hidden lg:block">
+              <PlaylistHeaderButton />
+            </div>
 
             {/* Theme  */}
             <ThemeToggle />
