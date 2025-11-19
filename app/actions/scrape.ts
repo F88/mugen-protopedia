@@ -1,21 +1,7 @@
 'use server';
 
 import { fetchPageHtmlOnServer } from '@/lib/fetcher/protopedia-scraper';
-import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
-
-function isAllowedUrl(rawUrl: string): boolean {
-  try {
-    const url = new URL(rawUrl);
-    const origin = `${url.protocol}//${url.host}`;
-    // Only allow https origins from the explicit allow-list.
-    return (
-      url.protocol === 'https:' &&
-      (PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS as readonly string[]).includes(origin)
-    );
-  } catch {
-    return false;
-  }
-}
+import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
 
 export async function scrapePageHtml(pageUrl: string): Promise<{
   html: string;
@@ -26,7 +12,7 @@ export async function scrapePageHtml(pageUrl: string): Promise<{
     return { html: '', finalUrl: '' };
   }
 
-  if (!isAllowedUrl(trimmed)) {
+  if (!isAllowedProtopediaScrapeUrl(trimmed)) {
     throw new Error('This URL is not allowed for server-side fetching.');
   }
   try {

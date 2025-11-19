@@ -16,9 +16,9 @@ import {
   prototypeUrlsTextSchema,
 } from '@/schemas/playlist';
 
-import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
 import { logger } from '@/lib/logger.client';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
+import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
 import {
   buildPlaylistUrl,
   deduplicateIdsPreserveOrder,
@@ -60,17 +60,7 @@ function extractTitleFromPageTitle(html: string): string {
 }
 
 function isAllowedUrlForClient(rawUrl: string): boolean {
-  try {
-    const url = new URL(rawUrl);
-    const origin =
-      `${url.protocol}//${url.host}` as (typeof PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS)[number];
-    return (
-      url.protocol === 'https:' &&
-      PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS.includes(origin)
-    );
-  } catch {
-    return false;
-  }
+  return isAllowedProtopediaScrapeUrl(rawUrl);
 }
 
 type PrototypeInputsCardProps = {
@@ -780,14 +770,7 @@ export function PlaylistUrlGenerator({
         logger.debug('handleFetchFromPage:skipped:notAllowedByPolicy', {
           pageUrl: trimmedUrl,
         });
-        setPageError(
-          [
-            'This URL is not allowed for fetching.',
-            '',
-            'Allowed origins:',
-            ...PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS.map((origin) => `- ${origin}`),
-          ].join('\n'),
-        );
+        setPageError('This URL is not allowed for fetching.');
         return;
       }
 
