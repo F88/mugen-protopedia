@@ -1,21 +1,9 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { z } from 'zod';
-import useSWRMutation from 'swr/mutation';
-import {
-  extractPrototypeUrls,
-  normalizeIdsFromUrls,
-  parsePrototypeIdLines,
-  sortIdsWithDuplicates,
-  deduplicateIdsPreserveOrder,
-  buildPlaylistUrl,
-} from '@/lib/utils/playlist-builder';
-import { logger } from '@/lib/logger.client';
-import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
-import type { DirectLaunchParams } from '@/lib/utils/validation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getPrototypeNamesFromStore } from '@/app/actions/prototypes';
+import { scrapePageHtml } from '@/app/actions/scrape';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -24,32 +12,27 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { scrapePageHtml } from '@/app/actions/scrape';
-import { getPrototypeNamesFromStore } from '@/app/actions/prototypes';
+import { Textarea } from '@/components/ui/textarea';
+import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
+import { logger } from '@/lib/logger.client';
+import {
+  buildPlaylistUrl,
+  deduplicateIdsPreserveOrder,
+  extractPrototypeUrls,
+  normalizeIdsFromUrls,
+  parsePrototypeIdLines,
+  sortIdsWithDuplicates,
+} from '@/lib/utils/playlist-builder';
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
+import {
+  playlistTitleSchema,
+  prototypeIdTextSchema,
+  prototypeUrlsTextSchema,
+} from '@/schemas/playlist';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import useSWRMutation from 'swr/mutation';
 
 type LastDriver = 'urls' | 'ids' | null;
-
-const playlistTitleSchema = z
-  .string()
-  .optional()
-  .transform((value) => value ?? '')
-  .refine((value) => value.length === 0 || value.length <= 300, {
-    message: 'Playlist title must be 300 characters or fewer.',
-  });
-
-const idsTextSchema = z
-  .string()
-  .transform((value) => value ?? '')
-  .refine(
-    (value) => {
-      if (value.length === 0) return true;
-      const lines = value.split(/\r?\n|\r/);
-      return lines.every((line) => line.length === 0 || /^\d+$/.test(line));
-    },
-    {
-      message: 'Each non-empty line must contain digits only.',
-    },
-  );
 
 function extractTitleFromPageTitle(html: string): string {
   if (!html) return '';
@@ -115,6 +98,7 @@ function PrototypeInputsCard({
   isFetchingPage,
   onFetchFromPage,
 }: PrototypeInputsCardProps) {
+  const [urlsError, setUrlsError] = useState<string | null>(null);
   const urlsArray = useMemo(() => {
     return urlsText
       .split(/\n+/)
@@ -146,17 +130,30 @@ function PrototypeInputsCard({
             <label htmlFor="playlist-urls" className="text-sm font-medium">
               Prototype URLs (editable)
             </label>
-            <textarea
+            <Textarea
               id="playlist-urls"
               value={urlsText}
               onChange={(e) => {
-                setUrlsText(e.target.value);
+                const nextValue = e.target.value;
+                setUrlsText(nextValue);
+                const result = prototypeUrlsTextSchema.safeParse(nextValue);
+                if (!result.success) {
+                  const firstIssue = result.error.issues[0];
+                  setUrlsError(firstIssue?.message ?? null);
+                } else {
+                  setUrlsError(null);
+                }
                 setLastDriver('urls');
               }}
-              className="min-h-[180px] w-full rounded border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+              className="text-xs font-mono"
               placeholder={'Paste prototype URLs here (one per line).'}
               aria-describedby="playlist-urls-help"
             />
+            {urlsError && (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {urlsError}
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
               URLs detected: {urlsArray.length}
             </p>
@@ -260,13 +257,13 @@ function PrototypeInputsCard({
             <label htmlFor="playlist-ids" className="text-sm font-medium">
               Prototype IDs (editable)
             </label>
-            <textarea
+            <Textarea
               id="playlist-ids"
               value={idsText}
               onChange={(e) => {
                 const nextValue = e.target.value;
                 setIdsText(nextValue);
-                const result = idsTextSchema.safeParse(nextValue);
+                const result = prototypeIdTextSchema.safeParse(nextValue);
                 if (!result.success) {
                   const firstIssue = result.error.issues[0];
                   setIdsError(firstIssue?.message ?? null);
@@ -282,10 +279,26 @@ function PrototypeInputsCard({
                 }
                 setLastDriver('ids');
               }}
-              className="min-h-[140px] w-full rounded border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+              className="text-xs font-mono"
               placeholder={'Enter one numeric ID per line'}
               aria-describedby="playlist-ids-help"
             />
+            <div className="flex flex-wrap gap-2 mt-1">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  const idsFromUrls = normalizeIdsFromUrls(urlsArray);
+                  setIdsText(idsFromUrls.join('\n'));
+                  setIdsError(null);
+                  setLastDriver('ids');
+                }}
+                disabled={urlsArray.length === 0}
+                aria-label="Regenerate IDs from Prototype URLs"
+              >
+                Regenerate from URLs
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               Effective IDs: {effectiveIds.length}{' '}
               {effectiveIds.length === 1 ? 'item' : 'items'}
