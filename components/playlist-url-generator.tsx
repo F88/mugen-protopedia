@@ -1,7 +1,33 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import useSWRMutation from 'swr/mutation';
+
 import { getPrototypeNamesFromStore } from '@/app/actions/prototypes';
 import { scrapePageHtml } from '@/app/actions/scrape';
+
+import type { PlayModeState } from '@/types/mugen-protopedia.types';
+
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
+import {
+  playlistTitleSchema,
+  prototypeIdTextSchema,
+  prototypeUrlsTextSchema,
+} from '@/schemas/playlist';
+
+import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
+import { logger } from '@/lib/logger.client';
+import { computeDocumentTitle } from '@/lib/utils/document-title';
+import {
+  buildPlaylistUrl,
+  deduplicateIdsPreserveOrder,
+  extractPrototypeUrls,
+  normalizeIdsFromUrls,
+  parsePrototypeIdLines,
+  sortIdsWithDuplicates,
+} from '@/lib/utils/playlist-builder';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,24 +39,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
-import { logger } from '@/lib/logger.client';
-import {
-  buildPlaylistUrl,
-  deduplicateIdsPreserveOrder,
-  extractPrototypeUrls,
-  normalizeIdsFromUrls,
-  parsePrototypeIdLines,
-  sortIdsWithDuplicates,
-} from '@/lib/utils/playlist-builder';
-import type { DirectLaunchParams } from '@/schemas/direct-launch';
-import {
-  playlistTitleSchema,
-  prototypeIdTextSchema,
-  prototypeUrlsTextSchema,
-} from '@/schemas/playlist';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import useSWRMutation from 'swr/mutation';
 
 type LastDriver = 'urls' | 'ids' | null;
 
@@ -543,6 +551,7 @@ type PlaylistOutputCardProps = {
   copyStatus: 'idle' | 'ok' | 'fail';
   canGeneratePlaylistUrl: boolean;
   onCopy: () => void;
+  pageTitle: string;
 };
 
 function PlaylistOutputCard({
@@ -554,6 +563,7 @@ function PlaylistOutputCard({
   idsText,
   copyStatus,
   canGeneratePlaylistUrl,
+  pageTitle,
   onCopy,
 }: PlaylistOutputCardProps) {
   return (
@@ -607,6 +617,11 @@ function PlaylistOutputCard({
             <p className="text-xs text-muted-foreground">
               IDs used: {effectiveIds.length} ({effectiveIds.join(', ')})
             </p>
+            {pageTitle && (
+              <p className="text-xs text-muted-foreground">
+                Page title: {pageTitle}
+              </p>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -698,6 +713,18 @@ export function PlaylistUrlGenerator({
       return '';
     }
     return buildPlaylistUrl(effectiveIds, title);
+  }, [canGeneratePlaylistUrl, effectiveIds, title]);
+
+  const playlistPageTitle = useMemo(() => {
+    if (!canGeneratePlaylistUrl) {
+      return '';
+    }
+    const playMode: PlayModeState = {
+      type: 'playlist',
+      ids: effectiveIds,
+      title,
+    };
+    return computeDocumentTitle(playMode);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
   const handleFetchFromPage = useCallback(async () => {
@@ -903,6 +930,7 @@ export function PlaylistUrlGenerator({
         idsText={idsText}
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
+        pageTitle={playlistPageTitle}
         onCopy={handleCopy}
       />
       <PlaylistPreviewCard effectiveIds={effectiveIds} />
