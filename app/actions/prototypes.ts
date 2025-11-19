@@ -1340,6 +1340,7 @@ export async function getPrototypeNamesFromStore(
   );
 
   const uniqueIds = Array.from(
+    // ID is an integer greater than or equal to 1
     new Set(ids.filter((id) => Number.isInteger(id) && id > 0)),
   );
 
