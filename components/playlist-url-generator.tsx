@@ -892,7 +892,6 @@ export function PlaylistUrlGenerator({
       setUrlsText(urls.join('\n'));
       setLastDriver('urls');
       setUrlsHighlighted(true);
-      setUrlsHighlighted(true);
       logger.debug('handleFetchFromPage:serverFetch:success', {
         urlCount: urls.length,
       });
