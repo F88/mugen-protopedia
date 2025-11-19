@@ -10,6 +10,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { PlaylistEditClient } from '@/components/playlist-edit-client';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 // Note: This page intentionally uses static `metadata` instead of
 // `generateMetadata` because it does not depend on playlist queries.
@@ -31,12 +32,15 @@ export default function PlaylistEditPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Playlist Editor (Beta)</h1>
-        <Link
-          href="/"
-          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-        >
-          🏠 Back to home
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+          >
+            🏠 Back to home
+          </Link>
+          <ThemeToggle />
+        </div>
       </div>
       <Suspense fallback={null}>
         <PlaylistEditClient />
