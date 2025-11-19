@@ -111,24 +111,22 @@ export function extractPrototypeUrls(raw: string, baseUrl?: string): string[] {
 }
 
 /**
- * Normalizes a list of ProtoPedia URLs to their numeric prototype IDs.
+ * Derives numeric prototype IDs from a list of ProtoPedia URLs.
  *
  * - Considers only URLs that satisfy {@link isPrototypeUrl}.
  * - Extracts the numeric segment after `/prototype/`.
  * - Filters out invalid or negative values.
- * - Returns unique IDs in first-seen order.
+ * - Keeps duplicates and preserves the original order.
  */
 export function normalizeIdsFromUrls(urls: string[]): number[] {
   logger.debug({ urlCount: urls.length }, 'normalizeIdsFromUrls: start');
   const result: number[] = [];
-  const seen = new Set<number>();
   for (const url of urls) {
     if (!isPrototypeUrl(url)) continue;
     const m = PROTOTYPE_URL_ID_SEGMENT_REGEX.exec(url);
     if (!m) continue;
     const num = parseInt(m[1], 10);
-    if (!Number.isNaN(num) && num >= 0 && !seen.has(num)) {
-      seen.add(num);
+    if (!Number.isNaN(num) && num >= 0) {
       result.push(num);
     }
   }

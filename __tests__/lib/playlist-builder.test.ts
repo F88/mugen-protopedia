@@ -56,10 +56,30 @@ describe('playlist-builder ID utilities', () => {
       expect(extractPrototypeUrls('')).toEqual([]);
       expect(extractPrototypeUrls('no prototype urls here')).toEqual([]);
     });
+
+    it('resolves relative href values against baseUrl and filters by isPrototypeUrl', () => {
+      const raw = [
+        '<a href="/prototype/1">one</a>',
+        '<a href="prototype/2">two</a>',
+        '<a href="../prototype/3?foo=bar">three</a>',
+        '<a href="https://example.com/prototype/999">external</a>',
+      ].join('\n');
+
+      const result = extractPrototypeUrls(
+        raw,
+        'https://protopedia.net/some/page',
+      );
+
+      expect(result).toEqual([
+        'https://protopedia.net/prototype/1',
+        'https://protopedia.net/some/prototype/2',
+        'https://protopedia.net/prototype/3?foo=bar',
+      ]);
+    });
   });
 
   describe('normalizeIdsFromUrls', () => {
-    it('extracts unique numeric IDs from prototype URLs', () => {
+    it('extracts numeric IDs from prototype URLs, keeping duplicates and order', () => {
       const urls = [
         'https://protopedia.net/prototype/1',
         'https://protopedia.net/prototype/1',
@@ -71,11 +91,12 @@ describe('playlist-builder ID utilities', () => {
       const result = normalizeIdsFromUrls(urls);
 
       // `normalizeIdsFromUrls` only considers URLs that satisfy `isPrototypeUrl`,
-      // so subdomains like `www.protopedia.net` are ignored.
-      expect(result).toEqual([1, 7]);
+      // so subdomains like `www.protopedia.net` are ignored. Duplicates are
+      // preserved and order is kept.
+      expect(result).toEqual([1, 1, 7]);
     });
 
-    it('ignores invalid and negative prototype IDs but keeps first valid ones', () => {
+    it('ignores invalid and negative prototype IDs while keeping valid duplicates', () => {
       const urls = [
         'https://protopedia.net/prototype/0',
         'https://protopedia.net/prototype/-1',
@@ -86,8 +107,25 @@ describe('playlist-builder ID utilities', () => {
 
       const result = normalizeIdsFromUrls(urls);
 
-      // -1 and non-numeric IDs are ignored; 10 appears only once.
-      expect(result).toEqual([0, 10]);
+      // -1 and non-numeric IDs are ignored; 10 is preserved twice.
+      expect(result).toEqual([0, 10, 10]);
+    });
+
+    it('returns empty array for empty input', () => {
+      expect(normalizeIdsFromUrls([])).toEqual([]);
+    });
+
+    it('ignores URLs that fail isPrototypeUrl, including those with leading/trailing whitespace', () => {
+      const urls = [
+        ' https://protopedia.net/prototype/1',
+        'https://protopedia.net/prototype/2 ',
+        '\nhttps://protopedia.net/prototype/3',
+      ];
+
+      const result = normalizeIdsFromUrls(urls);
+
+      // None of the URLs strictly satisfy isPrototypeUrl because of whitespace
+      expect(result).toEqual([]);
     });
   });
 
@@ -151,6 +189,14 @@ describe('playlist-builder ID utilities', () => {
       {
         input: '12345678901234567890',
         expected: [12345678901234567890],
+      },
+      {
+        input: ' 1 ',
+        expected: [],
+      },
+      {
+        input: '１',
+        expected: [],
       },
     ])(
       'parses valid numeric lines and ignores others: %j',
