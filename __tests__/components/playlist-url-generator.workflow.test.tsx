@@ -149,7 +149,7 @@ describe('Work flow: urls > ids', () => {
 });
 
 describe('Work flow: clear + validation', () => {
-  it('clears IDs error and allows title-only playlist URL after Clear IDs', () => {
+  it('clears IDs error after Clear IDs (title-only playlist no longer allowed with Inputs error)', () => {
     render(<PlaylistUrlGenerator />);
 
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
@@ -220,7 +220,7 @@ describe('Work flow: clear + validation', () => {
     expect(screen.getByText('❌')).toBeInTheDocument();
 
     const clearTitleButton = screen.getByRole('button', {
-      name: 'Clear title',
+      name: 'Clear Title',
     });
     fireEvent.click(clearTitleButton);
 
@@ -228,6 +228,43 @@ describe('Work flow: clear + validation', () => {
 
     const urlText = screen.getByText('Playlist URL');
     expect(urlText).toBeInTheDocument();
+  });
+});
+
+describe('Work flow: playlist URL generation guardrails', () => {
+  it('does not generate playlist URL when there is any input error even if title is valid', () => {
+    render(<PlaylistUrlGenerator />);
+
+    const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
+    const titleInput = screen.getByLabelText('Playlist Title');
+
+    // Make title valid.
+    fireEvent.change(titleInput, {
+      target: { value: 'My Playlist' },
+    });
+
+    // Introduce URLs error so that Inputs card is invalid.
+    fireEvent.change(urlsTextarea, {
+      target: { value: 'invalid-url' },
+    });
+
+    // Playlist URL heading text is present, but no URL code block should be rendered.
+    expect(screen.getByText('Playlist URL')).toBeInTheDocument();
+    expect(screen.queryByRole('code')).not.toBeInTheDocument();
+  });
+
+  it('generates playlist URL when IDs are valid and there are no input errors', () => {
+    render(<PlaylistUrlGenerator />);
+
+    const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
+
+    fireEvent.change(idsTextarea, {
+      target: { value: '1' },
+    });
+
+    // Playlist URL should be rendered in a code block once IDs are valid.
+    const codeBlocks = screen.getAllByText(/https?:\/\/.*playlist/);
+    expect(codeBlocks.length).toBeGreaterThan(0);
   });
 });
 
