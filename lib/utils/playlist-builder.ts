@@ -43,6 +43,16 @@ export function isPrototypeUrl(url: string): boolean {
  * - When `baseUrl` is provided, also considers `<a href="...">` style
  *   values (including relative paths) and resolves them against the
  *   base URL prior to filtering.
+ *
+ * @remarks
+ * This helper does **not** inspect or honor an HTML `<base>` tag. Any
+ * relative `href` values are resolved using the `baseUrl` argument
+ * alone (typically the final URL returned from the HTTP fetch). This
+ * is intentional to avoid trusting attacker-controlled `<base>` tags
+ * that could redirect relative links to untrusted origins. After
+ * resolution, URLs are still filtered through {@link isPrototypeUrl},
+ * which enforces the strict `https://protopedia.net/prototype/<id>`
+ * shape, including path and origin.
  */
 export function extractPrototypeUrls(raw: string, baseUrl?: string): string[] {
   if (!raw || raw.length === 0) return [];

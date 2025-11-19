@@ -70,10 +70,39 @@ describe('playlist-builder ID utilities', () => {
         'https://protopedia.net/some/page',
       );
 
+      // `prototype/2` resolves to `https://protopedia.net/some/prototype/2`,
+      // which does not satisfy `isPrototypeUrl` (path must be `/prototype/<id>`),
+      // so only the first and third links are kept.
       expect(result).toEqual([
         'https://protopedia.net/prototype/1',
-        'https://protopedia.net/some/prototype/2',
         'https://protopedia.net/prototype/3?foo=bar',
+      ]);
+    });
+
+    it('ignores HTML <base> tag and uses provided baseUrl for relative href resolution', () => {
+      const raw = [
+        '<head>',
+        '<base href="https://evil.example/">',
+        '</head>',
+        '<body>',
+        '<a href="/prototype/1">one</a>',
+        '<a href="prototype/2">two</a>',
+        '<a href="../prototype/3">three</a>',
+        '</body>',
+      ].join('\n');
+
+      const result = extractPrototypeUrls(
+        raw,
+        'https://protopedia.net/some/page',
+      );
+
+      // The <base> tag is intentionally ignored; only baseUrl is used.
+      // So relative hrefs resolve under https://protopedia.net/, and after
+      // filtering via isPrototypeUrl, only /prototype/1 and /prototype/3
+      // are kept.
+      expect(result).toEqual([
+        'https://protopedia.net/prototype/1',
+        'https://protopedia.net/prototype/3',
       ]);
     });
   });
