@@ -78,6 +78,8 @@ type PrototypeInputsCardProps = {
   setUrlsText: (value: string) => void;
   idsText: string;
   setIdsText: (value: string) => void;
+  urlsHighlighted: boolean;
+  idsHighlighted: boolean;
   urlsError: string | null;
   setUrlsError: (value: string | null) => void;
   pageUrl: string;
@@ -97,6 +99,8 @@ function PrototypeInputsCard({
   setUrlsText,
   idsText,
   setIdsText,
+  urlsHighlighted,
+  idsHighlighted,
   urlsError,
   setUrlsError,
   pageUrl,
@@ -121,7 +125,7 @@ function PrototypeInputsCard({
   const effectiveIds = lastDriver === 'ids' ? manualIds : autoIds;
 
   return (
-    <Card>
+    <Card className="w-full p-4">
       <CardHeader>
         <CardTitle>Prototype IDs Inputs</CardTitle>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -132,7 +136,7 @@ function PrototypeInputsCard({
           to build the list of IDs.
         </p>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6 p-0">
+      <CardContent className="flex flex-col gap-2">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -167,7 +171,11 @@ function PrototypeInputsCard({
                 }
                 setLastDriver('urls');
               }}
-              className="text-xs font-mono"
+              className={`text-xs font-mono transition-all duration-300 border rounded-sm ${
+                urlsHighlighted
+                  ? 'bg-yellow-100 dark:bg-yellow-900/40 border-border shadow-[0_0_0_3px_rgba(22,163,74,0.9)]'
+                  : 'border-border'
+              }`}
               placeholder={'Paste prototype URLs here (one per line).'}
               aria-describedby="playlist-urls-help"
             />
@@ -303,7 +311,11 @@ function PrototypeInputsCard({
                 }
                 setLastDriver('ids');
               }}
-              className="text-xs font-mono"
+              className={`text-xs font-mono transition-all duration-300 border rounded-sm ${
+                idsHighlighted
+                  ? 'bg-yellow-100 dark:bg-yellow-900/40 border-border shadow-[0_0_0_3px_rgba(22,163,74,0.9)]'
+                  : 'border-border'
+              }`}
               placeholder={'Enter one numeric ID per line'}
               aria-describedby="playlist-ids-help"
             />
@@ -428,11 +440,11 @@ function PlaylistPreviewCard({ effectiveIds }: PlaylistPreviewCardProps) {
   }, [effectiveIds]);
 
   return (
-    <Card>
+    <Card className="w-full p-4">
       <CardHeader>
         <CardTitle>Prototypes in playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 p-0 text-sm text-muted-foreground">
+      <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
         <Table>
           <TableHeader>
             <TableRow>
@@ -474,11 +486,11 @@ function PlaylistTitleCard({
   setTitleError,
 }: PlaylistTitleCardProps) {
   return (
-    <Card>
+    <Card className="w-full p-4">
       <CardHeader>
         <CardTitle>Title of playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-0">
+      <CardContent className="flex flex-col gap-2">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <label htmlFor="playlist-title" className="text-sm font-medium">
@@ -552,6 +564,7 @@ type PlaylistOutputCardProps = {
   canGeneratePlaylistUrl: boolean;
   onCopy: () => void;
   pageTitle: string;
+  playlistHighlighted: boolean;
 };
 
 function PlaylistOutputCard({
@@ -564,14 +577,21 @@ function PlaylistOutputCard({
   copyStatus,
   canGeneratePlaylistUrl,
   pageTitle,
+  playlistHighlighted,
   onCopy,
 }: PlaylistOutputCardProps) {
   return (
-    <Card>
+    <Card
+      className={
+        playlistHighlighted
+          ? 'p-4 border border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)] transition-all duration-300'
+          : 'p-4 border border-border transition-all duration-300'
+      }
+    >
       <CardHeader>
         <CardTitle>Playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-0">
+      <CardContent className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-4 text-xs">
           <span data-test-id="playlist-ids-indicator">
             IDs:{' '}
@@ -673,6 +693,9 @@ export function PlaylistUrlGenerator({
   const [idsError, setIdsError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
   const [urlsError, setUrlsError] = useState<string | null>(null);
+  const [urlsHighlighted, setUrlsHighlighted] = useState(false);
+  const [idsHighlighted, setIdsHighlighted] = useState(false);
+  const [playlistHighlighted, setPlaylistHighlighted] = useState(false);
 
   const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
     ['scrapePageHtml'],
@@ -705,14 +728,29 @@ export function PlaylistUrlGenerator({
     if (lastDriver === 'urls' && !urlsError) {
       const ids = normalizeIdsFromUrls(urlsArray);
       setIdsText(ids.join('\n'));
+      if (ids.length > 0) {
+        setIdsHighlighted(true);
+      }
     }
   }, [urlsArray, lastDriver, urlsError]);
+
+  useEffect(() => {
+    if (!urlsHighlighted && !idsHighlighted && !playlistHighlighted) return;
+    const timer = setTimeout(() => {
+      setUrlsHighlighted(false);
+      setIdsHighlighted(false);
+      setPlaylistHighlighted(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [urlsHighlighted, idsHighlighted, playlistHighlighted]);
 
   const playlistUrl = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
       return '';
     }
-    return buildPlaylistUrl(effectiveIds, title);
+    const url = buildPlaylistUrl(effectiveIds, title);
+    setPlaylistHighlighted(true);
+    return url;
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
   const playlistPageTitle = useMemo(() => {
@@ -853,6 +891,8 @@ export function PlaylistUrlGenerator({
 
       setUrlsText(urls.join('\n'));
       setLastDriver('urls');
+      setUrlsHighlighted(true);
+      setUrlsHighlighted(true);
       logger.debug('handleFetchFromPage:serverFetch:success', {
         urlCount: urls.length,
       });
@@ -902,6 +942,8 @@ export function PlaylistUrlGenerator({
         setUrlsText={setUrlsText}
         idsText={idsText}
         setIdsText={setIdsText}
+        urlsHighlighted={urlsHighlighted}
+        idsHighlighted={idsHighlighted}
         urlsError={urlsError}
         setUrlsError={setUrlsError}
         pageUrl={pageUrl}
@@ -931,6 +973,7 @@ export function PlaylistUrlGenerator({
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
         pageTitle={playlistPageTitle}
+        playlistHighlighted={playlistHighlighted}
         onCopy={handleCopy}
       />
       <PlaylistPreviewCard effectiveIds={effectiveIds} />

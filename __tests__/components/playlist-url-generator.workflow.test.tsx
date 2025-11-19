@@ -130,6 +130,22 @@ describe('Work flow: urls > ids', () => {
     // First row is the header; there should be additional data rows.
     expect(rows.length).toBeGreaterThan(1);
   });
+
+  it('highlights IDs textarea when regenerated from URLs', () => {
+    render(<PlaylistUrlGenerator />);
+
+    const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
+    const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
+
+    fireEvent.change(urlsTextarea, {
+      target: {
+        value: 'https://protopedia.net/prototype/777',
+      },
+    });
+
+    expect(idsTextarea.className).toContain('bg-yellow-100');
+    expect(idsTextarea.className).toContain('shadow-[');
+  });
 });
 
 describe('Work flow: clear + validation', () => {
