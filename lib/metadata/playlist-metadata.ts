@@ -2,7 +2,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 
 import { APP_TITLE, APP_URL } from '@/lib/config/app-constants';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
-import { parseDirectLaunchParams } from '@/lib/utils/validation';
+import { parseDirectLaunchParams } from '@/lib/validation/validation';
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
 export type SearchParams = Record<string, string | string[] | undefined>;

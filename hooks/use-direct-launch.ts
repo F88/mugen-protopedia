@@ -3,12 +3,10 @@
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-import { parseDirectLaunchParams } from '@/lib/utils/validation';
-import type {
-  DirectLaunchParams,
-  ValidationError,
-} from '@/lib/utils/validation';
 import type { Result } from '@/lib/utils/result';
+import type { ValidationError } from '@/lib/validation/validation';
+import { parseDirectLaunchParams } from '@/lib/validation/validation';
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
 /**
  * A hook to get and validate 'id' and 'title' from URL query parameters

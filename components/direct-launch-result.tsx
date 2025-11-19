@@ -3,11 +3,9 @@
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import type {
-  DirectLaunchParams,
-  ValidationError,
-} from '@/lib/utils/validation';
+import type { ValidationError } from '@/lib/validation/validation';
 import type { Result } from '@/lib/utils/result';
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
 type DirectLaunchResultProps = {
   directLaunchResult: Result<DirectLaunchParams, ValidationError>;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseDirectLaunchParams } from '@/lib/utils/validation';
-import type { DirectLaunchParams } from '@/lib/utils/validation';
+import { parseDirectLaunchParams } from '@/lib/validation/validation';
+import { DirectLaunchParams } from '@/schemas/direct-launch';
 
 const expectSuccess = (
   result: ReturnType<typeof parseDirectLaunchParams>,

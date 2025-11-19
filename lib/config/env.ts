@@ -1,12 +1,5 @@
-import { z } from 'zod';
-
-/**
- * Zod schema defining environment variables consumed by the app.
- * Add variables here for typed + validated access.
- */
-const EnvSchema = z.object({
-  GOOGLE_SITE_VERIFICATION_TOKEN: z.string().optional(),
-});
+import type { Env } from '@/schemas/env';
+import { EnvSchema } from '@/schemas/env';
 
 const parsed = EnvSchema.safeParse(process.env);
 
@@ -18,6 +11,6 @@ if (!parsed.success) {
 /**
  * Exported typed environment object. Missing/invalid vars become undefined.
  */
-export const ENV: z.infer<typeof EnvSchema> = parsed.success
+export const ENV: Env = parsed.success
   ? parsed.data
   : { GOOGLE_SITE_VERIFICATION_TOKEN: undefined };
