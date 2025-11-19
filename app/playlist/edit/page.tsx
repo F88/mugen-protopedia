@@ -35,7 +35,7 @@ export default function PlaylistEditPage() {
           href="/"
           className="text-sm text-blue-600 hover:underline dark:text-blue-400"
         >
-          🏠 Back to infinite ProtoPedia
+          🏠 Back to home
         </Link>
       </div>
       <Suspense fallback={null}>
