@@ -200,17 +200,13 @@ function PrototypeInputsCard({
   const hasIds = idsText.trim().length > 0;
   const idsIsValid = hasIds && !idsError;
 
-  const cardState = getAggregateCardState({
-    hasError: Boolean(urlsError) || Boolean(idsError),
-    hasAnyValid: urlsIsValid || idsIsValid,
-  });
+  const hasAnyError = Boolean(urlsError) || Boolean(idsError);
+  const hasAnyValid = urlsIsValid || idsIsValid;
 
-  const cardClassName =
-    cardState === 'invalid'
-      ? 'w-full p-4 border border-red-500/70 bg-red-950/10'
-      : cardState === 'valid'
-        ? 'w-full p-4 border border-emerald-500/70 bg-emerald-950/10'
-        : 'w-full p-4';
+  const cardState: CardState = getAggregateCardState({
+    hasError: hasAnyError,
+    hasAnyValid,
+  });
 
   logger.debug('playlist-inputs:status', {
     urls: {
@@ -224,6 +220,9 @@ function PrototypeInputsCard({
       hasError: Boolean(idsError),
       isValid: idsIsValid,
       length: idsText.length,
+    },
+    cards: {
+      inputs: cardState,
     },
   });
 
@@ -277,11 +276,13 @@ function PrototypeInputsCard({
               }
               setLastDriver('urls');
             }}
-            className={`text-xs font-mono ${getInputStatusClasses({
-              highlighted: urlsHighlighted,
-              hasError: Boolean(urlsError),
-              isValid: urlsIsValid,
-            })}`}
+            className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
+              {
+                highlighted: urlsHighlighted,
+                hasError: Boolean(urlsError),
+                isValid: urlsIsValid,
+              },
+            )}`}
             placeholder={'Paste prototype URLs here (one per line).'}
             aria-describedby="playlist-urls-help"
           />
@@ -407,11 +408,13 @@ function PrototypeInputsCard({
               }
               setLastDriver('ids');
             }}
-            className={`text-xs font-mono ${getInputStatusClasses({
-              highlighted: idsHighlighted,
-              hasError: Boolean(idsError),
-              isValid: idsIsValid,
-            })}`}
+            className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
+              {
+                highlighted: idsHighlighted,
+                hasError: Boolean(idsError),
+                isValid: idsIsValid,
+              },
+            )}`}
             placeholder={'Enter one numeric ID per line'}
             aria-describedby="playlist-ids-help"
           />
@@ -628,7 +631,7 @@ function PlaylistTitleCard({
               setTitleError(null);
             }
           }}
-          className="w-full text-sm"
+          className="w-full text-sm bg-white dark:bg-zinc-900"
           placeholder="Enter playlist title"
           aria-describedby="playlist-title-help"
         />
@@ -666,6 +669,7 @@ type PlaylistOutputCardProps = {
   onCopy: () => void;
   pageTitle: string;
   playlistHighlighted: boolean;
+  hasInputError: boolean;
 };
 
 function PlaylistOutputCard({
@@ -679,14 +683,36 @@ function PlaylistOutputCard({
   canGeneratePlaylistUrl,
   pageTitle,
   playlistHighlighted,
+  hasInputError,
   onCopy,
 }: PlaylistOutputCardProps) {
   const hasIds = idsText.trim().length > 0 && !idsError;
   const hasTitle = title.trim().length > 0 && !titleError;
 
   const cardState = getAggregateCardState({
-    hasError: Boolean(idsError) || Boolean(titleError),
+    hasError: Boolean(idsError) || Boolean(titleError) || hasInputError,
     hasAnyValid: hasIds || hasTitle || Boolean(playlistUrl),
+  });
+
+  logger.debug('playlist-output:status', {
+    props: {
+      playlistUrl,
+      title,
+      titleError,
+      effectiveIdsLength: effectiveIds.length,
+      idsError,
+      idsTextLength: idsText.length,
+      copyStatus,
+      canGeneratePlaylistUrl,
+      pageTitle,
+      playlistHighlighted,
+      hasInputError,
+    },
+    derived: {
+      hasIds,
+      hasTitle,
+      cardState,
+    },
   });
 
   return (
@@ -823,12 +849,27 @@ export function PlaylistUrlGenerator({
 
   const effectiveIds = lastDriver === 'ids' ? manualIds : autoIds;
 
+  const hasInputError = Boolean(urlsError) || Boolean(idsError);
+
   const canGeneratePlaylistUrl = useMemo(() => {
     if (idsError || titleError) return false;
     const hasIds = effectiveIds.length > 0;
     const hasTitle = title.trim().length > 0;
+
+    // RED GUARDRAIL:
+    // Do not allow playlist generation while any visible card
+    // is in an "invalid" (red) state.
+    //
+    // Prototype IDs Inputs card is red if either URLs or IDs
+    // have validation errors (except for the special neutral
+    // case "URLs invalid & IDs empty"). Playlist card should
+    // never be green when Inputs is red.
+    if (hasInputError) {
+      return false;
+    }
+
     return hasIds || hasTitle;
-  }, [effectiveIds.length, idsError, title, titleError]);
+  }, [effectiveIds.length, hasInputError, idsError, title, titleError]);
 
   useEffect(() => {
     if (lastDriver === 'urls' && !urlsError) {
@@ -1074,6 +1115,7 @@ export function PlaylistUrlGenerator({
         copyStatus={copyStatus}
         pageTitle={playlistPageTitle}
         playlistHighlighted={playlistHighlighted}
+        hasInputError={hasInputError}
         onCopy={handleCopy}
       />
       <PlaylistPreviewCard effectiveIds={effectiveIds} />
