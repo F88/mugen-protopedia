@@ -821,7 +821,6 @@ export function PlaylistUrlGenerator({
               urls,
             });
             if (urls.length === 0) {
-              // DirectLaunchParams,
               setPageError(
                 'Client fetch OK, but no ProtoPedia prototype URLs were found on this page.',
               );
