@@ -29,7 +29,7 @@ import {
   prototypeIdTextSchema,
   prototypeUrlsTextSchema,
 } from '@/schemas/playlist';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import useSWRMutation from 'swr/mutation';
 
 type LastDriver = 'urls' | 'ids' | null;
@@ -70,6 +70,8 @@ type PrototypeInputsCardProps = {
   setUrlsText: (value: string) => void;
   idsText: string;
   setIdsText: (value: string) => void;
+  urlsError: string | null;
+  setUrlsError: (value: string | null) => void;
   pageUrl: string;
   setPageUrl: (value: string) => void;
   lastDriver: LastDriver;
@@ -87,6 +89,8 @@ function PrototypeInputsCard({
   setUrlsText,
   idsText,
   setIdsText,
+  urlsError,
+  setUrlsError,
   pageUrl,
   setPageUrl,
   lastDriver,
@@ -98,18 +102,14 @@ function PrototypeInputsCard({
   isFetchingPage,
   onFetchFromPage,
 }: PrototypeInputsCardProps) {
-  const [urlsError, setUrlsError] = useState<string | null>(null);
   const urlsArray = useMemo(() => {
     return urlsText
       .split(/\n+/)
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
   }, [urlsText]);
-
   const manualIds = useMemo(() => parsePrototypeIdLines(idsText), [idsText]);
-
   const autoIds = useMemo(() => normalizeIdsFromUrls(urlsArray), [urlsArray]);
-
   const effectiveIds = lastDriver === 'ids' ? manualIds : autoIds;
 
   return (
@@ -124,12 +124,25 @@ function PrototypeInputsCard({
           to build the list of IDs.
         </p>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6 p-6">
+      <CardContent className="flex flex-col gap-6 p-0">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <label htmlFor="playlist-urls" className="text-sm font-medium">
-              Prototype URLs (editable)
-            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="playlist-urls" className="text-sm font-medium">
+                Prototype URLs (editable)
+              </label>
+              <span
+                className="text-xs"
+                aria-live="polite"
+                data-test-id="urls-indicator"
+              >
+                {urlsText.trim().length === 0
+                  ? '(empty)'
+                  : urlsError
+                    ? '❌'
+                    : '✅'}
+              </span>
+            </div>
             <Textarea
               id="playlist-urls"
               value={urlsText}
@@ -140,6 +153,7 @@ function PrototypeInputsCard({
                 if (!result.success) {
                   const firstIssue = result.error.issues[0];
                   setUrlsError(firstIssue?.message ?? null);
+                  setIdsText('');
                 } else {
                   setUrlsError(null);
                 }
@@ -163,24 +177,13 @@ function PrototypeInputsCard({
                 variant="secondary"
                 onClick={() => {
                   setUrlsText('');
+                  setUrlsError(null);
                   setLastDriver('urls');
                 }}
                 disabled={!urlsText}
                 aria-label="Clear URLs"
               >
                 Clear URLs
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setUrlsText('');
-                  setLastDriver('urls');
-                }}
-                disabled={!urlsText}
-                aria-label="Reset URLs"
-              >
-                Reset URLs
               </Button>
             </div>
             <p
@@ -231,7 +234,7 @@ function PrototypeInputsCard({
                     disabled={pageUrl.length === 0 && !pageError}
                     aria-label="Clear page URL"
                   >
-                    Clear
+                    Clear URL
                   </Button>
                 </div>
               </div>
@@ -254,9 +257,22 @@ function PrototypeInputsCard({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="playlist-ids" className="text-sm font-medium">
-              Prototype IDs (editable)
-            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="playlist-ids" className="text-sm font-medium">
+                Prototype IDs (editable)
+              </label>
+              <span
+                className="text-xs"
+                aria-live="polite"
+                data-test-id="ids-indicator"
+              >
+                {idsText.trim().length === 0
+                  ? '(empty)'
+                  : idsError
+                    ? '❌'
+                    : '✅'}
+              </span>
+            </div>
             <Textarea
               id="playlist-ids"
               value={idsText}
@@ -283,6 +299,11 @@ function PrototypeInputsCard({
               placeholder={'Enter one numeric ID per line'}
               aria-describedby="playlist-ids-help"
             />
+            {idsError && (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {idsError}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2 mt-1">
               <Button
                 type="button"
@@ -293,7 +314,7 @@ function PrototypeInputsCard({
                   setIdsError(null);
                   setLastDriver('ids');
                 }}
-                disabled={urlsArray.length === 0}
+                disabled={urlsArray.length === 0 || !!urlsError}
                 aria-label="Regenerate IDs from Prototype URLs"
               >
                 Regenerate from URLs
@@ -303,17 +324,13 @@ function PrototypeInputsCard({
               Effective IDs: {effectiveIds.length}{' '}
               {effectiveIds.length === 1 ? 'item' : 'items'}
             </p>
-            {idsError && (
-              <p className="text-xs text-red-600 dark:text-red-400">
-                {idsError}
-              </p>
-            )}
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => {
                   setIdsText('');
+                  setIdsError(null);
                   setLastDriver('ids');
                 }}
                 disabled={!idsText}
@@ -331,7 +348,7 @@ function PrototypeInputsCard({
                   setIdsText(sorted.join('\n'));
                   setLastDriver('ids');
                 }}
-                disabled={!idsText.trim()}
+                disabled={!idsText.trim() || !!idsError}
                 aria-label="Sort IDs ascending"
               >
                 Sort IDs
@@ -346,7 +363,7 @@ function PrototypeInputsCard({
                   setIdsText(deduped.join('\n'));
                   setLastDriver('ids');
                 }}
-                disabled={!idsText.trim()}
+                disabled={!idsText.trim() || !!idsError}
                 aria-label="Remove duplicate IDs"
               >
                 Deduplicate IDs
@@ -364,11 +381,11 @@ function PrototypeInputsCard({
   );
 }
 
-type PrototypesSummaryCardProps = {
+type PlaylistPreviewCardProps = {
   effectiveIds: number[];
 };
 
-function PrototypesSummaryCard({ effectiveIds }: PrototypesSummaryCardProps) {
+function PlaylistPreviewCard({ effectiveIds }: PlaylistPreviewCardProps) {
   const [namesById, setNamesById] = useState<Record<number, string>>({});
 
   useEffect(() => {
@@ -407,7 +424,7 @@ function PrototypesSummaryCard({ effectiveIds }: PrototypesSummaryCardProps) {
       <CardHeader>
         <CardTitle>Prototypes in playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 p-6 text-sm text-muted-foreground">
+      <CardContent className="flex flex-col gap-3 p-0 text-sm text-muted-foreground">
         <Table>
           <TableHeader>
             <TableRow>
@@ -453,11 +470,20 @@ function PlaylistTitleCard({
       <CardHeader>
         <CardTitle>Title of playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-6">
+      <CardContent className="flex flex-col gap-4 p-0">
         <div className="flex flex-col gap-2">
-          <label htmlFor="playlist-title" className="text-sm font-medium">
-            Playlist Title
-          </label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="playlist-title" className="text-sm font-medium">
+              Playlist Title
+            </label>
+            <span
+              className="text-xs"
+              aria-live="polite"
+              data-test-id="title-indicator"
+            >
+              {title.trim().length === 0 ? '(empty)' : titleError ? '❌' : '✅'}
+            </span>
+          </div>
           <input
             id="playlist-title"
             type="text"
@@ -477,22 +503,26 @@ function PlaylistTitleCard({
             placeholder="Enter playlist title"
             aria-describedby="playlist-title-help"
           />
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setTitle('')}
-              disabled={!title}
-              aria-label="Clear title"
-            >
-              Clear
-            </Button>
-          </div>
           {titleError && (
             <p className="text-xs text-red-600 dark:text-red-400">
               {titleError}
             </p>
           )}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setTitle('');
+                setTitleError(null);
+              }}
+              disabled={!title}
+              aria-label="Clear title"
+            >
+              Clear Title
+            </Button>
+          </div>
+
           <p id="playlist-title-help" className="text-xs text-muted-foreground">
             Optional. Included in generated playlist URL (up to 300 characters,
             emoji supported).
@@ -506,16 +536,24 @@ function PlaylistTitleCard({
 type PlaylistOutputCardProps = {
   playlistUrl: string;
   title: string;
+  titleError: string | null;
   effectiveIds: number[];
+  idsError: string | null;
+  idsText: string;
   copyStatus: 'idle' | 'ok' | 'fail';
+  canGeneratePlaylistUrl: boolean;
   onCopy: () => void;
 };
 
 function PlaylistOutputCard({
   playlistUrl,
   title,
+  titleError,
   effectiveIds,
+  idsError,
+  idsText,
   copyStatus,
+  canGeneratePlaylistUrl,
   onCopy,
 }: PlaylistOutputCardProps) {
   return (
@@ -523,7 +561,17 @@ function PlaylistOutputCard({
       <CardHeader>
         <CardTitle>Playlist</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-6">
+      <CardContent className="flex flex-col gap-4 p-0">
+        <div className="flex flex-wrap items-center gap-4 text-xs">
+          <span data-test-id="playlist-ids-indicator">
+            IDs:{' '}
+            {idsText.trim().length === 0 ? '(empty)' : idsError ? '❌' : '✅'}
+          </span>
+          <span data-test-id="playlist-title-indicator">
+            Title:{' '}
+            {title.trim().length === 0 ? '(empty)' : titleError ? '❌' : '✅'}
+          </span>
+        </div>
         <h2 className="text-lg font-semibold">Playlist URL</h2>
         {playlistUrl ? (
           <div className="flex flex-col gap-4">
@@ -561,9 +609,17 @@ function PlaylistOutputCard({
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No IDs found yet. Paste URLs, or enter IDs manually.
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">
+              No playlist URL yet.
+            </p>
+            {!canGeneratePlaylistUrl && (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                Enter a valid title or at least one valid prototype ID to
+                generate a playlist URL.
+              </p>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
@@ -591,11 +647,17 @@ export function PlaylistUrlGenerator({
     return '';
   });
   const [urlsText, setUrlsText] = useState('');
-  const [lastDriver, setLastDriver] = useState<LastDriver>(null);
+  const [lastDriver, setLastDriver] = useState<LastDriver>(() => {
+    if (directLaunchParams?.ids && directLaunchParams.ids.length > 0) {
+      return 'ids';
+    }
+    return null;
+  });
   const [copyStatus, setCopyStatus] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [titleError, setTitleError] = useState<string | null>(null);
   const [idsError, setIdsError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
+  const [urlsError, setUrlsError] = useState<string | null>(null);
 
   const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
     ['scrapePageHtml'],
@@ -617,17 +679,26 @@ export function PlaylistUrlGenerator({
 
   const effectiveIds = lastDriver === 'ids' ? manualIds : autoIds;
 
+  const canGeneratePlaylistUrl = useMemo(() => {
+    if (idsError || titleError) return false;
+    const hasIds = effectiveIds.length > 0;
+    const hasTitle = title.trim().length > 0;
+    return hasIds || hasTitle;
+  }, [effectiveIds.length, idsError, title, titleError]);
+
   useEffect(() => {
-    if (lastDriver === 'urls') {
+    if (lastDriver === 'urls' && !urlsError) {
       const ids = normalizeIdsFromUrls(urlsArray);
       setIdsText(ids.join('\n'));
     }
-  }, [urlsArray, lastDriver]);
+  }, [urlsArray, lastDriver, urlsError]);
 
-  const playlistUrl = useMemo(
-    () => buildPlaylistUrl(effectiveIds, title),
-    [effectiveIds, title],
-  );
+  const playlistUrl = useMemo(() => {
+    if (!canGeneratePlaylistUrl) {
+      return '';
+    }
+    return buildPlaylistUrl(effectiveIds, title);
+  }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
   const handleFetchFromPage = useCallback(async () => {
     const trimmedUrl = pageUrl.trim();
@@ -685,6 +756,7 @@ export function PlaylistUrlGenerator({
               urls,
             });
             if (urls.length === 0) {
+              // DirectLaunchParams,
               setPageError(
                 'Client fetch OK, but no ProtoPedia prototype URLs were found on this page.',
               );
@@ -803,6 +875,8 @@ export function PlaylistUrlGenerator({
         setUrlsText={setUrlsText}
         idsText={idsText}
         setIdsText={setIdsText}
+        urlsError={urlsError}
+        setUrlsError={setUrlsError}
         pageUrl={pageUrl}
         setPageUrl={setPageUrl}
         lastDriver={lastDriver}
@@ -814,7 +888,6 @@ export function PlaylistUrlGenerator({
         isFetchingPage={isFetchingPage}
         onFetchFromPage={handleFetchFromPage}
       />
-      <PrototypesSummaryCard effectiveIds={effectiveIds} />
       <PlaylistTitleCard
         title={title}
         setTitle={setTitle}
@@ -825,9 +898,14 @@ export function PlaylistUrlGenerator({
         playlistUrl={playlistUrl}
         effectiveIds={effectiveIds}
         title={title}
+        titleError={titleError}
+        idsError={idsError}
+        idsText={idsText}
+        canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
         onCopy={handleCopy}
       />
+      <PlaylistPreviewCard effectiveIds={effectiveIds} />
     </div>
   );
 }
