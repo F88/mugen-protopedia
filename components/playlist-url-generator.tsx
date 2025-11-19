@@ -804,7 +804,6 @@ export function PlaylistUrlGenerator({
               urls,
             });
             if (urls.length === 0) {
-              // DirectLaunchParams,
               setPageError(
                 'Client fetch OK, but no ProtoPedia prototype URLs were found on this page.',
               );
@@ -874,7 +873,6 @@ export function PlaylistUrlGenerator({
 
       setUrlsText(urls.join('\n'));
       setLastDriver('urls');
-      setUrlsHighlighted(true);
       setUrlsHighlighted(true);
       logger.debug('handleFetchFromPage:serverFetch:success', {
         urlCount: urls.length,
