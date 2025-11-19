@@ -738,10 +738,13 @@ export function PlaylistUrlGenerator({
     if (!canGeneratePlaylistUrl) {
       return '';
     }
-    const url = buildPlaylistUrl(effectiveIds, title);
-    setPlaylistHighlighted(true);
-    return url;
+    return buildPlaylistUrl(effectiveIds, title);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
+
+  useEffect(() => {
+    if (!playlistUrl) return;
+    setPlaylistHighlighted(true);
+  }, [playlistUrl]);
 
   const playlistPageTitle = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
