@@ -58,7 +58,6 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ### 中 (Medium)
 
 - 分析ダッシュボードを高度化 (キャッシュヒット率 / レイテンシ時系列 / サイズ分布)
-- 共有コレクションの下準備 (権限 & 永続化層検討)
 - KBショートカットの強化
     - `?` ヘルプ
     - `e` でアーカイブ
@@ -66,13 +65,12 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ### 低 (Low)
 
 - オフラインスナップショットエクスポート (デモ用)
-- コラボレーション向け共有リンク生成
 
 ## Changelog
 
-### 2025-11-19
+### 2025-11-20
 
-- ✨▶️📋 プレイリスト作成機能を追加
+- ✨▶️📋 プレイリスト編集機能を追加
 
 ### 2025-11-17
 
