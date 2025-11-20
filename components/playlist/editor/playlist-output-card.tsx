@@ -105,7 +105,7 @@ Title and IDs can be edited from the other cards above.`}
         {titleOfPlaylistPage.title && (
           <>
             <h2
-              className="text-sm font-semibold"
+              className="text-base font-semibold"
               data-test-id="playlist-page-title-heading"
             >
               Title of page
@@ -118,7 +118,7 @@ Title and IDs can be edited from the other cards above.`}
               }`}
             >
               <code
-                className="rounded bg-muted px-3 py-2 text-xs break-all"
+                className="rounded bg-muted px-3 py-2 text-sm md:text-base break-all"
                 data-test-id="playlist-page-title-value"
               >
                 {titleOfPlaylistPage.title}
@@ -130,7 +130,7 @@ Title and IDs can be edited from the other cards above.`}
         {playlistUrl.url ? (
           <>
             <h2
-              className="text-sm font-semibold"
+              className="text-base font-semibold"
               data-test-id="playlist-url-heading"
             >
               URL
@@ -143,7 +143,7 @@ Title and IDs can be edited from the other cards above.`}
               }`}
             >
               <code
-                className="rounded bg-muted px-3 py-2 text-xs break-all"
+                className="rounded bg-muted px-3 py-2 text-sm md:text-base break-all"
                 data-test-id="playlist-url-code"
               >
                 {playlistUrl.url}
