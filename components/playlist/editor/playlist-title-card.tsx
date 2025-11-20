@@ -1,6 +1,6 @@
 import { playlistTitleSchema } from '@/schemas/playlist';
 
-import { StatusCard, type CardState } from '@/components/playlist/StatusCard';
+import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

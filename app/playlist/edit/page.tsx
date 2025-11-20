@@ -5,11 +5,11 @@
  * and delegates all URL-dependent client behavior (direct launch parameters,
  * playlist form interactions, etc.) to `PlaylistEditClient`.
  */
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Suspense } from 'react';
 
-import { PlaylistEditClient } from '@/components/playlist-edit-client';
+import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 // Note: This page intentionally uses static `metadata` instead of

@@ -40,7 +40,7 @@ import { Header } from '@/components/header';
 import {
   PlaylistTitleCard,
   type PlaylistTitleCardVariant,
-} from '@/components/playlist-title-card';
+} from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;

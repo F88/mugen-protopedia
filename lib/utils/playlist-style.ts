@@ -1,4 +1,4 @@
-import type { PlaylistTitleCardVariant } from '@/components/playlist-title-card';
+import type { PlaylistTitleCardVariant } from '@/components/playlist/playlist-title';
 
 export type PlaylistFontFamily = 'sans' | 'serif' | 'mono';
 

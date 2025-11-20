@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { StatusCard } from '@/components/playlist/StatusCard';
+import { StatusCard } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

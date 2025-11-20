@@ -3,7 +3,7 @@ import { forwardRef, type ReactNode } from 'react';
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
 import { Dashboard, type DashboardProps } from './dashboard';
-import { PlaylistHeaderButton } from './playlist-header-button';
+import { PlaylistHeaderButton } from './playlist/playlist-header-button';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {

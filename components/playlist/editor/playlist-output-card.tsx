@@ -1,6 +1,6 @@
 import { logger } from '@/lib/logger.client';
 
-import { StatusCard, type CardState } from '@/components/playlist/StatusCard';
+import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 
 function getAggregateCardState(options: {

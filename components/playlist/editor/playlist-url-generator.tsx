@@ -17,12 +17,12 @@ import {
 
 import { scrapePageHtml } from '@/app/actions/scrape';
 
-import { PlaylistOutputCard } from '@/components/playlist/PlaylistOutputCard';
-import { PlaylistPreviewCard } from '@/components/playlist/PlaylistPreviewCard';
-import { PlaylistTitleCard } from '@/components/playlist/PlaylistTitleCard';
-import { ExtractPrototypeUrlsCard } from '@/components/playlist/ExtractPrototypeUrlsCard';
-import type { LastDriver } from '@/components/playlist/PrototypeInputsCard';
-import { PrototypeInputsCard } from '@/components/playlist/PrototypeInputsCard';
+import { ExtractPrototypeUrlsCard } from '@/components/playlist/editor/extract-prototype-urls-card';
+import { PlaylistOutputCard } from '@/components/playlist/editor/playlist-output-card';
+import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
+import { PlaylistTitleCard } from '@/components/playlist/editor/playlist-title-card';
+import type { LastDriver } from '@/components/playlist/editor/prototype-inputs-card';
+import { PrototypeInputsCard } from '@/components/playlist/editor/prototype-inputs-card';
 
 type PlaylistUrlGeneratorProps = {
   directLaunchParams?: DirectLaunchParams;
@@ -224,4 +224,3 @@ export function PlaylistUrlGenerator({
     </div>
   );
 }
-

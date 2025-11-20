@@ -13,7 +13,7 @@ import {
   prototypeUrlsTextSchema,
 } from '@/schemas/playlist';
 
-import { StatusCard, type CardState } from '@/components/playlist/StatusCard';
+import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
