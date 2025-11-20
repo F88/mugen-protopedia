@@ -70,7 +70,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ### 2025-11-20
 
-- ✨▶️📋 プレイリスト編集機能を追加
+- ✨▶️📋 プレイリスト編集機能(beta)を追加
 
 ### 2025-11-17
 
