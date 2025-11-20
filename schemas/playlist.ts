@@ -38,3 +38,16 @@ export const prototypeUrlsTextSchema = z
         'Each non-empty line must be a valid ProtoPedia prototype URL (https://protopedia.net/prototype/<id>).',
     },
   );
+
+export const pageUrlSchema = z
+  .string()
+  .transform((value) => value ?? '')
+  .refine(
+    (value) => value.length === 0 || z.string().url().safeParse(value).success,
+    {
+      message: 'Please enter a valid URL.',
+    },
+  )
+  .refine((value) => value.length === 0 || value.startsWith('https://'), {
+    message: 'Please enter a valid https URL.',
+  });
