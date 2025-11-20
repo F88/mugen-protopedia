@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, expect, it } from 'vitest';
 import { PlaylistEditor } from '@/components/playlist/editor/playlist-editor';
@@ -147,7 +147,7 @@ describe('Work flow: urls > ids', () => {
 });
 
 describe('Work flow: clear + validation', () => {
-  it('clears IDs error after Clear IDs (title-only playlist no longer allowed with Inputs error)', () => {
+  it('clears IDs error after Clear IDs and keeps playlist URL disabled when only title is valid', () => {
     render(<PlaylistEditor />);
 
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
@@ -169,10 +169,8 @@ describe('Work flow: clear + validation', () => {
     fireEvent.click(clearIdsButton);
 
     expect(idsTextarea).toHaveValue('');
-    // Title is still valid, so canGeneratePlaylistUrl remains true.
-    // Playlist URL should still be generated.
-    const playlistUrlCode = screen.getByTestId('playlist-url-code');
-    expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
+    // With only title valid and no IDs, playlist URL is not generated.
+    expect(screen.queryByTestId('playlist-url-code')).toBeNull();
   });
 
   it('clears URLs error when Clear URLs is clicked', () => {
@@ -198,7 +196,7 @@ describe('Work flow: clear + validation', () => {
     expect(urlsTextarea).toHaveValue('');
   });
 
-  it('clears title error and supports IDs-only playlist URL after Clear Title', () => {
+  it('clears title error and supports IDs-only playlist URL after Clear Title', async () => {
     render(<PlaylistEditor />);
 
     const titleInput = screen.getByLabelText('Playlist Title');
@@ -221,8 +219,10 @@ describe('Work flow: clear + validation', () => {
 
     expect(titleInput).toHaveValue('');
     // IDs are still valid, so canGeneratePlaylistUrl remains true via IDs-only.
-    const playlistUrlCode = screen.getByTestId('playlist-url-code');
-    expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
+    await waitFor(() => {
+      const playlistUrlCode = screen.getByTestId('playlist-url-code');
+      expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
+    });
   });
 
   it('highlights title when auto-filled from extracted page title', () => {
