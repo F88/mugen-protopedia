@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
+import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
+
 import { logger } from '@/lib/logger.client';
 import { extractPrototypeUrls } from '@/lib/utils/playlist-builder';
 import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+import { pageUrlSchema } from '@/schemas/playlist';
 
 export type ExtractSource = {
   url: string;
@@ -20,25 +23,44 @@ export type ExtractPrototypeUrlsCardProps = {
   source: ExtractSource;
   isFetching: boolean;
   onFetch: (url: string) => Promise<string>; // returns HTML
-  onApplyUrls: (urls: string[]) => void;
-  onApplyTitle: (title: string | null) => void;
+  onUrlsExtracted: (urls: string[]) => void;
+  onTitleExtracted: (title: string | null) => void;
 };
 
 export function ExtractPrototypeUrlsCard({
   source,
   isFetching,
   onFetch,
-  onApplyUrls,
-  onApplyTitle,
+  onUrlsExtracted,
+  onTitleExtracted,
 }: ExtractPrototypeUrlsCardProps) {
   const [rawContent, setRawContent] = useState('');
 
   const [lastExtractCount, setLastExtractCount] = useState<number | null>(null);
+  const [rawContentError, setRawContentError] = useState<string | null>(null);
+
+  const handlePageUrlChange = (nextUrl: string) => {
+    source.setUrl(nextUrl);
+
+    const trimmed = nextUrl.trim();
+    if (trimmed.length === 0) {
+      source.setError(null);
+      return;
+    }
+
+    const result = pageUrlSchema.safeParse(trimmed);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      source.setError(firstIssue?.message ?? 'Please enter a valid https URL.');
+    } else {
+      source.setError(null);
+    }
+  };
 
   const handleExtractFromContent = () => {
     const content = rawContent.trim();
     if (!content) {
-      source.setError('Paste HTML or TSV content to extract from.');
+      setRawContentError('Paste HTML or TSV content to extract from.');
       return;
     }
 
@@ -50,14 +72,14 @@ export function ExtractPrototypeUrlsCard({
     setLastExtractCount(urls.length);
 
     if (urls.length === 0) {
-      source.setError(
+      setRawContentError(
         'No ProtoPedia prototype URLs were found in the content.',
       );
       return;
     }
 
-    source.setError(null);
-    onApplyUrls(urls);
+    setRawContentError(null);
+    onUrlsExtracted(urls);
   };
 
   const handleFetchFromPage = async () => {
@@ -102,21 +124,17 @@ export function ExtractPrototypeUrlsCard({
       }
 
       source.setError(null);
-      onApplyUrls(urls);
-
-      if (!rawContent) {
-        setRawContent(html);
-      }
+      onUrlsExtracted(urls);
 
       if (!urls || urls.length === 0) {
-        onApplyTitle(null);
+        onTitleExtracted(null);
         return;
       }
 
       const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
       const pageTitle = match?.[1]?.trim() ?? '';
       if (pageTitle) {
-        onApplyTitle(pageTitle);
+        onTitleExtracted(pageTitle);
       }
     } catch (error) {
       logger.error('extract-card:fetch:error', {
@@ -134,7 +152,7 @@ export function ExtractPrototypeUrlsCard({
     }
   };
 
-  const hasError = Boolean(source.error);
+  const hasError = Boolean(source.error) || Boolean(rawContentError);
   const hasAnyValid = (lastExtractCount ?? 0) > 0;
   const cardState = hasError ? 'invalid' : hasAnyValid ? 'valid' : 'neutral';
 
@@ -144,47 +162,71 @@ export function ExtractPrototypeUrlsCard({
       state={cardState}
       description={
         <p className="mt-1 text-xs text-muted-foreground">
-          Paste HTML/TSV or fetch a page to extract ProtoPedia URLs into the
-          playlist editor.
+          Paste raw content or fetch a page to extract ProtoPedia prototype URLs
+          into the playlist editor.
         </p>
       }
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="extract-page-url" className="text-xs font-medium">
-            Page URL
-          </label>
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
-            <Input
-              id="extract-page-url"
-              type="url"
-              value={source.url}
-              onChange={(e) => {
-                source.setUrl(e.target.value);
-                if (source.error) {
-                  source.setError(null);
-                }
-              }}
-              className="w-full text-xs"
-              placeholder="Paste a page URL to fetch ProtoPedia URLs"
-              aria-describedby="extract-page-url-help"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleFetchFromPage}
-              disabled={isFetching}
-              aria-label="Fetch prototype URLs from page"
+          <div className="flex items-center gap-2">
+            <label htmlFor="extract-page-url" className="text-sm font-medium">
+              Page URL
+            </label>
+            <span
+              className="text-xs"
+              aria-live="polite"
+              data-test-id="extract-page-url-indicator"
             >
-              {isFetching ? 'Fetching…' : 'Fetch from page'}
-            </Button>
+              {getIndicatorSymbol({
+                hasValue: source.url.trim().length > 0,
+                hasError: Boolean(source.error),
+              })}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-[3fr_auto] md:items-start md:gap-3">
+            <div className="w-full max-w-3xl">
+              <Input
+                id="extract-page-url"
+                type="url"
+                value={source.url}
+                onChange={(e) => handlePageUrlChange(e.target.value)}
+                className="w-full text-xs bg-white dark:bg-zinc-900"
+                placeholder="Paste a page URL to fetch ProtoPedia URLs"
+                aria-describedby="extract-page-url-help"
+              />
+            </div>
+            <div className="flex gap-2 justify-start md:justify-end">
+              <Button
+                type="button"
+                variant="default"
+                onClick={handleFetchFromPage}
+                disabled={isFetching}
+                aria-label="Fetch prototype URLs from page"
+              >
+                {isFetching ? 'Fetching…' : 'Fetch'}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  source.setUrl('');
+                  source.setError(null);
+                  setLastExtractCount(null);
+                }}
+                disabled={
+                  !source.url && !source.error && lastExtractCount === null
+                }
+                aria-label="Clear page URL and errors"
+              >
+                Clear
+              </Button>
+            </div>
           </div>
           {source.error && (
-            <div className="flex flex-col gap-0.5 text-xs leading-relaxed text-red-600 dark:text-red-400">
-              {source.error.split('\n').map((line, index) => (
-                <div key={index}>{line}</div>
-              ))}
-            </div>
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {source.error}
+            </p>
           )}
           <p
             id="extract-page-url-help"
@@ -195,45 +237,71 @@ export function ExtractPrototypeUrlsCard({
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="extract-raw" className="text-xs font-medium">
-            Raw content (HTML or TSV)
-          </label>
-          <Textarea
-            id="extract-raw"
-            value={rawContent}
-            onChange={(e) => setRawContent(e.target.value)}
-            className="text-xs font-mono bg-white dark:bg-zinc-900"
-            placeholder={
-              'Paste raw HTML or TSV that includes ProtoPedia prototype URLs.'
-            }
-            rows={6}
-          />
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleExtractFromContent}
-              disabled={!rawContent.trim()}
-              aria-label="Extract URLs from raw content"
+          <div className="flex items-center gap-2">
+            <label htmlFor="extract-raw" className="text-sm font-medium">
+              Raw content (for example HTML, CSV, TSV)
+            </label>
+            <span
+              className="text-xs"
+              aria-live="polite"
+              data-test-id="extract-raw-indicator"
             >
-              Extract from content
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setRawContent('');
-                setLastExtractCount(null);
-                source.setError(null);
-              }}
-              disabled={
-                !rawContent && !source.error && lastExtractCount === null
-              }
-              aria-label="Clear raw content and errors"
-            >
-              Clear
-            </Button>
+              {getIndicatorSymbol({
+                hasValue: rawContent.trim().length > 0,
+                hasError: Boolean(rawContentError),
+              })}
+            </span>
           </div>
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-[3fr_auto] md:items-start md:gap-3">
+            <div className="w-full max-w-3xl">
+              <Textarea
+                id="extract-raw"
+                value={rawContent}
+                onChange={(e) => {
+                  setRawContent(e.target.value);
+                  if (rawContentError) {
+                    setRawContentError(null);
+                  }
+                }}
+                className="text-xs font-mono bg-white dark:bg-zinc-900"
+                placeholder={
+                  'Paste raw content (for example HTML, CSV, TSV) that includes ProtoPedia prototype URLs.'
+                }
+                rows={6}
+              />
+            </div>
+            <div className="flex gap-2 justify-start md:justify-end">
+              <Button
+                type="button"
+                variant="default"
+                onClick={handleExtractFromContent}
+                disabled={!rawContent.trim() || Boolean(rawContentError)}
+                aria-label="Extract URLs from raw content"
+              >
+                Extract
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  setRawContent('');
+                  setLastExtractCount(null);
+                  setRawContentError(null);
+                }}
+                disabled={
+                  !rawContent && !rawContentError && lastExtractCount === null
+                }
+                aria-label="Clear raw content and errors"
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+          {rawContentError && (
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {rawContentError}
+            </p>
+          )}
           {lastExtractCount !== null && (
             <p className="text-xs text-muted-foreground">
               Last extraction: {lastExtractCount} URL

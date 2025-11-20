@@ -1,8 +1,9 @@
-import { playlistTitleSchema } from '@/schemas/playlist';
-
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
+
+import { playlistTitleSchema } from '@/schemas/playlist';
 
 function getAggregateCardState(options: {
   hasError: boolean;
@@ -58,7 +59,10 @@ export function PlaylistTitleCard({
             aria-live="polite"
             data-test-id="title-indicator"
           >
-            {title.trim().length === 0 ? '(empty)' : titleError ? '❌' : '✅'}
+            {getIndicatorSymbol({
+              hasValue: title.trim().length > 0,
+              hasError: Boolean(titleError),
+            })}
           </span>
         </div>
         <Input
@@ -86,7 +90,7 @@ export function PlaylistTitleCard({
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
-            variant="secondary"
+            variant="destructive"
             onClick={() => {
               setTitle('');
               setTitleError(null);

@@ -1,5 +1,11 @@
 import { useMemo } from 'react';
 
+import { StatusCard, type CardState } from '@/components/status-card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+
+import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
+
 import { logger } from '@/lib/logger.client';
 import {
   deduplicateIdsPreserveOrder,
@@ -12,10 +18,6 @@ import {
   prototypeIdTextSchema,
   prototypeUrlsTextSchema,
 } from '@/schemas/playlist';
-
-import { StatusCard, type CardState } from '@/components/status-card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 
 function getInputStatusClasses(options: {
   highlighted: boolean;
@@ -139,11 +141,10 @@ export function PrototypeInputsCard({
               aria-live="polite"
               data-test-id="urls-indicator"
             >
-              {urls.text.trim().length === 0
-                ? '(empty)'
-                : urls.error
-                  ? '❌'
-                  : '✅'}
+              {getIndicatorSymbol({
+                hasValue: urls.text.trim().length > 0,
+                hasError: Boolean(urls.error),
+              })}
             </span>
           </div>
           <Textarea
@@ -183,7 +184,7 @@ export function PrototypeInputsCard({
           <div className="flex gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="destructive"
               onClick={() => {
                 urls.setText('');
                 urls.setError(null);
@@ -209,11 +210,10 @@ export function PrototypeInputsCard({
               aria-live="polite"
               data-test-id="ids-indicator"
             >
-              {ids.text.trim().length === 0
-                ? '(empty)'
-                : ids.error
-                  ? '❌'
-                  : '✅'}
+              {getIndicatorSymbol({
+                hasValue: ids.text.trim().length > 0,
+                hasError: Boolean(ids.error),
+              })}
             </span>
           </div>
           <Textarea
@@ -276,7 +276,7 @@ export function PrototypeInputsCard({
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="destructive"
               onClick={() => {
                 ids.setText('');
                 ids.setError(null);

@@ -22,8 +22,7 @@ describe('Work flow: ids', () => {
       name: 'Remove duplicate IDs',
     });
 
-    // Empty IDs -> indicator shows "(empty)" and buttons disabled.
-    expect(screen.getAllByText('(empty)')[1]).toBeInTheDocument();
+    // Empty IDs -> indicator shows no symbol and buttons disabled.
     expect(sortButton).toBeDisabled();
     expect(dedupButton).toBeDisabled();
 
@@ -82,12 +81,11 @@ describe('Work flow: urls > ids', () => {
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
 
-    // Empty state -> URLs indicator shows "(empty)" and button disabled.
     const urlsIndicator = container.querySelector(
       '[data-test-id="urls-indicator"]',
     );
     expect(urlsIndicator).not.toBeNull();
-    expect(urlsIndicator).toHaveTextContent('(empty)');
+    // Empty state -> URLs indicator shows no symbol and button disabled.
     const regenerateButton = screen.getByRole('button', {
       name: 'Regenerate IDs from Prototype URLs',
     });
@@ -172,8 +170,6 @@ describe('Work flow: clear + validation', () => {
 
     expect(idsTextarea).toHaveValue('');
 
-    expect(screen.getAllByText('(empty)')[1]).toBeInTheDocument();
-
     const playlistUrlHeading = screen.getByText('Playlist URL');
     const playlistCard = playlistUrlHeading.closest('div');
     expect(playlistCard).toBeInTheDocument();
@@ -200,7 +196,6 @@ describe('Work flow: clear + validation', () => {
     fireEvent.click(clearUrlsButton);
 
     expect(urlsTextarea).toHaveValue('');
-    expect(urlsIndicator).toHaveTextContent('(empty)');
   });
 
   it('clears title error and supports IDs-only playlist URL after Clear Title', () => {

@@ -171,14 +171,14 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
           const { html } = await triggerScrape(url);
           return html;
         }}
-        onApplyUrls={(urls) => {
+        onUrlsExtracted={(urls) => {
           const text = urls.join('\n');
           setUrlsText(text);
           setUrlsError(null);
           setLastDriver('urls');
           setUrlsHighlighted(true);
         }}
-        onApplyTitle={(nextTitle) => {
+        onTitleExtracted={(nextTitle) => {
           if (!nextTitle) return;
           if (title.trim().length > 0) return;
           setTitle(nextTitle);

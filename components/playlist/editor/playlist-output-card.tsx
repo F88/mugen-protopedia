@@ -1,7 +1,9 @@
-import { logger } from '@/lib/logger.client';
-
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
+
+import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
+
+import { logger } from '@/lib/logger.client';
 
 function getAggregateCardState(options: {
   hasError: boolean;
@@ -85,19 +87,17 @@ export function PlaylistOutputCard({
         <div className="flex flex-wrap items-center gap-4 text-xs">
           <span data-test-id="playlist-ids-indicator">
             IDs:{' '}
-            {ids.idsText.trim().length === 0
-              ? '(empty)'
-              : ids.idsError
-                ? '❌'
-                : '✅'}
+            {getIndicatorSymbol({
+              hasValue: ids.idsText.trim().length > 0,
+              hasError: Boolean(ids.idsError),
+            })}
           </span>
           <span data-test-id="playlist-title-indicator">
             Title:{' '}
-            {title.title.trim().length === 0
-              ? '(empty)'
-              : title.titleError
-                ? '❌'
-                : '✅'}
+            {getIndicatorSymbol({
+              hasValue: title.title.trim().length > 0,
+              hasError: Boolean(title.titleError),
+            })}
           </span>
         </div>
         <h2 className="text-lg font-semibold">Playlist URL</h2>
