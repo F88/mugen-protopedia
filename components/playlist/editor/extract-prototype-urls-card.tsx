@@ -166,6 +166,9 @@ export function ExtractPrototypeUrlsCard({
           into the playlist editor.
         </p>
       }
+      helpText={`Use this card to extract ProtoPedia prototype URLs.
+You can either fetch a page by URL
+or paste raw content and extract URLs into the editor.`}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -185,23 +188,23 @@ export function ExtractPrototypeUrlsCard({
             </span>
           </div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-[3fr_auto] md:items-start md:gap-3">
-            <div className="w-full max-w-3xl">
-              <Input
-                id="extract-page-url"
-                type="url"
-                value={source.url}
-                onChange={(e) => handlePageUrlChange(e.target.value)}
-                className="w-full text-xs bg-white dark:bg-zinc-900"
-                placeholder="Paste a page URL to fetch ProtoPedia URLs"
-                aria-describedby="extract-page-url-help"
-              />
-            </div>
+            <Input
+              id="extract-page-url"
+              type="url"
+              value={source.url}
+              onChange={(e) => handlePageUrlChange(e.target.value)}
+              className="w-full text-xs bg-white dark:bg-zinc-900"
+              placeholder="Paste a page URL to fetch ProtoPedia URLs"
+              aria-describedby="extract-page-url-help"
+            />
             <div className="flex gap-2 justify-start md:justify-end">
               <Button
                 type="button"
                 variant="default"
                 onClick={handleFetchFromPage}
-                disabled={isFetching}
+                disabled={
+                  isFetching || !source.url.trim() || Boolean(source.error)
+                }
                 aria-label="Fetch prototype URLs from page"
               >
                 {isFetching ? 'Fetching…' : 'Fetch'}
@@ -214,9 +217,7 @@ export function ExtractPrototypeUrlsCard({
                   source.setError(null);
                   setLastExtractCount(null);
                 }}
-                disabled={
-                  !source.url && !source.error && lastExtractCount === null
-                }
+                disabled={!source.url.trim() && !source.error}
                 aria-label="Clear page URL and errors"
               >
                 Clear
@@ -253,23 +254,21 @@ export function ExtractPrototypeUrlsCard({
             </span>
           </div>
           <div className="grid grid-cols-1 gap-2 md:grid-cols-[3fr_auto] md:items-start md:gap-3">
-            <div className="w-full max-w-3xl">
-              <Textarea
-                id="extract-raw"
-                value={rawContent}
-                onChange={(e) => {
-                  setRawContent(e.target.value);
-                  if (rawContentError) {
-                    setRawContentError(null);
-                  }
-                }}
-                className="text-xs font-mono bg-white dark:bg-zinc-900"
-                placeholder={
-                  'Paste raw content (for example HTML, CSV, TSV) that includes ProtoPedia prototype URLs.'
+            <Textarea
+              id="extract-raw"
+              value={rawContent}
+              onChange={(e) => {
+                setRawContent(e.target.value);
+                if (rawContentError) {
+                  setRawContentError(null);
                 }
-                rows={6}
-              />
-            </div>
+              }}
+              className="text-xs font-mono bg-white dark:bg-zinc-900"
+              placeholder={
+                'Paste raw content (for example HTML, CSV, TSV) that includes ProtoPedia prototype URLs.'
+              }
+              rows={6}
+            />
             <div className="flex gap-2 justify-start md:justify-end">
               <Button
                 type="button"
