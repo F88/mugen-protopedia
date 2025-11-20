@@ -53,7 +53,7 @@ export function PlaylistPreviewCard({
   }, [effectiveIds]);
 
   return (
-    <Card className="w-full p-4 border-4">
+    <Card className="w-full py-4 border-4">
       <CardHeader>
         <CardTitle>Prototypes in playlist</CardTitle>
       </CardHeader>

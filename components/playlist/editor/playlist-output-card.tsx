@@ -3,7 +3,7 @@ import React from 'react';
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 
-import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
+// import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
 
 import { logger } from '@/lib/logger.client';
 
@@ -22,28 +22,25 @@ export type PlaylistOutputCardProps = {
     idsText: string;
     effectiveIds: number[];
   };
-  title: {
+  title: { title: string; titleError: string | null };
+  playlistUrl: { url: string; highlighted: boolean };
+  titleOfPlaylistPage: {
     title: string;
-    titleError: string | null;
-  };
-  playlist: {
-    playlistUrl: string;
-    pageTitle: string;
+    highlighted: boolean;
   };
   canGeneratePlaylistUrl: boolean;
   onCopy: () => void;
   copyStatus: 'idle' | 'ok' | 'fail';
   hasInputError: boolean;
-  highlighted: boolean;
 };
 
 export function PlaylistOutputCard({
   ids,
   title,
-  playlist,
+  playlistUrl,
+  titleOfPlaylistPage,
   copyStatus,
   canGeneratePlaylistUrl,
-  highlighted,
   hasInputError,
   onCopy,
 }: PlaylistOutputCardProps) {
@@ -53,20 +50,17 @@ export function PlaylistOutputCard({
   const cardState: CardState = getAggregateCardState({
     hasError:
       Boolean(ids.idsError) || Boolean(title.titleError) || hasInputError,
-    hasAnyValid: hasIds || hasTitle || Boolean(playlist.playlistUrl),
+    hasAnyValid: hasIds || hasTitle || Boolean(playlistUrl.url),
   });
 
   logger.debug('playlist-output:status', {
     props: {
-      playlist: {
-        playlistUrl: playlist.playlistUrl,
-        pageTitle: playlist.pageTitle,
-      },
+      playlistUrl,
+      titleOfPlaylistPage,
       title,
       idsTextLength: ids.idsText.length,
       copyStatus,
       canGeneratePlaylistUrl,
-      playlistHighlighted: highlighted,
       hasInputError,
     },
     derived: {
@@ -90,7 +84,7 @@ export function PlaylistOutputCard({
 Once available, you can copy it or open it in a new tab.
 Title and IDs can be edited from the other cards above.`}
     >
-      <div className="flex flex-wrap items-center gap-4 text-xs">
+      {/* <div className="flex flex-wrap items-center gap-4 text-xs">
         <span data-test-id="playlist-ids-indicator">
           IDs:{' '}
           {getIndicatorSymbol({
@@ -105,40 +99,50 @@ Title and IDs can be edited from the other cards above.`}
             hasError: Boolean(title.titleError),
           })}
         </span>
-      </div>
+      </div> */}
 
-      <div
-        className={`flex flex-col gap-2 rounded-md border border-transparent transition-all duration-300 ${
-          highlighted
-            ? 'border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)]'
-            : ''
-        }`}
-      >
-        {playlist.pageTitle && (
+      <div className="flex flex-col gap-4">
+        {titleOfPlaylistPage.title && (
           <>
-            <h2 className="text-lg font-semibold">Title of page</h2>
-            <code className="rounded bg-muted px-3 py-2 text-xs break-all">
-              {playlist.pageTitle}
-            </code>
+            <h2 className="text-sm font-semibold">Title of page</h2>
+            <div
+              className={`flex flex-col gap-2 rounded-md border border-transparent transition-all duration-300 ${
+                titleOfPlaylistPage.highlighted
+                  ? 'border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)]'
+                  : ''
+              }`}
+            >
+              <code className="rounded bg-muted px-3 py-2 text-xs break-all">
+                {titleOfPlaylistPage.title}
+              </code>
+            </div>
           </>
         )}
 
-        <h2 className="text-lg font-semibold">URL</h2>
-        {playlist.playlistUrl ? (
-          <div className="flex flex-col gap-4">
-            <code className="rounded bg-muted px-3 py-2 text-xs break-all">
-              {playlist.playlistUrl}
-            </code>
+        {playlistUrl.url ? (
+          <>
+            <h2 className="text-sm font-semibold">URL</h2>
+            <div
+              className={`flex flex-col gap-2 rounded-md border border-transparent  transition-all duration-300 ${
+                playlistUrl.highlighted
+                  ? 'border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)]'
+                  : ''
+              }`}
+            >
+              <code className="rounded bg-muted px-3 py-2 text-xs break-all">
+                {playlistUrl.url}
+              </code>
+            </div>
             <div className="flex gap-3">
               <Button
                 type="button"
                 onClick={onCopy}
-                disabled={!playlist.playlistUrl}
+                disabled={!playlistUrl.url}
               >
                 Copy
               </Button>
               <a
-                href={playlist.playlistUrl}
+                href={playlistUrl.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
@@ -156,7 +160,7 @@ Title and IDs can be edited from the other cards above.`}
                 Copy failed
               </span>
             )}
-          </div>
+          </>
         ) : (
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">

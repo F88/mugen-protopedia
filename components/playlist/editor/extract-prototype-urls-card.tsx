@@ -12,6 +12,23 @@ import { extractPrototypeUrls } from '@/lib/utils/playlist-builder';
 import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
 import { pageUrlSchema } from '@/schemas/playlist';
 
+function getInputStatusClasses(options: {
+  highlighted: boolean;
+  hasError: boolean;
+  isValid: boolean;
+}) {
+  if (options.highlighted) {
+    return 'border-4 border-yellow-400! dark:border-yellow-500!';
+  }
+  if (options.hasError) {
+    return 'border-4 border-red-500! dark:border-red-400!';
+  }
+  if (options.isValid) {
+    return 'border-4 border-emerald-500! dark:border-emerald-400!';
+  }
+  return '';
+}
+
 export type ExtractSource = {
   url: string;
   setUrl: (value: string) => void;
@@ -38,6 +55,8 @@ export function ExtractPrototypeUrlsCard({
 
   const [lastExtractCount, setLastExtractCount] = useState<number | null>(null);
   const [rawContentError, setRawContentError] = useState<string | null>(null);
+  const [pageUrlHighlighted, setPageUrlHighlighted] = useState(false);
+  const [rawContentHighlighted, setRawContentHighlighted] = useState(false);
 
   const handlePageUrlChange = (nextUrl: string) => {
     source.setUrl(nextUrl);
@@ -55,6 +74,8 @@ export function ExtractPrototypeUrlsCard({
     } else {
       source.setError(null);
     }
+
+    setPageUrlHighlighted(true);
   };
 
   const handleExtractFromContent = () => {
@@ -80,6 +101,7 @@ export function ExtractPrototypeUrlsCard({
 
     setRawContentError(null);
     onUrlsExtracted(urls);
+    setRawContentHighlighted(true);
   };
 
   const handleFetchFromPage = async () => {
@@ -125,6 +147,7 @@ export function ExtractPrototypeUrlsCard({
 
       source.setError(null);
       onUrlsExtracted(urls);
+      setPageUrlHighlighted(true);
 
       if (!urls || urls.length === 0) {
         onTitleExtracted(null);
@@ -156,9 +179,12 @@ export function ExtractPrototypeUrlsCard({
   const hasAnyValid = (lastExtractCount ?? 0) > 0;
   const cardState = hasError ? 'invalid' : hasAnyValid ? 'valid' : 'neutral';
 
+  const pageUrlIsValid = Boolean(source.url.trim()) && !source.error;
+  const rawContentIsValid = Boolean(rawContent.trim()) && !rawContentError;
+
   return (
     <StatusCard
-      title="Extract prototype URLs"
+      title="Extract prototype URLs (ID generation assistant)"
       state={cardState}
       description={
         <p className="mt-1 text-xs text-muted-foreground">
@@ -193,7 +219,13 @@ or paste raw content and extract URLs into the editor.`}
               type="url"
               value={source.url}
               onChange={(e) => handlePageUrlChange(e.target.value)}
-              className="w-full text-xs bg-white dark:bg-zinc-900"
+              className={`w-full text-xs bg-white dark:bg-zinc-900 ${getInputStatusClasses(
+                {
+                  highlighted: pageUrlHighlighted,
+                  hasError: Boolean(source.error),
+                  isValid: pageUrlIsValid,
+                },
+              )}`}
               placeholder="Paste a page URL to fetch ProtoPedia URLs"
               aria-describedby="extract-page-url-help"
             />
@@ -263,7 +295,13 @@ or paste raw content and extract URLs into the editor.`}
                   setRawContentError(null);
                 }
               }}
-              className="text-xs font-mono bg-white dark:bg-zinc-900"
+              className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
+                {
+                  highlighted: rawContentHighlighted,
+                  hasError: Boolean(rawContentError),
+                  isValid: rawContentIsValid,
+                },
+              )}`}
               placeholder={
                 'Paste raw content (for example HTML, CSV, TSV) that includes ProtoPedia prototype URLs.'
               }

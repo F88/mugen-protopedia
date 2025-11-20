@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import useSWRMutation from 'swr/mutation';
@@ -23,8 +21,10 @@ import { ExtractPrototypeUrlsCard } from '@/components/playlist/editor/extract-p
 import { PlaylistOutputCard } from '@/components/playlist/editor/playlist-output-card';
 import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
 import { PlaylistTitleCard } from '@/components/playlist/editor/playlist-title-card';
-import type { LastDriver } from '@/components/playlist/editor/prototype-inputs-card';
-import { PrototypeInputsCard } from '@/components/playlist/editor/prototype-inputs-card';
+import {
+  type LastDriver,
+  PrototypeInputsCard,
+} from '@/components/playlist/editor/prototype-inputs-card';
 
 type PlaylistEditorProps = {
   directLaunchParams?: DirectLaunchParams;
@@ -164,6 +164,11 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return computeDocumentTitle(playMode);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
+  useEffect(() => {
+    if (!playlistPageTitle) return;
+    setPlaylistTitleHighlighted(true);
+  }, [playlistPageTitle]);
+
   const handleCopy = useCallback(async () => {
     if (!playlistUrl) return;
     try {
@@ -233,13 +238,16 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
       <PlaylistOutputCard
         ids={{ idsError, idsText, effectiveIds }}
         title={{ title, titleError }}
-        playlist={{ playlistUrl, pageTitle: playlistPageTitle }}
+        titleOfPlaylistPage={{
+          title: playlistPageTitle,
+          highlighted: playlistTitleHighlighted,
+        }}
+        playlistUrl={{
+          url: playlistUrl,
+          highlighted: playlistUrlHighlighted,
+        }}
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
-        highlights={{
-          title: playlistTitleHighlighted,
-          url: playlistUrlHighlighted,
-        }}
         hasInputError={hasInputError}
         onCopy={handleCopy}
       />

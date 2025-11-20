@@ -90,7 +90,11 @@ You can change it any time before using the playlist.`}
           className={`w-full text-sm bg-white dark:bg-zinc-900 ${
             highlighted
               ? 'border-4 border-yellow-400! dark:border-yellow-500!'
-              : ''
+              : titleError
+                ? 'border-4 border-red-500! dark:border-red-400!'
+                : titleIsValid
+                  ? 'border-4 border-emerald-500! dark:border-emerald-400!'
+                  : ''
           }`}
           placeholder="Enter playlist title"
           aria-describedby="playlist-title-help"

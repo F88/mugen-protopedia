@@ -26,12 +26,13 @@ export function StatusCard({
   helpText,
   children,
 }: StatusCardProps) {
+  const baseClassName = 'w-full py-4 border-4 ';
   const cardClassName =
     state === 'invalid'
-      ? 'w-full p-4 border-4 !border-red-500/70 bg-red-800/10'
+      ? baseClassName + '!border-red-500/70 bg-red-800/10'
       : state === 'valid'
-        ? 'w-full p-4 border-4 !border-emerald-500/70 bg-emerald-800/10'
-        : 'w-full p-4 border-4 border-border';
+        ? baseClassName + '!border-emerald-500/70 bg-emerald-800/10'
+        : baseClassName + 'border-border';
 
   return (
     <Card className={cardClassName}>
