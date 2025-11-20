@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
@@ -14,25 +14,22 @@ function setup() {
   const onUrlsExtracted = vi.fn<(urls: string[]) => void>();
   const onTitleExtracted = vi.fn<(title: string | null) => void>();
 
-  let url = '';
-  let error: string | null = null;
+  function Wrapper() {
+    const [url, setUrl] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
-  const setUrl = (value: string) => {
-    url = value;
-  };
-  const setError = (value: string | null) => {
-    error = value;
-  };
+    return (
+      <ExtractPrototypeUrlsCard
+        source={{ url, setUrl, error, setError }}
+        isFetching={false}
+        onFetch={onFetch}
+        onUrlsExtracted={onUrlsExtracted}
+        onTitleExtracted={onTitleExtracted}
+      />
+    );
+  }
 
-  const result = render(
-    <ExtractPrototypeUrlsCard
-      source={{ url, setUrl, error, setError }}
-      isFetching={false}
-      onFetch={onFetch}
-      onUrlsExtracted={onUrlsExtracted}
-      onTitleExtracted={onTitleExtracted}
-    />,
-  );
+  const result = render(<Wrapper />);
 
   return {
     ...result,
@@ -150,15 +147,15 @@ describe('ExtractPrototypeUrlsCard', () => {
       target: { value: 'https://protopedia.net/some/page' },
     });
 
-    expect(fetchButton).not.toBeDisabled();
+    // Fetch button should eventually be enabled for a syntactically valid URL.
+    await waitFor(() => {
+      expect(fetchButton).not.toBeDisabled();
+    });
 
     fireEvent.click(fetchButton);
 
     await waitFor(() => {
       expect(onFetch).toHaveBeenCalledWith('https://protopedia.net/some/page');
-    });
-
-    await waitFor(() => {
       expect(onUrlsExtracted).toHaveBeenCalled();
       expect(onTitleExtracted).toHaveBeenCalledWith('Page');
     });
