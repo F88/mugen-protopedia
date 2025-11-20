@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { PlaylistTitleCard } from '@/components/playlist-title-card';
+import { PlaylistTitleCard } from '@/components/playlist/playlist-title';
 
 describe('PlaylistTitleCard', () => {
   const defaultProps = {

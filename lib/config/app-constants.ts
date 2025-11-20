@@ -24,3 +24,13 @@ export const APP_KEYWORDS = [
 ] as const;
 
 export type AppKeyword = (typeof APP_KEYWORDS)[number];
+
+// Allowed origins for ProtoPedia-related scraping and page fetching.
+// Safe to use from both client and server code.
+export const PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS = [
+  'https://protopedia.net',
+  'https://mashupawards.connpass.com',
+] as const;
+
+export type ProtopediaScrapeAllowedOrigin =
+  (typeof PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS)[number];

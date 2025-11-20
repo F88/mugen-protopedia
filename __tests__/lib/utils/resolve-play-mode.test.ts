@@ -2,10 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import type { Result } from '@/lib/utils/result';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
-import type {
-  DirectLaunchParams,
-  ValidationError,
-} from '@/lib/utils/validation';
+import type { ValidationError } from '@/lib/validation/validation';
+import { DirectLaunchParams } from '@/schemas/direct-launch';
 
 const successResult = (
   value: DirectLaunchParams,

@@ -7,10 +7,8 @@ import type {
 } from '@/types/mugen-protopedia.types';
 
 import type { Result } from '@/lib/utils/result';
-import type {
-  DirectLaunchParams,
-  ValidationError,
-} from '@/lib/utils/validation';
+import type { ValidationError } from '@/lib/validation/validation';
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
 export type ResolvePlayModeArgs = {
   directLaunchResult?: Result<DirectLaunchParams, ValidationError>;
@@ -28,6 +26,9 @@ export const buildPlaylistPlayModeState = (
   title: params.title,
 });
 
+/**
+ * Resolves the play mode based on the provided direct launch parameters.
+ */
 export const resolvePlayMode = ({
   directLaunchResult,
 }: ResolvePlayModeArgs): PlayModeState => {

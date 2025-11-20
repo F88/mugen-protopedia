@@ -1,11 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
 import { DirectLaunchResult } from './direct-launch-result';
-import type {
-  DirectLaunchParams,
-  ValidationError,
-} from '@/lib/utils/validation';
+import type { ValidationError } from '@/lib/validation/validation';
 import type { Result } from '@/lib/utils/result';
+import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
 const successResult: Result<DirectLaunchParams, ValidationError> = {
   type: 'success',

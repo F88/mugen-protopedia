@@ -40,7 +40,7 @@ import { Header } from '@/components/header';
 import {
   PlaylistTitleCard,
   type PlaylistTitleCardVariant,
-} from '@/components/playlist-title-card';
+} from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
@@ -89,7 +89,7 @@ const arePlayModeStatesEqual = (
   return false;
 };
 
-export function HomeContent() {
+export function MugenProtoPedia() {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);

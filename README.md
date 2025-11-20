@@ -22,6 +22,10 @@ Endless exploration of prototypes in [ProtoPedia](https://protopedia.net/). Unpr
     - Enhanced for large screens with powerful keyboard shortcuts (`Enter`, `j/k`, `r`, etc.). Experience efficient browsing and discover more prototypes on desktop.
     - 大きなスクリーンとキーボードショートカット（`Enter`, `j/k`, `r` など）で、デスクトップ環境でも最高の体験を提供。効率的なブラウジングで、より多くのプロトタイプに出会えます。
 
+- ▶️ Playlist Playback Mode / プレイリスト再生モード
+    - Auto‑play a curated list of prototypes just by opening a playlist URL. Showcase your personal collection or an event lineup seamlessly. Includes a built‑in playlist builder.
+    - プレイリストURLを開くだけで選択した作品が自動連続再生。自分の作品集やイベントの登壇順リストとして楽しめる。ブラウザ上で簡単にプレイリスト生成も可能。
+
 ## About ProtoPedia
 
 [ProtoPedia](https://protopedia.net/) is a Japanese creative platform with the tagline "つくる、たのしむ、ひろがる" (Create, Enjoy, Expand). It serves as a community hub where makers, developers, and creators share their prototype projects across diverse categories:
@@ -54,7 +58,6 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ### 中 (Medium)
 
 - 分析ダッシュボードを高度化 (キャッシュヒット率 / レイテンシ時系列 / サイズ分布)
-- 共有コレクションの下準備 (権限 & 永続化層検討)
 - KBショートカットの強化
     - `?` ヘルプ
     - `e` でアーカイブ
@@ -62,9 +65,12 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 ### 低 (Low)
 
 - オフラインスナップショットエクスポート (デモ用)
-- コラボレーション向け共有リンク生成
 
 ## Changelog
+
+### 2025-11-20
+
+- ✨▶️📋 プレイリスト編集機能(beta)を追加
 
 ### 2025-11-17
 
