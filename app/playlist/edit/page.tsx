@@ -29,7 +29,7 @@ export const metadata: Metadata = {
  */
 export default function PlaylistEditPage() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-full flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Playlist Editor (Beta)</h1>
         <div className="flex items-center gap-3">

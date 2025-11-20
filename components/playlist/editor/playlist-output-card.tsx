@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 
@@ -76,31 +78,52 @@ export function PlaylistOutputCard({
   });
 
   return (
-    <StatusCard title="Playlist" state={cardState} description={null}>
+    <StatusCard
+      title="Playlist"
+      state={cardState}
+      description={
+        <p className="mt-1 text-xs text-muted-foreground">
+          Review and use the generated playlist URL.
+        </p>
+      }
+      helpText={`This card shows the final playlist URL.
+Once available, you can copy it or open it in a new tab.
+Title and IDs can be edited from the other cards above.`}
+    >
+      <div className="flex flex-wrap items-center gap-4 text-xs">
+        <span data-test-id="playlist-ids-indicator">
+          IDs:{' '}
+          {getIndicatorSymbol({
+            hasValue: ids.idsText.trim().length > 0,
+            hasError: Boolean(ids.idsError),
+          })}
+        </span>
+        <span data-test-id="playlist-title-indicator">
+          Title:{' '}
+          {getIndicatorSymbol({
+            hasValue: title.title.trim().length > 0,
+            hasError: Boolean(title.titleError),
+          })}
+        </span>
+      </div>
+
       <div
-        className={
+        className={`flex flex-col gap-2 rounded-md border border-transparent transition-all duration-300 ${
           highlighted
-            ? 'flex flex-col gap-2 border border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)] rounded-md p-3 transition-all duration-300'
-            : 'flex flex-col gap-2'
-        }
+            ? 'border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)]'
+            : ''
+        }`}
       >
-        <div className="flex flex-wrap items-center gap-4 text-xs">
-          <span data-test-id="playlist-ids-indicator">
-            IDs:{' '}
-            {getIndicatorSymbol({
-              hasValue: ids.idsText.trim().length > 0,
-              hasError: Boolean(ids.idsError),
-            })}
-          </span>
-          <span data-test-id="playlist-title-indicator">
-            Title:{' '}
-            {getIndicatorSymbol({
-              hasValue: title.title.trim().length > 0,
-              hasError: Boolean(title.titleError),
-            })}
-          </span>
-        </div>
-        <h2 className="text-lg font-semibold">Playlist URL</h2>
+        {playlist.pageTitle && (
+          <>
+            <h2 className="text-lg font-semibold">Title of page</h2>
+            <code className="rounded bg-muted px-3 py-2 text-xs break-all">
+              {playlist.pageTitle}
+            </code>
+          </>
+        )}
+
+        <h2 className="text-lg font-semibold">URL</h2>
         {playlist.playlistUrl ? (
           <div className="flex flex-col gap-4">
             <code className="rounded bg-muted px-3 py-2 text-xs break-all">
@@ -118,7 +141,7 @@ export function PlaylistOutputCard({
                 href={playlist.playlistUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded bg-secondary px-4 py-2 text-sm font-medium hover:bg-secondary/80"
+                className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400"
               >
                 Open
               </a>
@@ -132,18 +155,6 @@ export function PlaylistOutputCard({
               <span className="text-xs text-red-600 dark:text-red-400">
                 Copy failed
               </span>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Title: {title.title || '(none)'}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              IDs used: {ids.effectiveIds.length} ({ids.effectiveIds.join(', ')}
-              )
-            </p>
-            {playlist.pageTitle && (
-              <p className="text-xs text-muted-foreground">
-                Page title: {playlist.pageTitle}
-              </p>
             )}
           </div>
         ) : (

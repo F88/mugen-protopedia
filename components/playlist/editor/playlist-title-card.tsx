@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +21,7 @@ export type PlaylistTitleCardProps = {
   setTitle: (value: string) => void;
   titleError: string | null;
   setTitleError: (value: string | null) => void;
+  highlighted: boolean;
 };
 
 export function PlaylistTitleCard({
@@ -26,6 +29,7 @@ export function PlaylistTitleCard({
   setTitle,
   titleError,
   setTitleError,
+  highlighted,
 }: PlaylistTitleCardProps) {
   const hasTitle = title.trim().length > 0;
   const titleIsValid = hasTitle && !titleError;
@@ -48,6 +52,9 @@ export function PlaylistTitleCard({
           emoji supported).
         </p>
       }
+      helpText={`Set an optional title for this playlist.
+The title becomes part of the generated playlist URL.
+You can change it any time before using the playlist.`}
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
@@ -80,7 +87,11 @@ export function PlaylistTitleCard({
               setTitleError(null);
             }
           }}
-          className="w-full text-sm bg-white dark:bg-zinc-900"
+          className={`w-full text-sm bg-white dark:bg-zinc-900 ${
+            highlighted
+              ? 'border-4 border-yellow-400! dark:border-yellow-500!'
+              : ''
+          }`}
           placeholder="Enter playlist title"
           aria-describedby="playlist-title-help"
         />
@@ -98,7 +109,7 @@ export function PlaylistTitleCard({
             disabled={!title}
             aria-label="Clear title"
           >
-            Clear Title
+            Clear
           </Button>
         </div>
       </div>

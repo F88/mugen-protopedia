@@ -58,7 +58,10 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   const [urlsError, setUrlsError] = useState<string | null>(null);
   const [urlsHighlighted, setUrlsHighlighted] = useState(false);
   const [idsHighlighted, setIdsHighlighted] = useState(false);
-  const [playlistHighlighted, setPlaylistHighlighted] = useState(false);
+  const [titleHighlighted, setTitleHighlighted] = useState(false);
+  const [playlistTitleHighlighted, setPlaylistTitleHighlighted] =
+    useState(false);
+  const [playlistUrlHighlighted, setPlaylistUrlHighlighted] = useState(false);
 
   const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
     ['scrapePageHtml'],
@@ -113,14 +116,29 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   }, [urlsArray, lastDriver, urlsError]);
 
   useEffect(() => {
-    if (!urlsHighlighted && !idsHighlighted && !playlistHighlighted) return;
+    if (
+      !urlsHighlighted &&
+      !idsHighlighted &&
+      !titleHighlighted &&
+      !playlistTitleHighlighted &&
+      !playlistUrlHighlighted
+    )
+      return;
     const timer = setTimeout(() => {
       setUrlsHighlighted(false);
       setIdsHighlighted(false);
-      setPlaylistHighlighted(false);
+      setTitleHighlighted(false);
+      setPlaylistTitleHighlighted(false);
+      setPlaylistUrlHighlighted(false);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [urlsHighlighted, idsHighlighted, playlistHighlighted]);
+  }, [
+    urlsHighlighted,
+    idsHighlighted,
+    titleHighlighted,
+    playlistTitleHighlighted,
+    playlistUrlHighlighted,
+  ]);
 
   const playlistUrl = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
@@ -131,7 +149,7 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
 
   useEffect(() => {
     if (!playlistUrl) return;
-    setPlaylistHighlighted(true);
+    setPlaylistUrlHighlighted(true);
   }, [playlistUrl]);
 
   const playlistPageTitle = useMemo(() => {
@@ -182,8 +200,9 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         }}
         onTitleExtracted={(nextTitle) => {
           if (!nextTitle) return;
-          if (title.trim().length > 0) return;
+          // Always override with the latest fetched or extracted title.
           setTitle(nextTitle);
+          setTitleHighlighted(true);
         }}
       />
       <PrototypeInputsCard
@@ -209,6 +228,7 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         setTitle={setTitle}
         titleError={titleError}
         setTitleError={setTitleError}
+        highlighted={titleHighlighted}
       />
       <PlaylistOutputCard
         ids={{ idsError, idsText, effectiveIds }}
@@ -216,7 +236,10 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         playlist={{ playlistUrl, pageTitle: playlistPageTitle }}
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
-        highlighted={playlistHighlighted}
+        highlights={{
+          title: playlistTitleHighlighted,
+          url: playlistUrlHighlighted,
+        }}
         hasInputError={hasInputError}
         onCopy={handleCopy}
       />

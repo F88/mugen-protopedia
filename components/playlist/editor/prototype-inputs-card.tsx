@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
@@ -129,6 +129,9 @@ export function PrototypeInputsCard({
           </p>
         </>
       }
+      helpText={`Use this card to control which prototypes are in the playlist.
+You can paste ProtoPedia URLs or enter numeric IDs directly.
+Edits here drive the effective list of prototype IDs used downstream.`}
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-2">
@@ -193,7 +196,7 @@ export function PrototypeInputsCard({
               disabled={!urls.text}
               aria-label="Clear URLs"
             >
-              Clear URLs
+              Clear
             </Button>
           </div>
           <p id="playlist-urls-help" className="text-xs text-muted-foreground">
@@ -253,10 +256,14 @@ export function PrototypeInputsCard({
               {ids.error}
             </p>
           )}
-          <div className="flex flex-wrap gap-2 mt-1">
+          <p className="text-xs text-muted-foreground">
+            Effective IDs: {effectiveIds.length}{' '}
+            {effectiveIds.length === 1 ? 'item' : 'items'}
+          </p>
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="default"
               onClick={() => {
                 const idsFromUrls = normalizeIdsFromUrls(urlsArray);
                 ids.setText(idsFromUrls.join('\n'));
@@ -268,28 +275,9 @@ export function PrototypeInputsCard({
             >
               Regenerate from URLs
             </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Effective IDs: {effectiveIds.length}{' '}
-            {effectiveIds.length === 1 ? 'item' : 'items'}
-          </p>
-          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              variant="destructive"
-              onClick={() => {
-                ids.setText('');
-                ids.setError(null);
-                setLastDriver('ids');
-              }}
-              disabled={!ids.text}
-              aria-label="Clear manual IDs"
-            >
-              Clear IDs
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
+              variant="default"
               onClick={() => {
                 const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
@@ -304,7 +292,7 @@ export function PrototypeInputsCard({
             </Button>
             <Button
               type="button"
-              variant="secondary"
+              variant="default"
               onClick={() => {
                 const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
@@ -316,6 +304,20 @@ export function PrototypeInputsCard({
               aria-label="Remove duplicate IDs"
             >
               Deduplicate IDs
+            </Button>
+
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                ids.setText('');
+                ids.setError(null);
+                setLastDriver('ids');
+              }}
+              disabled={!ids.text}
+              aria-label="Clear manual IDs"
+            >
+              Clear
             </Button>
           </div>
           <p id="playlist-ids-help" className="text-xs text-muted-foreground">
