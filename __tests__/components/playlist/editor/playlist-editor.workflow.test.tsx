@@ -141,8 +141,8 @@ describe('Work flow: urls > ids', () => {
       },
     });
 
-    expect(idsTextarea.className).toContain('bg-yellow-100');
-    expect(idsTextarea.className).toContain('shadow-[');
+    expect(idsTextarea.className).toContain('border-4');
+    expect(idsTextarea.className).toContain('!border-yellow-400');
   });
 });
 
@@ -215,7 +215,7 @@ describe('Work flow: clear + validation', () => {
     expect(screen.getByText('❌')).toBeInTheDocument();
 
     const clearTitleButton = screen.getByRole('button', {
-      name: 'Clear Title',
+      name: 'Clear title',
     });
     fireEvent.click(clearTitleButton);
 
@@ -258,8 +258,8 @@ describe('Work flow: playlist URL generation guardrails', () => {
     });
 
     // Playlist URL should be rendered in a code block once IDs are valid.
-    const codeBlocks = screen.getAllByText(/https?:\/\/.*playlist/);
-    expect(codeBlocks.length).toBeGreaterThan(0);
+    const codeBlock = screen.getByRole('code');
+    expect(codeBlock).toHaveTextContent(/^https?:\/\//);
   });
 });
 
@@ -267,9 +267,7 @@ describe('Work flow: fetch > urls > ids', () => {
   it('fills URLs from page and then regenerates IDs', () => {
     render(<PlaylistEditor />);
 
-    const pageUrlInput = screen.getByLabelText(
-      'Page URL (helper for Prototype URLs)',
-    );
+    const pageUrlInput = screen.getByLabelText('Page URL');
 
     // Initially empty URLs and IDs.
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
