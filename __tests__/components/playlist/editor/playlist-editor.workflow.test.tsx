@@ -170,7 +170,7 @@ describe('Work flow: clear + validation', () => {
 
     expect(idsTextarea).toHaveValue('');
 
-    const playlistUrlHeading = screen.getByText('Playlist URL');
+    const playlistUrlHeading = screen.getByText('URL');
     const playlistCard = playlistUrlHeading.closest('div');
     expect(playlistCard).toBeInTheDocument();
   });
@@ -221,8 +221,8 @@ describe('Work flow: clear + validation', () => {
 
     expect(titleInput).toHaveValue('');
 
-    const urlText = screen.getByText('Playlist URL');
-    expect(urlText).toBeInTheDocument();
+    const urlHeading = screen.getByText('URL');
+    expect(urlHeading).toBeInTheDocument();
   });
 
   it('highlights title when auto-filled from extracted page title', () => {
@@ -263,8 +263,8 @@ describe('Work flow: playlist URL generation guardrails', () => {
       target: { value: 'invalid-url' },
     });
 
-    // Playlist URL heading text is present, but no URL code block should be rendered.
-    expect(screen.getByText('Playlist URL')).toBeInTheDocument();
+    // Playlist URL heading text is present ("URL"), but no URL code block should be rendered.
+    expect(screen.getByText('URL')).toBeInTheDocument();
     expect(screen.queryByRole('code')).not.toBeInTheDocument();
   });
 
@@ -277,9 +277,11 @@ describe('Work flow: playlist URL generation guardrails', () => {
       target: { value: '1' },
     });
 
-    // Playlist URL should be rendered in a code block once IDs are valid.
-    const codeBlock = screen.getByRole('code');
-    expect(codeBlock).toHaveTextContent(/^https?:\/\//);
+    // Playlist URL should be rendered in at least one code block once IDs are valid.
+    const codeBlocks = screen.getAllByRole('code');
+    expect(
+      codeBlocks.some((el) => /^https?:\/\//.test(el.textContent ?? '')),
+    ).toBe(true);
   });
 });
 

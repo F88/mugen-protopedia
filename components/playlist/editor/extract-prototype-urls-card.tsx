@@ -10,16 +10,13 @@ import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor
 import { logger } from '@/lib/logger.client';
 import { extractPrototypeUrls } from '@/lib/utils/playlist-builder';
 import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
-import { pageUrlSchema } from '@/schemas/playlist';
+import { pageUrlSchema, rawContentSchema } from '@/schemas/playlist';
 
 function getInputStatusClasses(options: {
   highlighted: boolean;
   hasError: boolean;
   isValid: boolean;
 }) {
-  if (options.highlighted) {
-    return 'border-4 border-yellow-400! dark:border-yellow-500!';
-  }
   if (options.hasError) {
     return 'border-4 border-red-500! dark:border-red-400!';
   }
@@ -55,7 +52,6 @@ export function ExtractPrototypeUrlsCard({
 
   const [lastExtractCount, setLastExtractCount] = useState<number | null>(null);
   const [rawContentError, setRawContentError] = useState<string | null>(null);
-  const [pageUrlHighlighted, setPageUrlHighlighted] = useState(false);
   const [rawContentHighlighted, setRawContentHighlighted] = useState(false);
 
   const handlePageUrlChange = (nextUrl: string) => {
@@ -74,16 +70,17 @@ export function ExtractPrototypeUrlsCard({
     } else {
       source.setError(null);
     }
-
-    setPageUrlHighlighted(true);
   };
 
   const handleExtractFromContent = () => {
-    const content = rawContent.trim();
-    if (!content) {
-      setRawContentError('Paste HTML or TSV content to extract from.');
+    const result = rawContentSchema.safeParse(rawContent);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      setRawContentError(firstIssue?.message ?? null);
       return;
     }
+
+    const content = result.data.trim();
 
     const urls = extractPrototypeUrls(content, source.url || undefined);
     logger.debug('extract-card:content:urlsExtracted', {
@@ -147,7 +144,6 @@ export function ExtractPrototypeUrlsCard({
 
       source.setError(null);
       onUrlsExtracted(urls);
-      setPageUrlHighlighted(true);
 
       if (!urls || urls.length === 0) {
         onTitleExtracted(null);
@@ -221,7 +217,7 @@ or paste raw content and extract URLs into the editor.`}
               onChange={(e) => handlePageUrlChange(e.target.value)}
               className={`w-full text-xs bg-white dark:bg-zinc-900 ${getInputStatusClasses(
                 {
-                  highlighted: pageUrlHighlighted,
+                  highlighted: false,
                   hasError: Boolean(source.error),
                   isValid: pageUrlIsValid,
                 },
@@ -334,6 +330,9 @@ or paste raw content and extract URLs into the editor.`}
               </Button>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Characters: {rawContent.length}
+          </p>
           {rawContentError && (
             <p className="text-xs text-red-600 dark:text-red-400">
               {rawContentError}

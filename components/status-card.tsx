@@ -43,12 +43,17 @@ export function StatusCard({
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           {state === 'invalid' && (
-            <CircleX className="h-8 w-8 text-red-500" aria-hidden="true" />
+            <CircleX
+              className="h-8 w-8 text-red-500"
+              aria-hidden="true"
+              data-testid="status-icon-invalid"
+            />
           )}
           {state === 'valid' && (
             <CircleCheck
               className="h-8 w-8 text-emerald-500"
               aria-hidden="true"
+              data-testid="status-icon-valid"
             />
           )}
           {state === 'neutral' && helpText && (
@@ -59,7 +64,11 @@ export function StatusCard({
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:ring-slate-400"
                   aria-label={helpText}
                 >
-                  <Info className="h-8 w-8" aria-hidden="true" />
+                  <Info
+                    className="h-8 w-8"
+                    aria-hidden="true"
+                    data-testid="status-icon-neutral"
+                  />
                 </button>
               </TooltipTrigger>
               <TooltipContent

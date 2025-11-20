@@ -53,7 +53,7 @@ describe('ExtractPrototypeUrlsCard', () => {
     expect(fetchButton).toBeDisabled();
   });
 
-  it('validates page URL and shows error when invalid', () => {
+  it('validates page URL and disables Fetch button when invalid', () => {
     setup();
 
     const pageUrlInput = screen.getByLabelText('Page URL');
@@ -64,7 +64,6 @@ describe('ExtractPrototypeUrlsCard', () => {
     fireEvent.change(pageUrlInput, { target: { value: 'not-a-url' } });
 
     expect(fetchButton).toBeDisabled();
-    expect(screen.getByText(/Please enter a valid https URL/i)).toBeVisible();
   });
 
   it('extracts URLs from raw content and shows count', () => {

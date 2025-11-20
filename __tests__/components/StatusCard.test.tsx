@@ -29,7 +29,9 @@ describe('StatusCard', () => {
       </StatusCard>,
     );
 
-    expect(screen.getByText('⏳')).toBeInTheDocument();
+    // Neutral icon only appears when helpText is provided; for a bare
+    // neutral card we assert that no status icon is rendered.
+    expect(screen.queryByTestId('status-icon-neutral')).not.toBeInTheDocument();
   });
 
   it('shows valid icon when state is valid', () => {
@@ -39,7 +41,7 @@ describe('StatusCard', () => {
       </StatusCard>,
     );
 
-    expect(screen.getByText('✅')).toBeInTheDocument();
+    expect(screen.getByTestId('status-icon-valid')).toBeInTheDocument();
   });
 
   it('shows invalid icon when state is invalid', () => {
@@ -49,7 +51,7 @@ describe('StatusCard', () => {
       </StatusCard>,
     );
 
-    expect(screen.getByText('❌')).toBeInTheDocument();
+    expect(screen.getByTestId('status-icon-invalid')).toBeInTheDocument();
   });
 
   it('renders without children', () => {
