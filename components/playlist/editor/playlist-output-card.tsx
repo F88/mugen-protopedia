@@ -101,10 +101,15 @@ Title and IDs can be edited from the other cards above.`}
         </span>
       </div> */}
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4" data-test-id="playlist-output-card">
         {titleOfPlaylistPage.title && (
           <>
-            <h2 className="text-sm font-semibold">Title of page</h2>
+            <h2
+              className="text-sm font-semibold"
+              data-test-id="playlist-page-title-heading"
+            >
+              Title of page
+            </h2>
             <div
               className={`flex flex-col gap-2 rounded-md border border-transparent transition-all duration-300 ${
                 titleOfPlaylistPage.highlighted
@@ -112,7 +117,10 @@ Title and IDs can be edited from the other cards above.`}
                   : ''
               }`}
             >
-              <code className="rounded bg-muted px-3 py-2 text-xs break-all">
+              <code
+                className="rounded bg-muted px-3 py-2 text-xs break-all"
+                data-test-id="playlist-page-title-value"
+              >
                 {titleOfPlaylistPage.title}
               </code>
             </div>
@@ -121,7 +129,12 @@ Title and IDs can be edited from the other cards above.`}
 
         {playlistUrl.url ? (
           <>
-            <h2 className="text-sm font-semibold">URL</h2>
+            <h2
+              className="text-sm font-semibold"
+              data-test-id="playlist-url-heading"
+            >
+              URL
+            </h2>
             <div
               className={`flex flex-col gap-2 rounded-md border border-transparent  transition-all duration-300 ${
                 playlistUrl.highlighted
@@ -129,7 +142,10 @@ Title and IDs can be edited from the other cards above.`}
                   : ''
               }`}
             >
-              <code className="rounded bg-muted px-3 py-2 text-xs break-all">
+              <code
+                className="rounded bg-muted px-3 py-2 text-xs break-all"
+                data-test-id="playlist-url-code"
+              >
                 {playlistUrl.url}
               </code>
             </div>
@@ -163,11 +179,11 @@ Title and IDs can be edited from the other cards above.`}
           </>
         ) : (
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
               No playlist URL yet.
             </p>
             {!canGeneratePlaylistUrl && (
-              <p className="text-xs text-red-600 dark:text-red-400">
+              <p className="text-xs font-medium text-blue-500 dark:text-blue-300">
                 Enter a valid title or at least one valid prototype ID to
                 generate a playlist URL.
               </p>

@@ -169,10 +169,10 @@ describe('Work flow: clear + validation', () => {
     fireEvent.click(clearIdsButton);
 
     expect(idsTextarea).toHaveValue('');
-
-    const playlistUrlHeading = screen.getByText('URL');
-    const playlistCard = playlistUrlHeading.closest('div');
-    expect(playlistCard).toBeInTheDocument();
+    // Title is still valid, so canGeneratePlaylistUrl remains true.
+    // Playlist URL should still be generated.
+    const playlistUrlCode = screen.getByTestId('playlist-url-code');
+    expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
   });
 
   it('clears URLs error when Clear URLs is clicked', () => {
@@ -220,9 +220,9 @@ describe('Work flow: clear + validation', () => {
     fireEvent.click(clearTitleButton);
 
     expect(titleInput).toHaveValue('');
-
-    const urlHeading = screen.getByText('URL');
-    expect(urlHeading).toBeInTheDocument();
+    // IDs are still valid, so canGeneratePlaylistUrl remains true via IDs-only.
+    const playlistUrlCode = screen.getByTestId('playlist-url-code');
+    expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
   });
 
   it('highlights title when auto-filled from extracted page title', () => {
@@ -263,9 +263,8 @@ describe('Work flow: playlist URL generation guardrails', () => {
       target: { value: 'invalid-url' },
     });
 
-    // Playlist URL heading text is present ("URL"), but no URL code block should be rendered.
-    expect(screen.getByText('URL')).toBeInTheDocument();
-    expect(screen.queryByRole('code')).not.toBeInTheDocument();
+    // Playlist URL is not generated (canGeneratePlaylistUrl is false).
+    expect(screen.queryByTestId('playlist-url-code')).toBeNull();
   });
 
   it('generates playlist URL when IDs are valid and there are no input errors', () => {
