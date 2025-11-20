@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
@@ -95,28 +95,6 @@ export function PrototypeInputsCard({
     hasError: hasAnyError,
     hasAnyValid,
   });
-
-  useEffect(() => {
-    const value = ids.text;
-    if (!value) {
-      ids.setError(null);
-      return;
-    }
-
-    const result = prototypeIdTextSchema.safeParse(value);
-    if (!result.success) {
-      const firstIssue = result.error.issues[0];
-      ids.setError(firstIssue?.message ?? null);
-      return;
-    }
-
-    const parsedIds = parsePrototypeIdLines(value);
-    if (parsedIds.length > 100) {
-      ids.setError('You can use up to 100 prototype IDs per playlist.');
-    } else {
-      ids.setError(null);
-    }
-  }, [ids.text, ids]);
 
   logger.debug('playlist-inputs:status', {
     urls: {
@@ -252,6 +230,30 @@ Edits here drive the effective list of prototype IDs used downstream.`}
             onChange={(e) => {
               const nextValue = e.target.value;
               ids.setText(nextValue);
+
+              if (!nextValue) {
+                ids.setError(null);
+                setLastDriver('ids');
+                return;
+              }
+
+              const result = prototypeIdTextSchema.safeParse(nextValue);
+              if (!result.success) {
+                const firstIssue = result.error.issues[0];
+                ids.setError(firstIssue?.message ?? null);
+                setLastDriver('ids');
+                return;
+              }
+
+              const parsedIds = parsePrototypeIdLines(nextValue);
+              if (parsedIds.length > 100) {
+                ids.setError(
+                  'You can use up to 100 prototype IDs per playlist.',
+                );
+              } else {
+                ids.setError(null);
+              }
+
               setLastDriver('ids');
             }}
             className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
