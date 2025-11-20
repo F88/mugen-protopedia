@@ -286,8 +286,14 @@ or paste raw content and extract URLs into the editor.`}
               id="extract-raw"
               value={rawContent}
               onChange={(e) => {
-                setRawContent(e.target.value);
-                if (rawContentError) {
+                const nextValue = e.target.value;
+                setRawContent(nextValue);
+
+                const result = rawContentSchema.safeParse(nextValue);
+                if (!result.success) {
+                  const firstIssue = result.error.issues[0];
+                  setRawContentError(firstIssue?.message ?? null);
+                } else {
                   setRawContentError(null);
                 }
               }}
@@ -330,14 +336,17 @@ or paste raw content and extract URLs into the editor.`}
               </Button>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Characters: {rawContent.length}
-          </p>
+
           {rawContentError && (
             <p className="text-xs text-red-600 dark:text-red-400">
               {rawContentError}
             </p>
           )}
+
+          <p className="text-xs text-muted-foreground">
+            Characters: {rawContent.length.toLocaleString()} / 100,000
+          </p>
+
           {lastExtractCount !== null && (
             <p className="text-xs text-muted-foreground">
               Last extraction: {lastExtractCount} URL

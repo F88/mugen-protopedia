@@ -13,6 +13,10 @@ export const playlistTitleSchema = z
 export const prototypeIdTextSchema = z
   .string()
   .transform((value) => value ?? '')
+  .refine((value) => value.length <= 1_000, {
+    message:
+      'Prototype IDs input is limited to 1,000 characters to keep the editor responsive.',
+  })
   .refine(
     (value) => {
       if (value.length === 0) return true;
@@ -27,6 +31,9 @@ export const prototypeIdTextSchema = z
 export const prototypeUrlsTextSchema = z
   .string()
   .transform((value) => value ?? '')
+  .refine((value) => value.length <= 10_000, {
+    message: 'You can use up to 10,000 characters for prototype URLs input.',
+  })
   .refine(
     (value) => {
       if (value.length === 0) return true;
@@ -59,6 +66,5 @@ export const rawContentSchema = z
     message: 'Paste HTML or TSV content to extract from.',
   })
   .refine((value) => value.length <= 100_000, {
-    message:
-      'Content is too large to process on this page. Please reduce the size (for example by trimming or splitting) and try again.',
+    message: 'You can use up to 100,000 characters for raw content input.',
   });

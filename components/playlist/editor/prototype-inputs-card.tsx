@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+'use client';
+
+import React, { useEffect, useMemo } from 'react';
 
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
@@ -94,6 +96,28 @@ export function PrototypeInputsCard({
     hasAnyValid,
   });
 
+  useEffect(() => {
+    const value = ids.text;
+    if (!value) {
+      ids.setError(null);
+      return;
+    }
+
+    const result = prototypeIdTextSchema.safeParse(value);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      ids.setError(firstIssue?.message ?? null);
+      return;
+    }
+
+    const parsedIds = parsePrototypeIdLines(value);
+    if (parsedIds.length > 100) {
+      ids.setError('You can use up to 100 prototype IDs per playlist.');
+    } else {
+      ids.setError(null);
+    }
+  }, [ids.text, ids]);
+
   logger.debug('playlist-inputs:status', {
     urls: {
       highlighted: urls.highlighted,
@@ -182,6 +206,9 @@ Edits here drive the effective list of prototype IDs used downstream.`}
             </p>
           )}
           <p className="text-xs text-muted-foreground">
+            Characters: {urls.text.length.toLocaleString()} / 10,000
+          </p>
+          <p className="text-xs text-muted-foreground">
             URLs detected: {urlsArray.length}
           </p>
           <div className="flex gap-2">
@@ -225,20 +252,6 @@ Edits here drive the effective list of prototype IDs used downstream.`}
             onChange={(e) => {
               const nextValue = e.target.value;
               ids.setText(nextValue);
-              const result = prototypeIdTextSchema.safeParse(nextValue);
-              if (!result.success) {
-                const firstIssue = result.error.issues[0];
-                ids.setError(firstIssue?.message ?? null);
-              } else {
-                const parsedIds = parsePrototypeIdLines(nextValue);
-                if (parsedIds.length > 100) {
-                  ids.setError(
-                    'You can use up to 100 prototype IDs per playlist.',
-                  );
-                } else {
-                  ids.setError(null);
-                }
-              }
               setLastDriver('ids');
             }}
             className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
@@ -257,7 +270,10 @@ Edits here drive the effective list of prototype IDs used downstream.`}
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            Effective IDs: {effectiveIds.length}{' '}
+            Characters: {ids.text.length.toLocaleString()} / 1,000
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Effective IDs: {effectiveIds.length.toLocaleString()} / 100{' '}
             {effectiveIds.length === 1 ? 'item' : 'items'}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -267,7 +283,6 @@ Edits here drive the effective list of prototype IDs used downstream.`}
               onClick={() => {
                 const idsFromUrls = normalizeIdsFromUrls(urlsArray);
                 ids.setText(idsFromUrls.join('\n'));
-                ids.setError(null);
                 setLastDriver('ids');
               }}
               disabled={urlsArray.length === 0 || !!urls.error}
