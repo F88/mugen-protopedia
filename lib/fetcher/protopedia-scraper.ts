@@ -1,11 +1,14 @@
+import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+
 /**
  * Server-only function that fetches raw HTML (or text) of an
- * arbitrary page URL and returns the final response URL after
+ * allowed page URL and returns the final response URL after
  * redirects.
  *
- * NOTE: This function must only be called from a Server Function
- * (Server Action) or other server-side code. Do not import it into
- * client components.
+ * NOTE: This function must only be called with URLs that have been
+ * validated by isAllowedProtopediaScrapeUrl. It must be used from a
+ * Server Function (Server Action) or other server-side code. Do not
+ * import it into client components.
  */
 export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
   html: string;
@@ -15,7 +18,19 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
     return { html: '', finalUrl: '' };
   }
 
-  const response = await fetch(pageUrl, { method: 'GET' });
+  let url: URL;
+  try {
+    url = new URL(pageUrl);
+  } catch {
+    throw new Error('Invalid URL');
+  }
+
+  if (!isAllowedProtopediaScrapeUrl(url.toString())) {
+    throw new Error('This URL is not allowed for server-side fetching.');
+  }
+
+  // fetch allowed URL
+  const response = await fetch(url.toString(), { method: 'GET' });
 
   if (!response.ok) {
     throw new Error(
