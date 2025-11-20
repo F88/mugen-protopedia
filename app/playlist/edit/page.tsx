@@ -27,14 +27,32 @@ export const metadata: Metadata = {
  * boundary that wraps `PlaylistEditClient`, which reads search parameters and
  * drives the playlist URL generator UI.
  */
-export default function PlaylistEditPage() {
+export default function PlaylistEditPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const query = new URLSearchParams();
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      query.set(key, value);
+    } else if (Array.isArray(value)) {
+      value.forEach((v) => {
+        query.append(key, v);
+      });
+    }
+  });
+
+  const href = query.toString().length > 0 ? `/?${query.toString()}` : '/';
+
   return (
     <main className="mx-auto flex w-full max-w-full flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Playlist Editor (Beta)</h1>
         <div className="flex items-center gap-3">
           <Link
-            href="/"
+            href={href}
             className="text-sm text-blue-600 hover:underline dark:text-blue-400"
           >
             🏠 Back to home
