@@ -18,6 +18,10 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
     return { html: '', finalUrl: '' };
   }
 
+  if (!isAllowedProtopediaScrapeUrl(pageUrl)) {
+    throw new Error('This URL is not allowed for server-side fetching.');
+  }
+
   let url: URL;
   try {
     url = new URL(pageUrl);
