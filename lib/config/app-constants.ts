@@ -30,7 +30,6 @@ export type AppKeyword = (typeof APP_KEYWORDS)[number];
 export const PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS = [
   'https://protopedia.net',
   'https://mashupawards.connpass.com',
-  'https://connpass.com',
 ] as const;
 
 export type ProtopediaScrapeAllowedOrigin =

@@ -50,7 +50,6 @@ describe('app-constants', () => {
     expect(PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS).toEqual([
       'https://protopedia.net',
       'https://mashupawards.connpass.com',
-      'https://connpass.com',
     ]);
   });
 

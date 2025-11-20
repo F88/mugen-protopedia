@@ -25,11 +25,15 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
     throw new Error('Invalid URL');
   }
 
-  if (!isAllowedProtopediaScrapeUrl(url.toString())) {
-    throw new Error('This URL is not allowed for server-side fetching.');
-  }
+  const allowedOrigin = new Set([
+    'https://protopedia.net',
+    'https://mashupawards.connpass.com',
+  ]);
 
-  // fetch allowed URL
+  if (!allowedOrigin.has(url.origin)) {
+    throw new Error('Fetching from this origin is not allowed.');
+  }
+  // fetch from allowe origin
   const response = await fetch(url.toString(), { method: 'GET' });
 
   if (!response.ok) {
