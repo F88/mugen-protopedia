@@ -11,6 +11,10 @@ import { Suspense } from 'react';
 
 import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
 import { ThemeToggle } from '@/components/theme-toggle';
+import {
+  buildURLSearchParams,
+  type SearchParams,
+} from '@/lib/metadata/playlist-metadata';
 
 // Note: This page intentionally uses static `metadata` instead of
 // `generateMetadata` because it does not depend on playlist queries.
@@ -20,6 +24,10 @@ export const metadata: Metadata = {
     'Build Mugen ProtoPedia playlist URLs from IDs, URLs, or raw text.',
 };
 
+interface PlaylistEditPageProps {
+  searchParams: Promise<SearchParams>;
+}
+
 /**
  * Playlist editor page component.
  *
@@ -27,22 +35,9 @@ export const metadata: Metadata = {
  * boundary that wraps `PlaylistEditClient`, which reads search parameters and
  * drives the playlist URL generator UI.
  */
-export default function PlaylistEditPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  const query = new URLSearchParams();
-
-  Object.entries(searchParams).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      query.set(key, value);
-    } else if (Array.isArray(value)) {
-      value.forEach((v) => {
-        query.append(key, v);
-      });
-    }
-  });
+export default async function PlaylistEditPage(props: PlaylistEditPageProps) {
+  const searchParams = await props.searchParams;
+  const query = buildURLSearchParams(searchParams);
 
   const href = query.toString().length > 0 ? `/?${query.toString()}` : '/';
 
