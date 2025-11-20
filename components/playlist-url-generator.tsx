@@ -145,64 +145,58 @@ function StatusCard({ title, state, description, children }: StatusCardProps) {
 }
 
 type PrototypeInputsCardProps = {
-  urlsText: string;
-  setUrlsText: (value: string) => void;
-  idsText: string;
-  setIdsText: (value: string) => void;
-  urlsHighlighted: boolean;
-  idsHighlighted: boolean;
-  urlsError: string | null;
-  setUrlsError: (value: string | null) => void;
-  pageUrl: string;
-  setPageUrl: (value: string) => void;
+  ids: {
+    text: string;
+    setText: (value: string) => void;
+    highlighted: boolean;
+    error: string | null;
+    setError: (value: string | null) => void;
+  };
+  urls: {
+    text: string;
+    setText: (value: string) => void;
+    highlighted: boolean;
+    error: string | null;
+    setError: (value: string | null) => void;
+  };
+  page: {
+    url: string;
+    setUrl: (value: string) => void;
+    error: string | null;
+    setError: (value: string | null) => void;
+  };
   lastDriver: LastDriver;
   setLastDriver: (value: LastDriver) => void;
-  pageError: string | null;
-  setPageError: (value: string | null) => void;
-  idsError: string | null;
-  setIdsError: (value: string | null) => void;
   isFetchingPage: boolean;
   onFetchFromPage: () => void;
 };
 
 function PrototypeInputsCard({
-  urlsText,
-  setUrlsText,
-  idsText,
-  setIdsText,
-  urlsHighlighted,
-  idsHighlighted,
-  urlsError,
-  setUrlsError,
-  pageUrl,
-  setPageUrl,
+  urls,
+  ids,
+  page,
   lastDriver,
   setLastDriver,
-  pageError,
-  setPageError,
-  idsError,
-  setIdsError,
   isFetchingPage,
   onFetchFromPage,
 }: PrototypeInputsCardProps) {
   const urlsArray = useMemo(() => {
-    return urlsText
+    return urls.text
       .split(/\n+/)
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
-  }, [urlsText]);
-  const manualIds = useMemo(() => parsePrototypeIdLines(idsText), [idsText]);
+  }, [urls.text]);
+  const manualIds = useMemo(() => parsePrototypeIdLines(ids.text), [ids.text]);
   const autoIds = useMemo(() => normalizeIdsFromUrls(urlsArray), [urlsArray]);
   const effectiveIds = lastDriver === 'ids' ? manualIds : autoIds;
 
-  const hasUrls = urlsText.trim().length > 0;
-  const urlsIsValid = hasUrls && !urlsError;
-  const hasIds = idsText.trim().length > 0;
-  const idsIsValid = hasIds && !idsError;
+  const hasUrls = urls.text.trim().length > 0;
+  const urlsIsValid = hasUrls && !urls.error;
+  const hasIds = ids.text.trim().length > 0;
+  const idsIsValid = hasIds && !ids.error;
 
-  const hasAnyError = Boolean(urlsError) || Boolean(idsError);
+  const hasAnyError = Boolean(urls.error) || Boolean(ids.error);
   const hasAnyValid = urlsIsValid || idsIsValid;
-
   const cardState: CardState = getAggregateCardState({
     hasError: hasAnyError,
     hasAnyValid,
@@ -210,16 +204,16 @@ function PrototypeInputsCard({
 
   logger.debug('playlist-inputs:status', {
     urls: {
-      highlighted: urlsHighlighted,
-      hasError: Boolean(urlsError),
+      highlighted: urls.highlighted,
+      hasError: Boolean(urls.error),
       isValid: urlsIsValid,
-      length: urlsText.length,
+      length: urls.text.length,
     },
     ids: {
-      highlighted: idsHighlighted,
-      hasError: Boolean(idsError),
+      highlighted: ids.highlighted,
+      hasError: Boolean(ids.error),
       isValid: idsIsValid,
-      length: idsText.length,
+      length: ids.text.length,
     },
     cards: {
       inputs: cardState,
@@ -253,42 +247,42 @@ function PrototypeInputsCard({
               aria-live="polite"
               data-test-id="urls-indicator"
             >
-              {urlsText.trim().length === 0
+              {urls.text.trim().length === 0
                 ? '(empty)'
-                : urlsError
+                : urls.error
                   ? '❌'
                   : '✅'}
             </span>
           </div>
           <Textarea
             id="playlist-urls"
-            value={urlsText}
+            value={urls.text}
             onChange={(e) => {
               const nextValue = e.target.value;
-              setUrlsText(nextValue);
+              urls.setText(nextValue);
               const result = prototypeUrlsTextSchema.safeParse(nextValue);
               if (!result.success) {
                 const firstIssue = result.error.issues[0];
-                setUrlsError(firstIssue?.message ?? null);
-                setIdsText('');
+                urls.setError(firstIssue?.message ?? null);
+                ids.setText('');
               } else {
-                setUrlsError(null);
+                urls.setError(null);
               }
               setLastDriver('urls');
             }}
             className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
               {
-                highlighted: urlsHighlighted,
-                hasError: Boolean(urlsError),
+                highlighted: urls.highlighted,
+                hasError: Boolean(urls.error),
                 isValid: urlsIsValid,
               },
             )}`}
             placeholder={'Paste prototype URLs here (one per line).'}
             aria-describedby="playlist-urls-help"
           />
-          {urlsError && (
+          {urls.error && (
             <p className="text-xs text-red-600 dark:text-red-400">
-              {urlsError}
+              {urls.error}
             </p>
           )}
           <p className="text-xs text-muted-foreground">
@@ -299,11 +293,11 @@ function PrototypeInputsCard({
               type="button"
               variant="secondary"
               onClick={() => {
-                setUrlsText('');
-                setUrlsError(null);
+                urls.setText('');
+                urls.setError(null);
                 setLastDriver('urls');
               }}
-              disabled={!urlsText}
+              disabled={!urls.text}
               aria-label="Clear URLs"
             >
               Clear URLs
@@ -323,11 +317,11 @@ function PrototypeInputsCard({
               <Input
                 id="source-page-url"
                 type="url"
-                value={pageUrl}
+                value={page.url}
                 onChange={(e) => {
-                  setPageUrl(e.target.value);
-                  if (pageError) {
-                    setPageError(null);
+                  page.setUrl(e.target.value);
+                  if (page.error) {
+                    page.setError(null);
                   }
                 }}
                 className="w-full text-xs"
@@ -347,18 +341,18 @@ function PrototypeInputsCard({
                 type="button"
                 variant="secondary"
                 onClick={() => {
-                  setPageUrl('');
-                  setPageError(null);
+                  page.setUrl('');
+                  page.setError(null);
                 }}
-                disabled={pageUrl.length === 0 && !pageError}
+                disabled={page.url.length === 0 && !page.error}
                 aria-label="Clear page URL"
               >
                 Clear URL
               </Button>
             </div>
-            {pageError && (
+            {page.error && (
               <div className="flex flex-col gap-0.5 text-xs leading-relaxed text-red-600 dark:text-red-400">
-                {pageError.split('\n').map((line, index) => (
+                {page.error.split('\n').map((line, index) => (
                   <div key={index}>{line}</div>
                 ))}
               </div>
@@ -383,43 +377,49 @@ function PrototypeInputsCard({
               aria-live="polite"
               data-test-id="ids-indicator"
             >
-              {idsText.trim().length === 0 ? '(empty)' : idsError ? '❌' : '✅'}
+              {ids.text.trim().length === 0
+                ? '(empty)'
+                : ids.error
+                  ? '❌'
+                  : '✅'}
             </span>
           </div>
           <Textarea
             id="playlist-ids"
-            value={idsText}
+            value={ids.text}
             onChange={(e) => {
               const nextValue = e.target.value;
-              setIdsText(nextValue);
+              ids.setText(nextValue);
               const result = prototypeIdTextSchema.safeParse(nextValue);
               if (!result.success) {
                 const firstIssue = result.error.issues[0];
-                setIdsError(firstIssue?.message ?? null);
+                ids.setError(firstIssue?.message ?? null);
               } else {
                 const parsedIds = parsePrototypeIdLines(nextValue);
                 if (parsedIds.length > 100) {
-                  setIdsError(
+                  ids.setError(
                     'You can use up to 100 prototype IDs per playlist.',
                   );
                 } else {
-                  setIdsError(null);
+                  ids.setError(null);
                 }
               }
               setLastDriver('ids');
             }}
             className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
               {
-                highlighted: idsHighlighted,
-                hasError: Boolean(idsError),
+                highlighted: ids.highlighted,
+                hasError: Boolean(ids.error),
                 isValid: idsIsValid,
               },
             )}`}
             placeholder={'Enter one numeric ID per line'}
             aria-describedby="playlist-ids-help"
           />
-          {idsError && (
-            <p className="text-xs text-red-600 dark:text-red-400">{idsError}</p>
+          {ids.error && (
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {ids.error}
+            </p>
           )}
           <div className="flex flex-wrap gap-2 mt-1">
             <Button
@@ -427,11 +427,11 @@ function PrototypeInputsCard({
               variant="secondary"
               onClick={() => {
                 const idsFromUrls = normalizeIdsFromUrls(urlsArray);
-                setIdsText(idsFromUrls.join('\n'));
-                setIdsError(null);
+                ids.setText(idsFromUrls.join('\n'));
+                ids.setError(null);
                 setLastDriver('ids');
               }}
-              disabled={urlsArray.length === 0 || !!urlsError}
+              disabled={urlsArray.length === 0 || !!urls.error}
               aria-label="Regenerate IDs from Prototype URLs"
             >
               Regenerate from URLs
@@ -446,11 +446,11 @@ function PrototypeInputsCard({
               type="button"
               variant="secondary"
               onClick={() => {
-                setIdsText('');
-                setIdsError(null);
+                ids.setText('');
+                ids.setError(null);
                 setLastDriver('ids');
               }}
-              disabled={!idsText}
+              disabled={!ids.text}
               aria-label="Clear manual IDs"
             >
               Clear IDs
@@ -459,13 +459,13 @@ function PrototypeInputsCard({
               type="button"
               variant="secondary"
               onClick={() => {
-                const parsed = parsePrototypeIdLines(idsText);
+                const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
                 const sorted = sortIdsWithDuplicates(parsed);
-                setIdsText(sorted.join('\n'));
+                ids.setText(sorted.join('\n'));
                 setLastDriver('ids');
               }}
-              disabled={!idsText.trim() || !!idsError}
+              disabled={!ids.text.trim() || !!ids.error}
               aria-label="Sort IDs ascending"
             >
               Sort IDs
@@ -474,13 +474,13 @@ function PrototypeInputsCard({
               type="button"
               variant="secondary"
               onClick={() => {
-                const parsed = parsePrototypeIdLines(idsText);
+                const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
                 const deduped = deduplicateIdsPreserveOrder(parsed);
-                setIdsText(deduped.join('\n'));
+                ids.setText(deduped.join('\n'));
                 setLastDriver('ids');
               }}
-              disabled={!idsText.trim() || !!idsError}
+              disabled={!ids.text.trim() || !!ids.error}
               aria-label="Remove duplicate IDs"
             >
               Deduplicate IDs
@@ -658,39 +658,41 @@ function PlaylistTitleCard({
 }
 
 type PlaylistOutputCardProps = {
+  ids: {
+    idsError: string | null;
+    idsText: string;
+    effectiveIds: number[];
+  };
+  title: {
+    title: string;
+    titleError: string | null;
+  };
   playlistUrl: string;
-  title: string;
-  titleError: string | null;
-  effectiveIds: number[];
-  idsError: string | null;
-  idsText: string;
   copyStatus: 'idle' | 'ok' | 'fail';
   canGeneratePlaylistUrl: boolean;
   onCopy: () => void;
   pageTitle: string;
-  playlistHighlighted: boolean;
+  highlighted: boolean;
   hasInputError: boolean;
 };
 
 function PlaylistOutputCard({
-  playlistUrl,
+  ids,
   title,
-  titleError,
-  effectiveIds,
-  idsError,
-  idsText,
+  playlistUrl,
   copyStatus,
   canGeneratePlaylistUrl,
   pageTitle,
-  playlistHighlighted,
+  highlighted,
   hasInputError,
   onCopy,
 }: PlaylistOutputCardProps) {
-  const hasIds = idsText.trim().length > 0 && !idsError;
-  const hasTitle = title.trim().length > 0 && !titleError;
+  const hasIds = ids.idsText.trim().length > 0 && !ids.idsError;
+  const hasTitle = title.title.trim().length > 0 && !title.titleError;
 
   const cardState = getAggregateCardState({
-    hasError: Boolean(idsError) || Boolean(titleError) || hasInputError,
+    hasError:
+      Boolean(ids.idsError) || Boolean(title.titleError) || hasInputError,
     hasAnyValid: hasIds || hasTitle || Boolean(playlistUrl),
   });
 
@@ -698,17 +700,15 @@ function PlaylistOutputCard({
     props: {
       playlistUrl,
       title,
-      titleError,
-      effectiveIdsLength: effectiveIds.length,
-      idsError,
-      idsTextLength: idsText.length,
+      idsTextLength: ids.idsText.length,
       copyStatus,
       canGeneratePlaylistUrl,
       pageTitle,
-      playlistHighlighted,
+      playlistHighlighted: highlighted,
       hasInputError,
     },
     derived: {
+      effectiveIdsLength: ids.effectiveIds.length,
       hasIds,
       hasTitle,
       cardState,
@@ -719,7 +719,7 @@ function PlaylistOutputCard({
     <StatusCard title="Playlist" state={cardState} description={null}>
       <div
         className={
-          playlistHighlighted
+          highlighted
             ? 'flex flex-col gap-2 border border-border shadow-[0_0_0_3px_rgba(37,99,235,0.9)] rounded-md p-3 transition-all duration-300'
             : 'flex flex-col gap-2'
         }
@@ -727,11 +727,19 @@ function PlaylistOutputCard({
         <div className="flex flex-wrap items-center gap-4 text-xs">
           <span data-test-id="playlist-ids-indicator">
             IDs:{' '}
-            {idsText.trim().length === 0 ? '(empty)' : idsError ? '❌' : '✅'}
+            {ids.idsText.trim().length === 0
+              ? '(empty)'
+              : ids.idsError
+                ? '❌'
+                : '✅'}
           </span>
           <span data-test-id="playlist-title-indicator">
             Title:{' '}
-            {title.trim().length === 0 ? '(empty)' : titleError ? '❌' : '✅'}
+            {title.title.trim().length === 0
+              ? '(empty)'
+              : title.titleError
+                ? '❌'
+                : '✅'}
           </span>
         </div>
         <h2 className="text-lg font-semibold">Playlist URL</h2>
@@ -764,10 +772,11 @@ function PlaylistOutputCard({
               </span>
             )}
             <p className="text-xs text-muted-foreground">
-              Title: {title || '(none)'}
+              Title: {title.title || '(none)'}
             </p>
             <p className="text-xs text-muted-foreground">
-              IDs used: {effectiveIds.length} ({effectiveIds.join(', ')})
+              IDs used: {ids.effectiveIds.length} ({ids.effectiveIds.join(', ')}
+              )
             </p>
             {pageTitle && (
               <p className="text-xs text-muted-foreground">
@@ -1079,22 +1088,28 @@ export function PlaylistUrlGenerator({
   return (
     <div className="flex flex-col gap-8">
       <PrototypeInputsCard
-        urlsText={urlsText}
-        setUrlsText={setUrlsText}
-        idsText={idsText}
-        setIdsText={setIdsText}
-        urlsHighlighted={urlsHighlighted}
-        idsHighlighted={idsHighlighted}
-        urlsError={urlsError}
-        setUrlsError={setUrlsError}
-        pageUrl={pageUrl}
-        setPageUrl={setPageUrl}
+        ids={{
+          text: idsText,
+          setText: setIdsText,
+          highlighted: idsHighlighted,
+          error: idsError,
+          setError: setIdsError,
+        }}
+        urls={{
+          text: urlsText,
+          setText: setUrlsText,
+          highlighted: urlsHighlighted,
+          error: urlsError,
+          setError: setUrlsError,
+        }}
+        page={{
+          url: pageUrl,
+          setUrl: setPageUrl,
+          error: pageError,
+          setError: setPageError,
+        }}
         lastDriver={lastDriver}
         setLastDriver={setLastDriver}
-        pageError={pageError}
-        setPageError={setPageError}
-        idsError={idsError}
-        setIdsError={setIdsError}
         isFetchingPage={isFetchingPage}
         onFetchFromPage={handleFetchFromPage}
       />
@@ -1105,16 +1120,13 @@ export function PlaylistUrlGenerator({
         setTitleError={setTitleError}
       />
       <PlaylistOutputCard
+        ids={{ idsError, idsText, effectiveIds }}
+        title={{ title, titleError }}
         playlistUrl={playlistUrl}
-        effectiveIds={effectiveIds}
-        title={title}
-        titleError={titleError}
-        idsError={idsError}
-        idsText={idsText}
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         copyStatus={copyStatus}
         pageTitle={playlistPageTitle}
-        playlistHighlighted={playlistHighlighted}
+        highlighted={playlistHighlighted}
         hasInputError={hasInputError}
         onCopy={handleCopy}
       />
