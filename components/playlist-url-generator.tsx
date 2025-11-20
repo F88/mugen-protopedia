@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-// TODO: page URL scrape support will be reintroduced via a separate
-// ExtractPrototypeUrlsCard in a future iteration.
+import useSWRMutation from 'swr/mutation';
 
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
@@ -16,9 +15,12 @@ import {
   parsePrototypeIdLines,
 } from '@/lib/utils/playlist-builder';
 
+import { scrapePageHtml } from '@/app/actions/scrape';
+
 import { PlaylistOutputCard } from '@/components/playlist/PlaylistOutputCard';
 import { PlaylistPreviewCard } from '@/components/playlist/PlaylistPreviewCard';
 import { PlaylistTitleCard } from '@/components/playlist/PlaylistTitleCard';
+import { ExtractPrototypeUrlsCard } from '@/components/playlist/ExtractPrototypeUrlsCard';
 import type { LastDriver } from '@/components/playlist/PrototypeInputsCard';
 import { PrototypeInputsCard } from '@/components/playlist/PrototypeInputsCard';
 
@@ -42,6 +44,8 @@ export function PlaylistUrlGenerator({
     return '';
   });
   const [urlsText, setUrlsText] = useState('');
+  const [pageUrl, setPageUrl] = useState('');
+  const [pageError, setPageError] = useState<string | null>(null);
   const [lastDriver, setLastDriver] = useState<LastDriver>(() => {
     if (directLaunchParams?.ids && directLaunchParams.ids.length > 0) {
       return 'ids';
@@ -55,6 +59,13 @@ export function PlaylistUrlGenerator({
   const [urlsHighlighted, setUrlsHighlighted] = useState(false);
   const [idsHighlighted, setIdsHighlighted] = useState(false);
   const [playlistHighlighted, setPlaylistHighlighted] = useState(false);
+
+  const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
+    ['scrapePageHtml'],
+    async (_key, { arg }: { arg: string }) => {
+      return scrapePageHtml(arg);
+    },
+  );
 
   const urlsArray = useMemo(() => {
     return urlsText
@@ -150,6 +161,31 @@ export function PlaylistUrlGenerator({
 
   return (
     <div className="flex flex-col gap-8">
+      <ExtractPrototypeUrlsCard
+        source={{
+          url: pageUrl,
+          setUrl: setPageUrl,
+          error: pageError,
+          setError: setPageError,
+        }}
+        isFetching={isFetchingPage}
+        onFetch={async (url) => {
+          const { html } = await triggerScrape(url);
+          return html;
+        }}
+        onApplyUrls={(urls) => {
+          const text = urls.join('\n');
+          setUrlsText(text);
+          setUrlsError(null);
+          setLastDriver('urls');
+          setUrlsHighlighted(true);
+        }}
+        onApplyTitle={(nextTitle) => {
+          if (!nextTitle) return;
+          if (title.trim().length > 0) return;
+          setTitle(nextTitle);
+        }}
+      />
       <PrototypeInputsCard
         ids={{
           text: idsText,
