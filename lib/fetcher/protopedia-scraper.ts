@@ -30,10 +30,7 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
   }
 
   // List of allowed hosts and strict conditions.
-  const allowedHosts = new Set([
-    'protopedia.net',
-    'mashupawards.connpass.com',
-  ]);
+  const allowedHosts = new Set(['protopedia.net', 'mashupawards.connpass.com']);
   const allowedProtocols = new Set(['https:']);
   // Disallow any URL with username, password, port, fragments, or IP addresses.
   if (
@@ -45,7 +42,9 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
     url.hostname.endsWith('.') ||
     !allowedHosts.has(url.hostname)
   ) {
-    throw new Error('Only strictly allowed hosts/protocols are permitted, with no credentials/port.');
+    throw new Error(
+      'Only strictly allowed hosts/protocols are permitted, with no credentials/port.',
+    );
   }
   // Disallow IP address hostnames
   // (optional: requires Node "net" module, skip if not shown anywhere else)
