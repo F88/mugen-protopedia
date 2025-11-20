@@ -15,6 +15,8 @@ import {
   useState,
 } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
@@ -90,6 +92,7 @@ const arePlayModeStatesEqual = (
 };
 
 export function MugenProtoPedia() {
+  const router = useRouter();
   const headerRef = useRef<HTMLDivElement | null>(null);
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -113,7 +116,10 @@ export function MugenProtoPedia() {
       )
         ? previousState
         : resolvedPlayMode;
-      logger.debug('Play mode:', newPlayMode.type);
+      logger.debug(
+        'Play mode:',
+        `${previousState.type} -> ${newPlayMode.type}`,
+      );
       return newPlayMode;
     });
   }, [directLaunchResult]);
@@ -353,8 +359,13 @@ export function MugenProtoPedia() {
    */
   const handleClearPrototypes = useCallback(() => {
     if (isPlaylistPlaying) return;
+
     clearSlots();
-  }, [clearSlots, isPlaylistPlaying]);
+
+    if (playModeState.type === 'playlist') {
+      router.replace('/', { scroll: false });
+    }
+  }, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
@@ -488,6 +499,8 @@ export function MugenProtoPedia() {
 
   // Prepare playlist queue when entering playlist mode with new parameters
   useEffect(() => {
+    logger.debug('Processing play mode state change:', playModeState);
+
     // If not in playlist mode, reset playlist state
     if (playModeState.type !== 'playlist') {
       lastProcessedPlaylistSignatureRef.current = null;
