@@ -2,17 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, expect, it } from 'vitest';
-import { PlaylistUrlGenerator } from '@/components/playlist/editor/playlist-url-generator';
+import { PlaylistEditor } from '@/components/playlist/editor/playlist-editor';
 
 /**
  * NOTE:
  * These tests focus on the high-level workflow and UI state
- * transitions of the PlaylistUrlGenerator component.
+ * transitions of the PlaylistEditor component.
  */
 
 describe('Work flow: ids', () => {
   it('shows IDs indicator and disables sort/dedup when IDs invalid', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
     const sortButton = screen.getByRole('button', {
@@ -51,7 +51,7 @@ describe('Work flow: ids', () => {
 
 describe('Work flow: urls > ids', () => {
   it('clears IDs when URLs become invalid', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
@@ -78,7 +78,7 @@ describe('Work flow: urls > ids', () => {
   });
 
   it('shows URL indicator and disables regenerate button when URLs invalid', () => {
-    const { container } = render(<PlaylistUrlGenerator />);
+    const { container } = render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
 
@@ -113,7 +113,7 @@ describe('Work flow: urls > ids', () => {
   });
 
   it('renders rows in Prototypes in playlist when IDs are valid', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
 
@@ -132,7 +132,7 @@ describe('Work flow: urls > ids', () => {
   });
 
   it('highlights IDs textarea when regenerated from URLs', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
@@ -150,7 +150,7 @@ describe('Work flow: urls > ids', () => {
 
 describe('Work flow: clear + validation', () => {
   it('clears IDs error after Clear IDs (title-only playlist no longer allowed with Inputs error)', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
     const titleInput = screen.getByLabelText('Playlist Title');
@@ -180,7 +180,7 @@ describe('Work flow: clear + validation', () => {
   });
 
   it('clears URLs error when Clear URLs is clicked', () => {
-    const { container } = render(<PlaylistUrlGenerator />);
+    const { container } = render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
     const urlsIndicator = container.querySelector(
@@ -204,7 +204,7 @@ describe('Work flow: clear + validation', () => {
   });
 
   it('clears title error and supports IDs-only playlist URL after Clear Title', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const titleInput = screen.getByLabelText('Playlist Title');
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
@@ -233,7 +233,7 @@ describe('Work flow: clear + validation', () => {
 
 describe('Work flow: playlist URL generation guardrails', () => {
   it('does not generate playlist URL when there is any input error even if title is valid', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const urlsTextarea = screen.getByLabelText('Prototype URLs (editable)');
     const titleInput = screen.getByLabelText('Playlist Title');
@@ -254,7 +254,7 @@ describe('Work flow: playlist URL generation guardrails', () => {
   });
 
   it('generates playlist URL when IDs are valid and there are no input errors', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
 
@@ -270,7 +270,7 @@ describe('Work flow: playlist URL generation guardrails', () => {
 
 describe('Work flow: fetch > urls > ids', () => {
   it('fills URLs from page and then regenerates IDs', () => {
-    render(<PlaylistUrlGenerator />);
+    render(<PlaylistEditor />);
 
     const pageUrlInput = screen.getByLabelText(
       'Page URL (helper for Prototype URLs)',

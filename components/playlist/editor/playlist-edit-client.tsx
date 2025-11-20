@@ -1,6 +1,6 @@
 'use client';
 
-import { PlaylistUrlGenerator } from '@/components/playlist/editor/playlist-url-generator';
+import { PlaylistUrlGenerator } from '@/components/playlist/editor/playlist-editor';
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
 
 export function PlaylistEditClient() {

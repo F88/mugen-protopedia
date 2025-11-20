@@ -24,13 +24,11 @@ import { PlaylistTitleCard } from '@/components/playlist/editor/playlist-title-c
 import type { LastDriver } from '@/components/playlist/editor/prototype-inputs-card';
 import { PrototypeInputsCard } from '@/components/playlist/editor/prototype-inputs-card';
 
-type PlaylistUrlGeneratorProps = {
+type PlaylistEditorProps = {
   directLaunchParams?: DirectLaunchParams;
 };
 
-export function PlaylistUrlGenerator({
-  directLaunchParams,
-}: PlaylistUrlGeneratorProps) {
+export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   const [title, setTitle] = useState(() => {
     if (directLaunchParams?.title) {
       return directLaunchParams.title;
