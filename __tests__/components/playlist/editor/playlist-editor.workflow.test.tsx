@@ -219,9 +219,12 @@ describe('Work flow: clear + validation', () => {
 
     expect(titleInput).toHaveValue('');
     // IDs are still valid, so canGeneratePlaylistUrl remains true via IDs-only.
+    // Playlist URL should appear in one of the rendered code blocks.
     await waitFor(() => {
-      const playlistUrlCode = screen.getByTestId('playlist-url-code');
-      expect(playlistUrlCode.textContent ?? '').toMatch(/^https?:\/\//);
+      const codeBlocks = screen.getAllByRole('code');
+      expect(
+        codeBlocks.some((el) => /^https?:\/\//.test(el.textContent ?? '')),
+      ).toBe(true);
     });
   });
 
@@ -287,6 +290,11 @@ describe('Work flow: playlist URL generation guardrails', () => {
 describe('Work flow: fetch > urls > ids', () => {
   it('fills URLs from page and then regenerates IDs', () => {
     render(<PlaylistEditor />);
+
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
 
     const pageUrlInput = screen.getByLabelText('Page URL');
 

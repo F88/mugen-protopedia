@@ -46,6 +46,11 @@ describe('ExtractPrototypeUrlsCard', () => {
   it('disables Fetch button when URL is empty', () => {
     setup();
 
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
+
     const fetchButton = screen.getByRole('button', {
       name: 'Fetch prototype URLs from page',
     });
@@ -55,6 +60,11 @@ describe('ExtractPrototypeUrlsCard', () => {
 
   it('validates page URL and disables Fetch button when invalid', () => {
     setup();
+
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
 
     const pageUrlInput = screen.getByLabelText('Page URL');
     const fetchButton = screen.getByRole('button', {
@@ -68,6 +78,11 @@ describe('ExtractPrototypeUrlsCard', () => {
 
   it('extracts URLs from raw content and shows count', () => {
     setup();
+
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
 
     const textarea = screen.getByLabelText(
       'Raw content (for example HTML, CSV, TSV)',
@@ -93,6 +108,11 @@ describe('ExtractPrototypeUrlsCard', () => {
   it('shows error when no URLs are found in raw content', () => {
     setup();
 
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
+
     const textarea = screen.getByLabelText(
       'Raw content (for example HTML, CSV, TSV)',
     );
@@ -116,6 +136,11 @@ describe('ExtractPrototypeUrlsCard', () => {
   it('fetches page and extracts URLs and title when URL is valid', async () => {
     const { onFetch, onUrlsExtracted, onTitleExtracted } = setup();
 
+    const accordionTrigger = screen.getByRole('button', {
+      name: /Advanced: extract prototype URLs from an existing page or raw content/i,
+    });
+    fireEvent.click(accordionTrigger);
+
     const pageUrlInput = screen.getByLabelText('Page URL');
     const fetchButton = screen.getByRole('button', {
       name: 'Fetch prototype URLs from page',
@@ -131,6 +156,9 @@ describe('ExtractPrototypeUrlsCard', () => {
 
     await waitFor(() => {
       expect(onFetch).toHaveBeenCalledWith('https://protopedia.net/some/page');
+    });
+
+    await waitFor(() => {
       expect(onUrlsExtracted).toHaveBeenCalled();
       expect(onTitleExtracted).toHaveBeenCalledWith('Page');
     });

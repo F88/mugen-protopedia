@@ -48,10 +48,15 @@ export function StatusCard({
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           {state === 'invalid' && (
-            <CircleX className="h-8 w-8 text-red-500" aria-hidden="true" />
+            <CircleX
+              data-testid="status-icon-invalid"
+              className="h-8 w-8 text-red-500"
+              aria-hidden="true"
+            />
           )}
           {state === 'valid' && (
             <CircleCheck
+              data-testid="status-icon-valid"
               className="h-8 w-8 text-emerald-500"
               aria-hidden="true"
             />
