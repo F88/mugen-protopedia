@@ -29,15 +29,38 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
     throw new Error('Invalid URL');
   }
 
-  const allowedOrigin = new Set([
-    'https://protopedia.net',
-    'https://mashupawards.connpass.com',
+  // List of allowed hosts and strict conditions.
+  const allowedHosts = new Set([
+    'protopedia.net',
+    'mashupawards.connpass.com',
   ]);
-
-  if (!allowedOrigin.has(url.origin)) {
-    throw new Error('Fetching from this origin is not allowed.');
+  const allowedProtocols = new Set(['https:']);
+  // Disallow any URL with username, password, port, fragments, or IP addresses.
+  if (
+    !allowedProtocols.has(url.protocol) ||
+    url.username ||
+    url.password ||
+    url.port ||
+    url.hostname.startsWith('.') ||
+    url.hostname.endsWith('.') ||
+    !allowedHosts.has(url.hostname)
+  ) {
+    throw new Error('Only strictly allowed hosts/protocols are permitted, with no credentials/port.');
   }
-  // fetch from allowe origin
+  // Disallow IP address hostnames
+  // (optional: requires Node "net" module, skip if not shown anywhere else)
+  // e.g,. import { isIP } from 'net'; if available:
+  //   if (isIP(url.hostname)) {
+  //     throw new Error('IP address hostnames are not permitted.');
+  //   }
+  // Disallow path traversal attempts
+  if (
+    /(\.\.\/|\/\.\.)/.test(url.pathname) ||
+    /%2e%2e/i.test(url.pathname) // percent-encoded ".."
+  ) {
+    throw new Error('Path traversal detected in pathname.');
+  }
+  // fetch from allowed origin
   const response = await fetch(url.toString(), { method: 'GET' });
 
   if (!response.ok) {
