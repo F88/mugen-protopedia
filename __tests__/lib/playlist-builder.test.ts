@@ -426,6 +426,19 @@ describe('playlist-builder ID utilities', () => {
       expect(extracted).toMatch(/Line 1\s+Line 2/);
     });
 
+    it('collapses multiple spaces into one when newlines are surrounded by whitespace', () => {
+      const html = `
+        <title>
+          Line 1
+          Line 2
+        </title>
+      `;
+      // Before fix: "Line 1  Line 2" (two spaces)
+      // After fix: "Line 1 Line 2" (one space)
+      const extracted = extractPageTitle(html);
+      expect(extracted).toBe('Line 1 Line 2');
+    });
+
     it('decodes HTML entities', () => {
       const html = '<title>A &amp; B</title>';
       expect(extractPageTitle(html)).toBe('A & B');

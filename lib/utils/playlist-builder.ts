@@ -306,7 +306,7 @@ export function extractPageTitle(html: string): string | null {
     return null;
   }
   const trimmed = match[1].trim();
-  const oneline = trimmed.replace(/[\r\n]+/g, ' ');
+  const oneline = trimmed.replace(/\s*[\r\n]+\s*/g, ' ');
   return decode(oneline);
 }
 
