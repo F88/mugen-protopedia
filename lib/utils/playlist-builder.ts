@@ -12,6 +12,7 @@
 import { APP_URL } from '@/lib/config/app-constants';
 import { splitGraphemes } from '@/lib/utils';
 import { logger } from '@/lib/logger.client';
+import { decode } from 'he';
 
 const PROTOTYPE_URL_GLOBAL_REGEX =
   /https?:\/\/[\w.-]+\/[\w\-./?#[\]@!$&'()*+,;=%]+/gi;
@@ -286,4 +287,24 @@ export function buildPlaylistUrl(ids: number[], title: string): string {
     'buildPlaylistUrl: built playlist URL',
   );
   return url;
+}
+
+/**
+ * Extracts the page title from an HTML string.
+ *
+ * - Finds the first `<title>` tag in the HTML.
+ * - Returns the text content of the tag, trimmed of leading/trailing whitespace.
+ * - Returns `null` if no title tag is found.
+ * - Returns an empty string if the title tag is empty or contains only whitespace.
+ * - Case-insensitive regarding the tag name.
+ * - Handles attributes on the title tag (e.g. `<title lang="en">`).
+ * - Decodes HTML entities (e.g. `&amp;` -> `&`).
+ */
+export function extractPageTitle(html: string): string | null {
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!match) {
+    return null;
+  }
+  const trimmed = match[1].trim();
+  return decode(trimmed);
 }

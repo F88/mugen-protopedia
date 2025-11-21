@@ -14,7 +14,10 @@ import {
 import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
 
 import { logger } from '@/lib/logger.client';
-import { extractPrototypeUrls } from '@/lib/utils/playlist-builder';
+import {
+  extractPageTitle,
+  extractPrototypeUrls,
+} from '@/lib/utils/playlist-builder';
 import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
 import { pageUrlSchema, rawContentSchema } from '@/schemas/playlist';
 
@@ -156,8 +159,7 @@ export function ExtractPrototypeUrlsCard({
         return;
       }
 
-      const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-      const pageTitle = match?.[1]?.trim() ?? '';
+      const pageTitle = extractPageTitle(html);
       if (pageTitle) {
         onTitleExtracted(pageTitle);
       }
