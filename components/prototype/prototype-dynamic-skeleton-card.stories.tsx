@@ -104,7 +104,6 @@ export const WithExpectedIdAndError: Story = {
   ),
 };
 
-
 export const AllDynamicVariantsComparison: Story = {
   render: () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

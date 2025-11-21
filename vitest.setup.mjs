@@ -21,9 +21,9 @@ globalThis.Response = Response;
 
 // Mock ResizeObserver for Radix UI
 global.ResizeObserver = class ResizeObserver {
-  observe() { }
-  unobserve() { }
-  disconnect() { }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 };
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));

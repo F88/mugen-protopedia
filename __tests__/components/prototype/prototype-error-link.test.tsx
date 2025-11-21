@@ -1,8 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import { PrototypeErrorLink } from '@/components/prototype/prototype-error-link';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('PrototypeErrorLink', () => {
   it('renders the link with the correct URL', () => {
