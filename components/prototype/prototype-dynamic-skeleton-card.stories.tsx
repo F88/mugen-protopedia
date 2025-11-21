@@ -104,6 +104,15 @@ export const WithExpectedIdAndError: Story = {
   ),
 };
 
+export const ErrorWithLink: Story = {
+  render: () => (
+    <PrototypeDynamicSkeletonCard
+      expectedPrototypeId={1234}
+      errorMessage="Failed to load prototype for ID 1234."
+    />
+  ),
+};
+
 export const AllDynamicVariantsComparison: Story = {
   render: () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
