@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { PrototypeErrorLink } from '@/components/prototype/prototype-error-link';
@@ -18,16 +18,25 @@ describe('PrototypeErrorLink', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('renders the tooltip trigger icon', () => {
+  it('shows tooltip on hover over the info icon', async () => {
     render(<PrototypeErrorLink expectedPrototypeId={12345} />);
-    // The Info icon is inside the tooltip trigger.
-    // Since the icon itself might not have a role, we can check if the trigger exists.
-    // Radix UI TooltipTrigger renders a button by default if not asChild, but here it is asChild wrapping Info.
-    // However, Info is an SVG.
-    // Let's check if the text "Check on ProtoPedia" is present, which we already did.
-    // To verify the tooltip, we might need to hover, but for a unit test of the component structure,
-    // checking the presence of the link and the general structure is often enough.
-    // Let's check if the tooltip content text is in the document (it might be hidden).
-    // Radix Tooltip content is usually not in the DOM until triggered.
+
+    // The Info icon is the trigger. We can find it as the link's previous sibling.
+    const linkElement = screen.getByRole('link');
+    const infoIcon = linkElement.previousElementSibling;
+    expect(infoIcon).toBeInTheDocument();
+
+    // Simulate hover
+    fireEvent.mouseEnter(infoIcon!);
+    fireEvent.focus(infoIcon!);
+
+    // Wait for tooltip to appear
+    await waitFor(() => {
+      const tooltipTexts = screen.getAllByText(
+        'ProtoPedia にはページが存在する可能性があります',
+      );
+      expect(tooltipTexts.length).toBeGreaterThan(0);
+      expect(tooltipTexts[0]).toBeInTheDocument();
+    });
   });
 });
