@@ -44,6 +44,7 @@ export const PrototypeContainer = ({
         errorMessage={errorMessage}
         isFocused={isFocused}
         randomVariant={true}
+        disableAnimation={!!errorMessage}
       />
     ) : (
       <PrototypeSkeletonCard
@@ -51,6 +52,7 @@ export const PrototypeContainer = ({
         errorMessage={errorMessage}
         isFocused={isFocused}
         randomVariant={true}
+        disableAnimation={!!errorMessage}
       />
     );
 
