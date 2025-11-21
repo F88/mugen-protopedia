@@ -410,10 +410,11 @@ describe('playlist-builder ID utilities', () => {
       `;
       // Note: The regex captures [\s\S]*? so it includes newlines.
       // The .trim() only removes leading/trailing whitespace of the whole block.
-      // It does NOT collapse internal whitespace.
+      // We replace newlines with spaces (0x20).
       const extracted = extractPageTitle(html);
-      expect(extracted).toContain('Line 1');
-      expect(extracted).toContain('Line 2');
+      expect(extracted).not.toContain('\n');
+      expect(extracted).not.toContain('\r');
+      expect(extracted).toMatch(/Line 1\s+Line 2/);
     });
 
     it('decodes HTML entities', () => {
