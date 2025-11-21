@@ -9,6 +9,8 @@ import {
   deduplicateIdsPreserveOrder,
   buildPlaylistUrl,
   extractPageTitle,
+  sortLinesNumeric,
+  deduplicateIdsOnly,
 } from '@/lib/utils/playlist-builder';
 
 describe('playlist-builder ID utilities', () => {
@@ -253,6 +255,13 @@ describe('playlist-builder ID utilities', () => {
       expect(result).toEqual([1, 2, 3]);
       expect(input).toEqual(copy);
     });
+
+    it('handles leading zeros correctly (numeric value)', () => {
+      const input = ['010', '2', '005'];
+      const result = sortLinesNumeric(input);
+      // 2 < 5 < 10
+      expect(result).toEqual(['2', '005', '010']);
+    });
   });
 
   describe('deduplicateIdsPreserveOrder', () => {
@@ -436,6 +445,115 @@ describe('playlist-builder ID utilities', () => {
       const html =
         '<title>&lt;div&gt; &quot;quoted&quot; &apos;single&apos;</title>';
       expect(extractPageTitle(html)).toBe('<div> "quoted" \'single\'');
+    });
+  });
+
+  describe('sortLinesNumeric', () => {
+    it('sorts lines numerically', () => {
+      const input = ['10', '2', '1'];
+      const result = sortLinesNumeric(input);
+      expect(result).toEqual(['1', '2', '10']);
+    });
+
+    it('preserves non-numeric lines and sorts them after numbers (locale dependent)', () => {
+      const input = ['b', '10', 'a', '2'];
+      const result = sortLinesNumeric(input);
+      // Numeric sort usually puts numbers first, then strings.
+      // "10" comes after "2". "a" comes before "b".
+      expect(result).toEqual(['2', '10', 'a', 'b']);
+    });
+
+    it('preserves empty lines', () => {
+      const input = ['2', '', '1'];
+      const result = sortLinesNumeric(input);
+      // Empty strings usually come first or last depending on locale/browser.
+      // In Node/V8, they often come first.
+      expect(result).toContain('');
+      expect(result).toContain('1');
+      expect(result).toContain('2');
+      expect(result.length).toBe(3);
+    });
+
+    it('does not mutate the original array', () => {
+      const input = ['2', '1'];
+      const copy = [...input];
+      sortLinesNumeric(input);
+      expect(input).toEqual(copy);
+    });
+
+    it('handles leading zeros correctly (numeric value)', () => {
+      const input = ['010', '2', '005'];
+      const result = sortLinesNumeric(input);
+      // 2 < 5 < 10
+      expect(result).toEqual(['2', '005', '010']);
+    });
+  });
+
+  describe('deduplicateIdsOnly', () => {
+    it('removes duplicate numeric IDs, keeping the first occurrence', () => {
+      const input = ['1', '2', '1', '3'];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['1', '2', '3']);
+    });
+
+    it('preserves all non-numeric lines, even duplicates', () => {
+      const input = ['abc', '1', 'abc', '2', 'def', 'def'];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['abc', '1', 'abc', '2', 'def', 'def']);
+    });
+
+    it('preserves empty lines', () => {
+      const input = ['1', '', '1', ''];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['1', '', '']);
+    });
+
+    it('treats IDs with different leading zeros as duplicate numeric IDs', () => {
+      const input = ['1', '01', '001', '1'];
+      const result = deduplicateIdsOnly(input);
+      // "1", "01", "001" are numerically equal. Only the first one ("1") is kept.
+      expect(result).toEqual(['1']);
+    });
+
+    it('does not mutate the original array', () => {
+      const input = ['1', '1'];
+      const copy = [...input];
+      deduplicateIdsOnly(input);
+      expect(input).toEqual(copy);
+    });
+
+    it('handles complex mixed input with empty lines and duplicates correctly', () => {
+      const input = [
+        '1',
+        '',
+        '3',
+        '',
+        '2',
+        'xxx1',
+        '3',
+        'a',
+        '1',
+        '01',
+        '',
+        '4',
+        '',
+        '2',
+        '',
+      ];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual([
+        '1',
+        '',
+        '3',
+        '',
+        '2',
+        'xxx1',
+        'a',
+        '',
+        '4',
+        '',
+        '',
+      ]);
     });
   });
 });
