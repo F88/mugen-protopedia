@@ -1142,11 +1142,120 @@ export async function getPrototypeByIdFromMapOrFetch(
  *   is returned.
  */
 export async function getRandomPrototypeFromMapOrFetch(): Promise<FetchRandomPrototypeResult> {
-  // Simulate error for testing
+  const logger = baseLogger.child({
+    action: 'getRandomPrototypeFromMapOrFetch',
+  });
+
+  const snapshot = prototypeMapStore.getSnapshot();
+
+  logger.info(
+    {
+      snapshotCount: snapshot.data.length,
+      snapshotExpired: snapshot.isExpired,
+      refreshInFlight: prototypeMapStore.isRefreshInFlight(),
+    },
+    'Attempting random prototype selection from map store',
+  );
+
+  const cached = prototypeMapStore.getRandom();
+
+  if (cached) {
+    if (snapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-on-random-hit');
+    }
+    logger.info(
+      {
+        prototypeId: cached.id,
+        prototypeName: cached.prototypeNm,
+        snapshotExpired: snapshot.isExpired,
+      },
+      'Returning random prototype from snapshot',
+    );
+    return {
+      ok: true,
+      data: cached,
+    };
+  }
+
+  const refreshResult = await runPrototypeMapRefresh(logger, 'random-miss');
+
+  if (refreshResult !== null && !refreshResult.ok) {
+    logger.warn(
+      {
+        status: refreshResult.status,
+        error: refreshResult.error,
+      },
+      'Map refresh failed while resolving random prototype',
+    );
+    return refreshResult;
+  }
+
+  const refreshed = prototypeMapStore.getRandom();
+  if (refreshed) {
+    const refreshedSnapshot = prototypeMapStore.getSnapshot();
+    if (refreshedSnapshot.isExpired) {
+      schedulePrototypeMapRefresh(logger, 'ttl-expired-after-random-refresh');
+    }
+    logger.info(
+      {
+        prototypeId: refreshed.id,
+        prototypeName: refreshed.prototypeNm,
+        snapshotExpired: refreshedSnapshot.isExpired,
+      },
+      'Returning random prototype after refresh',
+    );
+    return {
+      ok: true,
+      data: refreshed,
+    };
+  }
+
+  if (refreshResult !== null && refreshResult.ok) {
+    if (refreshResult.data.length > 0) {
+      const randomIndex = Math.floor(Math.random() * refreshResult.data.length);
+      const fallback = refreshResult.data[randomIndex];
+      logger.info(
+        {
+          prototypeId: fallback.id,
+          prototypeName: fallback.prototypeNm,
+        },
+        'Returning random prototype from refresh result (map store skipped)',
+      );
+      return {
+        ok: true,
+        data: fallback,
+      };
+    }
+
+    logger.warn('No prototypes available after successful refresh');
+    return {
+      ok: false,
+      status: 404,
+      error: 'No prototypes available',
+    };
+  }
+
+  const latestSnapshot = prototypeMapStore.getSnapshot();
+  if (latestSnapshot.data.length > 0) {
+    logger.warn(
+      {
+        snapshotCount: latestSnapshot.data.length,
+      },
+      'Random selection failed despite populated snapshot',
+    );
+    // Should be unreachable if getRandom() works correctly
+    return {
+      ok: false,
+      status: 500,
+      error: 'Random selection failed',
+    };
+  }
+
+  logger.error('Prototype map unavailable while resolving random prototype');
   return {
     ok: false,
     status: 503,
-    error: 'Simulated server error',
+    error: 'Prototype map unavailable',
   };
 }
 
