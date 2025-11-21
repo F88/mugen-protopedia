@@ -104,15 +104,6 @@ export const WithExpectedIdAndError: Story = {
   ),
 };
 
-export const ErrorWithLink: Story = {
-  render: () => (
-    <PrototypeSkeletonCard
-      expectedPrototypeId={1234}
-      errorMessage="Failed to load prototype for ID 1234."
-    />
-  ),
-};
-
 export const AllVariantsComparison: Story = {
   render: () => (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
