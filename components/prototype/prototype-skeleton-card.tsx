@@ -1,11 +1,17 @@
 'use client';
 
 import React, { useId, useMemo } from 'react';
+import { Info } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import './skeleton-animations.css';
 import { hashString } from './utils/skeleton-kind';
@@ -151,11 +157,35 @@ export const PrototypeSkeletonCard = ({
 
           {/* Description  */}
           <div className="mb-1">
-            <SkeletonBlock
-              className="h-8 w-3/4"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-            />
+            {showErrorOnImage && typeof expectedPrototypeId === 'number' ? (
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Even if the API fails, the page may exist on ProtoPedia.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+                <a
+                  href={`https://protopedia.net/prototype/${expectedPrototypeId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xl font-semibold text-blue-600 hover:underline truncate"
+                  title={`Open prototype ${expectedPrototypeId} in ProtoPedia`}
+                >
+                  Check on ProtoPedia #{expectedPrototypeId}
+                </a>
+              </div>
+            ) : (
+              <SkeletonBlock
+                className="h-8 w-3/4"
+                variant={selectedVariant}
+                disableAnimation={disableAnimation}
+              />
+            )}
           </div>
 
           <div className="mt-1">
