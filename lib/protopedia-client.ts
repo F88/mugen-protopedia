@@ -1,6 +1,23 @@
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
 import { logger as baseLogger } from '@/lib/logger.server';
 
+/**
+ * Timeout for establishing a connection and receiving response headers.
+ *
+ * This timeout covers:
+ * 1. DNS resolution
+ * 2. TCP connection establishment
+ * 3. TLS handshake
+ * 4. Request transmission
+ * 5. Server processing time (TTFB)
+ * 6. Receiving response headers
+ *
+ * It does NOT cover the time required to download the response body.
+ * This ensures we fail fast if the server is unresponsive, while allowing
+ * large payloads (e.g., 20MB JSON) to download even if it takes longer than this threshold.
+ */
+const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
+
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
 const logLevel =
@@ -28,14 +45,25 @@ baseLogger.debug({ logLevel }, 'ProtoPedia client configuration');
 export const protopedia = createProtoPediaClient({
   token: validToken,
   baseUrl,
-  fetch: (url, init) =>
-    globalThis.fetch(url, {
-      ...init,
-      cache: 'force-cache',
-      next: {
-        revalidate: 60,
-      },
-    }),
+  fetch: async (url, init) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      CONNECTION_AND_HEADER_TIMEOUT_MS,
+    );
+    try {
+      return await globalThis.fetch(url, {
+        ...init,
+        signal: controller.signal,
+        cache: 'force-cache',
+        next: {
+          revalidate: 60,
+        },
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  },
   // Reduce noisy logs in development; can be overridden via env
   logLevel,
 });
@@ -64,31 +92,42 @@ export async function getPrototypeById(id: number): Promise<{
     headers.Authorization = `Bearer ${validToken}`;
   }
 
-  const res = await fetch(url, {
-    headers,
-    method: 'GET',
-    cache: 'force-cache',
-    next: {
-      revalidate: 60,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    CONNECTION_AND_HEADER_TIMEOUT_MS,
+  );
 
-  if (res.status === 404) {
-    return null;
+  try {
+    const res = await fetch(url, {
+      headers,
+      method: 'GET',
+      signal: controller.signal,
+      cache: 'force-cache',
+      next: {
+        revalidate: 60,
+      },
+    });
+
+    if (res.status === 404) {
+      return null;
+    }
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      const err = new ProtopediaApiError(`Upstream error: ${res.status}`);
+      err.status = res.status;
+      err.body = text;
+      throw err;
+    }
+
+    return (await res.json()) as {
+      prototypeNm?: string;
+      mainUrl?: string;
+      freeComment?: string;
+      teamNm?: string;
+    };
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    const err = new ProtopediaApiError(`Upstream error: ${res.status}`);
-    err.status = res.status;
-    err.body = text;
-    throw err;
-  }
-
-  return (await res.json()) as {
-    prototypeNm?: string;
-    mainUrl?: string;
-    freeComment?: string;
-    teamNm?: string;
-  };
 }
