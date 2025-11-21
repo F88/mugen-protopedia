@@ -24,7 +24,7 @@ This application is designed for developers, engineers, and power users who inte
 2. **Assume Competence**: The user understands what "DNS failure" or "Timeout" means. Do not patronize them with simplified explanations.
 3. **Expose the Machinery**: When data is stale, loading, or retrying, the UI should reflect this state clearly.
 4. **Raw Data is Better than No Data**: If a partial failure occurs, show what we have and clearly label what failed.
-5. **Technical Correctness is the Best UX**: For our audience, knowing *why* something failed is more valuable than a polite apology.
+5. **Technical Correctness is the Best UX**: For our audience, knowing _why_ something failed is more valuable than a polite apology.
 
 ## Implementation Guidelines
 
