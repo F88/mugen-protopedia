@@ -1,3 +1,4 @@
+import React from 'react';
 import { PrototypeErrorLink } from '@/components/prototype/prototype-error-link';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
