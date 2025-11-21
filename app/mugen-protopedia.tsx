@@ -394,13 +394,16 @@ export function MugenProtoPedia() {
       // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
       // "Failed to fetch" is ambiguous but technically correct for network errors (offline, DNS, etc).
       // We list possible causes to aid troubleshooting.
-      const message =
-        err instanceof Error && err.message === 'Failed to fetch'
-          ? 'Failed to fetch. ' +
-            'Possible causes: Offline, DNS, CORS, or Server Down.'
-          : err instanceof Error
-            ? err.message
-            : 'Failed to load.';
+      let message = 'Failed to load.';
+      if (err instanceof Error) {
+        if (err.message === 'Failed to fetch') {
+          message =
+            'Failed to fetch. ' +
+            'Possible causes: Offline, DNS, CORS, or Server Down.';
+        } else {
+          message = err.message;
+        }
+      }
       setSlotError(slotId, message);
     } finally {
       decrementInFlightRequests();
