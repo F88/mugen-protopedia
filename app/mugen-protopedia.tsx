@@ -144,7 +144,6 @@ export function MugenProtoPedia() {
     appendPlaceholder,
     replacePrototypeInSlot,
     setSlotError,
-    removeSlotById,
     clearSlots,
     inFlightRequests,
     canFetchMorePrototypes,
@@ -385,14 +384,24 @@ export function MugenProtoPedia() {
     try {
       const prototype = await getRandomPrototypeFromResults();
       if (!prototype) {
-        removeSlotById(slotId);
+        setSlotError(slotId, 'Failed to load.');
         return;
       }
 
       await replacePrototypeInSlot(slotId, prototype);
     } catch (err) {
       console.error('Failed to fetch prototypes.', err);
-      removeSlotById(slotId);
+      // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
+      // "Failed to fetch" is ambiguous but technically correct for network errors (offline, DNS, etc).
+      // We list possible causes to aid troubleshooting.
+      const message =
+        err instanceof Error && err.message === 'Failed to fetch'
+          ? 'Failed to fetch. ' +
+            'Possible causes: Offline, DNS, CORS, or Server Down.'
+          : err instanceof Error
+            ? err.message
+            : 'Failed to load.';
+      setSlotError(slotId, message);
     } finally {
       decrementInFlightRequests();
     }
@@ -400,10 +409,10 @@ export function MugenProtoPedia() {
     tryIncrementInFlightRequests,
     appendPlaceholder,
     getRandomPrototypeFromResults,
-    removeSlotById,
     replacePrototypeInSlot,
     decrementInFlightRequests,
     isPlaylistPlaying,
+    setSlotError,
   ]);
 
   /**
