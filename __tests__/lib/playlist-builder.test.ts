@@ -8,6 +8,7 @@ import {
   sortIdsWithDuplicates,
   deduplicateIdsPreserveOrder,
   buildPlaylistUrl,
+  extractPageTitle,
 } from '@/lib/utils/playlist-builder';
 
 describe('playlist-builder ID utilities', () => {
@@ -353,6 +354,87 @@ describe('playlist-builder ID utilities', () => {
       const exceedingResult = buildPlaylistUrl([1], titleExceedingLimit);
       const exceedingUrl = new URL(exceedingResult);
       expect(exceedingUrl.searchParams.has('title')).toBe(false);
+    });
+  });
+
+  describe('extractPageTitle', () => {
+    it('extracts title content from HTML', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>My Page Title</title>
+          </head>
+          <body></body>
+        </html>
+      `;
+      expect(extractPageTitle(html)).toBe('My Page Title');
+    });
+
+    it('trims whitespace from extracted title', () => {
+      const html = '<title>  Trim Me  </title>';
+      expect(extractPageTitle(html)).toBe('Trim Me');
+    });
+
+    it('returns null if no title tag is found', () => {
+      const html = '<div>No title here</div>';
+      expect(extractPageTitle(html)).toBeNull();
+    });
+
+    it('returns empty string if title tag is empty', () => {
+      const html = '<title></title>';
+      expect(extractPageTitle(html)).toBe('');
+    });
+
+    it('returns empty string if title tag contains only whitespace', () => {
+      const html = '<title>   </title>';
+      expect(extractPageTitle(html)).toBe('');
+    });
+
+    it('is case insensitive for tag name', () => {
+      const html = '<TITLE>UPPERCASE</TITLE>';
+      expect(extractPageTitle(html)).toBe('UPPERCASE');
+    });
+
+    it('handles attributes on title tag', () => {
+      const html = '<title lang="en">With Attributes</title>';
+      expect(extractPageTitle(html)).toBe('With Attributes');
+    });
+
+    it('handles multiline title content', () => {
+      const html = `
+        <title>
+          Line 1
+          Line 2
+        </title>
+      `;
+      // Note: The regex captures [\s\S]*? so it includes newlines.
+      // The .trim() only removes leading/trailing whitespace of the whole block.
+      // It does NOT collapse internal whitespace.
+      const extracted = extractPageTitle(html);
+      expect(extracted).toContain('Line 1');
+      expect(extracted).toContain('Line 2');
+    });
+
+    it('decodes HTML entities', () => {
+      const html = '<title>A &amp; B</title>';
+      expect(extractPageTitle(html)).toBe('A & B');
+    });
+
+    it('decodes numeric character references', () => {
+      const html = '<title>&#169; 2025</title>';
+      expect(extractPageTitle(html)).toBe('© 2025');
+    });
+
+    it('decodes named character references', () => {
+      const html = '<title>Foo &mdash; Bar</title>';
+      expect(extractPageTitle(html)).toBe('Foo — Bar');
+    });
+
+    it('decodes mixed entities', () => {
+      const html =
+        '<title>&lt;div&gt; &quot;quoted&quot; &apos;single&apos;</title>';
+      expect(extractPageTitle(html)).toBe('<div> "quoted" \'single\'');
     });
   });
 });
