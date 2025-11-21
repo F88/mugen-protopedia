@@ -1,4 +1,6 @@
+import { constructDisplayMessage } from '@/lib/network-utils';
 import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+import type { NetworkFailure } from '@/types/prototype-api.types';
 
 /**
  * Server-only function that fetches raw HTML (or text) of an
@@ -63,9 +65,14 @@ export async function fetchPageHtmlOnServer(pageUrl: string): Promise<{
   const response = await fetch(url.toString(), { method: 'GET' });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch page: ${response.status} ${response.statusText}`,
-    );
+    const failure: NetworkFailure = {
+      status: response.status,
+      error: 'Failed to fetch page',
+      details: {
+        statusText: response.statusText,
+      },
+    };
+    throw new Error(constructDisplayMessage(failure));
   }
 
   const html = await response.text();

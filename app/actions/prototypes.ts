@@ -28,7 +28,7 @@ import type {
   FetchPrototypesParams,
   FetchPrototypesResult,
   FetchRandomPrototypeResult,
-} from '@/types/prototypes.types';
+} from '@/types/prototype-api.types';
 
 /**
  * Default limit for prototype fetching from environment variable or fallback to 100 */

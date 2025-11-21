@@ -4,8 +4,11 @@ import {
   getPrototypeByIdFromMapOrFetch,
   getPrototypesFromCacheOrFetch,
 } from '@/app/actions/prototypes';
+
 import { type NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
+import { constructDisplayMessage } from '@/lib/network-utils';
+
 import { PrototypeRepository } from './types';
 
 const MAX_MAP_THRESHOLD = 10_000;
@@ -42,9 +45,7 @@ export const prototypeRepository: PrototypeRepository = {
     });
 
     if (!fallback.ok) {
-      throw new Error(
-        `Error fetching prototypes: ${fallback.status} ${fallback.error}`,
-      );
+      throw new Error(constructDisplayMessage(fallback));
     }
 
     if (fallback.data.length === 0) {
@@ -76,9 +77,7 @@ export const prototypeRepository: PrototypeRepository = {
       const mapResult = await getAllPrototypesFromMapOrFetch();
 
       if (!mapResult.ok) {
-        throw new Error(
-          `Error fetching prototypes: ${mapResult.status} ${mapResult.error}`,
-        );
+        throw new Error(constructDisplayMessage(mapResult));
       }
 
       if (mapResult.data.length === 0) {
@@ -107,9 +106,7 @@ export const prototypeRepository: PrototypeRepository = {
     });
 
     if (!result.ok) {
-      throw new Error(
-        `Error fetching prototypes: ${result.status} ${result.error}`,
-      );
+      throw new Error(constructDisplayMessage(result));
     }
 
     logger.debug('PrototypeRepository.list fetched data', {
@@ -181,9 +178,7 @@ export const prototypeRepository: PrototypeRepository = {
         return undefined;
       }
 
-      throw new Error(
-        `Error fetching prototype by ID: ${result.status} ${result.error}`,
-      );
+      throw new Error(constructDisplayMessage(result));
     }
 
     logger.debug(

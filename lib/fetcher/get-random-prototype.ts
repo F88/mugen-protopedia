@@ -2,23 +2,13 @@ import {
   fetchRandomPrototype,
   getRandomPrototypeFromMapOrFetch,
 } from '@/app/actions/prototypes';
+
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
+import { constructDisplayMessage } from '@/lib/network-utils';
 
 const FALLBACK_LIMIT = 500;
 const FALLBACK_OFFSET = 0;
-
-const resolveErrorMessage = (value: unknown): string => {
-  if (value instanceof Error) {
-    return value.message;
-  }
-
-  if (typeof value === 'string' && value.length > 0) {
-    return value;
-  }
-
-  return 'Failed to fetch random prototype.';
-};
 
 export const getRandomPrototypeData =
   async (): Promise<NormalizedPrototype | null> => {
@@ -35,12 +25,13 @@ export const getRandomPrototypeData =
     }
 
     if (mapResult.status !== 503) {
-      const message = resolveErrorMessage(mapResult.error);
+      const displayMessage = constructDisplayMessage(mapResult);
+
       logger.error('getRandomPrototypeData failed via map fetch', {
         status: mapResult.status,
-        message,
+        message: displayMessage,
       });
-      throw new Error(message);
+      throw new Error(displayMessage);
     }
 
     const fallback = await fetchRandomPrototype({
@@ -49,12 +40,13 @@ export const getRandomPrototypeData =
     });
 
     if (!fallback.ok) {
-      const message = resolveErrorMessage(fallback.error);
+      const displayMessage = constructDisplayMessage(fallback);
+
       logger.error('getRandomPrototypeData failed via fallback fetch', {
         status: fallback.status,
-        message,
+        message: displayMessage,
       });
-      throw new Error(message);
+      throw new Error(displayMessage);
     }
 
     return fallback.data;

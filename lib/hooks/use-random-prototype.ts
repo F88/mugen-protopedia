@@ -52,7 +52,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
             ? caught.message
             : 'Failed to fetch random prototype.';
         setError(message);
-        return null;
+        throw caught;
       } finally {
         setIsLoading(false);
       }
