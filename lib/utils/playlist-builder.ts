@@ -12,6 +12,7 @@
 import { APP_URL } from '@/lib/config/app-constants';
 import { splitGraphemes } from '@/lib/utils';
 import { logger } from '@/lib/logger.client';
+import { decode } from 'he';
 
 const PROTOTYPE_URL_GLOBAL_REGEX =
   /https?:\/\/[\w.-]+\/[\w\-./?#[\]@!$&'()*+,;=%]+/gi;
@@ -287,3 +288,81 @@ export function buildPlaylistUrl(ids: number[], title: string): string {
   );
   return url;
 }
+
+/**
+ * Extracts the page title from an HTML string.
+ *
+ * - Finds the first `<title>` tag in the HTML.
+ * - Returns the text content of the tag, trimmed of leading/trailing whitespace.
+ * - Returns `null` if no title tag is found.
+ * - Returns an empty string if the title tag is empty or contains only whitespace.
+ * - Case-insensitive regarding the tag name.
+ * - Handles attributes on the title tag (e.g. `<title lang="en">`).
+ * - Decodes HTML entities (e.g. `&amp;` -> `&`).
+ */
+export function extractPageTitle(html: string): string | null {
+  const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if (!match) {
+    return null;
+  }
+  const trimmed = match[1].trim();
+  const oneline = trimmed.replace(/[\r\n]+/g, ' ');
+  return decode(oneline);
+}
+
+/**
+ * Sorts lines numerically in ascending order.
+ *
+ * Behavior:
+ * - Sorts lines using `localeCompare` with `{ numeric: true }`.
+ * - Preserves all lines including empty and invalid ones.
+ * - Does not mutate the original array.
+ * - Handles leading zeros correctly (e.g. "2" < "010").
+ * - Non-numeric lines are sorted according to standard locale comparison rules.
+ */
+export const sortLinesNumeric = (lines: string[]): string[] => {
+  const sorted = [...lines];
+  sorted.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  return sorted;
+};
+
+/**
+ * Deduplicates numeric ID lines while preserving all other lines.
+ *
+ * Behavior:
+ * - Iterates through lines:
+ *   - If line is a valid numeric ID:
+ *     - If seen before (as a numeric value), remove it.
+ *     - If not seen, keep it (preserving the original string representation) and mark the numeric value as seen.
+ *   - If line is NOT a valid numeric ID:
+ *     - Always keep it (even if duplicate).
+ * - Does not mutate the original array.
+ * - Treats IDs with different leading zeros as the same ID (e.g. "1" and "01" are duplicates).
+ *   - The first occurrence is kept. For example, if input is `['01', '1']`, result is `['01']`.
+ * - Preserves empty lines.
+ */
+export const deduplicateIdsOnly = (lines: string[]): string[] => {
+  const seenIds = new Set<number>();
+  const resultLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Check if line is a valid numeric ID (digits only, non-empty)
+    const isId = /^\d+$/.test(trimmed);
+
+    if (isId) {
+      const numericId = parseInt(trimmed, 10);
+      if (seenIds.has(numericId)) {
+        // Skip duplicate ID
+        continue;
+      }
+      seenIds.add(numericId);
+      resultLines.push(line);
+    } else {
+      // Always keep non-ID lines
+      resultLines.push(line);
+    }
+  }
+
+  return resultLines;
+};

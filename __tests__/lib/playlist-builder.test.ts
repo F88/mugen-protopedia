@@ -8,6 +8,9 @@ import {
   sortIdsWithDuplicates,
   deduplicateIdsPreserveOrder,
   buildPlaylistUrl,
+  extractPageTitle,
+  sortLinesNumeric,
+  deduplicateIdsOnly,
 } from '@/lib/utils/playlist-builder';
 
 describe('playlist-builder ID utilities', () => {
@@ -252,6 +255,13 @@ describe('playlist-builder ID utilities', () => {
       expect(result).toEqual([1, 2, 3]);
       expect(input).toEqual(copy);
     });
+
+    it('handles leading zeros correctly (numeric value)', () => {
+      const input = ['010', '2', '005'];
+      const result = sortLinesNumeric(input);
+      // 2 < 5 < 10
+      expect(result).toEqual(['2', '005', '010']);
+    });
   });
 
   describe('deduplicateIdsPreserveOrder', () => {
@@ -353,6 +363,197 @@ describe('playlist-builder ID utilities', () => {
       const exceedingResult = buildPlaylistUrl([1], titleExceedingLimit);
       const exceedingUrl = new URL(exceedingResult);
       expect(exceedingUrl.searchParams.has('title')).toBe(false);
+    });
+  });
+
+  describe('extractPageTitle', () => {
+    it('extracts title content from HTML', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>My Page Title</title>
+          </head>
+          <body></body>
+        </html>
+      `;
+      expect(extractPageTitle(html)).toBe('My Page Title');
+    });
+
+    it('trims whitespace from extracted title', () => {
+      const html = '<title>  Trim Me  </title>';
+      expect(extractPageTitle(html)).toBe('Trim Me');
+    });
+
+    it('returns null if no title tag is found', () => {
+      const html = '<div>No title here</div>';
+      expect(extractPageTitle(html)).toBeNull();
+    });
+
+    it('returns empty string if title tag is empty', () => {
+      const html = '<title></title>';
+      expect(extractPageTitle(html)).toBe('');
+    });
+
+    it('returns empty string if title tag contains only whitespace', () => {
+      const html = '<title>   </title>';
+      expect(extractPageTitle(html)).toBe('');
+    });
+
+    it('is case insensitive for tag name', () => {
+      const html = '<TITLE>UPPERCASE</TITLE>';
+      expect(extractPageTitle(html)).toBe('UPPERCASE');
+    });
+
+    it('handles attributes on title tag', () => {
+      const html = '<title lang="en">With Attributes</title>';
+      expect(extractPageTitle(html)).toBe('With Attributes');
+    });
+
+    it('handles multiline title content', () => {
+      const html = `
+        <title>
+          Line 1
+          Line 2
+        </title>
+      `;
+      // Note: The regex captures [\s\S]*? so it includes newlines.
+      // The .trim() only removes leading/trailing whitespace of the whole block.
+      // We replace newlines with spaces (0x20).
+      const extracted = extractPageTitle(html);
+      expect(extracted).not.toContain('\n');
+      expect(extracted).not.toContain('\r');
+      expect(extracted).toMatch(/Line 1\s+Line 2/);
+    });
+
+    it('decodes HTML entities', () => {
+      const html = '<title>A &amp; B</title>';
+      expect(extractPageTitle(html)).toBe('A & B');
+    });
+
+    it('decodes numeric character references', () => {
+      const html = '<title>&#169; 2025</title>';
+      expect(extractPageTitle(html)).toBe('© 2025');
+    });
+
+    it('decodes named character references', () => {
+      const html = '<title>Foo &mdash; Bar</title>';
+      expect(extractPageTitle(html)).toBe('Foo — Bar');
+    });
+
+    it('decodes mixed entities', () => {
+      const html =
+        '<title>&lt;div&gt; &quot;quoted&quot; &apos;single&apos;</title>';
+      expect(extractPageTitle(html)).toBe('<div> "quoted" \'single\'');
+    });
+  });
+
+  describe('sortLinesNumeric', () => {
+    it('sorts lines numerically', () => {
+      const input = ['10', '2', '1'];
+      const result = sortLinesNumeric(input);
+      expect(result).toEqual(['1', '2', '10']);
+    });
+
+    it('preserves non-numeric lines and sorts them after numbers (locale dependent)', () => {
+      const input = ['b', '10', 'a', '2'];
+      const result = sortLinesNumeric(input);
+      // Numeric sort usually puts numbers first, then strings.
+      // "10" comes after "2". "a" comes before "b".
+      expect(result).toEqual(['2', '10', 'a', 'b']);
+    });
+
+    it('preserves empty lines', () => {
+      const input = ['2', '', '1'];
+      const result = sortLinesNumeric(input);
+      // Empty strings usually come first or last depending on locale/browser.
+      // In Node/V8, they often come first.
+      expect(result).toContain('');
+      expect(result).toContain('1');
+      expect(result).toContain('2');
+      expect(result.length).toBe(3);
+    });
+
+    it('does not mutate the original array', () => {
+      const input = ['2', '1'];
+      const copy = [...input];
+      sortLinesNumeric(input);
+      expect(input).toEqual(copy);
+    });
+
+    it('handles leading zeros correctly (numeric value)', () => {
+      const input = ['010', '2', '005'];
+      const result = sortLinesNumeric(input);
+      // 2 < 5 < 10
+      expect(result).toEqual(['2', '005', '010']);
+    });
+  });
+
+  describe('deduplicateIdsOnly', () => {
+    it('removes duplicate numeric IDs, keeping the first occurrence', () => {
+      const input = ['1', '2', '1', '3'];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['1', '2', '3']);
+    });
+
+    it('preserves all non-numeric lines, even duplicates', () => {
+      const input = ['abc', '1', 'abc', '2', 'def', 'def'];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['abc', '1', 'abc', '2', 'def', 'def']);
+    });
+
+    it('preserves empty lines', () => {
+      const input = ['1', '', '1', ''];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual(['1', '', '']);
+    });
+
+    it('treats IDs with different leading zeros as duplicate numeric IDs', () => {
+      const input = ['1', '01', '001', '1'];
+      const result = deduplicateIdsOnly(input);
+      // "1", "01", "001" are numerically equal. Only the first one ("1") is kept.
+      expect(result).toEqual(['1']);
+    });
+
+    it('does not mutate the original array', () => {
+      const input = ['1', '1'];
+      const copy = [...input];
+      deduplicateIdsOnly(input);
+      expect(input).toEqual(copy);
+    });
+
+    it('handles complex mixed input with empty lines and duplicates correctly', () => {
+      const input = [
+        '1',
+        '',
+        '3',
+        '',
+        '2',
+        'xxx1',
+        '3',
+        'a',
+        '1',
+        '01',
+        '',
+        '4',
+        '',
+        '2',
+        '',
+      ];
+      const result = deduplicateIdsOnly(input);
+      expect(result).toEqual([
+        '1',
+        '',
+        '3',
+        '',
+        '2',
+        'xxx1',
+        'a',
+        '',
+        '4',
+        '',
+        '',
+      ]);
     });
   });
 });
