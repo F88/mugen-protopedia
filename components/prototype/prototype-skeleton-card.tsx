@@ -158,15 +158,13 @@ export const PrototypeSkeletonCard = ({
           {/* Description  */}
           <div className="mb-1">
             {showErrorOnImage && typeof expectedPrototypeId === 'number' ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 animate-bounce hover:animate-none">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 cursor-help" />
+                    <Info className="h-6 w-6 text-amber-600 dark:text-amber-400 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>
-                      Even if the API fails, the page may exist on ProtoPedia.
-                    </p>
+                    <p>ProtoPedia にはページが存在する可能性があります</p>
                   </TooltipContent>
                 </Tooltip>
                 <a
@@ -176,7 +174,7 @@ export const PrototypeSkeletonCard = ({
                   className="block text-xl font-semibold text-blue-600 hover:underline truncate"
                   title={`Open prototype ${expectedPrototypeId} in ProtoPedia`}
                 >
-                  Check on ProtoPedia #{expectedPrototypeId}
+                  Check on ProtoPedia
                 </a>
               </div>
             ) : (
