@@ -14,80 +14,24 @@
 
 import {
   normalizePrototype,
-  type NormalizedPrototype,
   type UpstreamPrototype,
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
-import { protopedia } from '@/lib/protopedia-client';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import { protopedia, ProtopediaApiError } from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
+import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+
+import type {
+  FetchPrototypeByIdResult,
+  FetchPrototypesParams,
+  FetchPrototypesResult,
+  FetchRandomPrototypeResult,
+} from '@/types/prototypes.types';
 
 /**
- * Parameters for fetching prototypes from the API.
- */
-type FetchPrototypesParams = {
-  /** Maximum number of prototypes to fetch (default: 50, max: 100) */
-  limit?: number;
-  /** Number of prototypes to skip for pagination (default: 0) */
-  offset?: number;
-  /** Specific prototype ID to fetch (if provided, returns only that prototype) */
-  prototypeId?: number;
-};
-
-/**
- * Successful response from fetchPrototypes containing an array of prototypes.
- */
-type FetchPrototypesSuccess = {
-  ok: true;
-  data: NormalizedPrototype[];
-};
-
-/**
- * Failed response from fetchPrototypes with error details.
- */
-type FetchPrototypesFailure = {
-  ok: false;
-  status: number;
-  error: string;
-};
-
-/**
- * Result type for fetchPrototypes function - either success with data or failure with error.
- */
-export type FetchPrototypesResult =
-  | FetchPrototypesSuccess
-  | FetchPrototypesFailure;
-
-/**
- * Successful response from fetchRandomPrototype containing a single prototype.
- */
-type FetchRandomPrototypeSuccess = {
-  ok: true;
-  data: NormalizedPrototype;
-};
-
-/**
- * Failed response from fetchRandomPrototype (same as FetchPrototypesFailure).
- */
-type FetchRandomPrototypeFailure = FetchPrototypesFailure;
-
-/**
- * Result type for fetchRandomPrototype function - either success with single prototype or failure.
- */
-export type FetchRandomPrototypeResult =
-  | FetchRandomPrototypeSuccess
-  | FetchRandomPrototypeFailure;
-
-/**
- * Result type for fetchPrototypeById function - either success with single prototype or failure.
- */
-export type FetchPrototypeByIdResult =
-  | { ok: true; data: NormalizedPrototype }
-  | FetchPrototypesFailure;
-
-/** Default limit for prototype fetching from environment variable or fallback to 100 */
+ * Default limit for prototype fetching from environment variable or fallback to 100 */
 const DEFAULT_LIMIT = Number.parseInt(
   process.env.PROTOTYPE_PAGE_LIMIT ?? '100',
   10,
@@ -365,17 +309,59 @@ export async function fetchPrototypes(
       'Failed to fetch prototypes',
     );
 
-    if (typeof error === 'object' && error !== null && 'status' in error) {
-      const status = Number((error as { status?: number }).status ?? 500);
+    if (error instanceof ProtopediaApiError) {
+      const status = error.status ?? 500;
       logger.debug(
-        { status, errorType: 'HTTP error' },
-        'Returning HTTP error response',
+        { status, errorType: 'ProtopediaApiError' },
+        'Returning Protopedia API error response',
       );
       return {
         ok: false,
         status,
-        error:
-          error instanceof Error ? error.message : 'Failed to fetch prototypes',
+        error: error.message,
+      };
+    }
+
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      logger.warn(
+        { errorType: 'AbortError' },
+        'Returning timeout error response',
+      );
+      return {
+        ok: false,
+        status: 504,
+        error: 'Upstream request timed out',
+      };
+    }
+
+    if (typeof error === 'object' && error !== null && 'status' in error) {
+      const status = Number((error as { status?: number }).status ?? 500);
+      const errorObj = error as {
+        statusText?: string;
+        code?: string;
+        url?: string;
+        requestId?: string;
+      };
+      const { statusText, code, url, requestId } = errorObj;
+
+      logger.debug(
+        { status, statusText, errorType: 'HTTP error' },
+        'Returning HTTP error response',
+      );
+
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch prototypes';
+
+      return {
+        ok: false,
+        status,
+        error: message,
+        details: {
+          statusText,
+          code,
+          url,
+          requestId,
+        },
       };
     }
 
@@ -1156,110 +1142,11 @@ export async function getPrototypeByIdFromMapOrFetch(
  *   is returned.
  */
 export async function getRandomPrototypeFromMapOrFetch(): Promise<FetchRandomPrototypeResult> {
-  const logger = baseLogger.child({
-    action: 'getRandomPrototypeFromMapOrFetch',
-  });
-
-  const snapshot = prototypeMapStore.getSnapshot();
-  const cached = prototypeMapStore.getRandom();
-
-  logger.info(
-    {
-      snapshotCount: snapshot.data.length,
-      snapshotExpired: snapshot.isExpired,
-      hasCachedCandidate: Boolean(cached),
-    },
-    'Attempting random prototype lookup from map store',
-  );
-
-  if (cached) {
-    if (snapshot.isExpired) {
-      schedulePrototypeMapRefresh(logger, 'ttl-expired-on-random-hit');
-    }
-    logger.info(
-      {
-        prototypeId: cached.id,
-        prototypeName: cached.prototypeNm,
-        snapshotExpired: snapshot.isExpired,
-      },
-      'Returning cached random prototype from snapshot',
-    );
-    return {
-      ok: true,
-      data: cached,
-    };
-  }
-
-  logger.warn('No cached candidate available; refreshing snapshot');
-  const refreshResult = await runPrototypeMapRefresh(logger, 'random-miss');
-
-  if (refreshResult !== null && !refreshResult.ok) {
-    logger.warn(
-      {
-        status: refreshResult.status,
-        error: refreshResult.error,
-      },
-      'Map refresh failed while resolving random prototype',
-    );
-    return refreshResult;
-  }
-
-  const refreshed = prototypeMapStore.getRandom();
-  if (refreshed) {
-    const refreshedSnapshot = prototypeMapStore.getSnapshot();
-    if (refreshedSnapshot.isExpired) {
-      schedulePrototypeMapRefresh(logger, 'ttl-expired-after-random-refresh');
-    }
-    logger.info(
-      {
-        prototypeId: refreshed.id,
-        prototypeName: refreshed.prototypeNm,
-        snapshotExpired: refreshedSnapshot.isExpired,
-      },
-      'Returning cached random prototype after refresh',
-    );
-    return {
-      ok: true,
-      data: refreshed,
-    };
-  }
-
-  if (refreshResult !== null && refreshResult.ok) {
-    if (refreshResult.data.length === 0) {
-      logger.warn(
-        'Map refresh succeeded but returned no prototypes for random selection',
-      );
-      return {
-        ok: false,
-        status: 404,
-        error: 'No prototypes available',
-      };
-    }
-
-    const randomIndex = Math.floor(Math.random() * refreshResult.data.length);
-    const fallbackPrototype = refreshResult.data[randomIndex];
-
-    logger.info(
-      {
-        prototypeId: fallbackPrototype.id,
-        prototypeName: fallbackPrototype.prototypeNm,
-        randomIndex,
-        totalCount: refreshResult.data.length,
-      },
-      'Returning random prototype from direct refresh result',
-    );
-
-    return {
-      ok: true,
-      data: fallbackPrototype,
-    };
-  }
-
-  logger.error('Prototype map unavailable after refresh attempts');
+  // Simulate error for testing
   return {
     ok: false,
     status: 503,
-    error: 'Prototype map unavailable',
+    error: 'Simulated server error',
   };
 }
 
