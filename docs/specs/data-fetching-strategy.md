@@ -21,6 +21,16 @@ Cache‑aware wrappers (`getPrototypesFromCacheOrFetch`, `getAllPrototypesFromMa
 
 A separate in-memory `analysisCache` keeps track of analysis results, but prototype lists themselves are not cached beyond Next.js' default data cache (which is limited to roughly 2 MB payloads) and the map snapshot described below.
 
+## UI Error Handling Strategy
+
+> **CRITICAL**: The application prioritizes technical accuracy over simplified user-friendly messages. This is a strict requirement as the target audience includes power users and engineers.
+
+- **Network Errors**: When `fetch` fails (e.g., offline, DNS failure, server down), the UI displays:
+  `Possible causes: Offline, DNS, CORS, or Server Down.`
+  instead of a generic "No internet connection".
+- **API Errors**: Upstream HTTP errors (400, 401, 500, 503) are propagated with their status codes and messages.
+- **Timeout**: Connection timeouts (30s) are reported as 504 Gateway Timeout errors.
+
 ## Current Behaviour
 
 - **Normalization**: `fetchPrototypes` maps upstream results into `NormalizedPrototype` objects.
