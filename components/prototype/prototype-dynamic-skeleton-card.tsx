@@ -2,6 +2,7 @@
 
 import React, { useId, useMemo } from 'react';
 
+import { PrototypeErrorLink } from '@/components/prototype/prototype-error-link';
 import { PrototypeSkeletonCardBaseProps } from '@/components/prototype/prototype-skeleton-card';
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -198,12 +199,16 @@ export const PrototypeDynamicSkeletonCard = ({
 
           {/* Description  */}
           <div className="mb-1">
-            <DynamicSkeletonBlock
-              className="h-8 w-3/4"
-              variant={selectedVariant}
-              disableAnimation={disableAnimation}
-              index={2}
-            />
+            {showErrorOnImage && typeof expectedPrototypeId === 'number' ? (
+              <PrototypeErrorLink expectedPrototypeId={expectedPrototypeId} />
+            ) : (
+              <DynamicSkeletonBlock
+                className="h-8 w-3/4"
+                variant={selectedVariant}
+                disableAnimation={disableAnimation}
+                index={2}
+              />
+            )}
           </div>
 
           <div className="mt-1">

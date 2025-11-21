@@ -1,17 +1,12 @@
 'use client';
 
 import React, { useId, useMemo } from 'react';
-import { Info } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+import { PrototypeErrorLink } from '@/components/prototype/prototype-error-link';
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 import './skeleton-animations.css';
 import { hashString } from './utils/skeleton-kind';
@@ -158,25 +153,7 @@ export const PrototypeSkeletonCard = ({
           {/* Description  */}
           <div className="mb-1">
             {showErrorOnImage && typeof expectedPrototypeId === 'number' ? (
-              <div className="flex items-center gap-2 animate-bounce hover:animate-none">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-6 w-6 text-amber-600 dark:text-amber-400 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>ProtoPedia にはページが存在する可能性があります</p>
-                  </TooltipContent>
-                </Tooltip>
-                <a
-                  href={`https://protopedia.net/prototype/${expectedPrototypeId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-xl font-semibold text-blue-600 hover:underline truncate"
-                  title={`Open prototype ${expectedPrototypeId} in ProtoPedia`}
-                >
-                  Check on ProtoPedia
-                </a>
-              </div>
+              <PrototypeErrorLink expectedPrototypeId={expectedPrototypeId} />
             ) : (
               <SkeletonBlock
                 className="h-8 w-3/4"
