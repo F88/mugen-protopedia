@@ -18,13 +18,13 @@ export const resolveErrorMessage = (value: unknown): string => {
 };
 
 /**
- * Resolves an unknown error value into a string message.
-
-/**
  * Constructs a user-friendly display message for an error.
  *
- * Combines the original error message with the HTTP status text if available,
- * avoiding redundancy.
+ * The message construction follows these rules:
+ * 1. Resolves the raw error into a string message.
+ * 2. Determines a prefix using `details.statusText` (priority) or `details.code`.
+ * 3. If a prefix exists and the message does not already start with it, prepends the prefix (e.g., "Prefix: Message").
+ * 4. Appends the status code in parentheses (e.g., "Message (404)").
  *
  * @param failure The failure object containing status, error, and details.
  * @returns The constructed display message.
@@ -33,20 +33,16 @@ export const constructDisplayMessage = (failure: NetworkFailure): string => {
   const { error, status, details } = failure;
   const statusText = details?.statusText;
   const code = details?.code;
-  const message = resolveErrorMessage(error);
+  let message = resolveErrorMessage(error);
 
   const prefix = statusText || code;
 
   if (prefix) {
-    // Avoid redundancy if the message is just the generic status message
-    if (message === `Request failed with status ${status}`) {
-      return prefix;
-    }
     // Prepend prefix if not already present
     if (!message.startsWith(prefix)) {
-      return `${prefix}: ${message}`;
+      message = `${prefix}: ${message}`;
     }
   }
 
-  return message;
+  return `${message} (${status})`;
 };
