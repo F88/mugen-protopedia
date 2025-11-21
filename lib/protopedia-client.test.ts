@@ -73,6 +73,31 @@ describe('protopedia-client', () => {
 
         await expect(promise).resolves.toBeDefined();
       });
+
+      it('should not abort if headers are received within timeout, even if processing takes longer', async () => {
+        vi.useFakeTimers();
+
+        // Return headers immediately
+        fetchSpy.mockResolvedValue(
+          new Response(JSON.stringify({ results: [] }), { status: 200 }),
+        );
+
+        const promise = protopedia.listPrototypes({ limit: 1 });
+
+        // Allow microtasks to process the fetch resolution and finally block
+        await Promise.resolve();
+        await Promise.resolve();
+
+        // Advance time past timeout
+        vi.advanceTimersByTime(31000);
+
+        // Should resolve because timeout is cleared after headers
+        await expect(promise).resolves.toBeDefined();
+
+        const callArgs = fetchSpy.mock.calls[0];
+        const init = callArgs[1];
+        expect(init?.signal?.aborted).toBe(false);
+      });
     });
 
     describe('getPrototypeById', () => {
@@ -132,6 +157,58 @@ describe('protopedia-client', () => {
         vi.advanceTimersByTime(1000);
 
         await expect(promise).resolves.toEqual({ prototypeNm: 'Test' });
+      });
+
+      it('should return null when API returns 404', async () => {
+        fetchSpy.mockResolvedValue(new Response(null, { status: 404 }));
+        const result = await getPrototypeById(999);
+        expect(result).toBeNull();
+      });
+
+      it('should throw error when API returns 400', async () => {
+        fetchSpy.mockResolvedValue(
+          new Response('Bad Request', { status: 400 }),
+        );
+        await expect(getPrototypeById(999)).rejects.toThrow(
+          'Upstream error: 400',
+        );
+      });
+
+      it('should throw error when API returns 401', async () => {
+        fetchSpy.mockResolvedValue(
+          new Response('Unauthorized', { status: 401 }),
+        );
+        await expect(getPrototypeById(999)).rejects.toThrow(
+          'Upstream error: 401',
+        );
+      });
+
+      it('should throw error when API returns 500', async () => {
+        fetchSpy.mockResolvedValue(
+          new Response('Server Error', { status: 500 }),
+        );
+        await expect(getPrototypeById(999)).rejects.toThrow(
+          'Upstream error: 500',
+        );
+      });
+
+      it('should throw error when API returns 503', async () => {
+        fetchSpy.mockResolvedValue(
+          new Response('Service Unavailable', { status: 503 }),
+        );
+        await expect(getPrototypeById(999)).rejects.toThrow(
+          'Upstream error: 503',
+        );
+      });
+
+      it('should include Authorization header', async () => {
+        fetchSpy.mockResolvedValue(
+          new Response(JSON.stringify({}), { status: 200 }),
+        );
+        await getPrototypeById(123);
+        const callArgs = fetchSpy.mock.calls[0];
+        const init = callArgs[1] as RequestInit;
+        expect(init.headers).toHaveProperty('Authorization');
       });
     });
   });
