@@ -116,6 +116,33 @@ export function PrototypeInputsCard({
     },
   });
 
+  const validateAndUpdateIds = (nextValue: string) => {
+    ids.setText(nextValue);
+
+    if (!nextValue) {
+      ids.setError(null);
+      setLastDriver('ids');
+      return;
+    }
+
+    const result = prototypeIdTextSchema.safeParse(nextValue);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      ids.setError(firstIssue?.message ?? null);
+      setLastDriver('ids');
+      return;
+    }
+
+    const parsedIds = parsePrototypeIdLines(nextValue);
+    if (parsedIds.length > 100) {
+      ids.setError('You can use up to 100 prototype IDs per playlist.');
+    } else {
+      ids.setError(null);
+    }
+
+    setLastDriver('ids');
+  };
+
   return (
     <StatusCard
       title="Prototype IDs Inputs"
@@ -227,35 +254,7 @@ Edits here drive the effective list of prototype IDs used downstream.`}
           <Textarea
             id="playlist-ids"
             value={ids.text}
-            onChange={(e) => {
-              const nextValue = e.target.value;
-              ids.setText(nextValue);
-
-              if (!nextValue) {
-                ids.setError(null);
-                setLastDriver('ids');
-                return;
-              }
-
-              const result = prototypeIdTextSchema.safeParse(nextValue);
-              if (!result.success) {
-                const firstIssue = result.error.issues[0];
-                ids.setError(firstIssue?.message ?? null);
-                setLastDriver('ids');
-                return;
-              }
-
-              const parsedIds = parsePrototypeIdLines(nextValue);
-              if (parsedIds.length > 100) {
-                ids.setError(
-                  'You can use up to 100 prototype IDs per playlist.',
-                );
-              } else {
-                ids.setError(null);
-              }
-
-              setLastDriver('ids');
-            }}
+            onChange={(e) => validateAndUpdateIds(e.target.value)}
             className={`text-xs font-mono bg-white dark:bg-zinc-900 ${getInputStatusClasses(
               {
                 highlighted: ids.highlighted,
@@ -284,8 +283,7 @@ Edits here drive the effective list of prototype IDs used downstream.`}
               variant="default"
               onClick={() => {
                 const idsFromUrls = normalizeIdsFromUrls(urlsArray);
-                ids.setText(idsFromUrls.join('\n'));
-                setLastDriver('ids');
+                validateAndUpdateIds(idsFromUrls.join('\n'));
               }}
               disabled={urlsArray.length === 0 || !!urls.error}
               aria-label="Regenerate IDs from Prototype URLs"
@@ -299,10 +297,9 @@ Edits here drive the effective list of prototype IDs used downstream.`}
                 const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
                 const sorted = sortIdsWithDuplicates(parsed);
-                ids.setText(sorted.join('\n'));
-                setLastDriver('ids');
+                validateAndUpdateIds(sorted.join('\n'));
               }}
-              disabled={!ids.text.trim() || !!ids.error}
+              disabled={!ids.text.trim()}
               aria-label="Sort IDs ascending"
             >
               Sort IDs
@@ -314,10 +311,9 @@ Edits here drive the effective list of prototype IDs used downstream.`}
                 const parsed = parsePrototypeIdLines(ids.text);
                 if (parsed.length === 0) return;
                 const deduped = deduplicateIdsPreserveOrder(parsed);
-                ids.setText(deduped.join('\n'));
-                setLastDriver('ids');
+                validateAndUpdateIds(deduped.join('\n'));
               }}
-              disabled={!ids.text.trim() || !!ids.error}
+              disabled={!ids.text.trim()}
               aria-label="Remove duplicate IDs"
             >
               Deduplicate IDs
@@ -327,9 +323,7 @@ Edits here drive the effective list of prototype IDs used downstream.`}
               type="button"
               variant="destructive"
               onClick={() => {
-                ids.setText('');
-                ids.setError(null);
-                setLastDriver('ids');
+                validateAndUpdateIds('');
               }}
               disabled={!ids.text}
               aria-label="Clear manual IDs"

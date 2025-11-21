@@ -36,15 +36,50 @@ describe('Work flow: ids', () => {
     expect(sortButton).not.toBeDisabled();
     expect(dedupButton).not.toBeDisabled();
 
-    // Invalid IDs -> indicator shows ❌ and buttons disabled.
+    // Invalid IDs -> indicator shows ❌ and buttons enabled (to allow fixing).
     fireEvent.change(idsTextarea, {
       target: {
         value: 'abc',
       },
     });
     expect(screen.getByText('❌')).toBeInTheDocument();
-    expect(sortButton).toBeDisabled();
-    expect(dedupButton).toBeDisabled();
+    expect(sortButton).not.toBeDisabled();
+    expect(dedupButton).not.toBeDisabled();
+  });
+
+  it('clears error when Deduplicate IDs reduces count below limit', () => {
+    render(<PlaylistEditor />);
+
+    const idsTextarea = screen.getByLabelText('Prototype IDs (editable)');
+    const dedupButton = screen.getByRole('button', {
+      name: 'Remove duplicate IDs',
+    });
+
+    // Create input with 101 lines of "1"
+    // This exceeds the 100 ID limit, causing an error.
+    const manyIds = Array(101).fill('1').join('\n');
+    fireEvent.change(idsTextarea, {
+      target: { value: manyIds },
+    });
+
+    // Verify error state
+    expect(screen.getByText('❌')).toBeInTheDocument();
+    expect(
+      screen.getByText('You can use up to 100 prototype IDs per playlist.'),
+    ).toBeInTheDocument();
+
+    // Click Deduplicate
+    fireEvent.click(dedupButton);
+
+    // Should reduce to single "1"
+    expect(idsTextarea).toHaveValue('1');
+
+    // Error should be cleared
+    expect(screen.queryByText('❌')).toBeNull();
+    expect(screen.getByText('✅')).toBeInTheDocument();
+    expect(
+      screen.queryByText('You can use up to 100 prototype IDs per playlist.'),
+    ).toBeNull();
   });
 });
 
