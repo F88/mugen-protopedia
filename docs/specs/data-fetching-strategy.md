@@ -33,13 +33,45 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
 
 ## Current Behaviour
 
-- **Normalization**: `fetchPrototypes` maps upstream results into `NormalizedPrototype` objects.
-- **Analysis**: When the canonical snapshot is refreshed (typically triggered after a successful list fetch without a `prototypeId` during bootstrap or when TTL has expired), `analyzePrototypes` runs against that canonical dataset and the output is cached via `analysisCache`.
-- **Map Snapshot Coordination**: `getPrototypesFromCacheOrFetch` resolves parameters, fetches data directly through `fetchPrototypes`, and on successful list responses without a `prototypeId` schedules background refreshes for `prototypeMapStore` when the snapshot is empty or stale. `getAllPrototypesFromMapOrFetch`, `getPrototypeByIdFromMapOrFetch`, and `getRandomPrototypeFromMapOrFetch` build on `prototypeMapStore`, which keeps a canonical snapshot keyed by prototype ID and refreshes it lazily when stale. Calling `fetchPrototypes`, `fetchRandomPrototype`, or `fetchPrototypeById` directly bypasses snapshot coordination for force-refresh scenarios.
+- **Normalization**:
+    - `fetchPrototypes` maps upstream results into `NormalizedPrototype` objects.
+
+- **Analysis**:
+    - The canonical snapshot is refreshed when:
+        - a successful list fetch occurs **without** a `prototypeId` during
+          bootstrap, or
+        - the TTL has expired.
+    - After a successful refresh, `analyzePrototypes` runs against the canonical
+      dataset.
+    - The analysis output is cached via `analysisCache`.
+
+- **Map Snapshot Coordination**:
+    - `getPrototypesFromCacheOrFetch`:
+        - Resolves parameters and fetches data directly through `fetchPrototypes`.
+        - On successful list responses **without** a `prototypeId`, schedules
+          background refreshes for `prototypeMapStore` when the snapshot is empty
+          or stale.
+    - `getAllPrototypesFromMapOrFetch`, `getPrototypeByIdFromMapOrFetch`, and
+      `getRandomPrototypeFromMapOrFetch`:
+        - Build on `prototypeMapStore`, which keeps a canonical snapshot keyed by
+          prototype ID.
+        - Serve data immediately, even when stale, while TTL expiry triggers a
+          lazy refresh.
+    - Direct calls:
+        - Calling `fetchPrototypes`, `fetchRandomPrototype`, or
+          `fetchPrototypeById` directly bypasses snapshot coordination for
+          force-refresh scenarios.
+
 - **Known Constraints**:
-    - Upstream responses grow quickly (≈220 KB for 100 items, ≈2.7 MB for 1,000 items, ≈16.5 MB for 10,000 items; ~20 MB including metadata on production responses).
-    - Next.js data cache cannot persist payloads larger than ≈2 MB, so large requests bypass caching automatically.
-    - In-memory caches in a serverless/edge environment are scoped to the instance and reset on redeploys or scale events.
+    - Upstream responses grow quickly:
+        - ≈220 KB for 100 items
+        - ≈2.7 MB for 1,000 items
+        - ≈16.5 MB for 10,000 items (~20 MB including metadata on production
+          responses)
+    - Next.js data cache cannot persist payloads larger than ≈2 MB, so large
+      requests bypass caching automatically.
+    - In-memory caches in a serverless/edge environment are scoped to the
+      instance and reset on redeploys or scale events.
 
 ### Upstream Measurement Snapshot (2025-10-24)
 
