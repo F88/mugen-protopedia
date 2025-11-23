@@ -1,8 +1,8 @@
 /**
  * @fileoverview React hooks for accessing cached prototype analysis data.
  *
- * 分析結果は疑似スナップショットであり更新頻度も低いため、SWR ではなく
- * 素直な `useState` と `useEffect` を使ってサーバーアクションを直接叩いている。
+ * Analysis results behave like low-frequency snapshots, so instead of SWR
+ * we use plain `useState` and `useEffect` to invoke server actions directly.
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -18,8 +18,9 @@ import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.typ
 /**
  * Shared state shape returned by analysis hooks.
  *
- * SWR を使用せずローカル state を直接扱うため、各フィールドは純粋な値と
- * imperative `refresh` を提供する構造になっている。
+ * Because we do not use SWR and instead manage local state directly,
+ * each field is exposed as a plain value along with an imperative
+ * `refresh` function.
  */
 type AnalysisHookState<T> = {
   /**
@@ -37,11 +38,14 @@ type AnalysisHookState<T> = {
 /**
  * Hook for accessing the latest analysis from cache without SWR.
  *
- * - トリガーのたびにサーバーアクションを直接呼び出し、最新分析を取得する。
- * - 分析データはサイズが大きく、更新頻度も低いため SWR キャッシュを挟まず
- *   必要時に明示フェッチする設計にしている。
- * - 返却される分析データは ServerPrototypeAnalysis 型で、anniversaries フィールドを含まない。
- *   クライアント側で anniversaries が必要な場合は useClientAnniversaries を併用すること。
+ * - On each trigger, this hook calls the server action directly to obtain
+ *   the latest analysis.
+ * - Analysis data is large and infrequently updated, so we intentionally
+ *   avoid SWR caching and instead fetch explicitly when needed.
+ * - The returned analysis data is of type `ServerPrototypeAnalysis` and
+ *   does not include the `anniversaries` field. When anniversaries are
+ *   required on the client, use `useClientAnniversaries` together with
+ *   this hook.
  */
 export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> {
   const [state, setState] = useState<{
@@ -120,9 +124,10 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
 /**
  * Hook for accessing all cached analyses with statistics (SWR 非利用版).
  *
- * 最新のみと同様、明示フェッチでスナップショットを取得する。分析結果が重い
- * データであること、キャッシュのリフレッシュを UI 側で明示的に制御したいことが
- * 理由で、SWR のデフォルト挙動には依存していない。
+ * Like the latest-only variant, this hook fetches the snapshot explicitly
+ * instead of relying on SWR. The analysis results are relatively heavy,
+ * and the UI is expected to control cache refresh behavior explicitly,
+ * so we do not depend on SWR's default behavior.
  */
 export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
   const [state, setState] = useState<{

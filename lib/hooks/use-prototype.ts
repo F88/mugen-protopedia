@@ -1,9 +1,11 @@
 /**
  * @fileoverview Hook for retrieving a specific prototype via SWR caching.
  *
- * Prototype IDs are stable, so SWR のキャッシュに載せて複数コンポーネント間で共有する。
- * `mutate` を通じてキャッシュも更新可能になっており、同じ ID を参照する UI が
- * 自動で最新状態へ同期される構造になっている。
+ * Prototype IDs are stable, so they are stored in the shared SWR cache
+ * and reused across multiple components.
+ * The cache can be updated via `mutate`, ensuring that every UI that
+ * subscribes to the same ID is automatically synchronized to the latest
+ * state.
  */
 'use client';
 
@@ -31,7 +33,8 @@ type UsePrototypeResult = {
   /**
    * Imperative accessor for fetching arbitrary prototype IDs.
    *
-   * 请求した ID が現在の ID と一致する場合は SWR キャッシュも更新する。
+   * When the requested ID matches the current ID of this hook,
+   * the SWR cache is also updated to keep subscribers in sync.
    */
   fetchPrototype: (
     prototypeId: number,
@@ -41,8 +44,8 @@ type UsePrototypeResult = {
 /**
  * Hook for consuming a single ProtoPedia entry by ID with SWR-backed caching.
  *
- * - Stable IDs benefit from SWR の共有キャッシュ, ensuring consistent data across
- *   components.
+ * - Stable IDs benefit from the shared SWR cache, ensuring consistent data
+ *   across components.
  * - `fetchPrototype` exposes an imperative getter while preserving cache consistency.
  */
 export function usePrototype(
