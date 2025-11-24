@@ -79,11 +79,9 @@ describe('useRandomPrototype', () => {
 
     expect(result.current.isLoading).toBe(false);
 
-    await expect(
-      act(async () => {
-        await result.current.getRandomPrototype();
-      }),
-    ).rejects.toThrow('random-failed');
+    await expect(result.current.getRandomPrototype()).rejects.toThrow(
+      'random-failed',
+    );
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe('random-failed');

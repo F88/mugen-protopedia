@@ -19,7 +19,7 @@ type UseLatestPrototypeByIdOptions = {
 };
 
 /**
- * Result object returned by {@link usePrototype}.
+ * Result object returned by {@link useLatestPrototypeById}.
  */
 type UseLatestPrototypeByIdResult = {
   /** Latest prototype data for the requested ID, or null if unresolved. */
@@ -39,7 +39,14 @@ type UseLatestPrototypeByIdResult = {
  */
 export function useLatestPrototypeById(
   { id }: UseLatestPrototypeByIdOptions = {},
-  config?: SWRConfiguration<NormalizedPrototype | undefined, Error>,
+  config: SWRConfiguration<NormalizedPrototype | undefined, Error> = {
+    // Reasonable defaults for SHOW/useLatestPrototypeById:
+    // - Do not refetch aggressively when data is still fresh.
+    // - Avoid surprise refetches on window focus.
+    dedupingInterval: 5_000,
+    revalidateOnFocus: false,
+    revalidateIfStale: true,
+  },
 ): UseLatestPrototypeByIdResult {
   const hasId = typeof id === 'number';
 
@@ -53,9 +60,7 @@ export function useLatestPrototypeById(
   const { data, error, isLoading, isValidating } = useSWR<
     NormalizedPrototype | undefined,
     Error
-  >(hasId ? ['prototype', id] : null, fetcher, {
-    ...config,
-  });
+  >(hasId ? ['prototype', id] : null, fetcher, config);
 
   return {
     prototype: data ?? null,

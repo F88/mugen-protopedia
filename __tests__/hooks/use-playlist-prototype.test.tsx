@@ -82,11 +82,8 @@ describe('usePlaylistPrototype', () => {
     const { result } = renderHook(() => usePlaylistPrototype());
 
     expect(result.current.isLoading).toBe(false);
-    await expect(
-      act(async () => {
-        await result.current.fetchPrototype(1);
-      }),
-    ).rejects.toThrow('boom');
+
+    await expect(result.current.fetchPrototype(1)).rejects.toThrow('boom');
 
     expect(result.current.error).toBe('boom');
     expect(result.current.prototype).toBeNull();

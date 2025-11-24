@@ -18,7 +18,11 @@ import {
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
-import { protopedia, ProtopediaApiError } from '@/lib/protopedia-client';
+import {
+  protopedia,
+  protopediaNoStore,
+  ProtopediaApiError,
+} from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
 import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
@@ -368,6 +372,244 @@ export async function fetchPrototypes(
     logger.debug(
       { errorType: 'General error' },
       'Returning general error response',
+    );
+    return {
+      ok: false,
+      status: 500,
+      error:
+        error instanceof Error ? error.message : 'Failed to fetch prototypes',
+    };
+  }
+}
+
+/**
+ * No-store variant of {@link fetchPrototypes} that bypasses the Next.js data cache.
+ *
+ * - Uses {@link protopediaNoStore} instead of {@link protopedia}.
+ * - Shares the same validation, logging, and normalization behavior.
+ * - Intended for SHOW/upstream-only paths where freshest data is preferred.
+ */
+export async function fetchPrototypesNoStore(
+  params: FetchPrototypesParams = {},
+): Promise<FetchPrototypesResult> {
+  const logger = baseLogger.child({ action: 'fetchPrototypesNoStore' });
+  const startTime = performance.now();
+
+  logger.debug({ params }, 'fetchPrototypesNoStore called');
+
+  const limit = clampLimit(params.limit);
+  const offset = clampOffset(params.offset);
+  const prototypeIdValidation = validatePrototypeId(params.prototypeId);
+
+  if (!prototypeIdValidation.ok) {
+    logger.debug(
+      { prototypeId: params.prototypeId, error: prototypeIdValidation.error },
+      'Prototype ID validation failed',
+    );
+    return {
+      ok: false,
+      status: 400,
+      error: prototypeIdValidation.error,
+    };
+  }
+
+  const prototypeId = prototypeIdValidation.value;
+  logger.debug(
+    { limit, offset, prototypeId },
+    'Calling protopediaNoStore.listPrototypes',
+  );
+
+  try {
+    const apiCallStart = performance.now();
+    const upstream = await protopediaNoStore.listPrototypes({
+      limit,
+      offset,
+      prototypeId,
+    });
+    const apiCallEnd = performance.now();
+    const apiElapsedMs = Math.round((apiCallEnd - apiCallStart) * 100) / 100;
+    const approxResponseSizeBytes = Buffer.byteLength(
+      JSON.stringify(upstream),
+      'utf8',
+    );
+
+    let sampleLogContext: {
+      upstreamSampleSelection: string;
+      upstreamSamplePrototypeId: number | null;
+      upstreamSamplePrototype: UpstreamPrototype | null;
+    } | null = null;
+
+    if (logger.isLevelEnabled('debug')) {
+      const rawResults = Array.isArray(upstream.results)
+        ? (upstream.results as UpstreamPrototype[])
+        : [];
+      let sampledPrototype: UpstreamPrototype | null = null;
+      let sampledId = -Infinity;
+
+      for (const candidate of rawResults) {
+        if (!candidate || typeof candidate.id !== 'number') {
+          continue;
+        }
+
+        if (candidate.id > sampledId) {
+          sampledId = candidate.id;
+          sampledPrototype = candidate;
+        }
+      }
+
+      sampleLogContext = sampledPrototype
+        ? {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: sampledId,
+            upstreamSamplePrototype: sampledPrototype,
+          }
+        : {
+            upstreamSampleSelection: 'max-id',
+            upstreamSamplePrototypeId: null,
+            upstreamSamplePrototype: null,
+          };
+
+      logger.debug(
+        sampleLogContext,
+        'Sampled upstream prototype payload (no-store)',
+      );
+    }
+
+    logger.debug(
+      {
+        apiElapsedMs,
+        upstreamResultsCount: Array.isArray(upstream.results)
+          ? upstream.results.length
+          : 0,
+        hasResults: Array.isArray(upstream.results),
+        approxResponseSizeBytes,
+      },
+      'API call completed (no-store)',
+    );
+
+    const normalizeStart = performance.now();
+    const normalized = Array.isArray(upstream.results)
+      ? upstream.results.map(normalizePrototype)
+      : [];
+    const normalizeEnd = performance.now();
+    const normalizeElapsedMs =
+      Math.round((normalizeEnd - normalizeStart) * 100) / 100;
+
+    if (sampleLogContext) {
+      const normalizedSample =
+        sampleLogContext.upstreamSamplePrototypeId !== null
+          ? (normalized.find(
+              (prototype) =>
+                prototype.id === sampleLogContext?.upstreamSamplePrototypeId,
+            ) ?? null)
+          : null;
+
+      logger.debug(
+        {
+          ...sampleLogContext,
+          normalizedSamplePrototype: normalizedSample,
+        },
+        'Sampled prototype after normalization (no-store)',
+      );
+    }
+
+    if (prototypeId !== undefined && normalized.length === 0) {
+      logger.debug(
+        { prototypeId },
+        'Specific prototype ID requested but not found (no-store)',
+      );
+      return {
+        ok: false,
+        status: 404,
+        error: 'Not found',
+      };
+    }
+
+    const totalElapsedMs =
+      Math.round((performance.now() - startTime) * 100) / 100;
+    logger.info(
+      {
+        params,
+        totalElapsedMs,
+        apiElapsedMs,
+        normalizeElapsedMs,
+        resultCount: normalized.length,
+        approxResponseSizeBytes,
+      },
+      'fetchPrototypesNoStore completed successfully',
+    );
+
+    return {
+      ok: true,
+      data: normalized,
+    };
+  } catch (error) {
+    const totalElapsedMs =
+      Math.round((performance.now() - startTime) * 100) / 100;
+    logger.error(
+      { limit, offset, prototypeId, error, totalElapsedMs },
+      'Failed to fetch prototypes (no-store)',
+    );
+
+    if (error instanceof ProtopediaApiError) {
+      const status = error.status ?? 500;
+      logger.debug(
+        { status, errorType: 'ProtopediaApiError' },
+        'Returning Protopedia API error response (no-store)',
+      );
+      return {
+        ok: false,
+        status,
+        error: error.message,
+      };
+    }
+
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      logger.warn(
+        { errorType: 'AbortError' },
+        'Returning timeout error response (no-store)',
+      );
+      return {
+        ok: false,
+        status: 504,
+        error: 'Upstream request timed out',
+      };
+    }
+
+    if (typeof error === 'object' && error !== null && 'status' in error) {
+      const status = Number((error as { status?: number }).status ?? 500);
+      const errorObj = error as {
+        statusText?: string;
+        code?: string;
+        url?: string;
+        requestId?: string;
+      };
+      const { statusText, code, url, requestId } = errorObj;
+
+      logger.debug(
+        { status, statusText, errorType: 'HTTP error' },
+        'Returning HTTP error response (no-store)',
+      );
+
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch prototypes';
+
+      return {
+        ok: false,
+        status,
+        error: message,
+        details: {
+          statusText,
+          code,
+          url,
+          requestId,
+        },
+      };
+    }
+
+    logger.debug(
+      { errorType: 'General error' },
+      'Returning general error response (no-store)',
     );
     return {
       ok: false,

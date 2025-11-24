@@ -140,16 +140,6 @@ export const prototypeRepository: PrototypeRepository = {
       return mapResult.data;
     }
 
-    if (mapResult.status === 404) {
-      logger.warn(
-        'prototypeRepository.getByPrototypeId not found in map store',
-        {
-          id,
-        },
-      );
-      return undefined;
-    }
-
     if (mapResult.status === 503) {
       logger.warn(
         'prototypeRepository.getByPrototypeId map store unavailable, falling back',

@@ -22,14 +22,15 @@ import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import { useLatestPrototypeById } from '@/lib/hooks/use-latest-prototype-by-id';
 import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
-import { usePrototype } from '@/lib/hooks/use-prototype';
+import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
-import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
+import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
@@ -99,6 +100,7 @@ export function MugenProtoPedia() {
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
+  const [showTargetId, setShowTargetId] = useState<number | null>(null);
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -155,22 +157,27 @@ export function MugenProtoPedia() {
     simulateDelayRangeMs: SIMULATED_DELAY_RANGE,
   });
 
-  // data
   const {
-    fetchPrototype,
-    // isLoading: isLoadingPrototype,
-    // error: prototypeError,
-  } = usePrototype(
-    {},
+    prototype: latestPrototypeById,
+    error: latestPrototypeError,
+    // isLoading: isLatestPrototypeLoading,
+  } = useLatestPrototypeById(
+    { id: showTargetId ?? undefined },
     {
-      // SWR configuration
+      // SHOW is interactive; avoid unexpected refetches while allowing
+      // manual re-runs to hit upstream when desired.
+      dedupingInterval: 10_000,
       revalidateOnFocus: false,
-      revalidateOnMount: false,
       revalidateIfStale: false,
-      errorRetryCount: 2,
-      errorRetryInterval: 5 * 1000, // 5 seconds
     },
   );
+
+  // data
+  const {
+    fetchPrototype: fetchPlaylistPrototype,
+    // isLoading: isLoadingPlaylistPrototype,
+    // error: playlistPrototypeError,
+  } = usePlaylistPrototype();
 
   const [prototypeIdInput, setPrototypeIdInput] = useState(
     '',
@@ -419,19 +426,20 @@ export function MugenProtoPedia() {
   ]);
 
   /**
-   * Fetch a prototype by explicit ID and insert it into a newly appended slot.
-   * Validates input, respects concurrency cap, and sets error states on failure.
+   * Fetch a prototype by explicit ID from SHOW controls (input field).
+   *
+   * Validates input, respects concurrency cap, and uses the upstream-only
+   * `useLatestPrototypeById` path for freshness with SWR caching.
    */
-  const handleGetPrototypeById = useCallback(
-    async (id: number, options?: { isFromPlaylist?: boolean }) => {
-      logger.debug('Fetching prototype by ID', { id });
-      // Validation
+  const handleGetLatestPrototypeById = useCallback(
+    async (id: number) => {
+      logger.debug('Fetching latest prototype by ID (SHOW)', { id });
+
       if (id < 0) {
         console.error('Invalid prototype ID:', id);
         return;
       }
 
-      // Fetching
       if (!tryIncrementInFlightRequests()) {
         console.warn('Maximum concurrent fetches reached.');
         return;
@@ -439,9 +447,18 @@ export function MugenProtoPedia() {
 
       const slotId = appendPlaceholder({ expectedPrototypeId: id });
       setPrototypeIdError(null);
+      setShowTargetId(id);
 
       try {
-        const prototype = await fetchPrototype(id);
+        // Prefer SWR-cached latest prototype when available for this id.
+        if (latestPrototypeError) {
+          setPrototypeIdError(latestPrototypeError);
+          setSlotError(slotId, latestPrototypeError);
+          return;
+        }
+
+        const prototype: Prototype | null = latestPrototypeById;
+
         if (!prototype) {
           setPrototypeIdError('Not found.');
           setSlotError(slotId, 'Not found.');
@@ -457,15 +474,70 @@ export function MugenProtoPedia() {
         setSlotError(slotId, message);
       } finally {
         decrementInFlightRequests();
-        if (options?.isFromPlaylist) {
-          setProcessedCount((c) => c + 1);
-        }
       }
     },
     [
       tryIncrementInFlightRequests,
       appendPlaceholder,
-      fetchPrototype,
+      setPrototypeIdError,
+      setSlotError,
+      latestPrototypeById,
+      latestPrototypeError,
+      setShowTargetId,
+      clonePrototype,
+      replacePrototypeInSlot,
+      decrementInFlightRequests,
+    ],
+  );
+
+  /**
+   * Fetch a prototype by ID for PLAYLIST mode.
+   *
+   * Shares slot/error handling with SHOW, but uses the map-store-first
+   * repository-backed `usePlaylistPrototype` and updates playlist
+   * processed count.
+   */
+  const handleGetPrototypeByIdInPlaylistMode = useCallback(
+    async (id: number) => {
+      logger.debug('Fetching prototype by ID (PLAYLIST)', { id });
+
+      if (id < 0) {
+        console.error('Invalid prototype ID:', id);
+        return;
+      }
+
+      if (!tryIncrementInFlightRequests()) {
+        console.warn('Maximum concurrent fetches reached.');
+        return;
+      }
+
+      const slotId = appendPlaceholder({ expectedPrototypeId: id });
+      setPrototypeIdError(null);
+
+      try {
+        const prototype = await fetchPlaylistPrototype(id);
+        if (!prototype) {
+          setPrototypeIdError('Not found.');
+          setSlotError(slotId, 'Not found.');
+          return;
+        }
+
+        const clonedPrototype = clonePrototype(prototype);
+        await replacePrototypeInSlot(slotId, clonedPrototype);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Failed to fetch prototype.';
+        setPrototypeIdError(message);
+        setSlotError(slotId, message);
+      } finally {
+        decrementInFlightRequests();
+        setProcessedCount((c) => c + 1);
+      }
+    },
+    [
+      tryIncrementInFlightRequests,
+      appendPlaceholder,
+      fetchPlaylistPrototype,
       setPrototypeIdError,
       setSlotError,
       clonePrototype,
@@ -489,7 +561,7 @@ export function MugenProtoPedia() {
       setPrototypeIdError('Prototype ID must be a non-negative number.');
       return;
     }
-    await handleGetPrototypeById(parsedId);
+    await handleGetLatestPrototypeById(parsedId);
   };
 
   /**
@@ -605,7 +677,7 @@ export function MugenProtoPedia() {
 
       if (id !== undefined) {
         // Fetch
-        void handleGetPrototypeById(id, { isFromPlaylist: true });
+        void handleGetPrototypeByIdInPlaylistMode(id);
 
         // Update processed count
         playlistProcessingTimeoutRef.current = window.setTimeout(
@@ -628,7 +700,7 @@ export function MugenProtoPedia() {
     isPlaylistPlaying,
     canFetchMorePrototypes,
     inFlightRequests,
-    handleGetPrototypeById,
+    handleGetPrototypeByIdInPlaylistMode,
   ]);
 
   // Removed inlined scroll/focus/concurrency logic now handled by hooks
