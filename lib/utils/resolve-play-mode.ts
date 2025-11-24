@@ -9,6 +9,7 @@ import type {
 import type { Result } from '@/lib/utils/result';
 import type { ValidationError } from '@/lib/validation/validation';
 import type { DirectLaunchParams } from '@/schemas/direct-launch';
+import { logger } from '../logger.client';
 
 export type ResolvePlayModeArgs = {
   directLaunchResult?: Result<DirectLaunchParams, ValidationError>;
@@ -50,7 +51,7 @@ export const resolvePlayMode = ({
 
   // Determine PlayMode
   const directLaunchParams = directLaunchResult.value;
-  console.debug('directLaunchParams:', directLaunchParams);
+  logger.debug('directLaunchParams:', directLaunchParams);
 
   // Unleashed mode
   if (directLaunchParams.unleashed != null) {
