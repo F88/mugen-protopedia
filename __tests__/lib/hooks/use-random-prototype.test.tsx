@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import type { MockedFunction } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -83,7 +83,9 @@ describe('useRandomPrototype', () => {
       'random-failed',
     );
 
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.error).toBe('random-failed');
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBe('random-failed');
+    });
   });
 });

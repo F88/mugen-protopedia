@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -85,7 +85,9 @@ describe('usePlaylistPrototype', () => {
 
     await expect(result.current.fetchPrototype(1)).rejects.toThrow('boom');
 
-    expect(result.current.error).toBe('boom');
-    expect(result.current.prototype).toBeNull();
+    await waitFor(() => {
+      expect(result.current.error).toBe('boom');
+      expect(result.current.prototype).toBeNull();
+    });
   });
 });
