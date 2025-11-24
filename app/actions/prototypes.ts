@@ -18,7 +18,11 @@ import {
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
 import { logger as baseLogger } from '@/lib/logger.server';
-import { protopedia, ProtopediaApiError } from '@/lib/protopedia-client';
+import {
+  protopediaForceCacheClient,
+  protopediaNoStoreClient,
+  ProtopediaApiError,
+} from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
 import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
@@ -29,6 +33,8 @@ import type {
   FetchPrototypesResult,
   FetchRandomPrototypeResult,
 } from '@/types/prototype-api.types';
+
+type ProtopediaClient = typeof protopediaForceCacheClient;
 
 /**
  * Default limit for prototype fetching from environment variable or fallback to 100 */
@@ -94,67 +100,18 @@ const validatePrototypeId = (prototypeId?: number) => {
   return { ok: true as const, value: prototypeId };
 };
 
-/**
- * Fetches prototypes from the ProtoPedia API with optional filtering and pagination.
- *
- * This is the core server function for retrieving prototype data. It supports:
- * - Pagination via limit/offset parameters
- * - Filtering by specific prototype ID
- * - Comprehensive logging and performance monitoring
- * - Automatic parameter validation and clamping
- *
- * @param params - Configuration object for the fetch operation
- * @param params.limit - Maximum number of prototypes to fetch (clamped to 1-10,000, default: 100)
- * @param params.offset - Number of prototypes to skip for pagination (minimum: 0, default: 0)
- * @param params.prototypeId - Specific prototype ID to fetch (if provided, returns only that prototype)
- * @returns Promise resolving to either success with prototype data or failure with error details
- *
- * @see Data Cache for Next.js https://vercel.com/docs/data-cache
- *
- * @remarks
- * ProtoPedia responses can be sizeable. Recent exports (as of 2025/11/01) measured approximately:
- * - 220 KB for 100 prototypes in JSON (TSV ≈ 41 KB)
- * - 2.7 MB for 1,000 prototypes in JSON (TSV ≈ 0.44 MB)
- * - 16.5 MB for 10,000 prototypes in JSON (TSV ≈ 3.3 MB)
- * Consider these sizes when choosing limits for client calls.
- *
- * Next.js data cache only persists payloads up to roughly 2 MB. Requests such as
- * `https://protopedia.net/v2/api/prototype/list?limit=1000&offset=0` exceed that
- * boundary and therefore bypass caching. Favor smaller page sizes when caching is
- * desired.
- * Upstream performance (2025/11/01): the provider returns 100, 1,000, and 10,000 prototype
- * pages in under 10 seconds each; responses for 10,000 items are only ~2–3 seconds slower than
- * those for 1,000 items, indicating sufficient capacity for current usage.
- *
- * @example
- * ```typescript
- * // Fetch first 10 prototypes
- * const result = await fetchPrototypes({ limit: 10, offset: 0 });
- * if (result.ok) {
- *   console.log('Fetched prototypes:', result.data);
- * }
- *
- * // Fetch specific prototype by ID
- * const specific = await fetchPrototypes({ prototypeId: 3877 });
- * if (specific.ok && specific.data.length > 0) {
- *   console.log('Found prototype:', specific.data[0]);
- * }
- * ```
- */
-/**
- * Low-level server action that always calls the upstream ProtoPedia API.
- *
- * - Does not read or populate the in-memory map store.
- * - Callers that want to benefit from caching or refresh semantics should
- *   prefer {@link getPrototypesFromCacheOrFetch} instead.
- */
-export async function fetchPrototypes(
+const fetchPrototypesInternal = async (
+  client: ProtopediaClient,
+  action:
+    | 'fetchPrototypesViaForceCacheClient'
+    | 'fetchPrototypesViaNoStoreClient',
   params: FetchPrototypesParams = {},
-): Promise<FetchPrototypesResult> {
-  const logger = baseLogger.child({ action: 'fetchPrototypes' });
+): Promise<FetchPrototypesResult> => {
+  const isNoStore = action === 'fetchPrototypesViaNoStoreClient';
+  const logger = baseLogger.child({ action });
   const startTime = performance.now();
 
-  logger.debug({ params }, 'fetchPrototypes called');
+  logger.debug({ params }, `${action} called`);
 
   const limit = clampLimit(params.limit);
   const offset = clampOffset(params.offset);
@@ -175,12 +132,12 @@ export async function fetchPrototypes(
   const prototypeId = prototypeIdValidation.value;
   logger.debug(
     { limit, offset, prototypeId },
-    'Calling protopedia.listPrototypes',
+    `Calling ${isNoStore ? 'protopediaNoStore' : 'protopedia'}.listPrototypes`,
   );
 
   try {
     const apiCallStart = performance.now();
-    const upstream = await protopedia.listPrototypes({
+    const upstream = await client.listPrototypes({
       limit,
       offset,
       prototypeId,
@@ -229,7 +186,10 @@ export async function fetchPrototypes(
             upstreamSamplePrototype: null,
           };
 
-      logger.debug(sampleLogContext, 'Sampled upstream prototype payload');
+      logger.debug(
+        sampleLogContext,
+        `Sampled upstream prototype payload${isNoStore ? ' (no-store)' : ''}`,
+      );
     }
 
     logger.debug(
@@ -241,7 +201,7 @@ export async function fetchPrototypes(
         hasResults: Array.isArray(upstream.results),
         approxResponseSizeBytes,
       },
-      'API call completed',
+      `API call completed${isNoStore ? ' (no-store)' : ''}`,
     );
 
     const normalizeStart = performance.now();
@@ -267,14 +227,18 @@ export async function fetchPrototypes(
           ...sampleLogContext,
           normalizedSamplePrototype: normalizedSample,
         },
-        'Sampled prototype after normalization',
+        `Sampled prototype after normalization${
+          isNoStore ? ' (no-store)' : ''
+        }`,
       );
     }
 
     if (prototypeId !== undefined && normalized.length === 0) {
       logger.debug(
         { prototypeId },
-        'Specific prototype ID requested but not found',
+        `Specific prototype ID requested but not found${
+          isNoStore ? ' (no-store)' : ''
+        }`,
       );
       return {
         ok: false,
@@ -294,7 +258,7 @@ export async function fetchPrototypes(
         resultCount: normalized.length,
         approxResponseSizeBytes,
       },
-      'fetchPrototypes completed successfully',
+      `${action} completed successfully`,
     );
 
     return {
@@ -306,14 +270,16 @@ export async function fetchPrototypes(
       Math.round((performance.now() - startTime) * 100) / 100;
     logger.error(
       { limit, offset, prototypeId, error, totalElapsedMs },
-      'Failed to fetch prototypes',
+      `Failed to fetch prototypes${isNoStore ? ' (no-store)' : ''}`,
     );
 
     if (error instanceof ProtopediaApiError) {
       const status = error.status ?? 500;
       logger.debug(
         { status, errorType: 'ProtopediaApiError' },
-        'Returning Protopedia API error response',
+        `Returning Protopedia API error response${
+          isNoStore ? ' (no-store)' : ''
+        }`,
       );
       return {
         ok: false,
@@ -325,7 +291,7 @@ export async function fetchPrototypes(
     if (error instanceof DOMException && error.name === 'AbortError') {
       logger.warn(
         { errorType: 'AbortError' },
-        'Returning timeout error response',
+        `Returning timeout error response${isNoStore ? ' (no-store)' : ''}`,
       );
       return {
         ok: false,
@@ -346,7 +312,7 @@ export async function fetchPrototypes(
 
       logger.debug(
         { status, statusText, errorType: 'HTTP error' },
-        'Returning HTTP error response',
+        `Returning HTTP error response${isNoStore ? ' (no-store)' : ''}`,
       );
 
       const message =
@@ -367,7 +333,7 @@ export async function fetchPrototypes(
 
     logger.debug(
       { errorType: 'General error' },
-      'Returning general error response',
+      `Returning general error response${isNoStore ? ' (no-store)' : ''}`,
     );
     return {
       ok: false,
@@ -376,13 +342,95 @@ export async function fetchPrototypes(
         error instanceof Error ? error.message : 'Failed to fetch prototypes',
     };
   }
+};
+
+/**
+ * Fetches prototypes from the ProtoPedia API with optional filtering and pagination.
+ *
+ * This is the core server function for retrieving prototype data. It supports:
+ * - Pagination via limit/offset parameters
+ * - Filtering by specific prototype ID
+ * - Comprehensive logging and performance monitoring
+ * - Automatic parameter validation and clamping
+ *
+ * @param params - Configuration object for the fetch operation
+ * @param params.limit - Maximum number of prototypes to fetch (clamped to 1-10,000, default: 100)
+ * @param params.offset - Number of prototypes to skip for pagination (minimum: 0, default: 0)
+ * @param params.prototypeId - Specific prototype ID to fetch (if provided, returns only that prototype)
+ * @returns Promise resolving to either success with prototype data or failure with error details
+ *
+ * @see Data Cache for Next.js https://vercel.com/docs/data-cache
+ *
+ * @remarks
+ * ProtoPedia responses can be sizeable. Recent exports (as of 2025/11/01) measured approximately:
+ * - 220 KB for 100 prototypes in JSON (TSV ≈ 41 KB)
+ * - 2.7 MB for 1,000 prototypes in JSON (TSV ≈ 0.44 MB)
+ * - 16.5 MB for 10,000 prototypes in JSON (TSV ≈ 3.3 MB)
+ * Consider these sizes when choosing limits for client calls.
+ *
+ * Next.js data cache only persists payloads up to roughly 2 MB. Requests such as
+ * `https://protopedia.net/v2/api/prototype/list?limit=1000&offset=0` exceed that
+ * boundary and therefore bypass caching. Favor smaller page sizes when caching is
+ * desired.
+ * Upstream performance (2025/11/01): the provider returns 100, 1,000, and 10,000 prototype
+ * pages in under 10 seconds each; responses for 10,000 items are only ~2–3 seconds slower than
+ * those for 1,000 items, indicating sufficient capacity for current usage.
+ *
+ * @example
+ * ```typescript
+ * // Fetch first 10 prototypes
+ * const result = await fetchPrototypes({ limit: 10, offset: 0 });
+ * if (result.ok) {
+ *   console.log('Fetched prototypes:', result.data);
+ * }
+ *
+ * // Fetch specific prototype by ID
+ * const specific = await fetchPrototypes({ prototypeId: 3877 });
+ * if (specific.ok && specific.data.length > 0) {
+ *   console.log('Found prototype:', specific.data[0]);
+ * }
+ * ```
+ */
+/**
+ * Low-level server action that always calls the upstream ProtoPedia API
+ * via the force-cache client.
+ *
+ * - Does not read or populate the in-memory map store.
+ * - Callers that want to benefit from caching or refresh semantics should
+ *   prefer {@link getPrototypesFromCacheOrFetch} instead.
+ */
+export async function fetchPrototypesViaForceCacheClient(
+  params: FetchPrototypesParams = {},
+): Promise<FetchPrototypesResult> {
+  return fetchPrototypesInternal(
+    protopediaForceCacheClient,
+    'fetchPrototypesViaForceCacheClient',
+    params,
+  );
 }
 
 /**
- * Cache-aware variant of {@link fetchPrototypes} for list endpoints.
+ * No-store variant of {@link fetchPrototypesViaForceCacheClient} that bypasses the Next.js data cache.
+ *
+ * - Uses {@link protopediaNoStoreClient} instead of {@link protopediaForceCacheClient}.
+ * - Shares the same validation, logging, and normalization behavior.
+ * - Intended for SHOW/upstream-only paths where freshest data is preferred.
+ */
+export async function fetchPrototypesViaNoStoreClient(
+  params: FetchPrototypesParams = {},
+): Promise<FetchPrototypesResult> {
+  return fetchPrototypesInternal(
+    protopediaNoStoreClient,
+    'fetchPrototypesViaNoStoreClient',
+    params,
+  );
+}
+
+/**
+ * Cache-aware variant of {@link fetchPrototypesViaForceCacheClient} for list endpoints.
  *
  * Fallback / refresh behavior:
- * - Always calls {@link fetchPrototypes} to retrieve the requested page.
+ * - Always calls {@link fetchPrototypesViaForceCacheClient} to retrieve the requested page.
  * - When no specific `prototypeId` is requested and the canonical
  *   snapshot is empty or expired, it schedules a background refresh of
  *   {@link prototypeMapStore} and the analysis cache.
@@ -414,7 +462,11 @@ export async function getPrototypesFromCacheOrFetch(
 
   const prototypeId = prototypeIdValidation.value;
 
-  const result = await fetchPrototypes({ limit, offset, prototypeId });
+  const result = await fetchPrototypesViaForceCacheClient({
+    limit,
+    offset,
+    prototypeId,
+  });
 
   if (result.ok && prototypeId === undefined) {
     const snapshot = prototypeMapStore.getSnapshot();
@@ -456,7 +508,9 @@ const populatePrototypeMap = async (
 ): Promise<FetchPrototypesResult> => {
   logger.info({ reason }, 'Refreshing prototype map store');
 
-  const result = await fetchPrototypes(CANONICAL_FETCH_PARAMS);
+  const result = await fetchPrototypesViaForceCacheClient(
+    CANONICAL_FETCH_PARAMS,
+  );
 
   if (!result.ok) {
     logger.warn(
@@ -557,7 +611,7 @@ function schedulePrototypeMapRefresh(
 /**
  * Fetches a random prototype from the ProtoPedia API.
  *
- * This function leverages fetchPrototypes to retrieve a set of prototypes and then
+ * This function leverages fetchPrototypesViaForceCacheClient to retrieve a set of prototypes and then
  * randomly selects one from the results. This approach ensures fairness in random
  * selection while allowing for filtering parameters to be applied to the candidate pool.
  *
@@ -585,7 +639,7 @@ function schedulePrototypeMapRefresh(
  * Random prototype selection that always uses a fresh upstream page.
  *
  * Fallback behavior:
- * - Delegates to {@link fetchPrototypes} and returns an error result when
+ * - Delegates to {@link fetchPrototypesViaForceCacheClient} and returns an error result when
  *   the list endpoint fails.
  * - Does not consult or update {@link prototypeMapStore}; callers that
  *   prefer cache-aware behavior should use
@@ -601,7 +655,7 @@ export async function fetchRandomPrototype(
   logger.info({ params }, 'fetchRandomPrototype called');
 
   const fetchStart = performance.now();
-  const result = await fetchPrototypes(params);
+  const result = await fetchPrototypesViaForceCacheClient(params);
   const fetchEnd = performance.now();
   const fetchElapsedMs = Math.round((fetchEnd - fetchStart) * 100) / 100;
 
@@ -786,7 +840,7 @@ export async function getRandomPrototypeFromCacheOrFetch(
  *
  * The function performs the following operations:
  * 1. Validates and parses the input ID parameter
- * 2. Calls fetchPrototypes with the specific ID filter
+ * 2. Calls fetchPrototypesViaForceCacheClient with the specific ID filter
  * 3. Extracts and returns the single prototype from results
  * 4. Provides detailed logging for debugging and monitoring
  *
@@ -816,7 +870,7 @@ export async function getRandomPrototypeFromCacheOrFetch(
  * Fallback behavior:
  * - Validates `idParam` and immediately returns a 400-style error result
  *   for invalid ids; no API call is made in that case.
- * - Delegates to {@link fetchPrototypes} with `prototypeId`, and
+ * - Delegates to {@link fetchPrototypesViaForceCacheClient} with `prototypeId`, and
  *   propagates upstream errors directly.
  * - Does not read or update {@link prototypeMapStore}; callers that prefer
  *   cache-aware behavior should use {@link getPrototypeByIdFromMapOrFetch}.
@@ -842,7 +896,7 @@ export async function fetchPrototypeById(
   const id = parsed.value;
 
   const fetchStart = performance.now();
-  const result = await fetchPrototypes({
+  const result = await fetchPrototypesViaForceCacheClient({
     prototypeId: id,
     limit: 1,
     offset: 0,

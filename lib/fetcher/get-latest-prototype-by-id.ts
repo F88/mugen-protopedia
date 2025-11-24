@@ -1,14 +1,18 @@
-import { fetchPrototypeById } from '@/app/actions/prototypes';
+import { fetchPrototypesViaNoStoreClient } from '@/app/actions/prototypes';
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
 
-export const getPrototype = async (
+export const getLatestPrototypeById = async (
   id: number,
-): Promise<NormalizedPrototype | undefined> => {
-  // logger.debug('getPrototype called', { id });
-  const result = await fetchPrototypeById(String(id));
+): Promise<NormalizedPrototype | null> => {
+  // logger.debug('getLatestPrototypeById called', { id });
+  const result = await fetchPrototypesViaNoStoreClient({
+    prototypeId: id,
+    limit: 1,
+    offset: 0,
+  });
   if (!result.ok) {
     const displayMessage = constructDisplayMessage(result);
     logger.error('Failed to fetch prototype via server function', {
@@ -18,5 +22,5 @@ export const getPrototype = async (
     });
     throw new Error(displayMessage);
   }
-  return result.data;
+  return result.data[0] ?? null;
 };

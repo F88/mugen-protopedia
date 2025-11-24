@@ -1,3 +1,23 @@
+/**
+ * ProtoPedia API v2 client configuration.
+ *
+ * This module exposes two preconfigured clients:
+ *
+ * - `protopediaForceCacheClient`:
+ *   Data-cache-aware client that uses the Next.js Data Cache
+ *   (`cache: "force-cache"`, `next.revalidate: 60`). Intended for list,
+ *   playlist, and analysis paths where a slightly stale view is acceptable.
+ *
+ * - `protopediaNoStoreClient`:
+ *   No-store client that bypasses the Next.js Data Cache
+ *   (`cache: "no-store"`, `next.revalidate: 0`). Intended for SHOW /
+ *   upstream-only paths that prefer the freshest possible data.
+ *
+ * Both clients share the same environment-driven configuration:
+ * - `PROTOPEDIA_API_V2_TOKEN` for authentication (optional).
+ * - `PROTOPEDIA_API_V2_BASE_URL` for overriding the upstream base URL.
+ * - `PROTOPEDIA_API_V2_LOG_LEVEL` to control SDK log verbosity.
+ */
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
 import { logger as baseLogger } from '@/lib/logger.server';
 
@@ -42,7 +62,33 @@ if (!validToken) {
 }
 
 baseLogger.debug({ logLevel }, 'ProtoPedia client configuration');
-export const protopedia = createProtoPediaClient({
+
+/**
+ * Error type used when communicating with the ProtoPedia API.
+ *
+ * - `status` holds the HTTP status code when available.
+ * - `body` may contain the raw response payload for debugging.
+ *
+ * This error is surfaced by higher-level server actions and fetchers
+ * instead of leaking low-level fetch or SDK-specific errors.
+ */
+export class ProtopediaApiError extends Error {
+  status?: number;
+  body?: string;
+}
+/**
+ * Data-cache-aware ProtoPedia client.
+ *
+ * - Uses `cache: 'force-cache'` with `next.revalidate: 60`, allowing
+ *   Next.js to cache responses for up to 60 seconds.
+ * - Suitable for list endpoints, playlist bootstrapping, and analysis
+ *   paths where slightly stale data is acceptable and reduced upstream
+ *   load is desirable.
+ *
+ * The client shares the same token / base URL / log-level configuration
+ * as {@link protopediaNoStoreClient}.
+ */
+export const protopediaForceCacheClient = createProtoPediaClient({
   token: validToken,
   baseUrl,
   fetch: async (url, init) => {
@@ -68,66 +114,39 @@ export const protopedia = createProtoPediaClient({
   logLevel,
 });
 
-// Lightweight helper for prototype detail by id
-// Uses the same env-driven configuration as the client above.
-export class ProtopediaApiError extends Error {
-  status?: number;
-  body?: string;
-}
-
-export async function getPrototypeById(id: number): Promise<{
-  prototypeNm?: string;
-  mainUrl?: string;
-  freeComment?: string;
-  teamNm?: string;
-} | null> {
-  const resolvedBaseUrl = (baseUrl || 'https://protopedia.net/v2/api').replace(
-    /\/$/,
-    '',
-  );
-  const url = `${resolvedBaseUrl}/prototypes/${id}`;
-
-  const headers: Record<string, string> = { Accept: 'application/json' };
-  if (validToken) {
-    headers.Authorization = `Bearer ${validToken}`;
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    CONNECTION_AND_HEADER_TIMEOUT_MS,
-  );
-
-  try {
-    const res = await fetch(url, {
-      headers,
-      method: 'GET',
-      signal: controller.signal,
-      cache: 'force-cache',
-      next: {
-        revalidate: 60,
-      },
-    });
-
-    if (res.status === 404) {
-      return null;
+/**
+ * No-store ProtoPedia client for SHOW and other upstream-only paths.
+ *
+ * - Uses `cache: 'no-store'` with `next.revalidate: 0`, bypassing the
+ *   Next.js Data Cache and always hitting the upstream API.
+ * - Intended for interactive paths (e.g., SHOW-by-ID) where the caller
+ *   prefers the freshest possible data even at the cost of more network
+ *   traffic.
+ *
+ * This client still benefits from connection / header timeouts to avoid
+ * hanging requests when the upstream is unresponsive.
+ */
+export const protopediaNoStoreClient = createProtoPediaClient({
+  token: validToken,
+  baseUrl,
+  fetch: async (url, init) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      CONNECTION_AND_HEADER_TIMEOUT_MS,
+    );
+    try {
+      return await globalThis.fetch(url, {
+        ...init,
+        signal: controller.signal,
+        cache: 'no-store',
+        next: {
+          revalidate: 0,
+        },
+      });
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      const err = new ProtopediaApiError(`Upstream error: ${res.status}`);
-      err.status = res.status;
-      err.body = text;
-      throw err;
-    }
-
-    return (await res.json()) as {
-      prototypeNm?: string;
-      mainUrl?: string;
-      freeComment?: string;
-      teamNm?: string;
-    };
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
+  },
+  logLevel,
+});
