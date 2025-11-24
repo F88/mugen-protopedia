@@ -483,10 +483,10 @@ export function useLatestPrototypeById(
 Responsibilities:
 
 - Provide SWR-backed access to the latest prototype for a given ID, with
-    sensible defaults for SHOW usage.
+  sensible defaults for SHOW usage.
 - Delegate actual data retrieval to `getLatestPrototypeById(id)`.
 - Expose `prototype`, `error`, and `isLoading` for UI consumption, while SWR
-    manages caching and revalidation.
+  manages caching and revalidation.
 
 #### Client Fetcher → Server Action
 
@@ -523,7 +523,7 @@ Responsibilities:
 - Convert a `FetchPrototypesResult` into either:
     - a `NormalizedPrototype` on success (first element), or
     - a thrown `Error(displayMessage)` with a technical, user-visible message on
-        failure.
+      failure.
 
 ### Server-Side Path (SHOW)
 
