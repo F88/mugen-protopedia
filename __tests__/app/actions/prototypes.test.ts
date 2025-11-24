@@ -100,6 +100,10 @@ describe('prototypes actions map-store integration', () => {
       if (result.ok) {
         expect(result.data.id).toBe(1);
       }
+      expect(schedulePrototypeMapRefreshMock).toHaveBeenCalledWith(
+        expect.any(Object),
+        'ttl-expired-on-id-hit',
+      );
     });
 
     it('skips refresh and returns 404 when snapshot is non-empty and not expired', async () => {
@@ -206,6 +210,10 @@ describe('prototypes actions map-store integration', () => {
 
       expect(result.ok).toBe(true);
       expect(result.data).toEqual(snapshotData);
+      expect(schedulePrototypeMapRefreshMock).toHaveBeenCalledWith(
+        expect.any(Object),
+        'ttl-expired',
+      );
     });
   });
 
@@ -230,6 +238,10 @@ describe('prototypes actions map-store integration', () => {
 
       expect(result.ok).toBe(true);
       expect(result.data.id).toBe(10);
+      expect(schedulePrototypeMapRefreshMock).toHaveBeenCalledWith(
+        expect.any(Object),
+        'ttl-expired-on-random-hit',
+      );
     });
 
     it('attempts refresh and returns 404 when no prototypes remain', async () => {
