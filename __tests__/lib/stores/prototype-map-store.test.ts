@@ -55,6 +55,13 @@ describe('PrototypeMapStore', () => {
     vi.useRealTimers();
   });
 
+  it('uses 30 minutes TTL by default', () => {
+    const store = new PrototypeMapStore();
+    const stats = store.getStats();
+
+    expect(stats.ttlMs).toBe(30 * 60 * 1_000);
+  });
+
   it('throws when configuring payloads larger than 30 MiB', () => {
     expect(
       () => new PrototypeMapStore({ maxPayloadSizeBytes: 31 * 1024 * 1024 }),

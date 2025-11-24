@@ -9,7 +9,7 @@
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.server';
 
-const ONE_HOUR_IN_MS = 60 * 60 * 1_000;
+const THIRTY_MINUTES_IN_MS = 30 * 60 * 1_000;
 
 /**
  * Configuration options for the PrototypeMapStore.
@@ -67,7 +67,7 @@ export class PrototypeMapStore {
   private refreshPromise: Promise<void> | null = null;
 
   constructor({
-    ttlMs = ONE_HOUR_IN_MS,
+    ttlMs = THIRTY_MINUTES_IN_MS,
     maxPayloadSizeBytes = 30 * 1024 * 1024,
   }: PrototypeMapStoreConfig = {}) {
     if (maxPayloadSizeBytes > 30 * 1024 * 1024) {
