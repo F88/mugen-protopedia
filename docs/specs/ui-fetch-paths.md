@@ -613,11 +613,14 @@ Responsibilities:
 Putting it all together, clicking **SHOW** with a valid ID drives the following
 chain:
 
-- UI / client: - `ControlPanel` → `onGetPrototypeById` →
-  `handleGetPrototypeByIdFromInput` - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)` - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })` - `useLatestPrototypeById` → `getLatestPrototypeById(id)`
-- Server: - `getLatestPrototypeById(id)` →
-  `fetchPrototypesViaNoStoreClient({ prototypeId: id, limit: 1, offset: 0 })` - `fetchPrototypesViaNoStoreClient` →
-  `protopediaNoStoreClient.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
+- UI / client:
+  - `ControlPanel` → `onGetPrototypeById` → `handleGetPrototypeByIdFromInput`
+  - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)`
+  - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })`
+  - `useLatestPrototypeById` → `getLatestPrototypeById(id)`
+- Server:
+  - `getLatestPrototypeById(id)` → `fetchPrototypesViaNoStoreClient({ prototypeId: id, limit: 1, offset: 0 })`
+  - `fetchPrototypesViaNoStoreClient` → `protopediaNoStoreClient.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
 
 Each SHOW click therefore issues exactly one upstream `listPrototypes` request
 for the specified ID via the **no-store** client. The in-memory
