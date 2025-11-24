@@ -25,11 +25,11 @@ focusing on **how** the UI is wired to server actions and the ProtoPedia API.
 - [SHOW Button: ID-Based Prototype Fetch](#show-button-id-based-prototype-fetch)
 - [PLAYLIST Mode: Direct-Launch ID Queue](#playlist-mode-direct-launch-id-queue)
 
-| Flow                                     | Primary Data Source                  | `prototypeMapStore` Usage                            | Freshness vs. Cache Trade-off                                                                                                          |
-| ---------------------------------------- | ------------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| PROTOTYPE Button: Random Prototype Fetch | Map snapshot (`prototypeMapStore`)   | **Preferred**: `getRandomPrototypeFromMapOrFetch`    | Favors cache efficiency and fast random selection; falls back to a bounded upstream random fetch when the map snapshot is unavailable. |
-| SHOW Button: ID-Based Prototype Fetch    | ProtoPedia API via `fetchPrototypes` | **Never used**: always bypasses the map snapshot     | Optimized for latest data for a specific ID; each click issues a fresh upstream call, with only SWR providing client-side reuse.       |
-| PLAYLIST Mode: Direct-Launch ID Queue    | ProtoPedia API via `fetchPrototypes` | **Never used** for individual ID fetches in playlist | Orchestrates a sequence of SHOW-equivalent fresh ID fetches based on URL parameters; prioritizes up-to-date data over cache reuse.     |
+| Flow                                     | Primary Data Source                  | API Client                       | `prototypeMapStore` Usage                             | Freshness vs. Cache Trade-off                                                                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------ | -------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PROTOTYPE Button: Random Prototype Fetch | Map snapshot (`prototypeMapStore`)   | `protopedia` (via list endpoint) | **Preferred**: `getRandomPrototypeFromMapOrFetch`     | Favors cache efficiency and fast random selection; falls back to a bounded upstream random fetch when the map snapshot is unavailable.                                                                                |
+| SHOW Button: ID-Based Prototype Fetch    | ProtoPedia API via `fetchPrototypes` | `protopediaNoStore`              | **Never used**: always bypasses the map snapshot      | Optimized for latest data for a specific ID; each click issues a fresh upstream call via the no-store client, with SWR providing client-side reuse for repeat lookups.                                                |
+| PLAYLIST Mode: Direct-Launch ID Queue    | Map snapshot via repository + API    | `protopedia`                     | **Preferred**: `prototypeRepository.getByPrototypeId` | Uses a repository that first consults `prototypeMapStore` for ID lookups and falls back to upstream list/id fetches when needed, matching PLAYLIST's requirement for snapshot-level freshness with graceful fallback. |
 
 ## PROTOTYPE Button: Random Prototype Fetch
 
@@ -604,21 +604,15 @@ Responsibilities:
 Putting it all together, clicking **SHOW** with a valid ID drives the following
 chain:
 
-- UI / client:
-    - `ControlPanel` → `onGetPrototypeById` →
-      `handleGetPrototypeByIdFromInput`
-    - `handleGetPrototypeByIdFromInput` → `handleGetPrototypeById(id)`
-    - `handleGetPrototypeById` → `fetchPrototype(id)` (`usePrototype`)
-    - `fetchPrototype(id)` → `getPrototype(id)`
-- Server:
-    - `getPrototype(id)` → `fetchPrototypeById(String(id))`
-    - `fetchPrototypeById` → `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
-    - `fetchPrototypes` → `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
+- UI / client: - `ControlPanel` → `onGetPrototypeById` →
+  `handleGetPrototypeByIdFromInput` - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)` - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })` - `useLatestPrototypeById` → `getPrototype(id)`
+- Server: - `getPrototype(id)` → `fetchPrototypesNoStore({ prototypeId: id, limit: 1, offset: 0 })` - `fetchPrototypesNoStore` → `protopediaNoStore.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
 
 Each SHOW click therefore issues exactly one upstream `listPrototypes` request
-for the specified ID. The in-memory `prototypeMapStore` is **not** consulted on
-this path; caching is handled solely by SWR on the client side for repeated
-reads of the same ID.
+for the specified ID via the **no-store** client. The in-memory
+`prototypeMapStore` is **not** consulted on this path; freshness is prioritized
+by bypassing the Next.js Data Cache on the server, while SWR provides
+client-side reuse for repeated reads of the same ID.
 
 ## PLAYLIST Mode: Direct-Launch ID Queue
 
@@ -627,8 +621,10 @@ reads of the same ID.
 When the application is opened with playlist query parameters (e.g.
 `?id=7103,6774,...&title=My%20Playlist`), it enters **PLAYLIST** mode
 automatically. The app then processes the validated ID list as a queue and
-fetches each prototype in order using the same ID-based fetch path as the SHOW
-button, marking progress and avoiding user interaction for each step.
+fetches each prototype in order using a **map-store-first repository path**
+that prefers `prototypeMapStore` and falls back to the SHOW-equivalent
+upstream path when necessary, marking progress and avoiding user interaction
+for each step.
 
 ### High-Level Flow (PLAYLIST)
 
@@ -799,8 +795,11 @@ useEffect(() => {
 Key points:
 
 - The playlist loop reuses `handleGetPrototypeById` with
-  `{ isFromPlaylist: true }`, so the **actual fetch path** for each ID is
-  identical to the SHOW button path described above.
+  `{ isFromPlaylist: true }`, and that handler now **selects the data path
+  based on the `isFromPlaylist` flag**: - `isFromPlaylist: false` (SHOW button, input field): uses
+  `usePrototype` → `getPrototype` → `fetchPrototypeById` →
+  `fetchPrototypes` → `protopedia.listPrototypes`. - `isFromPlaylist: true` (PLAYLIST): uses `usePlaylistPrototype` →
+  `prototypeRepository.getByPrototypeId`.
 - `PLAYLIST_FETCH_INTERVAL_MS` controls the pacing between ID fetches, giving
   the UI time to render and preventing bursty concurrency.
 - Playback completion is detected only when both the queue is empty and
@@ -810,16 +809,18 @@ Key points:
 
 For each ID in the playlist queue, the network path is effectively:
 
-- UI / client:
-    - `playlistQueueRef` → `processNext()` →
-      `handleGetPrototypeById(id, { isFromPlaylist: true })`
-    - `handleGetPrototypeById` → `fetchPrototype(id)` (`usePrototype`)
-    - `fetchPrototype(id)` → `getPrototype(id)`
-- Server:
-    - `getPrototype(id)` → `fetchPrototypeById(String(id))`
-    - `fetchPrototypeById` → `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
-    - `fetchPrototypes` → `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
+- UI / client: - `playlistQueueRef` → `processNext()` →
+  `handleGetPrototypeById(id, { isFromPlaylist: true })` - `handleGetPrototypeById` → `fetchPlaylistPrototype(id)`
+  (`usePlaylistPrototype`) - `fetchPlaylistPrototype(id)` →
+  `prototypeRepository.getByPrototypeId(id)`
+- Server: - `prototypeRepository.getByPrototypeId(id)` →
+  `getPrototypeByIdFromMapOrFetch(String(id))` (preferred) - When map lookup fails or the map store is unavailable, the
+  repository falls back to `fetchPrototypeById(String(id))` →
+  `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })` →
+  `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`.
 
-In other words, PLAYLIST mode orchestrates **a sequence of SHOW-equivalent
-fetches** driven by URL query parameters and the internal queue, without
-introducing a new fetch mechanism.
+In other words, PLAYLIST mode now orchestrates a sequence of **map-store-first
+ID fetches** driven by URL query parameters and the internal queue. Each
+playlist item prefers the canonical `prototypeMapStore` snapshot for fast
+lookup but gracefully falls back to the same upstream path used by the SHOW
+button when necessary.

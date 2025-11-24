@@ -62,6 +62,21 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
           `fetchPrototypeById` directly bypasses snapshot coordination for
           force-refresh scenarios.
 
+- **Upstream Client Caching**:
+    - `lib/protopedia-client.ts` exposes two preconfigured clients:
+        - `protopedia`: uses `cache: 'force-cache'` with
+          `next.revalidate: 60` and is intended for list, playlist, and
+          analysis paths where slightly stale data is acceptable.
+        - `protopediaNoStore`: uses `cache: 'no-store'` with
+          `next.revalidate: 0` and is intended for SHOW / upstream-only
+          paths that always prefer the freshest data.
+    - `fetchPrototypes` calls `protopedia.listPrototypes`, benefiting from the
+      Next.js Data Cache when payloads are small enough.
+    - `fetchPrototypesNoStore` (used by the SHOW path via `getPrototype` and
+      `useLatestPrototypeById`) calls `protopediaNoStore.listPrototypes`,
+      explicitly bypassing the Data Cache and hitting the upstream API for
+      each request.
+
 - **Known Constraints**:
     - Upstream responses grow quickly:
         - ≈220 KB for 100 items
