@@ -7,6 +7,7 @@ import type {
   GetAllAnalysesResult,
   GetAnalysisResult,
 } from '@/app/actions/analysis';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import * as analysisActions from '@/app/actions/analysis';
 
 describe('useLatestAnalysis', () => {
@@ -15,18 +16,29 @@ describe('useLatestAnalysis', () => {
   });
 
   it('loads latest analysis successfully and exposes refresh', async () => {
+    const mockAnalysis: ServerPrototypeAnalysis = {
+      totalCount: 1,
+      statusDistribution: {},
+      prototypesWithAwards: 0,
+      topTags: [],
+      averageAgeInDays: 0,
+      yearDistribution: {},
+      topTeams: [],
+      analyzedAt: '2025-01-01T00:00:00.000Z',
+      anniversaryCandidates: {
+        metadata: {
+          computedAt: '2025-01-01T00:00:00.000Z',
+          windowUTC: {
+            fromISO: '2025-01-01T00:00:00.000Z',
+            toISO: '2025-01-03T23:59:59.999Z',
+          },
+        },
+        mmdd: [],
+      },
+    };
     const mockResult: GetAnalysisResult = {
       ok: true,
-      data: {
-        // minimal shape satisfying ServerPrototypeAnalysis; details not used in hook
-        totalCount: 1,
-        statusDistribution: {},
-        yearDistribution: {},
-        topTags: [],
-        topTeams: [],
-        averageAgeInDays: 0,
-        anniversaryCandidates: { mmdd: [] },
-      } as any,
+      data: mockAnalysis,
       cachedAt: '2025-01-01T00:00:00.000Z',
       params: {
         limit: 10,
@@ -94,19 +106,31 @@ describe('useAllAnalyses', () => {
   });
 
   it('loads all analyses successfully and exposes refresh', async () => {
+    const mockAnalysis: ServerPrototypeAnalysis = {
+      totalCount: 1,
+      statusDistribution: {},
+      prototypesWithAwards: 0,
+      topTags: [],
+      averageAgeInDays: 0,
+      yearDistribution: {},
+      topTeams: [],
+      analyzedAt: '2025-01-01T00:00:00.000Z',
+      anniversaryCandidates: {
+        metadata: {
+          computedAt: '2025-01-01T00:00:00.000Z',
+          windowUTC: {
+            fromISO: '2025-01-01T00:00:00.000Z',
+            toISO: '2025-01-03T23:59:59.999Z',
+          },
+        },
+        mmdd: [],
+      },
+    };
     const mockResult: GetAllAnalysesResult = {
       ok: true,
       data: [
         {
-          analysis: {
-            totalCount: 1,
-            statusDistribution: {},
-            yearDistribution: {},
-            topTags: [],
-            topTeams: [],
-            averageAgeInDays: 0,
-            anniversaryCandidates: { mmdd: [] },
-          } as any,
+          analysis: mockAnalysis,
           cachedAt: '2025-01-01T00:00:00.000Z',
           params: {
             limit: 10,

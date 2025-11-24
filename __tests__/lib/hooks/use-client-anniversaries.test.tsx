@@ -4,15 +4,35 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import * as analysisClient from '@/lib/utils/prototype-analysis.client';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import type { AnniversariesSlice } from '@/lib/utils/prototype-analysis-helpers';
 
 describe('useClientAnniversaries', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  const baseServerAnalysis: any = {
+  const baseServerAnalysis: ServerPrototypeAnalysis = {
+    totalCount: 2,
+    statusDistribution: {},
+    prototypesWithAwards: 0,
+    topTags: [],
+    averageAgeInDays: 0,
+    yearDistribution: {},
+    topTeams: [],
+    analyzedAt: '2025-01-01T00:00:00.000Z',
     anniversaryCandidates: {
-      mmdd: [{ id: 1 }, { id: 2 }],
+      metadata: {
+        computedAt: '2025-01-01T00:00:00.000Z',
+        windowUTC: {
+          fromISO: '2025-01-01T00:00:00.000Z',
+          toISO: '2025-01-03T23:59:59.999Z',
+        },
+      },
+      mmdd: [
+        { id: 1, title: 'p1', releaseDate: '2020-01-01T00:00:00.000Z' },
+        { id: 2, title: 'p2', releaseDate: '2020-01-02T00:00:00.000Z' },
+      ],
     },
   };
 
@@ -33,10 +53,22 @@ describe('useClientAnniversaries', () => {
   });
 
   it('computes anniversaries when enabled and serverAnalysis is provided', async () => {
-    const mockAnniversaries = [{ id: 1 }];
+    const mockAnniversaries: AnniversariesSlice = {
+      birthdayCount: 1,
+      birthdayPrototypes: [
+        {
+          id: 1,
+          title: 'p1',
+          years: 1,
+          releaseDate: '2020-01-01T00:00:00.000Z',
+        },
+      ],
+      newbornCount: 0,
+      newbornPrototypes: [],
+    };
     const spy = vi.spyOn(analysisClient, 'analyzeCandidates').mockReturnValue({
       anniversaries: mockAnniversaries,
-    } as any);
+    });
 
     const { result } = renderHook(() =>
       useClientAnniversaries(baseServerAnalysis, { enabled: true }),
@@ -68,10 +100,22 @@ describe('useClientAnniversaries', () => {
   });
 
   it('refresh recomputes anniversaries', async () => {
-    const mockAnniversaries = [{ id: 1 }];
+    const mockAnniversaries: AnniversariesSlice = {
+      birthdayCount: 1,
+      birthdayPrototypes: [
+        {
+          id: 1,
+          title: 'p1',
+          years: 1,
+          releaseDate: '2020-01-01T00:00:00.000Z',
+        },
+      ],
+      newbornCount: 0,
+      newbornPrototypes: [],
+    };
     const spy = vi.spyOn(analysisClient, 'analyzeCandidates').mockReturnValue({
       anniversaries: mockAnniversaries,
-    } as any);
+    });
 
     const { result } = renderHook(() =>
       useClientAnniversaries(baseServerAnalysis, { enabled: true }),
