@@ -26,12 +26,23 @@ export const buildPlaylistPlayModeState = (
   title: params.title,
 });
 
+export const buildUnleashedPlayModeState = (): PlayModeState => ({
+  type: 'unleashed',
+});
+
+export const buildJoePlayModeState = (): PlayModeState => ({
+  type: 'joe',
+});
+
 /**
  * Resolves the play mode based on the provided direct launch parameters.
  */
 export const resolvePlayMode = ({
   directLaunchResult,
 }: ResolvePlayModeArgs): PlayModeState => {
+  // testing unleashed mode
+  // return buildUnleashedPlayModeState();
+
   // Early return if direct launch result is missing or failed
   if (!directLaunchResult || directLaunchResult.type !== 'success') {
     return buildNormalPlayModeState();
@@ -39,12 +50,23 @@ export const resolvePlayMode = ({
 
   // Determine PlayMode
   const directLaunchParams = directLaunchResult.value;
+  console.debug('directLaunchParams:', directLaunchParams);
+
+  // Unleashed mode
+  if (directLaunchParams.unleashed != null) {
+    return buildUnleashedPlayModeState();
+  }
+
+  // Joe mode
+  if (directLaunchParams.joe != null) {
+    return buildJoePlayModeState();
+  }
+
+  // Playlist mode
   const hasIds = directLaunchParams.ids.length > 0;
   const hasTitle =
     typeof directLaunchParams.title === 'string' &&
     directLaunchParams.title.trim().length > 0;
-
-  // Playlist mode
   if (hasIds || hasTitle) {
     return buildPlaylistPlayModeState({
       ids: directLaunchParams.ids,
