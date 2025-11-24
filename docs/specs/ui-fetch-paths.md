@@ -69,7 +69,7 @@ available and falls back to a direct upstream random-fetch server action.
 ```
 
 Additionally, keyboard shortcuts bind Enter to the same handler via
-`useKeyboardShortcuts`.
+        if (id !== undefined) {
 
 #### Slot Creation & Random Fetch
 
@@ -174,7 +174,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
 Responsibilities:
 
 - Provide an imperative `getRandomPrototype()` function without SWR caching so
-  that each call can return a fresh random result.
+    that each call can return a fresh random result.
 - Track `isLoading` and `error` state for UI feedback.
 - Delegate actual data retrieval to `getRandomPrototypeData`.
 
@@ -614,9 +614,17 @@ Responsibilities:
 Putting it all together, clicking **SHOW** with a valid ID drives the following
 chain:
 
-- UI / client: - `ControlPanel` → `onGetPrototypeById` →
-  `handleGetPrototypeByIdFromInput` - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)` - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })` - `useLatestPrototypeById` → `getPrototype(id)`
-- Server: - `getPrototype(id)` → `fetchPrototypesNoStore({ prototypeId: id, limit: 1, offset: 0 })` - `fetchPrototypesNoStore` → `protopediaNoStore.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
+- UI / client:
+        - `ControlPanel` → `onGetPrototypeById` →
+            `handleGetPrototypeByIdFromInput`
+        - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)`
+        - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })`
+        - `useLatestPrototypeById` → `getLatestPrototypeById(id)`
+- Server:
+        - `getLatestPrototypeById(id)` →
+            `fetchPrototypesNoStore({ prototypeId: id, limit: 1, offset: 0 })`
+        - `fetchPrototypesNoStore` →
+            `protopediaNoStore.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
 
 Each SHOW click therefore issues exactly one upstream `listPrototypes` request
 for the specified ID via the **no-store** client. The in-memory
@@ -649,8 +657,8 @@ for each step.
 4. When `PlayModeState.type === 'playlist'`, the app enqueues the IDs into
    `playlistQueueRef` and starts playback (`isPlaylistPlaying = true`).
 5. A playlist processing loop repeatedly dequeues IDs and calls
-   `handleGetPrototypeById(id, { isFromPlaylist: true })` for each, until all
-   items are processed and in-flight requests reach zero.
+    `handleGetPrototypeByIdInPlaylistMode(id)` for each, until all items are
+    processed and in-flight requests reach zero.
 
 ### Component-Level Wiring (PLAYLIST)
 
@@ -776,7 +784,7 @@ useEffect(() => {
         logger.debug('Processing playlist ID:', id);
 
         if (id !== undefined) {
-            void handleGetPrototypeById(id, { isFromPlaylist: true });
+            void handleGetPrototypeByIdInPlaylistMode(id);
 
             playlistProcessingTimeoutRef.current = window.setTimeout(
                 processNext,
@@ -798,36 +806,43 @@ useEffect(() => {
     isPlaylistPlaying,
     canFetchMorePrototypes,
     inFlightRequests,
-    handleGetPrototypeById,
+    handleGetPrototypeByIdInPlaylistMode,
 ]);
 ```
 
 Key points:
 
-- The playlist loop reuses `handleGetPrototypeById` with
-  `{ isFromPlaylist: true }`, and that handler now **selects the data path
-  based on the `isFromPlaylist` flag**: - `isFromPlaylist: false` (SHOW button, input field): uses
-  `usePrototype` → `getPrototype` → `fetchPrototypeById` →
-  `fetchPrototypes` → `protopedia.listPrototypes`. - `isFromPlaylist: true` (PLAYLIST): uses `usePlaylistPrototype` →
-  `prototypeRepository.getByPrototypeId`.
+- The playlist loop calls `handleGetPrototypeByIdInPlaylistMode(id)` for each
+    dequeued ID. This handler shares slot and error handling with SHOW but
+    always uses the **map-store-first** playlist path:
+    `usePlaylistPrototype` → `prototypeRepository.getByPrototypeId`.
+- The SHOW path is handled separately by `handleGetLatestPrototypeById`,
+    which uses `useLatestPrototypeById` → `getLatestPrototypeById` →
+    `fetchPrototypesNoStore` → `protopediaNoStore.listPrototypes` and never
+    consults `prototypeMapStore`.
 - `PLAYLIST_FETCH_INTERVAL_MS` controls the pacing between ID fetches, giving
-  the UI time to render and preventing bursty concurrency.
+    the UI time to render and preventing bursty concurrency.
 - Playback completion is detected only when both the queue is empty and
-  `inFlightRequests` reaches zero.
+    `inFlightRequests` reaches zero.
 
 ### Effective Network Path (PLAYLIST Mode)
 
 For each ID in the playlist queue, the network path is effectively:
 
-- UI / client: - `playlistQueueRef` → `processNext()` →
-  `handleGetPrototypeById(id, { isFromPlaylist: true })` - `handleGetPrototypeById` → `fetchPlaylistPrototype(id)`
-  (`usePlaylistPrototype`) - `fetchPlaylistPrototype(id)` →
-  `prototypeRepository.getByPrototypeId(id)`
-- Server: - `prototypeRepository.getByPrototypeId(id)` →
-  `getPrototypeByIdFromMapOrFetch(String(id))` (preferred) - When map lookup fails or the map store is unavailable, the
-  repository falls back to `fetchPrototypeById(String(id))` →
-  `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })` →
-  `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`.
+- UI / client:
+        - `playlistQueueRef` → `processNext()` →
+            `handleGetPrototypeByIdInPlaylistMode(id)`
+        - `handleGetPrototypeByIdInPlaylistMode` → `fetchPlaylistPrototype(id)`
+            (`usePlaylistPrototype`)
+        - `fetchPlaylistPrototype(id)` →
+            `prototypeRepository.getByPrototypeId(id)`
+- Server:
+        - `prototypeRepository.getByPrototypeId(id)` →
+            `getPrototypeByIdFromMapOrFetch(String(id))` (preferred)
+        - When map lookup fails or the map store is unavailable, the repository
+            falls back to `fetchPrototypeById(String(id))` →
+            `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })` →
+            `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`.
 
 In other words, PLAYLIST mode now orchestrates a sequence of **map-store-first
 ID fetches** driven by URL query parameters and the internal queue. Each
