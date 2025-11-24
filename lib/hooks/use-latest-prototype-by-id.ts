@@ -42,7 +42,7 @@ type UseLatestPrototypeByIdResult = {
  */
 export function useLatestPrototypeById(
   { id }: UseLatestPrototypeByIdOptions = {},
-  config: SWRConfiguration<NormalizedPrototype | undefined, Error> = {
+  config: SWRConfiguration<NormalizedPrototype | null, Error> = {
     // Reasonable defaults for SHOW/useLatestPrototypeById:
     // - Do not refetch aggressively when data is still fresh.
     // - Avoid surprise refetches on window focus.
@@ -55,13 +55,13 @@ export function useLatestPrototypeById(
 
   const fetcher = async () => {
     if (!hasId) {
-      return undefined;
+      return null;
     }
     return await getLatestPrototypeById(id as number);
   };
 
   const { data, error, isLoading, isValidating } = useSWR<
-    NormalizedPrototype | undefined,
+    NormalizedPrototype | null,
     Error
   >(hasId ? ['prototype', id] : null, fetcher, config);
 
