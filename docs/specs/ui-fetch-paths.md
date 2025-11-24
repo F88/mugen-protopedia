@@ -68,8 +68,7 @@ available and falls back to a direct upstream random-fetch server action.
 />
 ```
 
-Additionally, keyboard shortcuts bind Enter to the same handler via
-if (id !== undefined) {
+Additionally, keyboard shortcuts bind Enter to the same handler via `useKeyboardShortcuts`.
 
 #### Slot Creation & Random Fetch
 
