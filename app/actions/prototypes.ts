@@ -1105,6 +1105,22 @@ export async function getPrototypeByIdFromMapOrFetch(
     };
   }
 
+  if (snapshot.data.length > 0 && !snapshot.isExpired) {
+    logger.info(
+      {
+        id,
+        snapshotCount: snapshot.data.length,
+        snapshotExpired: snapshot.isExpired,
+      },
+      'Skipping map refresh on id-miss for non-expired snapshot',
+    );
+    return {
+      ok: false,
+      status: 404,
+      error: 'Not found',
+    };
+  }
+
   const refreshResult = await runPrototypeMapRefresh(logger, 'id-miss');
 
   if (refreshResult !== null && !refreshResult.ok) {

@@ -47,6 +47,7 @@ import {
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 500, max: 500 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
 
@@ -656,7 +657,7 @@ export function MugenProtoPedia() {
         return;
       }
 
-      // Concurrency check
+      // Concurrency check: if we cannot fetch now, retry later
       if (!canFetchMorePrototypes) {
         console.warn(
           'Cannot fetch more prototypes while playlist is playing. Retry in ' +
@@ -676,10 +677,8 @@ export function MugenProtoPedia() {
       logger.debug('Processing playlist ID:', id);
 
       if (id !== undefined) {
-        // Fetch
         void handleGetPrototypeByIdInPlaylistMode(id);
 
-        // Update processed count
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
           PLAYLIST_FETCH_INTERVAL_MS,
