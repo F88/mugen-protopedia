@@ -647,20 +647,13 @@ export function MugenProtoPedia() {
     const processNext = () => {
       playlistProcessingTimeoutRef.current = null;
 
-      // When queue is empty, wait for in-flight requests to finish, then mark completed
+      // Check if queue is empty
       if (playlistQueueRef.current.length === 0) {
         if (inFlightRequests === 0) {
           logger.debug('Playlist playback completed');
           setIsPlaylistPlaying(false);
           setIsPlaylistCompleted(true);
-          return;
         }
-
-        // Still requests in flight: poll again after interval
-        playlistProcessingTimeoutRef.current = window.setTimeout(
-          processNext,
-          PLAYLIST_FETCH_INTERVAL_MS,
-        );
         return;
       }
 
@@ -679,19 +672,18 @@ export function MugenProtoPedia() {
         return;
       }
 
-      // Next ID to process (one per interval)
+      // Next ID to process
       const id = playlistQueueRef.current.shift();
       logger.debug('Processing playlist ID:', id);
 
       if (id !== undefined) {
         void handleGetPrototypeByIdInPlaylistMode(id);
-      }
 
-      // Always schedule the next tick by interval while playing
-      playlistProcessingTimeoutRef.current = window.setTimeout(
-        processNext,
-        PLAYLIST_FETCH_INTERVAL_MS,
-      );
+        playlistProcessingTimeoutRef.current = window.setTimeout(
+          processNext,
+          PLAYLIST_FETCH_INTERVAL_MS,
+        );
+      }
     };
 
     playlistProcessingTimeoutRef.current = window.setTimeout(processNext, 0);
