@@ -6,7 +6,7 @@ import { constructDisplayMessage } from '@/lib/network-utils';
 
 export const getLatestPrototypeById = async (
   id: number,
-): Promise<NormalizedPrototype | undefined> => {
+): Promise<NormalizedPrototype | null> => {
   // logger.debug('getLatestPrototypeById called', { id });
   const result = await fetchPrototypesViaNoStoreClient({
     prototypeId: id,
@@ -22,5 +22,5 @@ export const getLatestPrototypeById = async (
     });
     throw new Error(displayMessage);
   }
-  return result.data[0];
+  return result.data[0] ?? null;
 };
