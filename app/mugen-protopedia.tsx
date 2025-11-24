@@ -47,6 +47,7 @@ import {
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
 const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
+// const SIMULATED_DELAY_RANGE = { min: 500, max: 500 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
 // const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
 
@@ -646,17 +647,24 @@ export function MugenProtoPedia() {
     const processNext = () => {
       playlistProcessingTimeoutRef.current = null;
 
-      // Check if queue is empty
+      // When queue is empty, wait for in-flight requests to finish, then mark completed
       if (playlistQueueRef.current.length === 0) {
         if (inFlightRequests === 0) {
           logger.debug('Playlist playback completed');
           setIsPlaylistPlaying(false);
           setIsPlaylistCompleted(true);
+          return;
         }
+
+        // Still requests in flight: poll again after interval
+        playlistProcessingTimeoutRef.current = window.setTimeout(
+          processNext,
+          PLAYLIST_FETCH_INTERVAL_MS,
+        );
         return;
       }
 
-      // Concurrency check
+      // Concurrency check: if we cannot fetch now, retry later
       if (!canFetchMorePrototypes) {
         console.warn(
           'Cannot fetch more prototypes while playlist is playing. Retry in ' +
@@ -671,20 +679,19 @@ export function MugenProtoPedia() {
         return;
       }
 
-      // Next ID to process
+      // Next ID to process (one per interval)
       const id = playlistQueueRef.current.shift();
       logger.debug('Processing playlist ID:', id);
 
       if (id !== undefined) {
-        // Fetch
         void handleGetPrototypeByIdInPlaylistMode(id);
-
-        // Update processed count
-        playlistProcessingTimeoutRef.current = window.setTimeout(
-          processNext,
-          PLAYLIST_FETCH_INTERVAL_MS,
-        );
       }
+
+      // Always schedule the next tick by interval while playing
+      playlistProcessingTimeoutRef.current = window.setTimeout(
+        processNext,
+        PLAYLIST_FETCH_INTERVAL_MS,
+      );
     };
 
     playlistProcessingTimeoutRef.current = window.setTimeout(processNext, 0);
