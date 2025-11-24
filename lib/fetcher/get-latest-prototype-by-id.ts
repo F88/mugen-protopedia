@@ -1,4 +1,4 @@
-import { fetchPrototypesNoStore } from '@/app/actions/prototypes';
+import { fetchPrototypesViaNoStoreClient } from '@/app/actions/prototypes';
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
@@ -8,7 +8,7 @@ export const getLatestPrototypeById = async (
   id: number,
 ): Promise<NormalizedPrototype | undefined> => {
   // logger.debug('getLatestPrototypeById called', { id });
-  const result = await fetchPrototypesNoStore({
+  const result = await fetchPrototypesViaNoStoreClient({
     prototypeId: id,
     limit: 1,
     offset: 0,

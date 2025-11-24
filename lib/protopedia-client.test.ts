@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { protopedia } from './protopedia-client';
+import { protopediaForceCacheClient } from './protopedia-client';
 
 describe('protopedia-client', () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
@@ -14,7 +14,7 @@ describe('protopedia-client', () => {
   });
 
   describe('timeout behavior', () => {
-    describe('protopedia client (listPrototypes)', () => {
+    describe('protopediaForceCacheClient (listPrototypes)', () => {
       it('should abort request when timeout is exceeded', async () => {
         vi.useFakeTimers();
 
@@ -39,7 +39,9 @@ describe('protopedia-client', () => {
         });
 
         // Start the request
-        const promise = protopedia.listPrototypes({ limit: 1 });
+        const promise = protopediaForceCacheClient.listPrototypes({
+          limit: 1,
+        });
 
         // Fast-forward time past the timeout (30s + buffer)
         vi.advanceTimersByTime(31000);
@@ -66,7 +68,9 @@ describe('protopedia-client', () => {
           }),
         );
 
-        const promise = protopedia.listPrototypes({ limit: 1 });
+        const promise = protopediaForceCacheClient.listPrototypes({
+          limit: 1,
+        });
 
         // Advance time slightly but not enough to timeout
         vi.advanceTimersByTime(1000);
@@ -82,7 +86,9 @@ describe('protopedia-client', () => {
           new Response(JSON.stringify({ results: [] }), { status: 200 }),
         );
 
-        const promise = protopedia.listPrototypes({ limit: 1 });
+        const promise = protopediaForceCacheClient.listPrototypes({
+          limit: 1,
+        });
 
         // Allow microtasks to process the fetch resolution and finally block
         await Promise.resolve();

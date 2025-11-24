@@ -3,12 +3,12 @@
  *
  * This module exposes two preconfigured clients:
  *
- * - `protopedia`:
+ * - `protopediaForceCacheClient`:
  *   Data-cache-aware client that uses the Next.js Data Cache
  *   (`cache: "force-cache"`, `next.revalidate: 60`). Intended for list,
  *   playlist, and analysis paths where a slightly stale view is acceptable.
  *
- * - `protopediaNoStore`:
+ * - `protopediaNoStoreClient`:
  *   No-store client that bypasses the Next.js Data Cache
  *   (`cache: "no-store"`, `next.revalidate: 0`). Intended for SHOW /
  *   upstream-only paths that prefer the freshest possible data.
@@ -86,9 +86,9 @@ export class ProtopediaApiError extends Error {
  *   load is desirable.
  *
  * The client shares the same token / base URL / log-level configuration
- * as {@link protopediaNoStore}.
+ * as {@link protopediaNoStoreClient}.
  */
-export const protopedia = createProtoPediaClient({
+export const protopediaForceCacheClient = createProtoPediaClient({
   token: validToken,
   baseUrl,
   fetch: async (url, init) => {
@@ -126,7 +126,7 @@ export const protopedia = createProtoPediaClient({
  * This client still benefits from connection / header timeouts to avoid
  * hanging requests when the upstream is unresponsive.
  */
-export const protopediaNoStore = createProtoPediaClient({
+export const protopediaNoStoreClient = createProtoPediaClient({
   token: validToken,
   baseUrl,
   fetch: async (url, init) => {
