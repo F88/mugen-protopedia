@@ -823,15 +823,13 @@ Key points:
 
 For each ID in the playlist queue, the network path is effectively:
 
-- UI / client: - `playlistQueueRef` → `processNext()` →
-  `handleGetPrototypeByIdInPlaylistMode(id)` - `handleGetPrototypeByIdInPlaylistMode` → `fetchPlaylistPrototype(id)`
-  (`usePlaylistPrototype`) - `fetchPlaylistPrototype(id)` →
-  `prototypeRepository.getByPrototypeId(id)`
-- Server: - `prototypeRepository.getByPrototypeId(id)` →
-  `getPrototypeByIdFromMapOrFetch(String(id))` (preferred) - When map lookup fails or the map store is unavailable, the repository
-  falls back to `fetchPrototypeById(String(id))` →
-  `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })` →
-  `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`.
+- UI / client:
+  - `playlistQueueRef` → `processNext()` → `handleGetPrototypeByIdInPlaylistMode(id)`
+  - `handleGetPrototypeByIdInPlaylistMode` → `fetchPlaylistPrototype(id)` (`usePlaylistPrototype`)
+  - `fetchPlaylistPrototype(id)` → `prototypeRepository.getByPrototypeId(id)`
+- Server:
+  - `prototypeRepository.getByPrototypeId(id)` → `getPrototypeByIdFromMapOrFetch(String(id))` (preferred)
+  - When map lookup fails or the map store is unavailable, the repository falls back to `fetchPrototypeById(String(id))` → `fetchPrototypes({ prototypeId: id, limit: 1, offset: 0 })` → `protopedia.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`.
 
 In other words, PLAYLIST mode now orchestrates a sequence of **map-store-first
 ID fetches** driven by URL query parameters and the internal queue. Each
