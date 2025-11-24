@@ -5,8 +5,6 @@
  * - It uses `prototypeRepository.getByPrototypeId` to prefer the
  *   `prototypeMapStore` snapshot and fall back to the ProtoPedia API
  *   when necessary.
- * - Unlike the SHOW button use case via `usePrototype`, this hook does
- *   not use SWR caching.
  */
 'use client';
 
