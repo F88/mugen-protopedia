@@ -432,68 +432,78 @@ Responsibilities:
 
 ### Hook & Fetcher Layer (SHOW)
 
-#### `usePrototype` Hook (SWR-backed)
+#### `useLatestPrototypeById` Hook (SWR-backed)
 
-- Hook: `usePrototype`
-- File: `lib/hooks/use-prototype.ts`
+- Hook: `useLatestPrototypeById`
+- File: `lib/hooks/use-latest-prototype-by-id.ts`
 
 In `MugenProtoPedia`, the hook is configured as:
 
 ```ts
-const { fetchPrototype } = usePrototype(
-    {},
-    {
-        revalidateOnFocus: false,
-        revalidateOnMount: false,
-        revalidateIfStale: false,
-        errorRetryCount: 2,
-        errorRetryInterval: 5_000,
-    },
-);
+const {
+    prototype: latestPrototypeById,
+    error: latestPrototypeError,
+    isLoading: isLoadingLatestPrototype,
+} = useLatestPrototypeById({ id: showTargetId });
 ```
 
 Relevant implementation excerpt:
 
 ```ts
-const fetchPrototypeById = useCallback(
-    async (prototypeId: number) => {
-        const result = await getPrototype(prototypeId);
-        if (hasId && prototypeId === id) {
-            await mutate(result, { revalidate: false });
-        }
-        return result;
+export function useLatestPrototypeById(
+    { id }: UseLatestPrototypeByIdOptions = {},
+    config: SWRConfiguration<NormalizedPrototype | undefined, Error> = {
+        dedupingInterval: 5_000,
+        revalidateOnFocus: false,
+        revalidateIfStale: true,
     },
-    [hasId, id, mutate],
-);
+): UseLatestPrototypeByIdResult {
+    const hasId = typeof id === 'number';
 
-return {
-    prototype: data ?? null,
-    error: error ? error.message : null,
-    isLoading: hasId ? isLoading || isValidating : false,
-    fetchPrototype: fetchPrototypeById,
-};
+    const fetcher = async () => {
+        if (!hasId) {
+            return undefined;
+        }
+        return await getLatestPrototypeById(id as number);
+    };
+
+    const { data, error, isLoading, isValidating } = useSWR<
+        NormalizedPrototype | undefined,
+        Error
+    >(hasId ? ['prototype', id] : null, fetcher, config);
+
+    return {
+        prototype: data ?? null,
+        error: error ? error.message : null,
+        isLoading: hasId ? isLoading || isValidating : false,
+    };
+}
 ```
 
 Responsibilities:
 
-- Provide an **imperative** `fetchPrototype(id)` function to call from UI
-  event handlers.
-- Use `getPrototype(id)` as the source of truth for prototype data.
-- Keep SWR cache (`mutate`) in sync when the hook is also bound to a specific
-  `id`.
+- Provide SWR-backed access to the latest prototype for a given ID, with
+    sensible defaults for SHOW usage.
+- Delegate actual data retrieval to `getLatestPrototypeById(id)`.
+- Expose `prototype`, `error`, and `isLoading` for UI consumption, while SWR
+    manages caching and revalidation.
 
 #### Client Fetcher → Server Action
 
-- Function: `getPrototype`
-- File: `lib/fetcher/get-prototype.ts`
+- Function: `getLatestPrototypeById`
+- File: `lib/fetcher/get-latest-prototype-by-id.ts`
 
 ```ts
-import { fetchPrototypeById } from '@/app/actions/prototypes';
+import { fetchPrototypesNoStore } from '@/app/actions/prototypes';
 
-export const getPrototype = async (
+export const getLatestPrototypeById = async (
     id: number,
 ): Promise<NormalizedPrototype | undefined> => {
-    const result = await fetchPrototypeById(String(id));
+    const result = await fetchPrototypesNoStore({
+        prototypeId: id,
+        limit: 1,
+        offset: 0,
+    });
     if (!result.ok) {
         const displayMessage = constructDisplayMessage(result);
         logger.error('Failed to fetch prototype via server function', {
@@ -503,17 +513,17 @@ export const getPrototype = async (
         });
         throw new Error(displayMessage);
     }
-    return result.data;
+    return result.data[0];
 };
 ```
 
 Responsibilities:
 
-- Bridge client code to the server action `fetchPrototypeById`.
-- Convert a `FetchPrototypeByIdResult` into either:
-    - a `NormalizedPrototype` on success, or
+- Bridge client code to the server action `fetchPrototypesNoStore`.
+- Convert a `FetchPrototypesResult` into either:
+    - a `NormalizedPrototype` on success (first element), or
     - a thrown `Error(displayMessage)` with a technical, user-visible message on
-      failure.
+        failure.
 
 ### Server-Side Path (SHOW)
 
