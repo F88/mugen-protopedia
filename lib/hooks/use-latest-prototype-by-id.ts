@@ -3,9 +3,11 @@
  *
  * Prototype IDs are stable, so they are stored in the shared SWR cache
  * and reused across multiple components.
- * The cache can be updated via `mutate`, ensuring that every UI that
- * subscribes to the same ID is automatically synchronized to the latest
- * state.
+ *
+ * This hook is intentionally read-only from the caller's perspective:
+ * it exposes the latest prototype, loading state, and a normalized error
+ * message, but does not surface SWR's `mutate` function. Callers that need
+ * imperative updates should use the underlying fetcher instead.
  */
 'use client';
 import useSWR from 'swr';
@@ -35,7 +37,8 @@ type UseLatestPrototypeByIdResult = {
  *
  * - Stable IDs benefit from the shared SWR cache, ensuring consistent data
  *   across components.
- * - `fetchPrototype` exposes an imperative getter while preserving cache consistency.
+ * - Designed primarily for reactive consumers (e.g. detail views) rather
+ *   than imperative one-shot fetches.
  */
 export function useLatestPrototypeById(
   { id }: UseLatestPrototypeByIdOptions = {},
