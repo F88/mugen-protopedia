@@ -176,4 +176,28 @@ describe('parseDirectLaunchParams', () => {
       expect(value.title).toBeUndefined();
     });
   });
+
+  describe('flags', () => {
+    it('parses unleashed from presence only', () => {
+      const params = new URLSearchParams('id=1&unleashed');
+      const value = expectSuccess(parseDirectLaunchParams(params));
+
+      expect(value.unleashed).toBe(true);
+    });
+
+    it('parses joe from presence only', () => {
+      const params = new URLSearchParams('id=1&joe');
+      const value = expectSuccess(parseDirectLaunchParams(params));
+
+      expect(value.joe).toBe(true);
+    });
+
+    it('omits flags when parameters are missing', () => {
+      const params = new URLSearchParams('id=1');
+      const value = expectSuccess(parseDirectLaunchParams(params));
+
+      expect(value.unleashed).toBeUndefined();
+      expect(value.joe).toBeUndefined();
+    });
+  });
 });

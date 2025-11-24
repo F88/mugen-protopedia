@@ -3,7 +3,7 @@
  * - 'normal': Standard browsing mode.
  * - 'playlist': Playlist mode for sequential prototype viewing.
  */
-export type PlayMode = 'normal' | 'playlist';
+export type PlayMode = 'normal' | 'playlist' | 'unleashed' | 'joe';
 
 type BasePlayModeState<T extends PlayMode> = {
   type: T;
@@ -16,7 +16,17 @@ export type PlaylistPlayModeState = BasePlayModeState<'playlist'> & {
   title?: string;
 };
 
-export type PlayModeState = NormalPlayModeState | PlaylistPlayModeState;
+export type UnleashedPlayModeState = BasePlayModeState<'unleashed'>;
+export type JoePlayModeState = BasePlayModeState<'joe'>;
+
+export type PlayModeState =
+  | NormalPlayModeState
+  | PlaylistPlayModeState
+  | UnleashedPlayModeState
+  | JoePlayModeState;
+
+export type SimulatedDelayRange = { min: number; max: number };
+export type SimulatedDelayRangeByMode = Record<PlayMode, SimulatedDelayRange>;
 
 /**
  * Control panel mode of the ProtoPedia Viewer.

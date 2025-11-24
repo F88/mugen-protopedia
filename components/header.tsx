@@ -28,7 +28,24 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   const shortTitle = mugenShort + 'PP';
 
   // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
-  const playModeLabel = playMode === 'playlist' ? ' ▶️' : 'Normal';
+  let playModeLabel: string;
+  switch (playMode) {
+    case 'playlist':
+      playModeLabel = 'Playlist️';
+      break;
+    case 'unleashed':
+      playModeLabel = 'Unleashed';
+      break;
+    case 'joe':
+      playModeLabel = 'Joe';
+      break;
+    case 'normal':
+      playModeLabel = 'Normal';
+      break;
+    default:
+      playModeLabel = 'Normal';
+      break;
+  }
 
   /**
    * Tailwind screen breakpoints (min-width):

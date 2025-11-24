@@ -18,7 +18,10 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
-import type { PlayModeState } from '@/types/mugen-protopedia.types';
+import type {
+  PlayModeState,
+  SimulatedDelayRangeByMode,
+} from '@/types/mugen-protopedia.types';
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
@@ -46,14 +49,25 @@ import {
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 
-const SIMULATED_DELAY_RANGE = { min: 500, max: 2_000 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 500, max: 500 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 0, max: 0 } as const;
-// const SIMULATED_DELAY_RANGE = { min: 5_000, max: 10_000 } as const;
+/**
+ * Simulated delay ranges for different play modes.
+ */
+const SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
+  // normal: { min: 500, max: 2_000 },
+  normal: { min: 500, max: 3_000 },
+  // playlist: { min: 0, max: 0 },
+  // playlist: { min: 500, max: 1_000 } /* too fast */,
+  playlist: { min: 500, max: 3_000 },
+  // playlist: { min: 500, max: 5_000 },
+  // playlist: { min: 3_000, max: 5_000 },
+  unleashed: { min: 0, max: 0 },
+  joe: { min: 300, max: 300 },
+} as const;
 
-const PLAYLIST_FETCH_INTERVAL_MS = 500;
-// const PLAYLIST_FETCH_INTERVAL_MS = 200;
-// const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
+/**
+ * Interval between fetching prototypes in playlist mode (ms).
+ */
+const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
 /**
  * Build the external ProtoPedia detail page URL for a given prototype.
@@ -141,6 +155,11 @@ export function MugenProtoPedia() {
     'sans',
   );
 
+  const isPlaylistMode = playModeState.type === 'playlist';
+
+  const simulateDelayRangeMs =
+    SIMULATED_DELAY_RANGE_BY_MODE[playModeState.type];
+
   // Slot & concurrency management
   const {
     prototypeSlots,
@@ -155,7 +174,7 @@ export function MugenProtoPedia() {
     maxConcurrentFetches,
   } = usePrototypeSlots({
     maxConcurrentFetches: 6,
-    simulateDelayRangeMs: SIMULATED_DELAY_RANGE,
+    simulateDelayRangeMs,
   });
 
   const {
@@ -270,7 +289,6 @@ export function MugenProtoPedia() {
     return () => resizeObserver.disconnect();
   }, []); // Run only once on mount
 
-  const isPlaylistMode = playModeState.type === 'playlist';
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
   // Select random variant when playlist starts
@@ -702,7 +720,7 @@ export function MugenProtoPedia() {
     handleGetPrototypeByIdInPlaylistMode,
   ]);
 
-  // Removed inlined scroll/focus/concurrency logic now handled by hooks
+  const showPlayMode = process.env.NODE_ENV === 'development';
 
   /**
    * Main application layout
@@ -718,7 +736,7 @@ export function MugenProtoPedia() {
           maxConcurrentFetches: maxConcurrentFetches,
         }}
         playMode={playModeState.type}
-        showPlayMode={false}
+        showPlayMode={showPlayMode}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}

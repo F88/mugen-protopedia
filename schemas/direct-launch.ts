@@ -3,6 +3,8 @@ import { z } from 'zod';
 export type DirectLaunchParams = {
   ids: number[];
   title?: string;
+  unleashed?: boolean;
+  joe?: boolean;
 };
 
 export const directLaunchSchema = z.object({
@@ -27,4 +29,8 @@ export const directLaunchSchema = z.object({
     .max(300, { message: 'Title must be 300 characters or less.' })
     .nullable()
     .optional(),
+
+  unleashed: z.boolean().optional(),
+
+  joe: z.boolean().optional(),
 });

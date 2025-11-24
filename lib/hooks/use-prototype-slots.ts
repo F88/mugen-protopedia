@@ -24,6 +24,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import { logger } from '../logger.client';
 
 /**
  * A single UI slot representing one fetch operation and its renderable state.
@@ -149,6 +150,7 @@ export function usePrototypeSlots(
       if (simulateDelay) {
         const { min, max } = simulateDelay;
         const randomDelayMs = Math.random() * (max - min) + min;
+        logger.debug('Simulating network delay of', randomDelayMs, 'ms');
         await new Promise((resolve) => {
           window.setTimeout(resolve, randomDelayMs);
         });
