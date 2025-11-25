@@ -64,18 +64,69 @@ The core philosophy is to provide unique insights that differ from the official 
         - Identify the "First Penguin" (First release of the year) and "Grand Finale" (Last release) for each year.
         - Identify milestone prototypes (e.g., 1000th, 2000th release).
     - **Insight:** Adds historical significance to individual works.
-    - **Fun Factor:** ⭐⭐⭐ (Honors individual creators)
-    - **Difficulty:** Low (Simple sorting and indexing)
-
-- **Night Owls vs Early Birds (夜更かしエンジニアの生態)**
-    - **Concept:** Explore the community's collective work patterns by analyzing the time of day for creation and updates.
-    - **Logic:** Aggregate `createDate` and `updateDate` by hour of the day.
-    - **Insight:** Reveals peak activity hours (e.g., Are most prototypes "born" in the dead of night or during working hours?). Could reveal sub-communities with distinct working rhythms.
-    - **Fun Factor:** ⭐⭐⭐⭐ (Intriguing look into maker lifestyles)
-    - **Difficulty:** Low (Simple timestamp extraction and aggregation)
-
-#### 2. Tag & Material Focused Analysis (タグ・構成要素に着目)
-
+        - **Fun Factor:** ⭐⭐⭐ (Honors individual creators)
+        -   **Difficulty:** Low (Simple sorting and indexing)
+    
+    - **The Weekend Warrior's Crunch (週末の修羅場 / Last Minute Hero)**
+        - **Concept:** Visualize the climax of weekend development, highlighting the passion (or lack of planning) of makers.
+        - **Logic:**
+            - **The Sunday Night Sprint:** Aggregate releases from Sunday 20:00 to Monday 05:00.
+            - **Midnight vs Daywalker:** Compare "Midnight" releases (23:00-04:00) vs "Daytime" releases (09:00-18:00).
+        - **Insight:** Reveals the "Crunch Time" reality of hobbyist makers. Are they burning the midnight oil before the work week starts?
+        - **Fun Factor:** ⭐⭐⭐⭐⭐ (High relatability for engineers)
+        - **Difficulty:** Low (Hour extraction and aggregation)
+    
+    - **The Anniversary Effect (アニバーサリー効果)**
+        - **Concept:** Reveal the intent behind choosing specific release dates like holidays or anniversaries.
+        - **Logic:** Match `releaseDate` against a predefined list of holidays (manual update) and fixed commemorative days (Xmas, Valentine's, April Fool's).
+        - **Insight:** Discover playful or strategic releases. (e.g., Joke gadgets on April 1st, Romantic tech on Feb 14th).
+        - **Constraint:** Requires annual manual update of holiday data (Japanese holidays).
+    
+    - **Lunar Cycle Coding (月齢と開発)**
+        - **Concept:** A playful analysis correlating development cycles with lunar phases.
+        - **Logic:** Calculate the moon phase for the `releaseDate` (using a simple approximation formula). Compare release volume on Full Moons vs New Moons.
+        - **Insight:** Pure entertainment value. Validates (or debunks) urban legends about "Full Moon Bugs."
+            - **Fun Factor:** ⭐⭐⭐⭐⭐ (Occult-meet-Tech)
+            -   **Difficulty:** Medium (Requires moon phase calculation logic)
+        
+        - **The Star Alignment (星の巡り合わせ)**
+            - **Concept:** Celebrate the synchronicity of creation.
+            - **Logic:** Find "Twin Prototypes" released at the exact same date and time. Or identify "Miracle Days" with an unusually high number of unrelated releases.
+            - **Insight:** Highlights the serendipity of the community. Two creators, miles apart, pressing "Release" at the same moment.
+            - **Fun Factor:** ⭐⭐⭐⭐ (Romantic and mysterious)
+            - **Difficulty:** Low (Exact timestamp matching)
+        
+        - **The Early Adopter (時代の先駆者 / 技術の始祖)**
+            - **Concept:** Identify the "Firstborn" of specific technologies or trends.
+            - **Logic:** For major tags (e.g., "M5Stack", "ChatGPT"), identify the prototype with the earliest `releaseDate`.
+            - **Insight:** Honors the pioneers who first brought a technology into the ProtoPedia ecosystem. Answers "Who used ChatGPT first?"
+            - **Fun Factor:** ⭐⭐⭐⭐⭐ (Historical value)
+                    *   **Difficulty:** Medium (Requires aggregating min-date per tag)
+            
+            #### 3. Sensory & Physical Analysis (感覚と物理性に着目)
+            
+            *   **The Color of Innovation (イノベーションの色)
+                *   **Concept:** Analyze the visual trends of prototypes through color-related keywords.
+                *   **Logic:** Extract color names (e.g., "Red", "Blue", "Transparent", "Black") from tags. Analyze correlations between specific technologies (e.g., "M5Stack" is often "White" or "Black") and year-over-year color trends.
+                *   **Insight:** Visualizes the "aesthetic" trends of the community.
+                *   **Fun Factor:** ⭐⭐⭐ (Visual curiosity)
+                *   **Difficulty:** Low (Keyword extraction)
+            
+            *   **The Sound of Code (コードの音)
+                *   **Concept:** Focus on prototypes that appeal to the auditory sense.
+                *   **Logic:** Filter prototypes with tags or descriptions related to sound (e.g., "Music", "Synth", "Voice", "Speak"). Compare the ratio of "Visual" vs "Auditory" projects.
+                *   **Insight:** Highlights the diversity of output modalities in prototyping.
+                *   **Fun Factor:** ⭐⭐⭐ (Sensory exploration)
+                *   **Difficulty:** Low (Keyword extraction)
+            
+            *   **The Tangible Interface (触れるインターフェース)
+                *   **Concept:** Focus on prototypes with physical interactivity.
+                *   **Logic:** Look for tags indicating physical controls (e.g., "Button", "Switch", "Sensor", "Haptic"). Calculate the "Touchy-Feely Index" (ratio of physical interaction tags).
+                *   **Insight:** Highlights the "Hardware" nature of the community, distinguishing it from pure software/web projects.
+                *   **Fun Factor:** ⭐⭐⭐⭐ (Appeals to hardware enthusiasts)
+                *   **Difficulty:** Low (Keyword extraction)
+            
+            #### 4. Tag & Material Focused Analysis (タグ・構成要素に着目)
 - **Tech Stack Trends (技術トレンドの旬マップ)**
     - **Concept:** Visualize the rise and fall of technologies over time.
     - **Logic:** Cross-reference `materials` tags with `releaseDate`. Plot the usage count of specific technologies (e.g., M5Stack, ChatGPT) over years/months.
@@ -127,25 +178,58 @@ The core philosophy is to provide unique insights that differ from the official 
     *   **Concept:** Visualize the distribution of engagement.
     *   **Logic:** Scatter plot with X-axis = View Count, Y-axis = Good Rate (Good/View).
     *   **Insight:** Discover "Hidden Gems" (Low View, High Good Rate) vs "Viral Hits".
-    *   **Fun Factor:** ⭐⭐⭐⭐ (Visual exploration of the ecosystem)
-    *   **Difficulty:** High (Frontend visualization complexity)
+        - **Fun Factor:** ⭐⭐⭐⭐ (Visual exploration of the ecosystem)
+        -   **Difficulty:** High (Frontend visualization complexity)
+    
+    *   **The "Silent" Masterpiece (沈黙の傑作)**
+        *   **Concept:** Identify prototypes that garner high engagement despite having minimal textual description.
+        *   **Logic:** Calculate "Engagement per Character" (e.g., `goodCount` / length of `summary` + `description`). Filter for prototypes with very short descriptions but high Good counts.
+        *   **Insight:** Highlights works with overwhelming visual impact or intuitive concepts that "speak for themselves."
+        *   **Fun Factor:** ⭐⭐⭐⭐ (Discovering impactful works)
+        *   **Difficulty:** Low (Simple arithmetic)
+    
+    *   **The "Remix" Culture (リミックス・カルチャー)**
+        *   **Concept:** Identify prototypes that reference past works, indicating a culture of self-improvement or series creation.
+        *   **Logic:** Analyze `relatedLink` fields for URLs containing `protopedia.net/prototype/`.
+        *   **Insight:** Visualizes connections between works, showing how creators build upon their previous efforts or reference others.
+    - **Fun Factor:** ⭐⭐⭐⭐ (Visualizing the genealogy of ideas)
+    -   **Difficulty:** Medium (URL parsing and graph building)
 
-*   **Event Personality (イベントの人格 / コンテスト傾向分析)**
-    *   **Concept:** Analyze the unique characteristics and trends of each event/contest to understand what kind of prototypes gather there.
-    *   **Logic:**
-        *   Group prototypes by `events` tags.
-        *   Calculate average `viewCount`, `goodCount`, and `Top Tags/Materials` for each event group.
-    *   **Insight:**
-        *   **Visual vs Technical:** Does Event A favor high-view "flashy" projects, while Event B favors high-good "technical" ones?
-        *   **Tag Signature:** What are the defining technologies of a specific hackathon? (e.g., "IoT" heavy vs "Game" heavy).
-        *   **Strategy Guide:** Provides hints for creators on which event matches their prototype's style.
-    *   **Fun Factor:** ⭐⭐⭐⭐⭐ (Useful for strategy and community understanding)
-    *   **Difficulty:** Medium (Requires grouping and aggregation by event tag)
+*   **The Maternity Hospital (産院 / ゆりかご)**
+    *   **Concept:** Visualize where prototypes are born.
+    *   **Logic:** Rank events (contests/hackathons) by the number of prototypes they produced (`events` tag). Also calculate the ratio of "Independent Births" (no event tag).
+    *   **Insight:** Highlights the role of events as "Incubators" for the community. Which hackathon is the most prolific "Maternity Hospital"?
+    *   **Fun Factor:** ⭐⭐⭐⭐ (Community dynamics)
+    *   **Difficulty:** Low (Tag aggregation)
+
+#### 4. Status-Focused Analysis (作品の状態に着目)
+
+*   **The Final Destination (終焉の地 / 供養作品分析)**
+    *   **Concept:** Analyze the lifecycle and characteristics of prototypes marked as "Kuyo" (memorial/discontinued).
+    *   **Logic:** Filter prototypes with `status: 4`.
+        *   **Assumption:** Treat `updateDate` as the approximate date the prototype entered the "Kuyo" state.
+        *   **Analysis:** Calculate "Life Span" (`updateDate` - `createDate`). Analyze seasonal trends in "Kuyo" dates (e.g., end-of-year cleanup).
+    *   **Insight:** Honors the end of a prototype's journey. Reveals when and why creators decide to lay their projects to rest.
+    *   **Fun Factor:** ⭐⭐⭐⭐⭐ (Emotional & Cultural unique to Japanese maker culture)
+    *   **Difficulty:** Low (Filtering and date diff)
+
+*   **The Spark of Creation (創造の火花 / アイデアの種)**
+    *   **Concept:** Discover prototypes that are still in the pure "Idea" phase.
+    *   **Logic:** Filter prototypes with `status: 1`.
+    *   **Insight:** Visualizes the "seeds" of the community. What kind of wild ideas are being registered before they are even built?
+    *   **Fun Factor:** ⭐⭐⭐ (Future-oriented)
+    *   **Difficulty:** Low (Simple filtering)
+
+*   **The Eternal Beta (終わらない開発 / 永遠のベータ版)**
+    *   **Concept:** Identify prototypes that remain in "Development" (`status: 2`) for a long period.
+    *   **Logic:** Filter prototypes with `status: 2` and an old `releaseDate` (or `createDate`). Compare with `updateDate`.
+    *   **Insight:** Distinguishes between "abandoned" projects and "persistently updated" beta projects.
+    *   **Fun Factor:** ⭐⭐⭐⭐ (Persistence)
+    *   **Difficulty:** Low (Filtering and date diff)
 
 ---
 
 ### Implementation Phases (Draft)
-
 1. **Phase 1: Basic Temporal Analysis**
     - Implement `Maker's Rhythm` (Day/Month distribution).
     - Implement `The Holy Day`.
@@ -190,3 +274,11 @@ The core philosophy is to provide unique insights that differ from the official 
 6.  **Thanks Flag Analysis (感謝フラグ分析)**
     *   **Reason:**
         *   `thanksFlg` のデータが分析に適さない性質であるため（例えば、一律に同じ値である、または意味のあるバリエーションがない、など）。詳細な分析には追加のデータまたは背景情報が必要。
+
+7.  **The Birth Weight (出生体重)**
+    -   **Reason:**
+        -   APIからは最新の `description` や `tags` しか取得できず、リリース時点（誕生時）のスナップショットデータが存在しないため、初期状態のボリュームを正確に分析することが不可能であるため。
+
+9.  **The Global Village (地球村 / 地域分析)**
+    -   **Reason:**
+        -   地名に基づく分析は、意図せず開発者の居住地や活動拠点を露わにするリスクがあり、プライバシー保護の観点から実施しない。
