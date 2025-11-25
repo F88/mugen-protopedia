@@ -185,12 +185,6 @@ describe('prototype-analysis helpers', () => {
           years: 2,
           releaseDate: '2022-03-10T00:00:00Z',
         },
-        {
-          id: 2,
-          title: 'Newborn',
-          years: 0,
-          releaseDate: '2024-03-10T05:00:00Z',
-        },
       ]);
       expect(newbornPrototypes).toEqual([
         {

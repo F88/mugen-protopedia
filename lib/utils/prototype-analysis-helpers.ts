@@ -286,7 +286,10 @@ export function buildAnniversaries(
 
   const birthdayPrototypes = prototypes
     .filter(
-      (prototype) => prototype.releaseDate && isBirthDay(prototype.releaseDate),
+      (prototype) =>
+        prototype.releaseDate &&
+        isBirthDay(prototype.releaseDate) &&
+        !isToday(prototype.releaseDate),
     )
     .map((prototype) => {
       const age = calculateAge(prototype.releaseDate);

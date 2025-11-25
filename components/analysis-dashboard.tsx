@@ -565,7 +565,46 @@ export function AnalysisDashboard({
             />
           </section>
 
-          {/* Section 4: Community Trends */}
+          {/* Section 4: Developer's Rhythm */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              🕰️ Developer&apos;s Rhythm
+            </h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Weekly Release Activity (JST)
+                </h4>
+                {analysis.releaseTimeDistribution.heatmap ? (
+                  <ActivityHeatmap
+                    heatmap={analysis.releaseTimeDistribution.heatmap}
+                  />
+                ) : (
+                  <div className="py-8 text-center text-sm text-gray-500">
+                    No heatmap data available. Please clear cache to recompute.
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Weekly Update Activity (JST)
+                </h4>
+                {analysis.updateTimeDistribution?.heatmap ? (
+                  <ActivityHeatmap
+                    heatmap={analysis.updateTimeDistribution.heatmap}
+                    className="[&_.bg-green-200]:bg-blue-200 [&_.bg-green-300]:bg-blue-300 [&_.bg-green-400]:bg-blue-400 [&_.bg-green-500]:bg-blue-500 [&_.dark\:bg-green-900\/40]:dark:bg-blue-900/40 [&_.dark\:bg-green-800\/60]:dark:bg-blue-800/60 [&_.dark\:bg-green-700\/80]:dark:bg-blue-700/80 [&_.dark\:bg-green-600]:dark:bg-blue-600"
+                  />
+                ) : (
+                  <div className="py-8 text-center text-sm text-gray-500">
+                    No update heatmap data available.
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Section 5: Community Trends */}
           <section className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               📈 Community Trends
@@ -610,45 +649,6 @@ export function AnalysisDashboard({
                   </div>
                 </div>
               )}
-            </div>
-          </section>
-
-          {/* Section 5: Developer's Rhythm */}
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              🕰️ Developer&apos;s Rhythm
-            </h3>
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
-                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Weekly Release Activity (JST)
-                </h4>
-                {analysis.releaseTimeDistribution.heatmap ? (
-                  <ActivityHeatmap
-                    heatmap={analysis.releaseTimeDistribution.heatmap}
-                  />
-                ) : (
-                  <div className="py-8 text-center text-sm text-gray-500">
-                    No heatmap data available. Please clear cache to recompute.
-                  </div>
-                )}
-              </div>
-
-              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
-                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Weekly Update Activity (JST)
-                </h4>
-                {analysis.updateTimeDistribution?.heatmap ? (
-                  <ActivityHeatmap
-                    heatmap={analysis.updateTimeDistribution.heatmap}
-                    className="[&_.bg-green-200]:bg-blue-200 [&_.bg-green-300]:bg-blue-300 [&_.bg-green-400]:bg-blue-400 [&_.bg-green-500]:bg-blue-500 [&_.dark\:bg-green-900\/40]:dark:bg-blue-900/40 [&_.dark\:bg-green-800\/60]:dark:bg-blue-800/60 [&_.dark\:bg-green-700\/80]:dark:bg-blue-700/80 [&_.dark\:bg-green-600]:dark:bg-blue-600"
-                  />
-                ) : (
-                  <div className="py-8 text-center text-sm text-gray-500">
-                    No update heatmap data available.
-                  </div>
-                )}
-              </div>
             </div>
           </section>
         </div>
