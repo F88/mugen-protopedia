@@ -386,7 +386,7 @@ const handleGetLatestPrototypeById = useCallback(
                 return;
             }
 
-            const clonedPrototype = clonePrototype(prototype as Prototype);
+            const clonedPrototype = clonePrototype(prototype);
             await replacePrototypeInSlot(slotId, clonedPrototype);
         } catch (err) {
             const message =
