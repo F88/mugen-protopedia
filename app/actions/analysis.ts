@@ -13,8 +13,8 @@ import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 
 /**
  * Successful response containing analysis data
@@ -121,13 +121,39 @@ const buildAnalysisSummary = (
 });
 
 const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
-  totalCount: analysis.totalCount,
-  statusKeys: Object.keys(analysis.statusDistribution),
-  yearKeys: Object.keys(analysis.yearDistribution),
-  topTags: analysis.topTags.map((t) => t.tag),
-  topTeams: analysis.topTeams.map((t) => t.team),
-  releaseTimeDistribution: analysis.releaseTimeDistribution,
-  creationStreak: analysis.creationStreak,
+  overview: {
+    totalCount: analysis.totalCount,
+    analyzedAt: analysis.analyzedAt,
+    averageAgeInDays: analysis.averageAgeInDays,
+    prototypesWithAwards: analysis.prototypesWithAwards,
+    statusDistribution: analysis.statusDistribution,
+  },
+  rankings: {
+    topTags: analysis.topTags,
+    topMaterials: analysis.topMaterials,
+    topTeams: analysis.topTeams,
+  },
+  temporal: {
+    yearDistribution: analysis.yearDistribution,
+    releaseTimeDistribution: analysis.releaseTimeDistribution,
+    updateTimeDistribution: analysis.updateTimeDistribution,
+    creationStreak: analysis.creationStreak,
+  },
+  insights: {
+    earlyAdopters: analysis.earlyAdopters,
+    firstPenguins: analysis.firstPenguins,
+    starAlignments: analysis.starAlignments,
+    anniversaryEffect: analysis.anniversaryEffect,
+    laborOfLove: analysis.laborOfLove,
+    maternityHospital: analysis.maternityHospital,
+    powerOfDeadlines: analysis.powerOfDeadlines,
+    weekendWarrior: analysis.weekendWarrior,
+    holyDay: analysis.holyDay,
+  },
+  technical: {
+    anniversaryCandidates: analysis.anniversaryCandidates,
+    _debugMetrics: analysis._debugMetrics,
+  },
 });
 
 const logAnalysisDebugSample = (

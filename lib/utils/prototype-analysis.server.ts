@@ -5,11 +5,14 @@ import {
   extractMonthDay,
 } from '@/lib/utils/anniversary-candidate-metrics';
 import {
+  buildAdvancedAnalysis,
   buildStatusDistribution,
+  buildTimeDistributionsAndUniqueDates,
   buildTopMaterials,
   buildTopTags,
   buildTopTeams,
   buildYearDistribution,
+  calculateCreationStreak,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
 } from '@/lib/utils/prototype-analysis-helpers';
@@ -250,410 +253,37 @@ export function analyzePrototypesForServer(
   stepStart = performance.now();
 
   // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
-  const dayOfWeek: number[] = new Array(7).fill(0);
-  const hour: number[] = new Array(24).fill(0);
-  const heatmap: number[][] = Array.from({ length: 7 }, () =>
-    new Array(24).fill(0),
-  );
+  const {
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    uniqueReleaseDates,
+  } = buildTimeDistributionsAndUniqueDates(prototypes);
 
-  const updateDayOfWeek: number[] = new Array(7).fill(0);
-  const updateHour: number[] = new Array(24).fill(0);
-  const updateHeatmap: number[][] = Array.from({ length: 7 }, () =>
-    new Array(24).fill(0),
-  );
+  metrics.makerRhythm = performance.now() - stepStart;
 
-  const uniqueReleaseDates = new Set<string>();
-  const JST_OFFSET = 9 * 60 * 60 * 1000;
-
-  prototypes.forEach((p) => {
-    if (!p.releaseDate) return;
-    const date = new Date(p.releaseDate);
-    if (Number.isNaN(date.getTime())) return;
-
-    // Convert to JST
-    const jstDate = new Date(date.getTime() + JST_OFFSET);
-
-    // Maker's Rhythm (Release)
-    const d = jstDate.getUTCDay(); // 0-6 (Sunday is 0)
-    const h = jstDate.getUTCHours(); // 0-23
-    dayOfWeek[d]++;
-    hour[h]++;
-    heatmap[d][h]++;
-
-    // Maker's Rhythm (Update)
-    if (p.updateDate) {
-      const updateDate = new Date(p.updateDate);
-      if (!Number.isNaN(updateDate.getTime())) {
-        const jstUpdateDate = new Date(updateDate.getTime() + JST_OFFSET);
-        const ud = jstUpdateDate.getUTCDay();
-        const uh = jstUpdateDate.getUTCHours();
-        updateDayOfWeek[ud]++;
-        updateHour[uh]++;
-        updateHeatmap[ud][uh]++;
-      }
-    }
-
-    // Eternal Flame (YYYY-MM-DD in JST)
-    const yyyy = jstDate.getUTCFullYear();
-    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
-    uniqueReleaseDates.add(`${yyyy}-${mm}-${dd}`);
-  });
-
-  const releaseTimeDistribution = { dayOfWeek, hour, heatmap };
-  const updateTimeDistribution = {
-    dayOfWeek: updateDayOfWeek,
-    hour: updateHour,
-    heatmap: updateHeatmap,
-  };
+  stepStart = performance.now();
 
   // Calculate Streaks
-  const sortedDates = Array.from(uniqueReleaseDates).sort();
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let longestStreakEndDate: string | null = null;
-  let tempStreak = 0;
-  let prevDateVal: number | null = null;
+  const creationStreak = calculateCreationStreak(uniqueReleaseDates, now);
 
-  // Helper to parse YYYY-MM-DD to timestamp (UTC midnight, but represents JST date)
-  const parseDateStr = (str: string) => {
-    const [y, m, d] = str.split('-').map(Number);
-    return Date.UTC(y, m - 1, d);
-  };
+  metrics.creationStreak = performance.now() - stepStart;
 
-  for (const dateStr of sortedDates) {
-    const dateVal = parseDateStr(dateStr);
-
-    if (prevDateVal === null) {
-      tempStreak = 1;
-    } else {
-      const diff = dateVal - prevDateVal;
-      const oneDay = 24 * 60 * 60 * 1000;
-
-      // Allow small margin for leap seconds or slight calc errors, though Date.UTC should be exact
-      if (Math.abs(diff - oneDay) < 1000) {
-        tempStreak++;
-      } else {
-        // Streak broken
-        if (tempStreak > longestStreak) {
-          longestStreak = tempStreak;
-          longestStreakEndDate = new Date(prevDateVal)
-            .toISOString()
-            .split('T')[0];
-        }
-        tempStreak = 1;
-      }
-    }
-    prevDateVal = dateVal;
-  }
-
-  // Check final streak
-  if (tempStreak > longestStreak) {
-    longestStreak = tempStreak;
-    longestStreakEndDate = sortedDates[sortedDates.length - 1];
-  }
-
-  // Determine "Current" streak
-  // If the last release date is Today or Yesterday (JST), the streak is alive.
-  const nowJST = new Date(now.getTime() + JST_OFFSET);
-  const todayJSTStr = nowJST.toISOString().split('T')[0]; // YYYY-MM-DD (UTC of JST time)
-
-  const yesterdayJST = new Date(nowJST.getTime() - 24 * 60 * 60 * 1000);
-  const yesterdayJSTStr = yesterdayJST.toISOString().split('T')[0];
-
-  const lastReleaseDate = sortedDates[sortedDates.length - 1];
-
-  if (lastReleaseDate === todayJSTStr || lastReleaseDate === yesterdayJSTStr) {
-    currentStreak = tempStreak;
-  } else {
-    currentStreak = 0;
-  }
-
-  const creationStreak = {
-    currentStreak,
-    longestStreak,
-    longestStreakEndDate,
-    totalActiveDays: sortedDates.length,
-  };
+  stepStart = performance.now();
 
   // --- Advanced Analysis (First Penguin, Star Alignment, Anniversary, Early Adopters) ---
+  const {
+    firstPenguins,
+    starAlignments,
+    anniversaryEffect,
+    earlyAdopters,
+    laborOfLove,
+    maternityHospital,
+    powerOfDeadlines,
+    weekendWarrior,
+    holyDay,
+  } = buildAdvancedAnalysis(prototypes, topTags);
 
-  // 1. First Penguins (Earliest release of each year - JST)
-  const firstPenguinsMap = new Map<number, NormalizedPrototype>();
-
-  // 2. Star Alignment (Exact same timestamp)
-  const timestampMap = new Map<string, NormalizedPrototype[]>();
-
-  // 3. Anniversary Effect (Special Days)
-  const specialDays: Record<
-    string,
-    {
-      name: string;
-      count: number;
-      examples: Array<{ id: number; title: string; year: number }>;
-    }
-  > = {
-    '01-01': { name: "New Year's Day", count: 0, examples: [] },
-    '02-14': { name: "Valentine's Day", count: 0, examples: [] },
-    '03-14': { name: 'White Day', count: 0, examples: [] },
-    '04-01': { name: "April Fool's Day", count: 0, examples: [] },
-    '05-04': { name: 'Star Wars Day', count: 0, examples: [] },
-    '07-07': { name: 'Tanabata', count: 0, examples: [] },
-    '10-31': { name: 'Halloween', count: 0, examples: [] },
-    '11-11': { name: 'Pocky Day', count: 0, examples: [] },
-    '12-25': { name: 'Christmas', count: 0, examples: [] },
-  };
-
-  // 4. Early Adopters (First use of Top Tags)
-  const earlyAdoptersMap = new Map<string, NormalizedPrototype>();
-  const topTagNames = new Set(topTags.slice(0, 50).map((t) => t.tag));
-
-  // 5. Labor of Love (Gestation Period)
-  const gestationData: Array<{
-    id: number;
-    title: string;
-    durationDays: number;
-    createDate: string;
-    releaseDate: string;
-  }> = [];
-  const gestationDistribution: Record<string, number> = {
-    'Less than 1 week': 0,
-    '1 week - 1 month': 0,
-    '1 month - 3 months': 0,
-    '3 months - 6 months': 0,
-    '6 months - 1 year': 0,
-    'Over 1 year': 0,
-  };
-
-  // 6. Maternity Hospital (Events)
-  const eventCounts: Record<string, number> = {};
-  let independentCount = 0;
-  let totalWithEventStatus = 0;
-
-  // 7. Power of Deadlines (Daily Spikes)
-  const dailyReleaseCounts: Record<string, number> = {};
-
-  // 8. Weekend Warrior
-  let sundaySprintCount = 0;
-  let midnightCount = 0;
-  let daytimeCount = 0;
-  let totalReleaseCount = 0;
-
-  // 9. Holy Day (MM-DD aggregation)
-  const holyDayCounts: Record<string, number> = {};
-
-  prototypes.forEach((p) => {
-    if (!p.releaseDate) return;
-    const date = new Date(p.releaseDate);
-    if (Number.isNaN(date.getTime())) return;
-
-    // JST Conversion for Calendar-based analysis
-    const jstDate = new Date(date.getTime() + JST_OFFSET);
-    const year = jstDate.getUTCFullYear();
-    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
-    const mmdd = `${mm}-${dd}`;
-    const yyyymmdd = `${year}-${mm}-${dd}`;
-
-    // 7. Power of Deadlines
-    dailyReleaseCounts[yyyymmdd] = (dailyReleaseCounts[yyyymmdd] || 0) + 1;
-
-    // 8. Weekend Warrior
-    const day = jstDate.getUTCDay(); // 0=Sun, 1=Mon, ...
-    const hour = jstDate.getUTCHours();
-
-    totalReleaseCount++;
-
-    // Sunday Sprint: Sun 20:00 - Mon 05:00
-    if ((day === 0 && hour >= 20) || (day === 1 && hour < 5)) {
-      sundaySprintCount++;
-    }
-
-    // Midnight: 23:00 - 04:00
-    if (hour >= 23 || hour < 4) {
-      midnightCount++;
-    }
-
-    // Daytime: 09:00 - 18:00
-    if (hour >= 9 && hour < 18) {
-      daytimeCount++;
-    }
-
-    // 9. Holy Day
-    holyDayCounts[mmdd] = (holyDayCounts[mmdd] || 0) + 1;
-
-    // 1. First Penguin
-    if (!firstPenguinsMap.has(year)) {
-      firstPenguinsMap.set(year, p);
-    } else {
-      const currentFirst = firstPenguinsMap.get(year)!;
-      // Compare timestamps (original UTC is fine for comparison)
-      if (
-        new Date(p.releaseDate).getTime() <
-        new Date(currentFirst.releaseDate).getTime()
-      ) {
-        firstPenguinsMap.set(year, p);
-      }
-    }
-
-    // 2. Star Alignment
-    const ts = p.releaseDate;
-    if (!timestampMap.has(ts)) {
-      timestampMap.set(ts, []);
-    }
-    timestampMap.get(ts)!.push(p);
-
-    // 3. Anniversary Effect
-    if (specialDays[mmdd]) {
-      specialDays[mmdd].count++;
-      specialDays[mmdd].examples.push({
-        id: p.id,
-        title: p.prototypeNm,
-        year: year,
-      });
-    }
-
-    // 4. Early Adopters
-    if (p.tags) {
-      p.tags.forEach((tag) => {
-        if (topTagNames.has(tag)) {
-          if (!earlyAdoptersMap.has(tag)) {
-            earlyAdoptersMap.set(tag, p);
-          } else {
-            const current = earlyAdoptersMap.get(tag)!;
-            if (
-              new Date(p.releaseDate).getTime() <
-              new Date(current.releaseDate).getTime()
-            ) {
-              earlyAdoptersMap.set(tag, p);
-            }
-          }
-        }
-      });
-    }
-
-    // 5. Labor of Love
-    if (p.createDate && p.releaseDate) {
-      const createTime = new Date(p.createDate).getTime();
-      const releaseTime = new Date(p.releaseDate).getTime();
-      const diffMs = releaseTime - createTime;
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffDays > 0) {
-        gestationData.push({
-          id: p.id,
-          title: p.prototypeNm,
-          durationDays: diffDays,
-          createDate: p.createDate,
-          releaseDate: p.releaseDate,
-        });
-
-        if (diffDays < 7) gestationDistribution['Less than 1 week']++;
-        else if (diffDays < 30) gestationDistribution['1 week - 1 month']++;
-        else if (diffDays < 90) gestationDistribution['1 month - 3 months']++;
-        else if (diffDays < 180) gestationDistribution['3 months - 6 months']++;
-        else if (diffDays < 365) gestationDistribution['6 months - 1 year']++;
-        else gestationDistribution['Over 1 year']++;
-      }
-    }
-
-    // 6. Maternity Hospital
-    if (p.events && p.events.length > 0) {
-      totalWithEventStatus++;
-      p.events.forEach((event) => {
-        eventCounts[event] = (eventCounts[event] || 0) + 1;
-      });
-    } else {
-      independentCount++;
-      totalWithEventStatus++;
-    }
-  });
-
-  // Format Results
-
-  const firstPenguins = Array.from(firstPenguinsMap.entries())
-    .sort((a, b) => b[0] - a[0]) // Newest year first
-    .map(([year, p]) => ({
-      year,
-      prototype: {
-        id: p.id,
-        title: p.prototypeNm,
-        releaseDate: p.releaseDate,
-        user:
-          p.teamNm ||
-          (p.users && p.users.length > 0 ? p.users[0] : 'Unknown Creator'),
-      },
-    }));
-
-  const starAlignments = Array.from(timestampMap.entries())
-    .filter(([, protos]) => protos.length > 1)
-    .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()) // Newest first
-    .slice(0, 30) // Top 30
-    .map(([ts, protos]) => ({
-      timestamp: ts,
-      prototypes: protos.map((p) => ({ id: p.id, title: p.prototypeNm })),
-    }));
-
-  const anniversaryEffect = Object.entries(specialDays)
-    .map(([date, data]) => ({
-      name: data.name,
-      date,
-      count: data.count,
-      examples: data.examples.sort((a, b) => b.year - a.year).slice(0, 5), // Recent examples
-    }))
-    .filter((d) => d.count > 0)
-    .sort((a, b) => b.count - a.count);
-
-  const earlyAdopters = Array.from(earlyAdoptersMap.entries())
-    .map(([tag, p]) => ({
-      tag,
-      prototypeId: p.id,
-      prototypeTitle: p.prototypeNm,
-      releaseDate: p.releaseDate,
-    }))
-    .sort(
-      (a, b) =>
-        new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime(),
-    );
-
-  const laborOfLove = {
-    longestGestation: gestationData
-      .sort((a, b) => b.durationDays - a.durationDays)
-      .slice(0, 30),
-    distribution: gestationDistribution,
-  };
-
-  const maternityHospital = {
-    topEvents: Object.entries(eventCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([event, count]) => ({ event, count })),
-    independentRatio:
-      totalWithEventStatus > 0 ? independentCount / totalWithEventStatus : 0,
-  };
-
-  const powerOfDeadlines = {
-    spikes: Object.entries(dailyReleaseCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([date, count]) => ({ date, count, score: count })), // Score is just count for now
-  };
-
-  const weekendWarrior = {
-    sundaySprintCount,
-    midnightCount,
-    daytimeCount,
-    totalCount: totalReleaseCount,
-  };
-
-  const holyDay = {
-    topDays: Object.entries(holyDayCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([date, count]) => ({ date, count })),
-  };
-
-  metrics.makerRhythmAndStreak = performance.now() - stepStart;
+  metrics.advancedAnalysis = performance.now() - stepStart;
 
   // --- End metrics collection ---
 
