@@ -132,14 +132,16 @@ export function AnniversaryBadge({
           {/* Months */}
           {months != null && (
             <>
-              <span className={sizeConfig.value}> {months}</span>
+              {' '}
+              <span className={sizeConfig.value}>{months}</span>
               <span className={sizeConfig.label}>{monthLabel}</span>
             </>
           )}
           {/* Days */}
           {days != null && (
             <>
-              <span className={sizeConfig.value}> {days}</span>
+              {' '}
+              <span className={sizeConfig.value}>{days}</span>
               <span className={sizeConfig.label}>{dayLabel}</span>
             </>
           )}
