@@ -183,6 +183,17 @@ export function analyzePrototypesForServer(
         now,
         logger,
       ),
+      releaseTimeDistribution: { dayOfWeek: [], hour: [] },
+      creationStreak: {
+        currentStreak: 0,
+        longestStreak: 0,
+        longestStreakEndDate: null,
+        totalActiveDays: 0,
+      },
+      earlyAdopters: [],
+      firstPenguins: [],
+      starAlignments: [],
+      anniversaryEffect: [],
       _debugMetrics: metrics,
     };
   }
@@ -326,6 +337,148 @@ export function analyzePrototypesForServer(
     totalActiveDays: sortedDates.length,
   };
 
+  // --- Advanced Analysis (First Penguin, Star Alignment, Anniversary, Early Adopters) ---
+
+  // 1. First Penguins (Earliest release of each year - JST)
+  const firstPenguinsMap = new Map<number, NormalizedPrototype>();
+
+  // 2. Star Alignment (Exact same timestamp)
+  const timestampMap = new Map<string, NormalizedPrototype[]>();
+
+  // 3. Anniversary Effect (Special Days)
+  const specialDays: Record<
+    string,
+    {
+      name: string;
+      count: number;
+      examples: Array<{ id: number; title: string; year: number }>;
+    }
+  > = {
+    '01-01': { name: "New Year's Day", count: 0, examples: [] },
+    '02-14': { name: "Valentine's Day", count: 0, examples: [] },
+    '03-14': { name: 'White Day', count: 0, examples: [] },
+    '04-01': { name: "April Fool's Day", count: 0, examples: [] },
+    '05-04': { name: 'Star Wars Day', count: 0, examples: [] },
+    '07-07': { name: 'Tanabata', count: 0, examples: [] },
+    '10-31': { name: 'Halloween', count: 0, examples: [] },
+    '11-11': { name: 'Pocky Day', count: 0, examples: [] },
+    '12-25': { name: 'Christmas', count: 0, examples: [] },
+  };
+
+  // 4. Early Adopters (First use of Top Tags)
+  const earlyAdoptersMap = new Map<string, NormalizedPrototype>();
+  const topTagNames = new Set(topTags.slice(0, 50).map((t) => t.tag));
+
+  prototypes.forEach((p) => {
+    if (!p.releaseDate) return;
+    const date = new Date(p.releaseDate);
+    if (Number.isNaN(date.getTime())) return;
+
+    // JST Conversion for Calendar-based analysis
+    const jstDate = new Date(date.getTime() + JST_OFFSET);
+    const year = jstDate.getUTCFullYear();
+    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
+    const mmdd = `${mm}-${dd}`;
+
+    // 1. First Penguin
+    if (!firstPenguinsMap.has(year)) {
+      firstPenguinsMap.set(year, p);
+    } else {
+      const currentFirst = firstPenguinsMap.get(year)!;
+      // Compare timestamps (original UTC is fine for comparison)
+      if (
+        new Date(p.releaseDate).getTime() <
+        new Date(currentFirst.releaseDate).getTime()
+      ) {
+        firstPenguinsMap.set(year, p);
+      }
+    }
+
+    // 2. Star Alignment
+    const ts = p.releaseDate;
+    if (!timestampMap.has(ts)) {
+      timestampMap.set(ts, []);
+    }
+    timestampMap.get(ts)!.push(p);
+
+    // 3. Anniversary Effect
+    if (specialDays[mmdd]) {
+      specialDays[mmdd].count++;
+      specialDays[mmdd].examples.push({
+        id: p.id,
+        title: p.prototypeNm,
+        year: year,
+      });
+    }
+
+    // 4. Early Adopters
+    if (p.tags) {
+      p.tags.forEach((tag) => {
+        if (topTagNames.has(tag)) {
+          if (!earlyAdoptersMap.has(tag)) {
+            earlyAdoptersMap.set(tag, p);
+          } else {
+            const current = earlyAdoptersMap.get(tag)!;
+            if (
+              new Date(p.releaseDate).getTime() <
+              new Date(current.releaseDate).getTime()
+            ) {
+              earlyAdoptersMap.set(tag, p);
+            }
+          }
+        }
+      });
+    }
+  });
+
+  // Format Results
+
+  const firstPenguins = Array.from(firstPenguinsMap.entries())
+    .sort((a, b) => b[0] - a[0]) // Newest year first
+    .map(([year, p]) => ({
+      year,
+      prototype: {
+        id: p.id,
+        title: p.prototypeNm,
+        releaseDate: p.releaseDate,
+        user:
+          p.teamNm ||
+          (p.users && p.users.length > 0 ? p.users[0] : 'Unknown Creator'),
+      },
+    }));
+
+  const starAlignments = Array.from(timestampMap.entries())
+    .filter(([, protos]) => protos.length > 1)
+    .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()) // Newest first
+    .slice(0, 10) // Top 10
+    .map(([ts, protos]) => ({
+      timestamp: ts,
+      prototypes: protos.map((p) => ({ id: p.id, title: p.prototypeNm })),
+    }));
+
+  const anniversaryEffect = Object.entries(specialDays)
+    .map(([date, data]) => ({
+      name: data.name,
+      date,
+      count: data.count,
+      examples: data.examples.sort((a, b) => b.year - a.year).slice(0, 5), // Recent examples
+    }))
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const earlyAdopters = Array.from(earlyAdoptersMap.entries())
+    .map(([tag, p]) => ({
+      tag,
+      prototypeId: p.id,
+      prototypeTitle: p.prototypeNm,
+      releaseDate: p.releaseDate,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime(),
+    );
+
   metrics.makerRhythmAndStreak = performance.now() - stepStart;
 
   // --- End metrics collection ---
@@ -377,6 +530,10 @@ export function analyzePrototypesForServer(
     anniversaryCandidates,
     releaseTimeDistribution,
     creationStreak,
+    earlyAdopters,
+    firstPenguins,
+    starAlignments,
+    anniversaryEffect,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

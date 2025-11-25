@@ -1,0 +1,10 @@
+export const IconRocket = () => <span>🚀</span>;
+export const IconGlobe = () => <span>🌐</span>;
+export const IconSparkles = () => <span>✨</span>;
+export const IconDNA = () => <span>🧬</span>;
+export const IconFlame = () => <span>🔥</span>;
+export const IconClock = () => <span>⏰</span>;
+export const IconTelescope = () => <span>🔭</span>;
+export const IconPenguin = () => <span>🐧</span>;
+export const IconStar = () => <span>🌠</span>;
+export const IconGift = () => <span>🎁</span>;

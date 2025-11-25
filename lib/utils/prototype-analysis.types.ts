@@ -151,6 +151,42 @@ export type ServerPrototypeAnalysis = {
     /** Total active days (days with at least one release) */
     totalActiveDays: number;
   };
+
+  /** Early Adopter analysis (The Origin) */
+  earlyAdopters: Array<{
+    tag: string;
+    prototypeId: number;
+    prototypeTitle: string;
+    releaseDate: string;
+  }>;
+
+  /** First Penguin analysis (First release of each year) */
+  firstPenguins: Array<{
+    year: number;
+    prototype: {
+      id: number;
+      title: string;
+      releaseDate: string;
+      user: string; // First user name or team name
+    };
+  }>;
+
+  /** Star Alignment analysis (Prototypes released at exact same time) */
+  starAlignments: Array<{
+    timestamp: string;
+    prototypes: Array<{
+      id: number;
+      title: string;
+    }>;
+  }>;
+
+  /** Anniversary Effect analysis (Releases on special days) */
+  anniversaryEffect: Array<{
+    name: string;
+    date: string; // MM-DD
+    count: number;
+    examples: Array<{ id: number; title: string; year: number }>;
+  }>;
 };
 
 /**
