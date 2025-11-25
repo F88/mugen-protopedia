@@ -28,7 +28,7 @@ focusing on **how** the UI is wired to server actions and the ProtoPedia API.
 | Flow                                     | Primary Data Source                                  | API Client                   | `prototypeMapStore` Usage                             | Freshness vs. Cache Trade-off                                                                                                                                                                                         |
 | ---------------------------------------- | ---------------------------------------------------- | ---------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | PROTOTYPE Button: Random Prototype Fetch | Map snapshot (`prototypeMapStore`)                   | `protopediaForceCacheClient` | **Preferred**: `getRandomPrototypeFromMapOrFetch`     | Favors cache efficiency and fast random selection; falls back to a bounded upstream random fetch when the map snapshot is unavailable.                                                                                |
-| SHOW Button: ID-Based Prototype Fetch    | ProtoPedia API via `fetchPrototypesViaNoStoreClient` | `protopediaNoStoreClient`    | **Never used**: always bypasses the map snapshot      | Optimized for latest data for a specific ID; each click issues a fresh upstream call via the no-store client, with SWR providing client-side reuse for repeat lookups.                                                |
+| SHOW Button: ID-Based Prototype Fetch    | ProtoPedia API via `fetchPrototypesViaNoStoreClient` | `protopediaNoStoreClient`    | **Never used**: always bypasses the map snapshot      | Optimized for latest data for a specific ID; each click issues a fresh upstream call via the no-store client, trading off cache reuse for predictable, one-shot fetch semantics.                                      |
 | PLAYLIST Mode: Direct-Launch ID Queue    | Map snapshot via repository + API                    | `protopediaForceCacheClient` | **Preferred**: `prototypeRepository.getByPrototypeId` | Uses a repository that first consults `prototypeMapStore` for ID lookups and falls back to upstream list/id fetches when needed, matching PLAYLIST's requirement for snapshot-level freshness with graceful fallback. |
 
 ## PROTOTYPE Button: Random Prototype Fetch
@@ -301,8 +301,8 @@ this ID-based fetch.
 1. User enters a prototype ID in the control panel input.
 2. User clicks **SHOW**.
 3. The app validates the input and calls a handler on `MugenProtoPedia`.
-4. The handler appends a placeholder slot and calls an imperative fetcher
-   backed by SWR.
+4. The handler appends a placeholder slot and calls a one-shot imperative
+   fetcher.
 5. The fetcher calls a server action, which in turn calls the ProtoPedia API
    with a `prototypeId` filter.
 6. On success, the placeholder slot is replaced with the loaded prototype card;
@@ -357,13 +357,13 @@ Responsibilities:
 
 #### Slot Creation & ID-Based Fetch
 
-- Function: `handleGetPrototypeById`
+- Function: `handleGetLatestPrototypeById`
 - File: `app/mugen-protopedia.tsx`
 
 ```ts
-const handleGetPrototypeById = useCallback(
-    async (id: number, options?: { isFromPlaylist?: boolean }) => {
-        logger.debug('Fetching prototype by ID', { id });
+const handleGetLatestPrototypeById = useCallback(
+    async (id: number) => {
+        logger.debug('Fetching latest prototype by ID (SHOW)', { id });
 
         if (id < 0) {
             console.error('Invalid prototype ID:', id);
@@ -379,14 +379,14 @@ const handleGetPrototypeById = useCallback(
         setPrototypeIdError(null);
 
         try {
-            const prototype = await fetchPrototype(id);
+            const prototype = await getLatestPrototypeById(id);
             if (!prototype) {
                 setPrototypeIdError('Not found.');
                 setSlotError(slotId, 'Not found.');
                 return;
             }
 
-            const clonedPrototype = clonePrototype(prototype);
+            const clonedPrototype = clonePrototype(prototype as Prototype);
             await replacePrototypeInSlot(slotId, clonedPrototype);
         } catch (err) {
             const message =
@@ -397,21 +397,16 @@ const handleGetPrototypeById = useCallback(
             setSlotError(slotId, message);
         } finally {
             decrementInFlightRequests();
-            if (options?.isFromPlaylist) {
-                setProcessedCount((c) => c + 1);
-            }
         }
     },
     [
         tryIncrementInFlightRequests,
         appendPlaceholder,
-        fetchPrototype,
         setPrototypeIdError,
         setSlotError,
         clonePrototype,
         replacePrototypeInSlot,
         decrementInFlightRequests,
-        setProcessedCount,
     ],
 );
 ```
@@ -431,61 +426,10 @@ Responsibilities:
 
 ### Hook & Fetcher Layer (SHOW)
 
-#### `useLatestPrototypeById` Hook (SWR-backed)
-
-- Hook: `useLatestPrototypeById`
-- File: `lib/hooks/use-latest-prototype-by-id.ts`
-
-In `MugenProtoPedia`, the hook is configured as:
-
-```ts
-const {
-    prototype: latestPrototypeById,
-    error: latestPrototypeError,
-    isLoading: isLoadingLatestPrototype,
-} = useLatestPrototypeById({ id: showTargetId });
-```
-
-Relevant implementation excerpt:
-
-```ts
-export function useLatestPrototypeById(
-    { id }: UseLatestPrototypeByIdOptions = {},
-    config: SWRConfiguration<NormalizedPrototype | undefined, Error> = {
-        dedupingInterval: 5_000,
-        revalidateOnFocus: false,
-        revalidateIfStale: true,
-    },
-): UseLatestPrototypeByIdResult {
-    const hasId = typeof id === 'number';
-
-    const fetcher = async () => {
-        if (!hasId) {
-            return undefined;
-        }
-        return await getLatestPrototypeById(id as number);
-    };
-
-    const { data, error, isLoading, isValidating } = useSWR<
-        NormalizedPrototype | undefined,
-        Error
-    >(hasId ? ['prototype', id] : null, fetcher, config);
-
-    return {
-        prototype: data ?? null,
-        error: error ? error.message : null,
-        isLoading: hasId ? isLoading || isValidating : false,
-    };
-}
-```
-
-Responsibilities:
-
-- Provide SWR-backed access to the latest prototype for a given ID, with
-  sensible defaults for SHOW usage.
-- Delegate actual data retrieval to `getLatestPrototypeById(id)`.
-- Expose `prototype`, `error`, and `isLoading` for UI consumption, while SWR
-  manages caching and revalidation.
+> Note: Earlier versions of the implementation used a SWR-backed
+> `useLatestPrototypeById` hook here. The current design removed that
+> layer to avoid race conditions and surprising cache-driven UI updates;
+> SHOW now uses a direct one-shot fetch instead.
 
 #### Client Fetcher → Server Action
 
@@ -616,8 +560,7 @@ chain:
 - UI / client:
     - `ControlPanel` → `onGetPrototypeById` → `handleGetPrototypeByIdFromInput`
     - `handleGetPrototypeByIdFromInput` → `handleGetLatestPrototypeById(id)`
-    - `handleGetLatestPrototypeById` → `useLatestPrototypeById({ id })`
-    - `useLatestPrototypeById` → `getLatestPrototypeById(id)`
+    - `handleGetLatestPrototypeById` → `getLatestPrototypeById(id)`
 - Server:
     - `getLatestPrototypeById(id)` → `fetchPrototypesViaNoStoreClient({ prototypeId: id, limit: 1, offset: 0 })`
     - `fetchPrototypesViaNoStoreClient` → `protopediaNoStoreClient.listPrototypes({ prototypeId: id, limit: 1, offset: 0 })`
@@ -625,8 +568,8 @@ chain:
 Each SHOW click therefore issues exactly one upstream `listPrototypes` request
 for the specified ID via the **no-store** client. The in-memory
 `prototypeMapStore` is **not** consulted on this path; freshness is prioritized
-by bypassing the Next.js Data Cache on the server, while SWR provides
-client-side reuse for repeated reads of the same ID.
+by bypassing the Next.js Data Cache on the server and using a straightforward
+one-shot fetch on the client without SWR caching.
 
 ## PLAYLIST Mode: Direct-Launch ID Queue
 

@@ -74,7 +74,7 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
       `protopediaForceCacheClient.listPrototypes`, benefiting from the
       Next.js Data Cache when payloads are small enough.
     - `fetchPrototypesViaNoStoreClient` (used by the SHOW path via
-      `getLatestPrototypeById` and `useLatestPrototypeById`) calls
+      `getLatestPrototypeById`) calls
       `protopediaNoStoreClient.listPrototypes`, explicitly bypassing the
       Data Cache and hitting the upstream API for each request.
 
