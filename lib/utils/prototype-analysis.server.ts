@@ -195,6 +195,7 @@ export function analyzePrototypesForServer(
       starAlignments: [],
       anniversaryEffect: [],
       laborOfLove: { longestGestation: [], distribution: {} },
+      maternityHospital: { topEvents: [], independentRatio: 0 },
       _debugMetrics: metrics,
     };
   }
@@ -387,6 +388,23 @@ export function analyzePrototypesForServer(
     'Over 1 year': 0,
   };
 
+  // 6. Maternity Hospital (Events)
+  const eventCounts: Record<string, number> = {};
+  let independentCount = 0;
+  let totalWithEventStatus = 0;
+
+  // 7. Power of Deadlines (Daily Spikes)
+  const dailyReleaseCounts: Record<string, number> = {};
+
+  // 8. Weekend Warrior
+  let sundaySprintCount = 0;
+  let midnightCount = 0;
+  let daytimeCount = 0;
+  let totalReleaseCount = 0;
+
+  // 9. Holy Day (MM-DD aggregation)
+  const holyDayCounts: Record<string, number> = {};
+
   prototypes.forEach((p) => {
     if (!p.releaseDate) return;
     const date = new Date(p.releaseDate);
@@ -398,6 +416,34 @@ export function analyzePrototypesForServer(
     const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
     const dd = String(jstDate.getUTCDate()).padStart(2, '0');
     const mmdd = `${mm}-${dd}`;
+    const yyyymmdd = `${year}-${mm}-${dd}`;
+
+    // 7. Power of Deadlines
+    dailyReleaseCounts[yyyymmdd] = (dailyReleaseCounts[yyyymmdd] || 0) + 1;
+
+    // 8. Weekend Warrior
+    const day = jstDate.getUTCDay(); // 0=Sun, 1=Mon, ...
+    const hour = jstDate.getUTCHours();
+
+    totalReleaseCount++;
+
+    // Sunday Sprint: Sun 20:00 - Mon 05:00
+    if ((day === 0 && hour >= 20) || (day === 1 && hour < 5)) {
+      sundaySprintCount++;
+    }
+
+    // Midnight: 23:00 - 04:00
+    if (hour >= 23 || hour < 4) {
+      midnightCount++;
+    }
+
+    // Daytime: 09:00 - 18:00
+    if (hour >= 9 && hour < 18) {
+      daytimeCount++;
+    }
+
+    // 9. Holy Day
+    holyDayCounts[mmdd] = (holyDayCounts[mmdd] || 0) + 1;
 
     // 1. First Penguin
     if (!firstPenguinsMap.has(year)) {
@@ -473,6 +519,17 @@ export function analyzePrototypesForServer(
         else gestationDistribution['Over 1 year']++;
       }
     }
+
+    // 6. Maternity Hospital
+    if (p.events && p.events.length > 0) {
+      totalWithEventStatus++;
+      p.events.forEach((event) => {
+        eventCounts[event] = (eventCounts[event] || 0) + 1;
+      });
+    } else {
+      independentCount++;
+      totalWithEventStatus++;
+    }
   });
 
   // Format Results
@@ -527,6 +584,36 @@ export function analyzePrototypesForServer(
       .sort((a, b) => b.durationDays - a.durationDays)
       .slice(0, 10),
     distribution: gestationDistribution,
+  };
+
+  const maternityHospital = {
+    topEvents: Object.entries(eventCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([event, count]) => ({ event, count })),
+    independentRatio:
+      totalWithEventStatus > 0 ? independentCount / totalWithEventStatus : 0,
+  };
+
+  const powerOfDeadlines = {
+    spikes: Object.entries(dailyReleaseCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([date, count]) => ({ date, count, score: count })), // Score is just count for now
+  };
+
+  const weekendWarrior = {
+    sundaySprintCount,
+    midnightCount,
+    daytimeCount,
+    totalCount: totalReleaseCount,
+  };
+
+  const holyDay = {
+    topDays: Object.entries(holyDayCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+      .map(([date, count]) => ({ date, count })),
   };
 
   metrics.makerRhythmAndStreak = performance.now() - stepStart;
@@ -585,6 +672,10 @@ export function analyzePrototypesForServer(
     starAlignments,
     anniversaryEffect,
     laborOfLove,
+    maternityHospital,
+    powerOfDeadlines,
+    weekendWarrior,
+    holyDay,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

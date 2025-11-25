@@ -123,8 +123,6 @@ export type ServerPrototypeAnalysis = {
   topTeams: Array<{ team: string; count: number }>;
   /** Analysis timestamp */
   analyzedAt: string;
-  /** Debug metrics for analysis performance */
-  _debugMetrics?: Record<string, number>;
   /**
    * UTC-based metadata for client-side anniversary filtering.
    * Clients can use these windows to pre-filter candidates before
@@ -201,6 +199,41 @@ export type ServerPrototypeAnalysis = {
     /** Distribution of gestation periods */
     distribution: Record<string, number>;
   };
+
+  /** The Maternity Hospital analysis (Events) */
+  maternityHospital: {
+    /** Top events by number of prototypes */
+    topEvents: Array<{ event: string; count: number }>;
+    /** Ratio of independent births (no event) */
+    independentRatio: number;
+  };
+
+  /** The Power of Deadlines analysis */
+  powerOfDeadlines: {
+    /** Top spikes in prototype releases */
+    spikes: Array<{ date: string; count: number; score: number }>;
+  };
+
+  /** The Weekend Warrior's Crunch analysis */
+  weekendWarrior: {
+    /** Count of prototypes released during Sunday 20:00 - Monday 05:00 */
+    sundaySprintCount: number;
+    /** Count of prototypes released between 23:00 - 04:00 */
+    midnightCount: number;
+    /** Count of prototypes released during daytime (09:00 - 18:00) */
+    daytimeCount: number;
+    /** Total count of prototypes released during the weekend warrior time slots */
+    totalCount: number;
+  };
+
+  /** The Holy Day analysis */
+  holyDay: {
+    /** Top days with highest prototype release counts */
+    topDays: Array<{ date: string; count: number }>; // MM-DD
+  };
+
+  /** Debug metrics for analysis performance */
+  _debugMetrics?: Record<string, number>;
 };
 
 /**

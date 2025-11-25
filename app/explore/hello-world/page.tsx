@@ -36,14 +36,11 @@
  */
 import Link from 'next/link';
 import { getLatestAnalysis } from '@/app/actions/analysis';
-import { StatusBadge } from '@/components/ui/badges/status-badge';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 
 // Icons
-const IconRocket = () => <span>🚀</span>;
 const IconGlobe = () => <span>🌐</span>;
 const IconSparkles = () => <span>✨</span>;
-const IconDNA = () => <span>🧬</span>;
 const IconFlame = () => <span>🔥</span>;
 const IconClock = () => <span>⏰</span>;
 const IconTelescope = () => <span>🔭</span>;
@@ -52,6 +49,10 @@ const IconStar = () => <span>🌠</span>;
 const IconGift = () => <span>🎁</span>;
 const IconTool = () => <span>🛠️</span>;
 const IconHeart = () => <span>❤️</span>;
+const IconHospital = () => <span>🏥</span>;
+const IconDeadline = () => <span>💣</span>;
+const IconWarrior = () => <span>⚔️</span>;
+const IconHoly = () => <span>🙌</span>;
 
 export const dynamic = 'force-dynamic';
 
@@ -79,9 +80,6 @@ export default async function HelloWorldPage() {
   const analysis = result.data;
   const {
     anniversaryCandidates,
-    totalCount,
-    statusDistribution,
-    topTags,
     releaseTimeDistribution,
     creationStreak,
     earlyAdopters,
@@ -90,6 +88,10 @@ export default async function HelloWorldPage() {
     anniversaryEffect,
     topMaterials,
     laborOfLove,
+    maternityHospital,
+    powerOfDeadlines,
+    weekendWarrior,
+    holyDay,
   } = analysis;
 
   // Determine "Now" and "24 Hours Ago" for filtering newborns
@@ -181,15 +183,6 @@ export default async function HelloWorldPage() {
 
         <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
 
-        {/* Statistics Section */}
-        <section className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 mb-16">
-          <UniversePopulationCard
-            totalCount={totalCount}
-            statusDistribution={statusDistribution}
-          />
-          <DominantTraitsCard topTags={topTags} />
-        </section>
-
         <GatewayDrugSection topMaterials={topMaterials} />
 
         <MakersRhythmSection
@@ -204,6 +197,12 @@ export default async function HelloWorldPage() {
           longestStreakPeriod={longestStreakPeriod}
         />
 
+        <MaternityHospitalSection maternityHospital={maternityHospital} />
+
+        <PowerOfDeadlinesSection powerOfDeadlines={powerOfDeadlines} />
+
+        <WeekendWarriorSection weekendWarrior={weekendWarrior} />
+
         <LaborOfLoveSection laborOfLove={laborOfLove} />
 
         <EarlyAdoptersSection adopters={earlyAdopters} />
@@ -211,6 +210,8 @@ export default async function HelloWorldPage() {
         <FirstPenguinSection penguins={firstPenguins} />
 
         <StarAlignmentSection alignments={starAlignments} />
+
+        <HolyDaySection holyDay={holyDay} />
 
         <AnniversaryEffectSection holidays={anniversaryEffect} />
       </div>
@@ -234,63 +235,98 @@ type NewbornsSectionProps = {
 function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-          <IconSparkles />
-          <span>The Newborn Stars</span>
-        </h2>
-        <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-          {count} arrivals today
-        </span>
-      </div>
+      <div className="bg-linear-to-r from-sky-50 to-yellow-50 dark:from-sky-900/20 dark:to-yellow-900/20 rounded-3xl p-8 border border-sky-100 dark:border-sky-800/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {count === 0 ? (
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-12 text-center border border-dashed border-gray-200 dark:border-gray-700">
-          <div className="text-4xl mb-4 opacity-50">🔭</div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            The sky is quiet today.
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-sky-100 dark:bg-sky-900/50 rounded-full text-sky-600 dark:text-sky-300">
+                <IconSparkles />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Newborn Stars
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Witness the latest prototypes that have just materialized into our
+              world.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: Prototypes released within the{' '}
+              <strong>Last 24 Hours</strong>.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-yellow-400/20 rounded-full animate-ping opacity-20 duration-3000"></div>
+              <div className="absolute inset-2 bg-sky-400/20 rounded-full animate-pulse opacity-30"></div>
+              <div className="text-6xl filter drop-shadow-lg">✨</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mb-8">
+          {count === 0 ? (
+            <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-12 text-center border border-dashed border-sky-200 dark:border-sky-800/30">
+              <div className="text-4xl mb-4 opacity-50">🔭</div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                The sky is quiet today.
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mt-2">
+                No new prototypes have been detected in the last 24 hours. The
+                creators are likely deep in meditation (or coding).
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {prototypes.map((proto) => (
+                <Link
+                  key={proto.id}
+                  href={`https://protopedia.net/prototype/${proto.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                      ID: {proto.id}
+                    </span>
+                    <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      NEW
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 line-clamp-2 transition-colors">
+                    {proto.title}
+                  </h3>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Materialized at{' '}
+                    {new Date(proto.releaseDate).toLocaleTimeString('ja-JP', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-sky-200/50 dark:border-sky-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">👶</span> The Beginning of Everything
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
-            No new prototypes have been detected in the last 24 hours. The
-            creators are likely deep in meditation (or coding).
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Every legendary project started as a single commit, a rough
+            prototype, and a nervous release. These newborn stars are the future
+            of our universe. Give them a warm welcome!
           </p>
         </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {prototypes.map((proto) => (
-            <Link
-              key={proto.id}
-              href={`https://protopedia.net/prototype/${proto.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 p-5"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                  ID: {proto.id}
-                </span>
-                <span className="text-xs font-semibold text-green-600 dark:text-green-400 flex items-center gap-1">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  NEW
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
-                {proto.title}
-              </h3>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                Materialized at{' '}
-                {new Date(proto.releaseDate).toLocaleTimeString('ja-JP', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -573,151 +609,6 @@ function EternalFlameSection({
         </div>
       </div>
     </section>
-  );
-}
-
-type UniversePopulationCardProps = {
-  totalCount: number;
-  statusDistribution: Record<string, number>;
-};
-
-/**
- * Universe Population Card
- *
- * Displays the total number of registered prototypes and their status distribution.
- * Acts as a general census of the ProtoPedia universe.
- */
-function UniversePopulationCard({
-  totalCount,
-  statusDistribution,
-}: UniversePopulationCardProps) {
-  return (
-    <div className="bg-linear-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-3xl p-8 border border-indigo-100 dark:border-indigo-800/50 relative overflow-hidden">
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-purple-400/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 mb-8">
-        <div className="flex-1 w-full text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-300">
-              <IconRocket />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              Universe Population
-            </h3>
-          </div>
-        </div>
-
-        <div className="shrink-0">
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            <div className="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping opacity-20 duration-1000"></div>
-            <div className="absolute inset-4 bg-purple-500/20 rounded-full animate-pulse opacity-30"></div>
-            <div className="text-7xl filter drop-shadow-lg animate-bounce">
-              🚀
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative z-10 space-y-6">
-        <div>
-          <div className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight text-center lg:text-left">
-            {totalCount.toLocaleString()}
-          </div>
-          <p className="text-sm font-medium text-indigo-600/80 dark:text-indigo-300/80 mt-1 uppercase tracking-wide text-center lg:text-left">
-            Total Lifeforms Detected
-          </p>
-          <p className="text-xs text-indigo-400/60 dark:text-indigo-300/60 mt-1">
-            * Source: Current status of all registered prototypes.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-indigo-200 dark:border-indigo-800">
-          {Object.entries(statusDistribution)
-            .sort(([, a], [, b]) => (b as number) - (a as number))
-            .slice(0, 4)
-            .map(([status, count]) => (
-              <div
-                key={status}
-                className="flex flex-col items-center lg:items-start"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <StatusBadge status={Number(status)} />
-                </div>
-                <span className="text-lg font-bold text-gray-700 dark:text-gray-200">
-                  {(count as number).toLocaleString()}
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-type DominantTraitsCardProps = {
-  topTags: { tag: string; count: number }[];
-};
-
-/**
- * Dominant Traits Card
- *
- * Displays the most popular tags (traits) in the ecosystem.
- * Shows what technologies or themes are currently trending.
- */
-function DominantTraitsCard({ topTags }: DominantTraitsCardProps) {
-  return (
-    <div className="bg-linear-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-3xl p-8 border border-teal-100 dark:border-teal-800/50 relative overflow-hidden">
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 mb-8">
-        <div className="flex-1 w-full text-center lg:text-left">
-          <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-            <div className="p-2 bg-teal-100 dark:bg-teal-900/50 rounded-lg text-teal-600 dark:text-teal-300">
-              <IconDNA />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-              Dominant Traits
-            </h3>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            The most common DNA sequences (tags) found in the current
-            population.
-          </p>
-          <p className="text-xs text-teal-600/60 dark:text-teal-300/60 mt-2">
-            * Source: Tags attached to all registered prototypes.
-          </p>
-        </div>
-
-        <div className="shrink-0">
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            <div className="absolute inset-0 bg-teal-500/20 rounded-full animate-spin-slow opacity-20 duration-3000"></div>
-            <div className="absolute inset-4 bg-emerald-500/20 rounded-full animate-pulse opacity-30"></div>
-            <div className="text-7xl filter drop-shadow-lg animate-pulse">
-              🧬
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative z-10 space-y-4">
-        <div className="flex flex-wrap justify-center lg:justify-start gap-2">
-          {topTags
-            .slice(0, 12)
-            .map(({ tag, count }: { tag: string; count: number }) => (
-              <div
-                key={tag}
-                className="flex items-center bg-white/80 dark:bg-black/20 rounded-full px-3 py-1.5 border border-teal-100 dark:border-teal-800/50"
-              >
-                <span className="text-sm font-medium text-teal-800 dark:text-teal-200 mr-2">
-                  {tag}
-                </span>
-                <span className="text-xs font-bold text-teal-500 dark:text-teal-500/80 bg-teal-50 dark:bg-teal-900/50 px-1.5 rounded-full">
-                  {count}
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -1274,7 +1165,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
             </div>
             <p className="text-lg text-gray-600 dark:text-gray-300">
               Great things take time. These prototypes are the result of long
-              gestation periods, proving that persistence pays off.
+              incubation periods, proving that persistence pays off.
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
               * Source: Duration between <strong>Registration</strong> and{' '}
@@ -1293,7 +1184,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
           {/* Longest Gestation Ranking */}
           <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-800/30">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-              <span>🏆</span> The Longest Journeys
+              <span>🐣</span> The Longest Journeys
             </h3>
             <div className="space-y-3">
               {longestGestation.slice(0, 5).map((item, index) => (
@@ -1305,7 +1196,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                   className="flex items-center justify-between group hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
-                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 rounded-full text-xs font-bold">
+                    <span className="shrink-0 w-6 h-6 flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 rounded-full text-xs font-bold">
                       {index + 1}
                     </span>
                     <div className="min-w-0">
@@ -1318,7 +1209,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 text-right ml-4">
+                  <div className="shrink-0 text-right ml-4">
                     <span className="block text-lg font-bold text-pink-600 dark:text-pink-400">
                       {item.durationDays.toLocaleString()}
                     </span>
@@ -1334,7 +1225,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
           {/* Distribution Chart (Simple Bar) */}
           <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-800/30">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-              <span>📊</span> Gestation Period
+              <span>🥚</span> Incubation Period
             </h3>
             <div className="space-y-3">
               {Object.entries(distribution).map(([label, count]) => {
@@ -1371,6 +1262,434 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
             Not all prototypes are built in a weekend hackathon. Some ideas need
             time to mature, evolve, and find their perfect form. We honor the
             creators who stuck with their vision through the long haul.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type MaternityHospitalSectionProps = {
+  maternityHospital: {
+    topEvents: Array<{ event: string; count: number }>;
+    independentRatio: number;
+  };
+};
+
+/**
+ * Maternity Hospital Section (Events vs Independent)
+ *
+ * Analyzes where prototypes are "born" - at events (hackathons) or independently.
+ * Shows the ecosystem's reliance on organized events vs organic creation.
+ */
+function MaternityHospitalSection({
+  maternityHospital,
+}: MaternityHospitalSectionProps) {
+  const { topEvents, independentRatio } = maternityHospital;
+  const independentPercent = (independentRatio * 100).toFixed(1);
+  const eventPercent = (100 - independentRatio * 100).toFixed(1);
+
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+      <div className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-3xl p-8 border border-blue-100 dark:border-blue-800/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-full text-blue-600 dark:text-blue-300">
+                <IconHospital />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Maternity Hospital
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Where are ideas born? Some in the bustling delivery rooms of
+              hackathons, others in the quiet solitude of a home lab.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: <strong>Event Tags</strong> attached to prototypes.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-blue-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
+              <div className="text-6xl filter drop-shadow-lg">🏥</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 grid gap-8 lg:grid-cols-2 mb-8">
+          {/* Birthplace Distribution */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30 flex flex-col justify-center">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">
+              Birthplace Distribution
+            </h3>
+            <div className="relative h-8 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex mb-4">
+              <div
+                className="h-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000"
+                style={{ width: `${eventPercent}%` }}
+              >
+                Events ({eventPercent}%)
+              </div>
+              <div
+                className="h-full bg-blue-400 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000"
+                style={{ width: `${independentPercent}%` }}
+              >
+                Independent ({independentPercent}%)
+              </div>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 px-2">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
+                <span>Born at Events</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-blue-400"></span>
+                <span>Home Births</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Maternity Wards (Events) */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+              <span>🏆</span> Top Maternity Wards
+            </h3>
+            <div className="space-y-3">
+              {topEvents.slice(0, 5).map((item, index) => (
+                <div
+                  key={item.event}
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold">
+                      {index + 1}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-white truncate">
+                      {item.event}
+                    </span>
+                  </div>
+                  <span className="font-bold text-indigo-600 dark:text-indigo-400 ml-4">
+                    {item.count.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-blue-200/50 dark:border-blue-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">👶</span> Nature vs Nurture
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Events like hackathons act as powerful catalysts, forcing ideas into
+            existence through deadlines and peer pressure. Yet, the high number
+            of independent releases shows that the urge to create often strikes
+            without any external prompt.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type PowerOfDeadlinesSectionProps = {
+  powerOfDeadlines: {
+    spikes: Array<{ date: string; count: number; score: number }>;
+  };
+};
+
+/**
+ * Power of Deadlines Section
+ *
+ * Visualizes the "Summer Homework" phenomenon.
+ * Shows days with abnormal spikes in releases, likely due to contest deadlines.
+ */
+function PowerOfDeadlinesSection({
+  powerOfDeadlines,
+}: PowerOfDeadlinesSectionProps) {
+  const { spikes } = powerOfDeadlines;
+
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-600">
+      <div className="bg-linear-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-3xl p-8 border border-red-100 dark:border-red-800/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-64 h-64 bg-red-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-red-100 dark:bg-red-800 rounded-full text-red-600 dark:text-red-300">
+                <IconDeadline />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Power of Deadlines
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Deadlines are the mother of invention. Observe the massive spikes
+              in creativity that occur just before the clock strikes zero.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: Days with <strong>Abnormal Release Counts</strong>.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-red-400/20 rounded-full animate-ping opacity-20 duration-1000"></div>
+              <div className="text-6xl filter drop-shadow-lg">💣</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mb-8">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {spikes.slice(0, 6).map((spike, index) => (
+              <div
+                key={spike.date}
+                className="bg-white/60 dark:bg-black/20 rounded-xl p-4 border border-red-100 dark:border-red-800/30 flex flex-col items-center text-center"
+              >
+                <div className="text-xs font-bold text-red-500 dark:text-red-400 uppercase tracking-wider mb-1">
+                  Rank #{index + 1}
+                </div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white mb-1">
+                  {spike.count} Releases
+                </div>
+                <div className="text-sm font-mono text-gray-600 dark:text-gray-400">
+                  {new Date(spike.date).toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-red-200/50 dark:border-red-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">🔥</span> The Last Minute Rush
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Just like summer homework, the biggest innovations often happen at
+            the very last moment. These spikes represent the collective
+            adrenaline rush of the community pushing to meet a contest deadline.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type WeekendWarriorSectionProps = {
+  weekendWarrior: {
+    sundaySprintCount: number;
+    midnightCount: number;
+    daytimeCount: number;
+    totalCount: number;
+  };
+};
+
+/**
+ * Weekend Warrior Section
+ *
+ * Visualizes the "Crunch Time" reality of hobbyist makers.
+ * Highlights Sunday night sprints and midnight coding sessions.
+ */
+function WeekendWarriorSection({ weekendWarrior }: WeekendWarriorSectionProps) {
+  const { sundaySprintCount, midnightCount, daytimeCount, totalCount } =
+    weekendWarrior;
+
+  const sundaySprintPercent =
+    totalCount > 0 ? ((sundaySprintCount / totalCount) * 100).toFixed(1) : '0';
+  const midnightPercent =
+    totalCount > 0 ? ((midnightCount / totalCount) * 100).toFixed(1) : '0';
+  const daytimePercent =
+    totalCount > 0 ? ((daytimeCount / totalCount) * 100).toFixed(1) : '0';
+
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
+      <div className="bg-linear-to-r from-slate-50 to-zinc-50 dark:from-slate-900/20 dark:to-zinc-900/20 rounded-3xl p-8 border border-slate-100 dark:border-slate-800/50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-zinc-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-600 dark:text-slate-300">
+                <IconWarrior />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Weekend Warrior&apos;s Crunch
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              The battle against time. Witness the heroic efforts of makers who
+              burn the midnight oil and sprint through Sunday nights.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: Release times (JST).
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-slate-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
+              <div className="text-6xl filter drop-shadow-lg">⚔️</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 grid gap-6 md:grid-cols-3 mb-8">
+          {/* Sunday Night Sprint */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+            <div className="text-4xl mb-2">🏃💨</div>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
+              Sunday Night Sprint
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Sun 20:00 - Mon 05:00
+            </p>
+            <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+              {sundaySprintPercent}%
+            </div>
+            <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          </div>
+
+          {/* Midnight Oil */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+            <div className="text-4xl mb-2">🦉🌙</div>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
+              Midnight Oil
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              23:00 - 04:00
+            </p>
+            <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+              {midnightPercent}%
+            </div>
+            <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          </div>
+
+          {/* Daywalker */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+            <div className="text-4xl mb-2">☀️☕</div>
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
+              Daywalker
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              09:00 - 18:00
+            </p>
+            <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+              {daytimePercent}%
+            </div>
+            <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-slate-200/50 dark:border-slate-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">🛡️</span> The Hobbyist&apos;s Honor
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            The high percentage of late-night and Sunday releases reveals the
+            true nature of the community: dedicated hobbyists who squeeze every
+            ounce of creativity out of their free time before the work week
+            begins.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type HolyDaySectionProps = {
+  holyDay: {
+    topDays: Array<{ date: string; count: number }>;
+  };
+};
+
+/**
+ * Holy Day Section
+ *
+ * Identifies the specific date with the historically highest number of releases.
+ * Shows the "holiest" days for the community.
+ */
+function HolyDaySection({ holyDay }: HolyDaySectionProps) {
+  const { topDays } = holyDay;
+
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-800">
+      <div className="bg-linear-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-3xl p-8 border border-amber-100 dark:border-amber-800/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-amber-100 dark:bg-amber-800 rounded-full text-amber-600 dark:text-amber-300">
+                <IconHoly />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Holy Day
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              There are days when the stars align and creativity floods the
+              world. These are the holiest days in the ProtoPedia calendar.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: Aggregated releases by <strong>Month-Day</strong>.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-amber-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
+              <div className="text-6xl filter drop-shadow-lg">🙌</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mb-8">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {topDays.slice(0, 3).map((day, index) => {
+              const [month, date] = day.date.split('-');
+              const dateObj = new Date();
+              dateObj.setMonth(parseInt(month) - 1);
+              dateObj.setDate(parseInt(date));
+              const monthName = dateObj.toLocaleString('en-US', {
+                month: 'long',
+              });
+
+              return (
+                <div
+                  key={day.date}
+                  className="bg-white/60 dark:bg-black/20 rounded-xl p-6 border border-amber-100 dark:border-amber-800/30 flex flex-col items-center text-center relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-amber-400"></div>
+                  <div className="text-xs font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider mb-2">
+                    Rank #{index + 1}
+                  </div>
+                  <div className="text-4xl font-black text-gray-900 dark:text-white mb-1">
+                    {monthName} {date}
+                  </div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {day.count} Total Releases
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-amber-200/50 dark:border-amber-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">📅</span> A Day to Remember
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Whether it&apos;s the deadline of a legendary contest or a day of
+            global celebration, these dates have witnessed more births of ideas
+            than any other. Mark your calendars!
           </p>
         </div>
       </div>
