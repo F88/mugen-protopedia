@@ -460,7 +460,7 @@ export function MugenProtoPedia() {
           return;
         }
 
-        const clonedPrototype = clonePrototype(prototype as Prototype);
+        const clonedPrototype = clonePrototype(prototype);
         await replacePrototypeInSlot(slotId, clonedPrototype);
       } catch (err) {
         const message =
