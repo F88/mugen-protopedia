@@ -6,6 +6,7 @@ import {
 } from '@/lib/utils/anniversary-candidate-metrics';
 import {
   buildStatusDistribution,
+  buildTopMaterials,
   buildTopTags,
   buildTopTeams,
   buildYearDistribution,
@@ -163,6 +164,7 @@ export function analyzePrototypesForServer(
   const startTime = performance.now();
 
   const now = options?.referenceDate ?? new Date();
+  const metrics: Record<string, number> = {};
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
@@ -171,6 +173,7 @@ export function analyzePrototypesForServer(
       statusDistribution: {},
       prototypesWithAwards: 0,
       topTags: [],
+      topMaterials: [],
       averageAgeInDays: 0,
       yearDistribution: {},
       topTeams: [],
@@ -180,22 +183,52 @@ export function analyzePrototypesForServer(
         now,
         logger,
       ),
+      _debugMetrics: metrics,
     };
   }
 
+  // --- Metrics collection for individual analysis steps ---
+
+  let stepStart = performance.now();
   const statusDistribution = buildStatusDistribution(prototypes);
+  metrics.statusDistribution = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  metrics.prototypesWithAwards = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const { topTags, tagCounts } = buildTopTags(prototypes);
+  metrics.topTags = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const averageAgeInDays = computeAverageAgeInDays(prototypes, now);
+  metrics.averageAgeInDays = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const yearDistribution = buildYearDistribution(prototypes);
+  metrics.yearDistribution = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const { topTeams, teamCounts } = buildTopTeams(prototypes);
+  metrics.topTeams = performance.now() - stepStart;
+
+  stepStart = performance.now();
+  const { topMaterials, materialCounts } = buildTopMaterials(prototypes);
+  metrics.topMaterials = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const anniversaryCandidates = buildAnniversaryCandidates(
     prototypes,
     now,
     logger,
   );
+  metrics.anniversaryCandidates = performance.now() - stepStart;
+
+  // --- End metrics collection ---
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+  metrics.total = elapsedMs;
 
   // Compute dataset date range for diagnostics
   const validDates = prototypes
@@ -217,10 +250,12 @@ export function analyzePrototypesForServer(
         statusKinds: Object.keys(statusDistribution).length,
         uniqueTags: Object.keys(tagCounts).length,
         uniqueTeams: Object.keys(teamCounts).length,
+        uniqueMaterials: Object.keys(materialCounts).length,
         averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
         datasetMinISO: datasetMin,
         datasetMaxISO: datasetMax,
         elapsedMs,
+        metrics, // Add metrics to the summary log
       },
     },
     'Server-side analysis completed (TZ-independent data only)',
@@ -234,7 +269,9 @@ export function analyzePrototypesForServer(
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     yearDistribution,
     topTeams,
+    topMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
+    _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

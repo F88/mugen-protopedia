@@ -715,6 +715,7 @@ export function MugenProtoPedia() {
             defaultExpanded={false}
             useLatestAnalysisHook={useLatestAnalysis}
             preferClientTimezoneAnniversaries={true}
+            isDevelopment={process.env.NODE_ENV === 'development'}
           />
         }
       />

@@ -113,6 +113,8 @@ export type ServerPrototypeAnalysis = {
   prototypesWithAwards: number;
   /** Most common tags (top 10) */
   topTags: Array<{ tag: string; count: number }>;
+  /** Most frequently used materials/tools (top 10) */
+  topMaterials: Array<{ material: string; count: number }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
   /** Distribution by release year */
@@ -121,6 +123,8 @@ export type ServerPrototypeAnalysis = {
   topTeams: Array<{ team: string; count: number }>;
   /** Analysis timestamp */
   analyzedAt: string;
+  /** Debug metrics for analysis performance */
+  _debugMetrics?: Record<string, number>;
   /**
    * UTC-based metadata for client-side anniversary filtering.
    * Clients can use these windows to pre-filter candidates before

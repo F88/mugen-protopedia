@@ -324,6 +324,11 @@ type AnalysisDashboardProps = {
     isLoading: boolean;
     error: string | null;
   } | null;
+  /**
+   * Flag indicating if the current environment is development.
+   * Used to conditionally display debug metrics.
+   */
+  isDevelopment?: boolean;
 };
 
 /**
@@ -334,6 +339,7 @@ export function AnalysisDashboard({
   useLatestAnalysisHook,
   preferClientTimezoneAnniversaries = true,
   clientAnniversariesOverride = null,
+  isDevelopment = false,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
   const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();
@@ -595,6 +601,73 @@ export function AnalysisDashboard({
             </div>
           )}
         </div>
+        {isDevelopment && analysis._debugMetrics && (
+          <div className="rounded-lg border border-gray-200 bg-white/70 p-4 text-xs dark:border-gray-700 dark:bg-gray-800/60">
+            <h4 className="mb-2 font-medium text-gray-700 dark:text-gray-300">
+              Debug Metrics (ms)
+            </h4>
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 md:grid-cols-4">
+              {Object.entries(analysis._debugMetrics).map(([key, value]) => (
+                <li key={key} className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {key}:
+                  </span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    {value.toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="font-medium text-gray-700 dark:text-gray-300">
+                  Data Fields Usage
+                </h4>
+                <div className="flex gap-2 text-[10px]">
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                    Used
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-amber-500"></span>
+                    Unused
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Object.keys(analysis).map((key) => {
+                  // Explicitly define keys used in the UI to highlight unused ones
+                  const USED_KEYS = [
+                    'totalCount',
+                    'statusDistribution',
+                    'prototypesWithAwards',
+                    'topTags',
+                    'averageAgeInDays',
+                    'topTeams',
+                    'analyzedAt',
+                    'anniversaryCandidates', // Used for client-side computation
+                    '_debugMetrics', // Displayed right here
+                  ];
+                  const isUsed = USED_KEYS.includes(key);
+                  return (
+                    <span
+                      key={key}
+                      className={`rounded px-2 py-1 transition-colors ${
+                        isUsed
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 font-medium ring-1 ring-amber-200 dark:ring-amber-800'
+                      }`}
+                      title={isUsed ? 'Used in UI' : 'Not used in UI'}
+                    >
+                      {key}
+                      {!isUsed && ' ⚠️'}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

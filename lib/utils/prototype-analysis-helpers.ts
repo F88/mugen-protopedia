@@ -225,6 +225,36 @@ export function buildTopTeams(prototypes: NormalizedPrototype[]): {
 }
 
 /**
+ * Aggregates material frequency, returning both the raw counts and the top 10 materials
+ * sorted by usage.
+ *
+ * Runs on: **server or UI** (timezone-agnostic).
+ *
+ * @param prototypes - Array of normalized prototypes to analyze.
+ * @returns Object containing top 10 materials array and complete material counts map.
+ */
+export function buildTopMaterials(prototypes: NormalizedPrototype[]): {
+  topMaterials: Array<{ material: string; count: number }>;
+  materialCounts: Record<string, number>;
+} {
+  const materialCounts: Record<string, number> = {};
+  prototypes.forEach((prototype) => {
+    if (prototype.materials && Array.isArray(prototype.materials)) {
+      prototype.materials.forEach((material) => {
+        materialCounts[material] = (materialCounts[material] ?? 0) + 1;
+      });
+    }
+  });
+
+  const topMaterials = Object.entries(materialCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10)
+    .map(([material, count]) => ({ material, count }));
+
+  return { topMaterials, materialCounts };
+}
+
+/**
  * Derives birthday and newborn prototype lists using the shared anniversary
  * utilities (`isBirthDay`, `isToday`, `calculateAge`).
  *
