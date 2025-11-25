@@ -186,6 +186,15 @@ export default async function HelloWorldPage() {
           </div>
         </header>
 
+        {/* Statistics Section */}
+        <section className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 mb-16">
+          <UniversePopulationCard
+            totalCount={totalCount}
+            statusDistribution={statusDistribution}
+          />
+          <DominantTraitsCard topTags={topTags} />
+        </section>
+
         <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
 
         <MakersRhythmSection
@@ -199,15 +208,6 @@ export default async function HelloWorldPage() {
           streak={creationStreak}
           longestStreakPeriod={longestStreakPeriod}
         />
-
-        {/* Statistics Section */}
-        <section className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 mb-16">
-          <UniversePopulationCard
-            totalCount={totalCount}
-            statusDistribution={statusDistribution}
-          />
-          <DominantTraitsCard topTags={topTags} />
-        </section>
 
         <EarlyAdoptersSection adopters={earlyAdopters} />
 
@@ -228,6 +228,12 @@ type NewbornsSectionProps = {
   prototypes: AnniversaryCandidatePrototype[];
 };
 
+/**
+ * Newborns Section
+ *
+ * Displays prototypes released "today" (in JST).
+ * Highlights new arrivals with a "NEW" badge and animation.
+ */
 function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -299,6 +305,12 @@ type MakersRhythmSectionProps = {
   days: string[];
 };
 
+/**
+ * Maker's Rhythm Section
+ *
+ * Visualizes the distribution of prototype releases by day of the week and hour of the day.
+ * Shows when creators are most active (e.g., weekends, late nights).
+ */
 function MakersRhythmSection({
   distribution,
   maxDayCount,
@@ -453,6 +465,12 @@ type EternalFlameSectionProps = {
   longestStreakPeriod: string | null;
 };
 
+/**
+ * Eternal Flame Section
+ *
+ * Displays the "streak" of consecutive days with at least one prototype release.
+ * Celebrates the continuous creativity of the community.
+ */
 function EternalFlameSection({
   streak,
   longestStreakPeriod,
@@ -566,6 +584,12 @@ type UniversePopulationCardProps = {
   statusDistribution: Record<string, number>;
 };
 
+/**
+ * Universe Population Card
+ *
+ * Displays the total number of registered prototypes and their status distribution.
+ * Acts as a general census of the ProtoPedia universe.
+ */
 function UniversePopulationCard({
   totalCount,
   statusDistribution,
@@ -636,6 +660,12 @@ type DominantTraitsCardProps = {
   topTags: { tag: string; count: number }[];
 };
 
+/**
+ * Dominant Traits Card
+ *
+ * Displays the most popular tags (traits) in the ecosystem.
+ * Shows what technologies or themes are currently trending.
+ */
 function DominantTraitsCard({ topTags }: DominantTraitsCardProps) {
   return (
     <div className="bg-linear-to-br from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-3xl p-8 border border-teal-100 dark:border-teal-800/50 relative overflow-hidden">
@@ -703,6 +733,12 @@ type EarlyAdoptersSectionProps = {
   }[];
 };
 
+/**
+ * Early Adopters Section
+ *
+ * Highlights the first prototype to use specific popular tags.
+ * Honors the pioneers who introduced new technologies or concepts.
+ */
 function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
@@ -814,6 +850,12 @@ type FirstPenguinSectionProps = {
   }[];
 };
 
+/**
+ * First Penguin Section
+ *
+ * Showcases the very first prototype released in each year.
+ * "First Penguin" refers to the courageous individual who dives first.
+ */
 function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
@@ -907,6 +949,12 @@ type StarAlignmentSectionProps = {
   }[];
 };
 
+/**
+ * Star Alignment Section
+ *
+ * Lists groups of prototypes released at the exact same second.
+ * Represents "cosmic synchronicity" between creators.
+ */
 function StarAlignmentSection({ alignments }: StarAlignmentSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-800">
@@ -1007,6 +1055,12 @@ type AnniversaryEffectSectionProps = {
   }[];
 };
 
+/**
+ * Anniversary Effect Section
+ *
+ * Analyzes release spikes on specific holidays (e.g., Christmas, Valentine's Day).
+ * Shows how special dates inspire creation.
+ */
 function AnniversaryEffectSection({ holidays }: AnniversaryEffectSectionProps) {
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-900">
