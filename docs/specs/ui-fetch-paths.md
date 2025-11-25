@@ -756,7 +756,7 @@ Key points:
   always uses the **map-store-first** playlist path:
   `usePlaylistPrototype` → `prototypeRepository.getByPrototypeId`.
 - The SHOW path is handled separately by `handleGetLatestPrototypeById`,
-  which uses `useLatestPrototypeById` → `getLatestPrototypeById` →
+  which uses `getLatestPrototypeById` →
   `fetchPrototypesViaNoStoreClient` →
   `protopediaNoStoreClient.listPrototypes` and never consults
   `prototypeMapStore`.
