@@ -116,14 +116,10 @@ export default async function HelloWorldPage() {
   );
 
   // Prepare Maker's Rhythm Data
-  const dayCounts = Object.values(
-    releaseTimeDistribution?.dayOfWeek || {},
-  ) as number[];
+  const dayCounts = releaseTimeDistribution?.dayOfWeek || [];
   const maxDayCount = dayCounts.length > 0 ? Math.max(...dayCounts) : 0;
 
-  const hourCounts = Object.values(
-    releaseTimeDistribution?.hour || {},
-  ) as number[];
+  const hourCounts = releaseTimeDistribution?.hour || [];
   const maxHourCount = hourCounts.length > 0 ? Math.max(...hourCounts) : 0;
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -167,8 +163,19 @@ export default async function HelloWorldPage() {
           <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-300 leading-relaxed">
             Greetings, Universe! Here we celebrate the ignition of new ideas.
             Witness the latest prototypes that have just materialized into our
-            world. (All times and dates are based on Japan Standard Time - JST)
+            world.
           </p>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-4 space-y-1">
+            <p>
+              * Analysis covers the <strong>entire history</strong> of
+              ProtoPedia.
+            </p>
+            <p>
+              * Data is based on the <strong>Release Date</strong> of each
+              prototype.
+            </p>
+            <p>* All times are displayed in Japan Standard Time (JST).</p>
+          </div>
         </header>
 
         {/* Newborns Section */}
@@ -251,6 +258,10 @@ export default async function HelloWorldPage() {
                   Every creation has a pulse. Observe the heartbeat of the
                   community through time.
                 </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  * Source: <strong>Release Date</strong> of all prototypes
+                  (Historical Data).
+                </p>
               </div>
               <div className="shrink-0">
                 <div className="relative w-32 h-32 flex items-center justify-center">
@@ -276,7 +287,7 @@ export default async function HelloWorldPage() {
                     return (
                       <div
                         key={day}
-                        className="flex flex-col items-center flex-1 gap-2 group"
+                        className="flex flex-col items-center justify-end flex-1 gap-2 group h-full"
                       >
                         <div className="relative w-full flex-1 flex items-end">
                           <div
@@ -310,7 +321,7 @@ export default async function HelloWorldPage() {
                     return (
                       <div
                         key={hour}
-                        className="flex flex-col items-center flex-1 gap-2 group"
+                        className="flex flex-col items-center justify-end flex-1 gap-2 group h-full"
                       >
                         <div className="relative w-full flex-1 flex items-end">
                           <div
@@ -322,11 +333,6 @@ export default async function HelloWorldPage() {
                             </div>
                           </div>
                         </div>
-                        {hour % 6 === 0 && (
-                          <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 absolute bottom-6">
-                            {hour}
-                          </span>
-                        )}
                       </div>
                     );
                   })}
@@ -397,6 +403,10 @@ export default async function HelloWorldPage() {
                   </span>{' '}
                   days, at least one new prototype has been released every
                   single day.
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  * Source: Consecutive days with at least one{' '}
+                  <strong>Release</strong> (All time).
                 </p>
               </div>
 
@@ -509,6 +519,9 @@ export default async function HelloWorldPage() {
                 <p className="text-sm font-medium text-indigo-600/80 dark:text-indigo-300/80 mt-1 uppercase tracking-wide text-center lg:text-left">
                   Total Lifeforms Detected
                 </p>
+                <p className="text-xs text-indigo-400/60 dark:text-indigo-300/60 mt-1">
+                  * Source: Current status of all registered prototypes.
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-indigo-200 dark:border-indigo-800">
                 {Object.entries(statusDistribution)
@@ -548,6 +561,9 @@ export default async function HelloWorldPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   The most common DNA sequences (tags) found in the current
                   population.
+                </p>
+                <p className="text-xs text-teal-600/60 dark:text-teal-300/60 mt-2">
+                  * Source: Tags attached to all registered prototypes.
                 </p>
               </div>
 

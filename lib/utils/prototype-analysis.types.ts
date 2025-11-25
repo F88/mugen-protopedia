@@ -135,9 +135,9 @@ export type ServerPrototypeAnalysis = {
   /** Release time distribution (Maker's Rhythm) */
   releaseTimeDistribution: {
     /** Count by day of week (0=Sunday, 6=Saturday) */
-    dayOfWeek: Record<number, number>;
+    dayOfWeek: number[];
     /** Count by hour of day (0-23) */
-    hour: Record<number, number>;
+    hour: number[];
   };
 
   /** Creation streak analysis (The Eternal Flame) */

@@ -126,6 +126,8 @@ const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
   yearKeys: Object.keys(analysis.yearDistribution),
   topTags: analysis.topTags.map((t) => t.tag),
   topTeams: analysis.topTeams.map((t) => t.team),
+  releaseTimeDistribution: analysis.releaseTimeDistribution,
+  creationStreak: analysis.creationStreak,
 });
 
 const logAnalysisDebugSample = (
@@ -250,6 +252,7 @@ export async function getLatestAnalysis(options?: {
       totalCount: cached.analysis.totalCount,
       cachedAt: cached.cachedAt,
       elapsedMs,
+      hasReleaseTimeDistribution: !!cached.analysis.releaseTimeDistribution, // DEBUG
     },
     'Latest analysis retrieved from cache',
   );

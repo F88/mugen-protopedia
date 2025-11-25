@@ -228,11 +228,8 @@ export function analyzePrototypesForServer(
   stepStart = performance.now();
 
   // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
-  const dayOfWeek: Record<number, number> = {};
-  const hour: Record<number, number> = {};
-  // Initialize counts
-  for (let i = 0; i < 7; i++) dayOfWeek[i] = 0;
-  for (let i = 0; i < 24; i++) hour[i] = 0;
+  const dayOfWeek: number[] = new Array(7).fill(0);
+  const hour: number[] = new Array(24).fill(0);
 
   const uniqueReleaseDates = new Set<string>();
   const JST_OFFSET = 9 * 60 * 60 * 1000;
@@ -248,8 +245,8 @@ export function analyzePrototypesForServer(
     // Maker's Rhythm
     const d = jstDate.getUTCDay(); // 0-6 (Sunday is 0)
     const h = jstDate.getUTCHours(); // 0-23
-    dayOfWeek[d] = (dayOfWeek[d] || 0) + 1;
-    hour[h] = (hour[h] || 0) + 1;
+    dayOfWeek[d]++;
+    hour[h]++;
 
     // Eternal Flame (YYYY-MM-DD in JST)
     const yyyy = jstDate.getUTCFullYear();
