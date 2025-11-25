@@ -282,3 +282,65 @@ The core philosophy is to provide unique insights that differ from the official 
 9.  **The Global Village (地球村 / 地域分析)**
     -   **Reason:**
         -   地名に基づく分析は、意図せず開発者の居住地や活動拠点を露わにするリスクがあり、プライバシー保護の観点から実施しない。
+
+---
+
+### Presentation Strategy (表示戦略)
+
+分析結果を単なるデータ表示に留めず、Mugen ProtoPedia のユニークなコンセプトである「作品の物語性」を最大限に引き出すため、以下の表示戦略を採用する。
+
+1.  **Analysis Dashboard (概要ダッシュボード)**
+    *   **役割:** 全体の統計情報、リアルタイム性の高いサマリー、基本的なKPI（総作品数、人気タグ、平均年齢など）をコンパクトに表示する。ユーザーが最初に訪れる場所であり、全体の現状を把握するためのハブとなる。
+    *   **現在の実装:** `components/analysis-dashboard.tsx` がこれに該当する。
+
+2.  **Feature Pages (特集ページ / ストーリーテリング)**
+    *   **役割:** 特定のテーマや分析コンセプトに深く焦点を当て、分析結果を「読み物」や「体験」として提供する。それぞれのページが独立した世界観を持ち、ユーザーをその物語へと誘う。これらの特集ページは一斉に実装されるのではなく、**Mugen ProtoPediaのコンテンツとして定期的にリリースされる**ことを想定している。これにより、継続的なコンテンツ提供とユーザーのエンゲージメント維持を図る。
+    *   **構成案:**
+        *   **🏥 The Maternity Ward (産院ページ)**
+            *   **テーマ:** **「誕生 (Birth)」「起源 (Origin)」「創造 (Creation)」**
+            *   **ターゲット感情:** 希望、ワクワク、応援、初々しさ。
+            *   **コンテンツ例:**
+                *   **The Maternity Hospital:** 最も多くの作品を生み出したイベント（産院）のランキング。
+                *   **The Spark of Creation:** アイデア段階の作品紹介。
+                *   **The Early Adopter:** 特定技術の「始祖」となる作品。
+                *   **The Gateway Drug:** 初心者が最初に選ぶ技術（入門への入り口）。
+                *   **Maker's Rhythm:** 作品が生まれる時間帯や時期のバイオリズム。
+            *   **デザインイメージ:** 明るく、清潔感があり、生命の息吹を感じさせる空間。パステルカラーや柔らかな光。
+
+        *   **🪦 The Memorial Park (墓場 / 黄泉の国ページ)**
+            *   **テーマ:** **「終焉 (End)」「追悼 (Memorial)」「供養 (Kuyo)」「歴史 (History)」**
+            *   **ターゲット感情:** 敬意、哀愁、安らぎ、感謝。
+            *   **コンテンツ例:**
+                *   **The Final Destination:** 供養された作品の分析とリスト。
+                *   **The Graveyard Shift:** 供養の季節性（年末の大掃除など）。
+                *   **Ghost in the Shell:** 供養されてなお愛され続ける作品。
+                *   **Deprecated Tech:** ロストテクノロジーの展示。
+                *   **The Prototyping Chronicle:** 年代記、時代の変遷。
+            *   **デザインイメージ:** 静かで厳かながらも、安らぎと次の可能性を感じさせる空間。ダークモード、灯篭、石碑。
+
+        *   **🌌 The Sci-Fi Lab (SF研究所 / 未知の領域ページ)**
+            *   **テーマ:** **「未知 (Unknown)」「未来 (Future)」「実験 (Experiment)」「物語 (Narrative)」**
+            *   **ターゲット感情:** 好奇心、驚き、畏怖、妄想。
+            *   **コンテンツ例:**
+                *   **SF Analysis Series:** The First Contact, The Mutation, The Time Traveler, The Hive Mind, The Android's Dream, The Dyson Sphere, The Parallel World.
+                *   **The Weekend Warrior's Crunch:** 深夜や週末のエンジニア生態（Night Owls vs Daywalkers）。
+            *   **デザインイメージ:** サイバーパンク、ネオン、グリッチノイズ、宇宙空間。実験的で尖ったUI。
+
+        *   **🧭 The Explorer's Guild (冒険者ギルド / 発見の場所)**
+            *   **テーマ:** **「探索 (Explore)」「冒険 (Adventure)」「戦略 (Strategy)」「仲間 (Community)」**
+            *   **ターゲット感情:** 挑戦心、仲間意識、発見の喜び。
+            *   **コンテンツ例:**
+                *   **The Tech Roadmap:** 技術の系統樹（スキルツリー）。
+                *   **The Missing Link:** 未踏の組み合わせ（ブルーオーシャン）。
+                *   **The "Unsung Hero" Award:** 縁の下の力持ち（地味だが重要なタグ）。
+                *   **The Random Encounter:** 偶然の出会い（ガチャ的要素）。
+                *   **The Diversity Score:** チームの多様性分析。
+                *   **User Analysis:** 古参・新参ユーザー分析や成長記録（具体的なアイデアは今後検討）。
+            *   **デザインイメージ:** 地図、コンパス、クエストボード、ギルド酒場のような温かみと活気のある空間。
+
+    *   **メリット:**
+        *   分析結果に没入感のあるストーリーラインを付与できる。
+        *   各ページが独立した世界観を提供することで、ユーザー体験が豊かになる。
+        *   コンテンツの追加や拡張が容易。
+        *   SNSでのシェアや話題性が高まる。
+        *   **Mugen ProtoPediaの継続的なコンテンツ更新とエンゲージメント維持に寄与する。**
