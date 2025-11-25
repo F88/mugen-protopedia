@@ -13,6 +13,10 @@ import {
   buildYearDistribution,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
+  buildTopMaterials,
+  buildTimeDistributionsAndUniqueDates,
+  calculateCreationStreak,
+  buildAdvancedAnalysis,
 } from '@/lib/utils/prototype-analysis-helpers';
 import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
 import { faker } from '@faker-js/faker';
@@ -30,6 +34,18 @@ function analyzePrototypes(
   const prototypesWithAwards = countPrototypesWithAwards(prototypes);
   const { topTags } = buildTopTags(prototypes);
   const { topTeams } = buildTopTeams(prototypes);
+  const { topMaterials } = buildTopMaterials(prototypes);
+  const {
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    uniqueReleaseDates,
+  } = buildTimeDistributionsAndUniqueDates(prototypes);
+  const creationStreak = calculateCreationStreak(
+    uniqueReleaseDates,
+    referenceDate,
+  );
+  const advancedAnalysis = buildAdvancedAnalysis(prototypes, topTags);
+
   const averageAgeInDays =
     totalCount > 0
       ? Math.round(computeAverageAgeInDays(prototypes, referenceDate) * 100) /
@@ -67,12 +83,17 @@ function analyzePrototypes(
       statusDistribution,
       prototypesWithAwards,
       topTags,
+      topMaterials,
       averageAgeInDays,
       yearDistribution,
       topTeams,
       analyzedAt: referenceDate.toISOString(),
       anniversaryCandidates,
       anniversaries,
+      releaseTimeDistribution,
+      updateTimeDistribution,
+      creationStreak,
+      ...advancedAnalysis,
     };
   }
 
@@ -81,12 +102,17 @@ function analyzePrototypes(
     statusDistribution,
     prototypesWithAwards,
     topTags,
+    topMaterials,
     averageAgeInDays,
     yearDistribution,
     topTeams,
     analyzedAt: referenceDate.toISOString(),
     anniversaryCandidates,
     anniversaries,
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    creationStreak,
+    ...advancedAnalysis,
   };
 }
 
@@ -506,6 +532,76 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
     { count: 8 },
   );
 
+  const topMaterials = faker.helpers.multiple(
+    () => ({
+      material: faker.commerce.productMaterial(),
+      count: faker.number.int({ min: 5, max: 50 }),
+    }),
+    { count: 10 },
+  );
+
+  const releaseTimeDistribution = {
+    dayOfWeek: Array.from({ length: 7 }).map(() =>
+      faker.number.int({ min: 0, max: 100 }),
+    ),
+    hour: Array.from({ length: 24 }).map(() =>
+      faker.number.int({ min: 0, max: 50 }),
+    ),
+    heatmap: Array.from({ length: 7 }).map(() =>
+      Array.from({ length: 24 }).map(() =>
+        faker.number.int({ min: 0, max: 10 }),
+      ),
+    ),
+  };
+
+  const updateTimeDistribution = {
+    dayOfWeek: Array.from({ length: 7 }).map(() =>
+      faker.number.int({ min: 0, max: 100 }),
+    ),
+    hour: Array.from({ length: 24 }).map(() =>
+      faker.number.int({ min: 0, max: 50 }),
+    ),
+    heatmap: Array.from({ length: 7 }).map(() =>
+      Array.from({ length: 24 }).map(() =>
+        faker.number.int({ min: 0, max: 10 }),
+      ),
+    ),
+  };
+
+  const creationStreak = {
+    currentStreak: faker.number.int({ min: 0, max: 10 }),
+    longestStreak: faker.number.int({ min: 10, max: 50 }),
+    longestStreakEndDate: faker.date.past().toISOString(),
+    totalActiveDays: faker.number.int({ min: 100, max: 500 }),
+  };
+
+  const advancedAnalysis = {
+    firstPenguins: [],
+    starAlignments: [],
+    anniversaryEffect: [],
+    earlyAdopters: [],
+    laborOfLove: {
+      longestGestation: [],
+      distribution: {},
+    },
+    maternityHospital: {
+      topEvents: [],
+      independentRatio: 0.5,
+    },
+    powerOfDeadlines: {
+      spikes: [],
+    },
+    weekendWarrior: {
+      sundaySprintCount: 0,
+      midnightCount: 0,
+      daytimeCount: 0,
+      totalCount: 0,
+    },
+    holyDay: {
+      topDays: [],
+    },
+  };
+
   return {
     totalCount: count,
     statusDistribution: {
@@ -526,6 +622,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       }),
       { count: 10 },
     ),
+    topMaterials,
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
     yearDistribution: Object.fromEntries(
       Array.from({ length: 10 }).map((_, index) => {
@@ -553,6 +650,10 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       },
       mmdd: [],
     },
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    creationStreak,
+    ...advancedAnalysis,
   } satisfies PrototypeAnalysis;
 };
 
