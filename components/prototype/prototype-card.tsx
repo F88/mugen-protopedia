@@ -163,7 +163,7 @@ export const PrototypeCard = ({
         months={age.months}
         // days={age.days}
         icon={`🎉`}
-        prefixText={`${formatDateForDisplay(prototype.releaseDate)} ()`}
+        prefixText={`${formatDateForDisplay(prototype.releaseDate)} (`}
         suffixText={')'}
         className="w-full justify-center text-center"
         nowrap
