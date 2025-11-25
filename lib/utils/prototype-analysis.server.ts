@@ -183,7 +183,8 @@ export function analyzePrototypesForServer(
         now,
         logger,
       ),
-      releaseTimeDistribution: { dayOfWeek: [], hour: [] },
+      releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
       creationStreak: {
         currentStreak: 0,
         longestStreak: 0,
@@ -196,6 +197,14 @@ export function analyzePrototypesForServer(
       anniversaryEffect: [],
       laborOfLove: { longestGestation: [], distribution: {} },
       maternityHospital: { topEvents: [], independentRatio: 0 },
+      powerOfDeadlines: { spikes: [] },
+      weekendWarrior: {
+        sundaySprintCount: 0,
+        midnightCount: 0,
+        daytimeCount: 0,
+        totalCount: 0,
+      },
+      holyDay: { topDays: [] },
       _debugMetrics: metrics,
     };
   }
@@ -243,6 +252,15 @@ export function analyzePrototypesForServer(
   // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
   const dayOfWeek: number[] = new Array(7).fill(0);
   const hour: number[] = new Array(24).fill(0);
+  const heatmap: number[][] = Array.from({ length: 7 }, () =>
+    new Array(24).fill(0),
+  );
+
+  const updateDayOfWeek: number[] = new Array(7).fill(0);
+  const updateHour: number[] = new Array(24).fill(0);
+  const updateHeatmap: number[][] = Array.from({ length: 7 }, () =>
+    new Array(24).fill(0),
+  );
 
   const uniqueReleaseDates = new Set<string>();
   const JST_OFFSET = 9 * 60 * 60 * 1000;
@@ -255,11 +273,25 @@ export function analyzePrototypesForServer(
     // Convert to JST
     const jstDate = new Date(date.getTime() + JST_OFFSET);
 
-    // Maker's Rhythm
+    // Maker's Rhythm (Release)
     const d = jstDate.getUTCDay(); // 0-6 (Sunday is 0)
     const h = jstDate.getUTCHours(); // 0-23
     dayOfWeek[d]++;
     hour[h]++;
+    heatmap[d][h]++;
+
+    // Maker's Rhythm (Update)
+    if (p.updateDate) {
+      const updateDate = new Date(p.updateDate);
+      if (!Number.isNaN(updateDate.getTime())) {
+        const jstUpdateDate = new Date(updateDate.getTime() + JST_OFFSET);
+        const ud = jstUpdateDate.getUTCDay();
+        const uh = jstUpdateDate.getUTCHours();
+        updateDayOfWeek[ud]++;
+        updateHour[uh]++;
+        updateHeatmap[ud][uh]++;
+      }
+    }
 
     // Eternal Flame (YYYY-MM-DD in JST)
     const yyyy = jstDate.getUTCFullYear();
@@ -268,7 +300,12 @@ export function analyzePrototypesForServer(
     uniqueReleaseDates.add(`${yyyy}-${mm}-${dd}`);
   });
 
-  const releaseTimeDistribution = { dayOfWeek, hour };
+  const releaseTimeDistribution = { dayOfWeek, hour, heatmap };
+  const updateTimeDistribution = {
+    dayOfWeek: updateDayOfWeek,
+    hour: updateHour,
+    heatmap: updateHeatmap,
+  };
 
   // Calculate Streaks
   const sortedDates = Array.from(uniqueReleaseDates).sort();
@@ -551,7 +588,7 @@ export function analyzePrototypesForServer(
   const starAlignments = Array.from(timestampMap.entries())
     .filter(([, protos]) => protos.length > 1)
     .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime()) // Newest first
-    .slice(0, 10) // Top 10
+    .slice(0, 30) // Top 30
     .map(([ts, protos]) => ({
       timestamp: ts,
       prototypes: protos.map((p) => ({ id: p.id, title: p.prototypeNm })),
@@ -582,14 +619,14 @@ export function analyzePrototypesForServer(
   const laborOfLove = {
     longestGestation: gestationData
       .sort((a, b) => b.durationDays - a.durationDays)
-      .slice(0, 10),
+      .slice(0, 30),
     distribution: gestationDistribution,
   };
 
   const maternityHospital = {
     topEvents: Object.entries(eventCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
+      .slice(0, 30)
       .map(([event, count]) => ({ event, count })),
     independentRatio:
       totalWithEventStatus > 0 ? independentCount / totalWithEventStatus : 0,
@@ -598,7 +635,7 @@ export function analyzePrototypesForServer(
   const powerOfDeadlines = {
     spikes: Object.entries(dailyReleaseCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
+      .slice(0, 30)
       .map(([date, count]) => ({ date, count, score: count })), // Score is just count for now
   };
 
@@ -612,7 +649,7 @@ export function analyzePrototypesForServer(
   const holyDay = {
     topDays: Object.entries(holyDayCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
+      .slice(0, 30)
       .map(([date, count]) => ({ date, count })),
   };
 
@@ -666,6 +703,7 @@ export function analyzePrototypesForServer(
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
     releaseTimeDistribution,
+    updateTimeDistribution,
     creationStreak,
     earlyAdopters,
     firstPenguins,

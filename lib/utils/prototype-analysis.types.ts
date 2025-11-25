@@ -136,6 +136,18 @@ export type ServerPrototypeAnalysis = {
     dayOfWeek: number[];
     /** Count by hour of day (0-23) */
     hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
+  };
+
+  /** Update time distribution (Maker's Rhythm - Update) */
+  updateTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: number[];
+    /** Count by hour of day (0-23) */
+    hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
   };
 
   /** Creation streak analysis (The Eternal Flame) */
