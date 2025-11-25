@@ -25,13 +25,13 @@ import type {
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
-import { useLatestPrototypeById } from '@/lib/hooks/use-latest-prototype-by-id';
 import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
+import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
@@ -115,7 +115,6 @@ export function MugenProtoPedia() {
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
-  const [showTargetId, setShowTargetId] = useState<number | null>(null);
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -176,21 +175,6 @@ export function MugenProtoPedia() {
     maxConcurrentFetches: 6,
     simulateDelayRangeMs,
   });
-
-  const {
-    prototype: latestPrototypeById,
-    error: latestPrototypeError,
-    // isLoading: isLatestPrototypeLoading,
-  } = useLatestPrototypeById(
-    { id: showTargetId ?? undefined },
-    {
-      // SHOW is interactive; avoid unexpected refetches while allowing
-      // manual re-runs to hit upstream when desired.
-      dedupingInterval: 10_000,
-      revalidateOnFocus: false,
-      revalidateIfStale: false,
-    },
-  );
 
   // data
   const {
@@ -447,8 +431,8 @@ export function MugenProtoPedia() {
   /**
    * Fetch a prototype by explicit ID from SHOW controls (input field).
    *
-   * Validates input, respects concurrency cap, and uses the upstream-only
-   * `useLatestPrototypeById` path for freshness with SWR caching.
+   * Validates input, respects concurrency cap, and performs a one-shot
+   * upstream fetch via `getLatestPrototypeById`.
    */
   const handleGetLatestPrototypeById = useCallback(
     async (id: number) => {
@@ -466,17 +450,9 @@ export function MugenProtoPedia() {
 
       const slotId = appendPlaceholder({ expectedPrototypeId: id });
       setPrototypeIdError(null);
-      setShowTargetId(id);
 
       try {
-        // Prefer SWR-cached latest prototype when available for this id.
-        if (latestPrototypeError) {
-          setPrototypeIdError(latestPrototypeError);
-          setSlotError(slotId, latestPrototypeError);
-          return;
-        }
-
-        const prototype: Prototype | null = latestPrototypeById;
+        const prototype = await getLatestPrototypeById(id);
 
         if (!prototype) {
           setPrototypeIdError('Not found.');
@@ -500,9 +476,6 @@ export function MugenProtoPedia() {
       appendPlaceholder,
       setPrototypeIdError,
       setSlotError,
-      latestPrototypeById,
-      latestPrototypeError,
-      setShowTargetId,
       clonePrototype,
       replacePrototypeInSlot,
       decrementInFlightRequests,
