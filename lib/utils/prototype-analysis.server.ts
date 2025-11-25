@@ -194,6 +194,7 @@ export function analyzePrototypesForServer(
       firstPenguins: [],
       starAlignments: [],
       anniversaryEffect: [],
+      laborOfLove: { longestGestation: [], distribution: {} },
       _debugMetrics: metrics,
     };
   }
@@ -369,6 +370,23 @@ export function analyzePrototypesForServer(
   const earlyAdoptersMap = new Map<string, NormalizedPrototype>();
   const topTagNames = new Set(topTags.slice(0, 50).map((t) => t.tag));
 
+  // 5. Labor of Love (Gestation Period)
+  const gestationData: Array<{
+    id: number;
+    title: string;
+    durationDays: number;
+    createDate: string;
+    releaseDate: string;
+  }> = [];
+  const gestationDistribution: Record<string, number> = {
+    'Less than 1 week': 0,
+    '1 week - 1 month': 0,
+    '1 month - 3 months': 0,
+    '3 months - 6 months': 0,
+    '6 months - 1 year': 0,
+    'Over 1 year': 0,
+  };
+
   prototypes.forEach((p) => {
     if (!p.releaseDate) return;
     const date = new Date(p.releaseDate);
@@ -430,6 +448,31 @@ export function analyzePrototypesForServer(
         }
       });
     }
+
+    // 5. Labor of Love
+    if (p.createDate && p.releaseDate) {
+      const createTime = new Date(p.createDate).getTime();
+      const releaseTime = new Date(p.releaseDate).getTime();
+      const diffMs = releaseTime - createTime;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        gestationData.push({
+          id: p.id,
+          title: p.prototypeNm,
+          durationDays: diffDays,
+          createDate: p.createDate,
+          releaseDate: p.releaseDate,
+        });
+
+        if (diffDays < 7) gestationDistribution['Less than 1 week']++;
+        else if (diffDays < 30) gestationDistribution['1 week - 1 month']++;
+        else if (diffDays < 90) gestationDistribution['1 month - 3 months']++;
+        else if (diffDays < 180) gestationDistribution['3 months - 6 months']++;
+        else if (diffDays < 365) gestationDistribution['6 months - 1 year']++;
+        else gestationDistribution['Over 1 year']++;
+      }
+    }
   });
 
   // Format Results
@@ -478,6 +521,13 @@ export function analyzePrototypesForServer(
       (a, b) =>
         new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime(),
     );
+
+  const laborOfLove = {
+    longestGestation: gestationData
+      .sort((a, b) => b.durationDays - a.durationDays)
+      .slice(0, 10),
+    distribution: gestationDistribution,
+  };
 
   metrics.makerRhythmAndStreak = performance.now() - stepStart;
 
@@ -534,6 +584,7 @@ export function analyzePrototypesForServer(
     firstPenguins,
     starAlignments,
     anniversaryEffect,
+    laborOfLove,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

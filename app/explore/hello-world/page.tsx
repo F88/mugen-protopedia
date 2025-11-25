@@ -50,6 +50,8 @@ const IconTelescope = () => <span>🔭</span>;
 const IconPenguin = () => <span>🐧</span>;
 const IconStar = () => <span>🌠</span>;
 const IconGift = () => <span>🎁</span>;
+const IconTool = () => <span>🛠️</span>;
+const IconHeart = () => <span>❤️</span>;
 
 export const dynamic = 'force-dynamic';
 
@@ -86,6 +88,8 @@ export default async function HelloWorldPage() {
     firstPenguins,
     starAlignments,
     anniversaryEffect,
+    topMaterials,
+    laborOfLove,
   } = analysis;
 
   // Determine "Today" based on JST (Asia/Tokyo) for server-side processing
@@ -186,6 +190,8 @@ export default async function HelloWorldPage() {
           </div>
         </header>
 
+        <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
+
         {/* Statistics Section */}
         <section className="grid gap-8 md:grid-cols-2 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 mb-16">
           <UniversePopulationCard
@@ -195,7 +201,7 @@ export default async function HelloWorldPage() {
           <DominantTraitsCard topTags={topTags} />
         </section>
 
-        <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
+        <GatewayDrugSection topMaterials={topMaterials} />
 
         <MakersRhythmSection
           distribution={releaseTimeDistribution}
@@ -208,6 +214,8 @@ export default async function HelloWorldPage() {
           streak={creationStreak}
           longestStreakPeriod={longestStreakPeriod}
         />
+
+        <LaborOfLoveSection laborOfLove={laborOfLove} />
 
         <EarlyAdoptersSection adopters={earlyAdopters} />
 
@@ -724,6 +732,86 @@ function DominantTraitsCard({ topTags }: DominantTraitsCardProps) {
   );
 }
 
+type GatewayDrugSectionProps = {
+  topMaterials: { material: string; count: number }[];
+};
+
+/**
+ * The Gateway Drug Section (Top Materials)
+ *
+ * Displays the most frequently used materials/tools (e.g., M5Stack, Unity).
+ * Represents the "entry point" technologies for many creators.
+ */
+function GatewayDrugSection({ topMaterials }: GatewayDrugSectionProps) {
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
+      <div className="bg-linear-to-r from-lime-50 to-green-50 dark:from-lime-900/20 dark:to-green-900/20 rounded-3xl p-8 border border-lime-100 dark:border-lime-800/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-64 h-64 bg-green-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-lime-100 dark:bg-lime-800 rounded-full text-lime-600 dark:text-lime-300">
+                <IconTool />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                The Gateway Drug
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Every addiction starts somewhere. These are the tools and
+              materials that hooked us into the world of prototyping.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: <strong>Materials/Tools</strong> listed in all
+              registered prototypes.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-lime-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
+              <div className="text-6xl filter drop-shadow-lg">🛠️</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 space-y-4">
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+            {topMaterials
+              .slice(0, 15)
+              .map(
+                ({ material, count }: { material: string; count: number }) => (
+                  <div
+                    key={material}
+                    className="flex items-center bg-white/80 dark:bg-black/20 rounded-lg px-4 py-2 border border-lime-100 dark:border-lime-800/50 hover:scale-105 transition-transform cursor-default"
+                  >
+                    <span className="text-base font-bold text-lime-800 dark:text-lime-200 mr-2">
+                      {material}
+                    </span>
+                    <span className="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900/50 px-2 py-0.5 rounded-full">
+                      {count}
+                    </span>
+                  </div>
+                ),
+              )}
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-lime-200/50 dark:border-lime-800/30 mt-8">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">💊</span> Choose Your Poison
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Whether it&apos;s the click of a mechanical switch, the glow of an
+            LED, or the infinite possibilities of a game engine, these are the
+            common languages we speak.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 type EarlyAdoptersSectionProps = {
   adopters: {
     tag: string;
@@ -1151,6 +1239,149 @@ function AnniversaryEffectSection({ holidays }: AnniversaryEffectSectionProps) {
             Whether it&apos;s a Christmas gadget, a Valentine&apos;s gift, or an
             April Fool&apos;s joke, makers love to sync their releases with the
             calendar. These spikes reveal the playful heart of the community.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type LaborOfLoveSectionProps = {
+  laborOfLove: {
+    longestGestation: Array<{
+      id: number;
+      title: string;
+      durationDays: number;
+      createDate: string;
+      releaseDate: string;
+    }>;
+    distribution: Record<string, number>;
+  };
+};
+
+/**
+ * Labor of Love Section (Gestation Period)
+ *
+ * Visualizes the prolonged effort and dedication behind a prototype.
+ * Celebrates the "struggle" and persistence of creators.
+ */
+function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
+  const { longestGestation, distribution } = laborOfLove;
+
+  return (
+    <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-600">
+      <div className="bg-linear-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 rounded-3xl p-8 border border-pink-100 dark:border-pink-800/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 -mt-10 -ml-10 w-64 h-64 bg-rose-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-8">
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+              <div className="p-3 bg-pink-100 dark:bg-pink-800 rounded-full text-pink-600 dark:text-pink-300">
+                <IconHeart />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Labor of Love
+              </h2>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Great things take time. These prototypes are the result of long
+              gestation periods, proving that persistence pays off.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              * Source: Duration between <strong>Registration</strong> and{' '}
+              <strong>Release</strong>.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <div className="relative w-32 h-32 flex items-center justify-center">
+              <div className="absolute inset-0 bg-pink-400/20 rounded-full animate-pulse opacity-20 duration-4000"></div>
+              <div className="text-6xl filter drop-shadow-lg">❤️</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 grid gap-8 lg:grid-cols-2 mb-8">
+          {/* Longest Gestation Ranking */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-800/30">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+              <span>🏆</span> The Longest Journeys
+            </h3>
+            <div className="space-y-3">
+              {longestGestation.slice(0, 5).map((item, index) => (
+                <Link
+                  key={item.id}
+                  href={`https://protopedia.net/prototype/${item.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between group hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 rounded-full text-xs font-bold">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900 dark:text-white truncate group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                        {item.title}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(item.createDate).toLocaleDateString()} →{' '}
+                        {new Date(item.releaseDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 text-right ml-4">
+                    <span className="block text-lg font-bold text-pink-600 dark:text-pink-400">
+                      {item.durationDays.toLocaleString()}
+                    </span>
+                    <span className="text-[10px] text-gray-400 uppercase">
+                      Days
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Distribution Chart (Simple Bar) */}
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-pink-100 dark:border-pink-800/30">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
+              <span>📊</span> Gestation Period
+            </h3>
+            <div className="space-y-3">
+              {Object.entries(distribution).map(([label, count]) => {
+                const maxCount = Math.max(...Object.values(distribution));
+                const percent = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                return (
+                  <div key={label}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {label}
+                      </span>
+                      <span className="font-bold text-gray-800 dark:text-gray-200">
+                        {count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full bg-pink-100 dark:bg-pink-900/30 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-pink-400 dark:bg-pink-500 h-full rounded-full"
+                        style={{ width: `${percent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 pt-8 border-t border-pink-200/50 dark:border-pink-800/30">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <span className="text-xl">🍷</span> Aged to Perfection
+          </h3>
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            Not all prototypes are built in a weekend hackathon. Some ideas need
+            time to mature, evolve, and find their perfect form. We honor the
+            creators who stuck with their vision through the long haul.
           </p>
         </div>
       </div>

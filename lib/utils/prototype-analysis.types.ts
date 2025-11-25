@@ -187,6 +187,20 @@ export type ServerPrototypeAnalysis = {
     count: number;
     examples: Array<{ id: number; title: string; year: number }>;
   }>;
+
+  /** Labor of Love analysis (Gestation period) */
+  laborOfLove: {
+    /** Top prototypes with longest gestation period */
+    longestGestation: Array<{
+      id: number;
+      title: string;
+      durationDays: number;
+      createDate: string;
+      releaseDate: string;
+    }>;
+    /** Distribution of gestation periods */
+    distribution: Record<string, number>;
+  };
 };
 
 /**

@@ -30,7 +30,6 @@ The core philosophy is to provide unique insights that differ from the official 
 - **テーマ:** **「始まり (Beginning)」「光の誕生 (Birth of Light)」「鮮やかな瞬間 (Vivid Moment)」**
 - **ターゲット感情:** 歓喜、希望、瑞々しさ、芸術的な感動。
 - **コンテンツ例:**
-    - **The Newborn Stars:** 最新のリリース作品や、その日の誕生作品。
     - **The Early Adopter:** 特定技術の「始祖」となる作品。
     - **The Gateway Drug:** 初心者が最初に選ぶ技術（入門への入り口）。
     - **Maker's Rhythm:** 作品が生まれる時間帯や時期のバイオリズム。
