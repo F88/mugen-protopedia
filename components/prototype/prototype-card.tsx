@@ -4,7 +4,8 @@ import { useState } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { cn } from '@/lib/utils';
-import { formatAgeFromDate, formatDateForDisplay } from '@/lib/utils/format';
+import { calculateAge } from '@/lib/utils/anniversary-nerd';
+import { formatDateForDisplay } from '@/lib/utils/format';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
 import { buildMaterialLink, buildTagLink } from '@/lib/utils/prototype-utils';
 
@@ -13,6 +14,7 @@ import { Castle, SquarePlay, UserRound } from 'lucide-react';
 import { Medals } from '@/components/medals';
 import { PrototypeMainImage } from '@/components/prototype/prototype-main-image';
 import { PrototypeStats } from '@/components/prototype/prototype-stats';
+import { AnniversaryBadge } from '@/components/ui/badges/annversary-badge';
 import { PrototypeIdBadge } from '@/components/ui/badges/prototype-id-badge';
 import { StatusBadge } from '@/components/ui/badges/status-badge';
 import { ValueBadge } from '@/components/ui/badges/value-badge';
@@ -63,9 +65,6 @@ export const PrototypeCard = ({
   const isLongSummary = summary.length > 100;
   const displayedSummary =
     expanded || !isLongSummary ? summary : summary.slice(0, 100);
-
-  const formattedDate = formatDateForDisplay(prototype.releaseDate);
-  const elapsed = formatAgeFromDate(prototype.releaseDate);
 
   const officialLink =
     typeof prototype.officialLink === 'string'
@@ -127,15 +126,51 @@ export const PrototypeCard = ({
     />
   ));
 
-  const metaBadges = [
-    <ValueBadge
-      key="meta-date"
-      value={`🎉 ${formattedDate} (${elapsed})`}
-      className="w-full justify-center text-center"
-      nowrap
-      size="responsive"
-    />,
-  ];
+  // const metaBadges = [
+  //   <ValueBadge
+  //     key="meta-release-date"
+  //     icon={'🎉'}
+  //     value={`${formatDateForDisplay(prototype.releaseDate)}`}
+  //     className="justify-center text-center"
+  //     nowrap
+  //     size="responsive"
+  //   />,
+  //   <ValueBadge
+  //     key="meta-update-date"
+  //     icon={'🔄'}
+  //     value={`${formatDateForDisplay(prototype.updateDate)}`}
+  //     className="justify-center text-center"
+  //     nowrap
+  //     size="responsive"
+  //   />,
+  //   <ValueBadge
+  //     key="meta-create-date"
+  //     icon={'🌱'}
+  //     value={`${formatDateForDisplay(prototype.createDate)}`}
+  //     className="justify-center text-center"
+  //     nowrap
+  //     size="responsive"
+  //   />,
+  // ];
+
+  const age = calculateAge(prototype.releaseDate);
+  const ageBadge = (
+    <>
+      <AnniversaryBadge
+        key="meta-date-2"
+        years={age.years}
+        yearLabel="歳"
+        months={age.months}
+        // days={age.days}
+        icon={`🎉`}
+        prefixText={`${formatDateForDisplay(prototype.releaseDate)} (`}
+        suffixText={')'}
+        className="w-full justify-center text-center"
+        nowrap
+        size="responsive"
+      />
+    </>
+  );
 
   const videoBadges =
     videoUrls.length > 0
@@ -251,9 +286,10 @@ export const PrototypeCard = ({
           <PrototypeStats prototype={prototype} />
 
           {/* Badges */}
-          {metaBadges.length > 0 && (
+          {/* {metaBadges.length > 0 && (
             <div className="flex flex-wrap gap-2">{metaBadges}</div>
-          )}
+          )} */}
+          <div className="flex flex-wrap gap-2">{ageBadge}</div>
           {badgeElements.length > 0 && (
             <div className="flex flex-wrap gap-2">{badgeElements}</div>
           )}
