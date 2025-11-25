@@ -1,7 +1,7 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent, type ReactNode } from 'react';
+import React from 'react';
 
 import type { ControlpanelMode } from '@/types/mugen-protopedia.types';
 
