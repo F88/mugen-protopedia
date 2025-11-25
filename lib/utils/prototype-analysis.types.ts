@@ -131,6 +131,26 @@ export type ServerPrototypeAnalysis = {
    * performing timezone-aware anniversary detection.
    */
   anniversaryCandidates: AnniversaryCandidates;
+
+  /** Release time distribution (Maker's Rhythm) */
+  releaseTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: Record<number, number>;
+    /** Count by hour of day (0-23) */
+    hour: Record<number, number>;
+  };
+
+  /** Creation streak analysis (The Eternal Flame) */
+  creationStreak: {
+    /** Current streak of consecutive days with releases (up to yesterday/today) */
+    currentStreak: number;
+    /** Longest streak in history */
+    longestStreak: number;
+    /** Date when the longest streak ended */
+    longestStreakEndDate: string | null;
+    /** Total active days (days with at least one release) */
+    totalActiveDays: number;
+  };
 };
 
 /**

@@ -225,6 +225,112 @@ export function analyzePrototypesForServer(
   );
   metrics.anniversaryCandidates = performance.now() - stepStart;
 
+  stepStart = performance.now();
+
+  // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
+  const dayOfWeek: Record<number, number> = {};
+  const hour: Record<number, number> = {};
+  // Initialize counts
+  for (let i = 0; i < 7; i++) dayOfWeek[i] = 0;
+  for (let i = 0; i < 24; i++) hour[i] = 0;
+
+  const uniqueReleaseDates = new Set<string>();
+  const JST_OFFSET = 9 * 60 * 60 * 1000;
+
+  prototypes.forEach((p) => {
+    if (!p.releaseDate) return;
+    const date = new Date(p.releaseDate);
+    if (Number.isNaN(date.getTime())) return;
+
+    // Convert to JST
+    const jstDate = new Date(date.getTime() + JST_OFFSET);
+
+    // Maker's Rhythm
+    const d = jstDate.getUTCDay(); // 0-6 (Sunday is 0)
+    const h = jstDate.getUTCHours(); // 0-23
+    dayOfWeek[d] = (dayOfWeek[d] || 0) + 1;
+    hour[h] = (hour[h] || 0) + 1;
+
+    // Eternal Flame (YYYY-MM-DD in JST)
+    const yyyy = jstDate.getUTCFullYear();
+    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
+    uniqueReleaseDates.add(`${yyyy}-${mm}-${dd}`);
+  });
+
+  const releaseTimeDistribution = { dayOfWeek, hour };
+
+  // Calculate Streaks
+  const sortedDates = Array.from(uniqueReleaseDates).sort();
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let longestStreakEndDate: string | null = null;
+  let tempStreak = 0;
+  let prevDateVal: number | null = null;
+
+  // Helper to parse YYYY-MM-DD to timestamp (UTC midnight, but represents JST date)
+  const parseDateStr = (str: string) => {
+    const [y, m, d] = str.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  };
+
+  for (const dateStr of sortedDates) {
+    const dateVal = parseDateStr(dateStr);
+
+    if (prevDateVal === null) {
+      tempStreak = 1;
+    } else {
+      const diff = dateVal - prevDateVal;
+      const oneDay = 24 * 60 * 60 * 1000;
+
+      // Allow small margin for leap seconds or slight calc errors, though Date.UTC should be exact
+      if (Math.abs(diff - oneDay) < 1000) {
+        tempStreak++;
+      } else {
+        // Streak broken
+        if (tempStreak > longestStreak) {
+          longestStreak = tempStreak;
+          longestStreakEndDate = new Date(prevDateVal)
+            .toISOString()
+            .split('T')[0];
+        }
+        tempStreak = 1;
+      }
+    }
+    prevDateVal = dateVal;
+  }
+
+  // Check final streak
+  if (tempStreak > longestStreak) {
+    longestStreak = tempStreak;
+    longestStreakEndDate = sortedDates[sortedDates.length - 1];
+  }
+
+  // Determine "Current" streak
+  // If the last release date is Today or Yesterday (JST), the streak is alive.
+  const nowJST = new Date(now.getTime() + JST_OFFSET);
+  const todayJSTStr = nowJST.toISOString().split('T')[0]; // YYYY-MM-DD (UTC of JST time)
+
+  const yesterdayJST = new Date(nowJST.getTime() - 24 * 60 * 60 * 1000);
+  const yesterdayJSTStr = yesterdayJST.toISOString().split('T')[0];
+
+  const lastReleaseDate = sortedDates[sortedDates.length - 1];
+
+  if (lastReleaseDate === todayJSTStr || lastReleaseDate === yesterdayJSTStr) {
+    currentStreak = tempStreak;
+  } else {
+    currentStreak = 0;
+  }
+
+  const creationStreak = {
+    currentStreak,
+    longestStreak,
+    longestStreakEndDate,
+    totalActiveDays: sortedDates.length,
+  };
+
+  metrics.makerRhythmAndStreak = performance.now() - stepStart;
+
   // --- End metrics collection ---
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
@@ -272,6 +378,8 @@ export function analyzePrototypesForServer(
     topMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
+    releaseTimeDistribution,
+    creationStreak,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }
