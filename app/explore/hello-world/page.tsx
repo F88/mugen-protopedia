@@ -92,30 +92,19 @@ export default async function HelloWorldPage() {
     laborOfLove,
   } = analysis;
 
-  // Determine "Today" based on JST (Asia/Tokyo) for server-side processing
+  // Determine "Now" and "24 Hours Ago" for filtering newborns
   const now = new Date();
-  const jstTodayString = now.toLocaleDateString('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }); // YYYY-MM-DD
+  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-  // Filter newborns: Prototypes released "Today" (YYYY-MM-DD match in JST)
+  // Filter newborns: Prototypes released within the last 24 hours
   const newbornPrototypes = anniversaryCandidates.mmdd.filter(
     (p: AnniversaryCandidatePrototype) => {
       const pDate = new Date(p.releaseDate);
-      const pJstDateString = pDate.toLocaleDateString('en-CA', {
-        timeZone: 'Asia/Tokyo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
 
       // Handle invalid dates
       if (Number.isNaN(pDate.getTime())) return false;
 
-      return pJstDateString === jstTodayString;
+      return pDate >= twentyFourHoursAgo && pDate <= now;
     },
   );
 
