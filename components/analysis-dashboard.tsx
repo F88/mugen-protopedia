@@ -12,8 +12,8 @@ import type {
 
 import { RefreshCw } from 'lucide-react';
 
+import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
 import { AnalysisSummary } from '@/components/analysis-summary';
-import { StatBadge } from '@/components/ui/badges/stat-badge';
 import { StatusBadge } from '@/components/ui/badges/status-badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -94,36 +94,7 @@ function StatusDistribution({
   );
 }
 
-/**
- * Component to display top tags
- */
-function TopTags({
-  topTags,
-}: {
-  topTags: Array<{ tag: string; count: number }>;
-}) {
-  if (topTags.length === 0) {
-    return <div className="text-sm text-gray-500">No tags available</div>;
-  }
-
-  return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Popular Tags
-      </h4>
-      <div className="flex flex-wrap justify-center gap-1 sm:justify-start">
-        {topTags.slice(0, 6).map(({ tag, count }) => (
-          <StatBadge
-            key={tag}
-            label={tag}
-            value={count}
-            wrapValueWithParens={true}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
+// TopTags and TopMaterials components removed as they are no longer used in the dashboard.
 
 /**
  * Component to display birthday prototypes.
@@ -534,73 +505,155 @@ export function AnalysisDashboard({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 pb-2">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <AnalysisStat
-              label="Total Prototypes"
-              value={analysis.totalCount.toLocaleString()}
-            />
-            <AnalysisStat
-              label="With Awards"
-              value={analysis.prototypesWithAwards}
-              description={`${((analysis.prototypesWithAwards / analysis.totalCount) * 100).toFixed(1).toLocaleString()}%`}
-            />
-            <AnalysisStat
-              label="Average Age"
-              value={`${Math.round(analysis.averageAgeInDays).toLocaleString()} days`}
-              description={`~${Math.round(analysis.averageAgeInDays / 365)} years`}
-            />
-            <AnalysisStat
-              label="Top Tags"
-              value={analysis.topTags.length.toLocaleString()}
-              description="categories"
-            />
-          </div>
+        <div className="space-y-8 pb-2">
+          {/* Section 1: Overview */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              📊 Overview
+            </h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <AnalysisStat
+                label="Total Prototypes"
+                value={analysis.totalCount.toLocaleString()}
+              />
+              <AnalysisStat
+                label="Days with Releases"
+                value={analysis.creationStreak.totalActiveDays.toLocaleString()}
+                description="total active days"
+              />
+              <AnalysisStat
+                label="Average Age"
+                value={`${Math.round(analysis.averageAgeInDays).toLocaleString()} days`}
+                description={`~${Math.round(analysis.averageAgeInDays / 365)} years`}
+              />
+              <AnalysisStat
+                label="With Awards"
+                value={analysis.prototypesWithAwards}
+                description={`${((analysis.prototypesWithAwards / analysis.totalCount) * 100).toFixed(1).toLocaleString()}%`}
+              />
+            </div>
+          </section>
 
-          <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-            <BirthdayPrototypes
-              anniversaries={effectiveAnniversaries}
-              isLoading={anniversariesLoading}
-            />
-          </div>
+          {/* Section 2: Today's Highlights */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              📅 Today&apos;s Highlights
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <BirthdayPrototypes
+                  anniversaries={effectiveAnniversaries}
+                  isLoading={anniversariesLoading}
+                />
+              </div>
+              <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                <NewbornPrototypes
+                  anniversaries={effectiveAnniversaries}
+                  isLoading={anniversariesLoading}
+                />
+              </div>
+            </div>
+          </section>
 
-          <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-            <NewbornPrototypes
-              anniversaries={effectiveAnniversaries}
-              isLoading={anniversariesLoading}
-            />
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2">
+          {/* Section 3: Prototype Status */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              🏗️ Prototype Status
+            </h3>
             <StatusDistribution
               statusDistribution={analysis.statusDistribution}
             />
-            <TopTags topTags={analysis.topTags} />
-          </div>
+          </section>
 
-          {analysis.topTeams.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Active Teams
-              </h4>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {analysis.topTeams.slice(0, 6).map(({ team, count }) => (
-                  <div
-                    key={team}
-                    className="flex items-start justify-between gap-3 rounded bg-gray-50 p-2 dark:bg-gray-800"
-                  >
-                    <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                      {team}
-                    </span>
-                    <span className="shrink-0 text-sm text-gray-600 dark:text-gray-400">
-                      {count} prototypes
-                    </span>
+          {/* Section 4: Community Trends */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              📈 Community Trends
+            </h3>
+            <div className="grid gap-6 md:grid-cols-1">
+              {analysis.maternityHospital?.topEvents?.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Top Events
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {analysis.maternityHospital.topEvents.map(
+                      ({ event, count }, _, arr) => {
+                        const maxCount = arr[0].count;
+                        const ratio = count / maxCount;
+                        let bgClass =
+                          'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800';
+
+                        if (ratio > 0.8) {
+                          bgClass =
+                            'bg-indigo-200 dark:bg-indigo-800 border-indigo-300 dark:border-indigo-600';
+                        } else if (ratio > 0.5) {
+                          bgClass =
+                            'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-200 dark:border-indigo-700';
+                        }
+
+                        return (
+                          <div
+                            key={event}
+                            className={`flex items-start justify-between gap-3 rounded border p-2 transition-colors ${bgClass}`}
+                          >
+                            <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                              {event}
+                            </span>
+                            <span className="shrink-0 text-sm font-semibold text-indigo-700 dark:text-indigo-300">
+                              {count}
+                            </span>
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
-                ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Section 5: Developer's Rhythm */}
+          <section className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+              🕰️ Developer&apos;s Rhythm
+            </h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Weekly Release Activity (JST)
+                </h4>
+                {analysis.releaseTimeDistribution.heatmap ? (
+                  <ActivityHeatmap
+                    heatmap={analysis.releaseTimeDistribution.heatmap}
+                  />
+                ) : (
+                  <div className="py-8 text-center text-sm text-gray-500">
+                    No heatmap data available. Please clear cache to recompute.
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
+                <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Weekly Update Activity (JST)
+                </h4>
+                {analysis.updateTimeDistribution?.heatmap ? (
+                  <ActivityHeatmap
+                    heatmap={analysis.updateTimeDistribution.heatmap}
+                    className="[&_.bg-green-200]:bg-blue-200 [&_.bg-green-300]:bg-blue-300 [&_.bg-green-400]:bg-blue-400 [&_.bg-green-500]:bg-blue-500 [&_.dark\:bg-green-900\/40]:dark:bg-blue-900/40 [&_.dark\:bg-green-800\/60]:dark:bg-blue-800/60 [&_.dark\:bg-green-700\/80]:dark:bg-blue-700/80 [&_.dark\:bg-green-600]:dark:bg-blue-600"
+                  />
+                ) : (
+                  <div className="py-8 text-center text-sm text-gray-500">
+                    No update heatmap data available.
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </section>
         </div>
+
+        {/* Debug Metrics */}
         {isDevelopment && analysis._debugMetrics && (
           <div className="rounded-lg border border-gray-200 bg-white/70 p-4 text-xs dark:border-gray-700 dark:bg-gray-800/60">
             <h4 className="mb-2 font-medium text-gray-700 dark:text-gray-300">
@@ -642,10 +695,14 @@ export function AnalysisDashboard({
                     'statusDistribution',
                     'prototypesWithAwards',
                     'topTags',
+                    'topMaterials',
                     'averageAgeInDays',
-                    'topTeams',
                     'analyzedAt',
                     'anniversaryCandidates', // Used for client-side computation
+                    'creationStreak', // Used in Overview
+                    'maternityHospital', // Used in Community Trends
+                    'releaseTimeDistribution', // Used in Maker's Rhythm
+                    'updateTimeDistribution', // Used in Maker's Rhythm
                     '_debugMetrics', // Displayed right here
                   ];
                   const isUsed = USED_KEYS.includes(key);
