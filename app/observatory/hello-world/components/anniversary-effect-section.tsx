@@ -31,6 +31,8 @@ const Bar = ({
 export function AnniversaryEffectSection({
   holidays,
 }: AnniversaryEffectSectionProps) {
+  const maxCount = Math.max(...holidays.map((h) => h.count));
+
   return (
     <ObservatorySection
       theme="rose"
@@ -66,7 +68,6 @@ export function AnniversaryEffectSection({
     >
       <div className="space-y-3">
         {holidays.map((holiday) => {
-          const maxCount = Math.max(...holidays.map((h) => h.count));
           const percent = (holiday.count / maxCount) * 100;
 
           return (
