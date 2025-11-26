@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { cn } from '@/lib/utils';
+
 import { IconHospital } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
@@ -32,6 +35,15 @@ export function MaternityHospitalSection({
   const eventPercentValue = 100 - independentPercentValue;
   const independentPercent = independentPercentValue.toFixed(1);
   const eventPercent = eventPercentValue.toFixed(1);
+
+  const legendTextClassName = cn('break-words', 'leading-tight');
+  const eventNameClassName = cn(
+    'font-medium',
+    'text-gray-900',
+    'dark:text-white',
+    'break-words',
+    'leading-tight',
+  );
 
   return (
     <ObservatorySection
@@ -80,7 +92,7 @@ export function MaternityHospitalSection({
                 width: `${clampPercent(eventPercentValue)}%`,
               }}
             >
-              Events ({eventPercent}%)
+              {eventPercent}%
             </Bar>
             <Bar
               className="h-full bg-blue-400 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000"
@@ -88,17 +100,17 @@ export function MaternityHospitalSection({
                 width: `${clampPercent(independentPercentValue)}%`,
               }}
             >
-              Independent ({independentPercent}%)
+              {independentPercent}%
             </Bar>
           </div>
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 px-2">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
-              <span>Born at Events</span>
+          <div className="flex flex-wrap justify-between gap-x-4 gap-y-2 text-sm text-gray-600 dark:text-gray-400 px-2">
+            <div className="flex items-center gap-2 max-w-full">
+              <span className="w-3 h-3 rounded-full bg-indigo-500 shrink-0"></span>
+              <span className={legendTextClassName}>Born at Events</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-400"></span>
-              <span>Home Births</span>
+            <div className="flex items-center gap-2 max-w-full">
+              <span className="w-3 h-3 rounded-full bg-blue-400 shrink-0"></span>
+              <span className={legendTextClassName}>Home Births</span>
             </div>
           </div>
         </div>
@@ -114,13 +126,11 @@ export function MaternityHospitalSection({
                 key={item.event}
                 className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 dark:hover:bg-white/5 transition-colors"
               >
-                <div className="flex items-center gap-3 overflow-hidden">
+                <div className="flex items-center gap-3 min-w-0">
                   <span className="shrink-0 w-6 h-6 flex items-center justify-center bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold">
                     {index + 1}
                   </span>
-                  <span className="font-medium text-gray-900 dark:text-white truncate">
-                    {item.event}
-                  </span>
+                  <span className={eventNameClassName}>{item.event}</span>
                 </div>
                 <span className="font-bold text-indigo-600 dark:text-indigo-400 ml-4">
                   {item.count.toLocaleString()}

@@ -1,6 +1,9 @@
 import Link from 'next/link';
-import { IconTelescope } from '../../components/icons';
+
+import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+
+import { IconTelescope } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 
 type EarlyAdoptersSectionProps = {
@@ -13,6 +16,16 @@ type EarlyAdoptersSectionProps = {
 };
 
 export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
+  const titleClassName = cn(
+    'font-bold',
+    'text-gray-900',
+    'dark:text-white',
+    'break-words',
+    'group-hover:text-blue-600',
+    'dark:group-hover:text-blue-400',
+    'transition-colors',
+  );
+
   return (
     <ObservatorySection
       theme="slate"
@@ -82,9 +95,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
                 {new Date(adopter.releaseDate).getFullYear()}
               </span>
             </div>
-            <h3 className="font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-              {adopter.prototypeTitle}
-            </h3>
+            <h3 className={titleClassName}>{adopter.prototypeTitle}</h3>
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {new Date(adopter.releaseDate).toLocaleDateString()}
             </div>

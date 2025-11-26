@@ -1,7 +1,11 @@
 import React from 'react';
+
 import Link from 'next/link';
-import { IconHeart } from '../../components/icons';
+
+import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+
+import { IconHeart } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
 
@@ -35,6 +39,16 @@ const Bar = ({
 export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
   const { longestGestation, distribution } = laborOfLove;
   const maxCount = Math.max(...Object.values(distribution));
+
+  const titleClassName = cn(
+    'font-medium',
+    'text-gray-900',
+    'dark:text-white',
+    'break-words',
+    'group-hover:text-pink-600',
+    'dark:group-hover:text-pink-400',
+    'transition-colors',
+  );
 
   return (
     <ObservatorySection
@@ -90,9 +104,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                     {index + 1}
                   </span>
                   <div className="min-w-0">
-                    <div className="font-medium text-gray-900 dark:text-white truncate group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-                      {item.title}
-                    </div>
+                    <div className={titleClassName}>{item.title}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(item.createDate).toLocaleDateString()} →{' '}
                       {new Date(item.releaseDate).toLocaleDateString()}
