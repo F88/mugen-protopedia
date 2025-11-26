@@ -46,6 +46,22 @@ import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import './labor-of-love.css';
 import './makers-rhythm.css';
 import './maternity-hospital.css';
+import './anniversary-effect.css';
+
+const clampPercent = (value: number) =>
+  Math.max(0, Math.min(100, Math.round(value)));
+
+const getMakersRhythmHeightClass = (value: number) =>
+  `makers-rhythm-bar--${clampPercent(value)}`;
+
+const getAnniversaryEffectWidthClass = (value: number) =>
+  `anniversary-effect-bar--${clampPercent(value)}`;
+
+const getLaborOfLoveWidthClass = (value: number) =>
+  `labor-of-love-bar--${clampPercent(value)}`;
+
+const getMaternityHospitalWidthClass = (value: number) =>
+  `maternity-hospital-bar--${clampPercent(value)}`;
 
 // Icons
 const IconGlobe = () => <span>🌐</span>;
@@ -403,6 +419,8 @@ function MakersRhythmSection({
                 const count = distribution?.dayOfWeek?.[index] || 0;
                 const heightPercent =
                   maxDayCount > 0 ? (count / maxDayCount) * 100 : 0;
+                const dayHeightClass =
+                  getMakersRhythmHeightClass(heightPercent);
                 return (
                   <div
                     key={day}
@@ -410,12 +428,7 @@ function MakersRhythmSection({
                   >
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full bg-orange-400 dark:bg-orange-500 rounded-t-md transition-all duration-500 group-hover:bg-orange-500 dark:group-hover:bg-orange-400 makers-rhythm-bar"
-                        style={
-                          {
-                            '--bar-height': `${heightPercent}%`,
-                          } as React.CSSProperties
-                        }
+                        className={`w-full bg-orange-400 dark:bg-orange-500 rounded-t-md transition-all duration-500 group-hover:bg-orange-500 dark:group-hover:bg-orange-400 makers-rhythm-bar ${dayHeightClass}`}
                       >
                         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
                           {count} releases
@@ -430,8 +443,7 @@ function MakersRhythmSection({
               })}
             </div>
           </div>
-
-          {/* Daily Cycle */}
+          ;{/* Daily Cycle */}
           <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
               Daily Cycle (JST)
@@ -441,6 +453,8 @@ function MakersRhythmSection({
                 const count = distribution?.hour?.[hour] || 0;
                 const heightPercent =
                   maxHourCount > 0 ? (count / maxHourCount) * 100 : 0;
+                const hourHeightClass =
+                  getMakersRhythmHeightClass(heightPercent);
                 return (
                   <div
                     key={hour}
@@ -448,12 +462,7 @@ function MakersRhythmSection({
                   >
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400 makers-rhythm-bar"
-                        style={
-                          {
-                            '--bar-height': `${heightPercent}%`,
-                          } as React.CSSProperties
-                        }
+                        className={`w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400 makers-rhythm-bar ${hourHeightClass}`}
                       >
                         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
                           {hour}:00 - {count}
@@ -472,6 +481,7 @@ function MakersRhythmSection({
               <span>23:00</span>
             </div>
           </div>
+          ;;
         </div>
 
         <div className="relative z-10 pt-8 border-t border-orange-200/50 dark:border-orange-800/30">
@@ -1084,6 +1094,8 @@ function AnniversaryEffectSection({ holidays }: AnniversaryEffectSectionProps) {
             {holidays.map((holiday) => {
               const maxCount = Math.max(...holidays.map((h) => h.count));
               const percent = (holiday.count / maxCount) * 100;
+              const anniversaryWidthClass =
+                getAnniversaryEffectWidthClass(percent);
 
               return (
                 <div
@@ -1105,8 +1117,7 @@ function AnniversaryEffectSection({ holidays }: AnniversaryEffectSectionProps) {
                   </div>
                   <div className="w-full bg-rose-100 dark:bg-rose-900/30 rounded-full h-2 mb-3 overflow-hidden">
                     <div
-                      className="bg-rose-500 dark:bg-rose-400 h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${percent}%` }}
+                      className={`bg-rose-500 dark:bg-rose-400 h-full rounded-full transition-all duration-1000 anniversary-effect-bar ${anniversaryWidthClass}`}
                     ></div>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1248,6 +1259,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
               {Object.entries(distribution).map(([label, count]) => {
                 const maxCount = Math.max(...Object.values(distribution));
                 const percent = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                const laborOfLoveWidthClass = getLaborOfLoveWidthClass(percent);
                 return (
                   <div key={label}>
                     <div className="flex justify-between text-xs mb-1">
@@ -1260,12 +1272,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                     </div>
                     <div className="w-full bg-pink-100 dark:bg-pink-900/30 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-pink-400 dark:bg-pink-500 h-full rounded-full labor-of-love-bar"
-                        style={
-                          {
-                            '--bar-width': `${percent}%`,
-                          } as React.CSSProperties
-                        }
+                        className={`bg-pink-400 dark:bg-pink-500 h-full rounded-full labor-of-love-bar ${laborOfLoveWidthClass}`}
                       ></div>
                     </div>
                   </div>
@@ -1307,8 +1314,14 @@ function MaternityHospitalSection({
   maternityHospital,
 }: MaternityHospitalSectionProps) {
   const { topEvents, independentRatio } = maternityHospital;
-  const independentPercent = (independentRatio * 100).toFixed(1);
-  const eventPercent = (100 - independentRatio * 100).toFixed(1);
+  const independentPercentValue = independentRatio * 100;
+  const eventPercentValue = 100 - independentPercentValue;
+  const independentPercent = independentPercentValue.toFixed(1);
+  const eventPercent = eventPercentValue.toFixed(1);
+  const eventWidthClass = getMaternityHospitalWidthClass(eventPercentValue);
+  const independentWidthClass = getMaternityHospitalWidthClass(
+    independentPercentValue,
+  );
 
   return (
     <section className="mb-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
@@ -1349,14 +1362,12 @@ function MaternityHospitalSection({
             </h3>
             <div className="relative h-8 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex mb-4">
               <div
-                className="h-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000"
-                style={{ width: `${eventPercent}%` }}
+                className={`h-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000 maternity-hospital-bar ${eventWidthClass}`}
               >
                 Events ({eventPercent}%)
               </div>
               <div
-                className="h-full bg-blue-400 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000"
-                style={{ width: `${independentPercent}%` }}
+                className={`h-full bg-blue-400 flex items-center justify-center text-xs font-bold text-white whitespace-nowrap transition-all duration-1000 maternity-hospital-bar ${independentWidthClass}`}
               >
                 Independent ({independentPercent}%)
               </div>

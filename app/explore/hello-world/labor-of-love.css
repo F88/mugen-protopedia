@@ -1,3 +1,308 @@
 .labor-of-love-bar {
-  width: var(--bar-width);
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.labor-of-love-bar--0 {
+  width: 0%;
+}
+.labor-of-love-bar--1 {
+  width: 1%;
+}
+.labor-of-love-bar--2 {
+  width: 2%;
+}
+.labor-of-love-bar--3 {
+  width: 3%;
+}
+.labor-of-love-bar--4 {
+  width: 4%;
+}
+.labor-of-love-bar--5 {
+  width: 5%;
+}
+.labor-of-love-bar--6 {
+  width: 6%;
+}
+.labor-of-love-bar--7 {
+  width: 7%;
+}
+.labor-of-love-bar--8 {
+  width: 8%;
+}
+.labor-of-love-bar--9 {
+  width: 9%;
+}
+.labor-of-love-bar--10 {
+  width: 10%;
+}
+.labor-of-love-bar--11 {
+  width: 11%;
+}
+.labor-of-love-bar--12 {
+  width: 12%;
+}
+.labor-of-love-bar--13 {
+  width: 13%;
+}
+.labor-of-love-bar--14 {
+  width: 14%;
+}
+.labor-of-love-bar--15 {
+  width: 15%;
+}
+.labor-of-love-bar--16 {
+  width: 16%;
+}
+.labor-of-love-bar--17 {
+  width: 17%;
+}
+.labor-of-love-bar--18 {
+  width: 18%;
+}
+.labor-of-love-bar--19 {
+  width: 19%;
+}
+.labor-of-love-bar--20 {
+  width: 20%;
+}
+.labor-of-love-bar--21 {
+  width: 21%;
+}
+.labor-of-love-bar--22 {
+  width: 22%;
+}
+.labor-of-love-bar--23 {
+  width: 23%;
+}
+.labor-of-love-bar--24 {
+  width: 24%;
+}
+.labor-of-love-bar--25 {
+  width: 25%;
+}
+.labor-of-love-bar--26 {
+  width: 26%;
+}
+.labor-of-love-bar--27 {
+  width: 27%;
+}
+.labor-of-love-bar--28 {
+  width: 28%;
+}
+.labor-of-love-bar--29 {
+  width: 29%;
+}
+.labor-of-love-bar--30 {
+  width: 30%;
+}
+.labor-of-love-bar--31 {
+  width: 31%;
+}
+.labor-of-love-bar--32 {
+  width: 32%;
+}
+.labor-of-love-bar--33 {
+  width: 33%;
+}
+.labor-of-love-bar--34 {
+  width: 34%;
+}
+.labor-of-love-bar--35 {
+  width: 35%;
+}
+.labor-of-love-bar--36 {
+  width: 36%;
+}
+.labor-of-love-bar--37 {
+  width: 37%;
+}
+.labor-of-love-bar--38 {
+  width: 38%;
+}
+.labor-of-love-bar--39 {
+  width: 39%;
+}
+.labor-of-love-bar--40 {
+  width: 40%;
+}
+.labor-of-love-bar--41 {
+  width: 41%;
+}
+.labor-of-love-bar--42 {
+  width: 42%;
+}
+.labor-of-love-bar--43 {
+  width: 43%;
+}
+.labor-of-love-bar--44 {
+  width: 44%;
+}
+.labor-of-love-bar--45 {
+  width: 45%;
+}
+.labor-of-love-bar--46 {
+  width: 46%;
+}
+.labor-of-love-bar--47 {
+  width: 47%;
+}
+.labor-of-love-bar--48 {
+  width: 48%;
+}
+.labor-of-love-bar--49 {
+  width: 49%;
+}
+.labor-of-love-bar--50 {
+  width: 50%;
+}
+.labor-of-love-bar--51 {
+  width: 51%;
+}
+.labor-of-love-bar--52 {
+  width: 52%;
+}
+.labor-of-love-bar--53 {
+  width: 53%;
+}
+.labor-of-love-bar--54 {
+  width: 54%;
+}
+.labor-of-love-bar--55 {
+  width: 55%;
+}
+.labor-of-love-bar--56 {
+  width: 56%;
+}
+.labor-of-love-bar--57 {
+  width: 57%;
+}
+.labor-of-love-bar--58 {
+  width: 58%;
+}
+.labor-of-love-bar--59 {
+  width: 59%;
+}
+.labor-of-love-bar--60 {
+  width: 60%;
+}
+.labor-of-love-bar--61 {
+  width: 61%;
+}
+.labor-of-love-bar--62 {
+  width: 62%;
+}
+.labor-of-love-bar--63 {
+  width: 63%;
+}
+.labor-of-love-bar--64 {
+  width: 64%;
+}
+.labor-of-love-bar--65 {
+  width: 65%;
+}
+.labor-of-love-bar--66 {
+  width: 66%;
+}
+.labor-of-love-bar--67 {
+  width: 67%;
+}
+.labor-of-love-bar--68 {
+  width: 68%;
+}
+.labor-of-love-bar--69 {
+  width: 69%;
+}
+.labor-of-love-bar--70 {
+  width: 70%;
+}
+.labor-of-love-bar--71 {
+  width: 71%;
+}
+.labor-of-love-bar--72 {
+  width: 72%;
+}
+.labor-of-love-bar--73 {
+  width: 73%;
+}
+.labor-of-love-bar--74 {
+  width: 74%;
+}
+.labor-of-love-bar--75 {
+  width: 75%;
+}
+.labor-of-love-bar--76 {
+  width: 76%;
+}
+.labor-of-love-bar--77 {
+  width: 77%;
+}
+.labor-of-love-bar--78 {
+  width: 78%;
+}
+.labor-of-love-bar--79 {
+  width: 79%;
+}
+.labor-of-love-bar--80 {
+  width: 80%;
+}
+.labor-of-love-bar--81 {
+  width: 81%;
+}
+.labor-of-love-bar--82 {
+  width: 82%;
+}
+.labor-of-love-bar--83 {
+  width: 83%;
+}
+.labor-of-love-bar--84 {
+  width: 84%;
+}
+.labor-of-love-bar--85 {
+  width: 85%;
+}
+.labor-of-love-bar--86 {
+  width: 86%;
+}
+.labor-of-love-bar--87 {
+  width: 87%;
+}
+.labor-of-love-bar--88 {
+  width: 88%;
+}
+.labor-of-love-bar--89 {
+  width: 89%;
+}
+.labor-of-love-bar--90 {
+  width: 90%;
+}
+.labor-of-love-bar--91 {
+  width: 91%;
+}
+.labor-of-love-bar--92 {
+  width: 92%;
+}
+.labor-of-love-bar--93 {
+  width: 93%;
+}
+.labor-of-love-bar--94 {
+  width: 94%;
+}
+.labor-of-love-bar--95 {
+  width: 95%;
+}
+.labor-of-love-bar--96 {
+  width: 96%;
+}
+.labor-of-love-bar--97 {
+  width: 97%;
+}
+.labor-of-love-bar--98 {
+  width: 98%;
+}
+.labor-of-love-bar--99 {
+  width: 99%;
+}
+.labor-of-love-bar--100 {
+  width: 100%;
 }
