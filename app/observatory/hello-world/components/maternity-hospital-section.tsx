@@ -1,6 +1,6 @@
-import React from 'react';
-
 import { cn } from '@/lib/utils';
+
+import { Bar } from '@/components/observatory/Bar';
 
 import { IconHospital } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
@@ -12,20 +12,6 @@ type MaternityHospitalSectionProps = {
     independentRatio: number;
   };
 };
-
-const Bar = ({
-  style,
-  className,
-  children,
-}: {
-  style?: React.CSSProperties;
-  className?: string;
-  children?: React.ReactNode;
-}) => (
-  <div style={style} className={className}>
-    {children}
-  </div>
-);
 
 export function MaternityHospitalSection({
   maternityHospital,

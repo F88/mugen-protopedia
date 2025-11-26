@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
+import { Bar } from '@/components/observatory/Bar';
+
 import { IconHeart } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
@@ -21,20 +23,6 @@ type LaborOfLoveSectionProps = {
     distribution: Record<string, number>;
   };
 };
-
-const Bar = ({
-  style,
-  className,
-  children,
-}: {
-  style?: React.CSSProperties;
-  className?: string;
-  children?: React.ReactNode;
-}) => (
-  <div style={style} className={className}>
-    {children}
-  </div>
-);
 
 export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
   const { longestGestation, distribution } = laborOfLove;

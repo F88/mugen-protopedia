@@ -1,4 +1,7 @@
 import React from 'react';
+
+import { Bar } from '@/components/observatory/Bar';
+
 import { IconClock } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
@@ -9,20 +12,6 @@ type MakersRhythmSectionProps = {
   maxHourCount: number;
   days: string[];
 };
-
-const Bar = ({
-  style,
-  className,
-  children,
-}: {
-  style?: React.CSSProperties;
-  className?: string;
-  children?: React.ReactNode;
-}) => (
-  <div style={style} className={className}>
-    {children}
-  </div>
-);
 
 export function MakersRhythmSection({
   distribution,

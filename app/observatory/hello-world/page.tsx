@@ -36,7 +36,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function HelloWorldPage() {
   // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
-  const result = await getLatestAnalysis({ forceRecompute: process.env.NODE_ENV === 'development' });
+  const result = await getLatestAnalysis({
+    forceRecompute: process.env.NODE_ENV === 'development',
+  });
 
   if (!result.ok) {
     return (

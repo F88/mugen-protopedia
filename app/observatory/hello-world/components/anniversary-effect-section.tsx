@@ -1,7 +1,10 @@
-import React from 'react';
 import Link from 'next/link';
-import { IconGift } from '../../components/icons';
+
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+
+import { Bar } from '@/components/observatory/Bar';
+
+import { IconGift } from '../../components/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
 
@@ -13,20 +16,6 @@ type AnniversaryEffectSectionProps = {
     examples: { id: number; title: string; year: number }[];
   }[];
 };
-
-const Bar = ({
-  style,
-  className,
-  children,
-}: {
-  style?: React.CSSProperties;
-  className?: string;
-  children?: React.ReactNode;
-}) => (
-  <div style={style} className={className}>
-    {children}
-  </div>
-);
 
 export function AnniversaryEffectSection({
   holidays,
