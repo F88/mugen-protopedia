@@ -3,7 +3,6 @@ import { forwardRef, type ReactNode } from 'react';
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
 import { Dashboard, type DashboardProps } from '@/components/dashboard';
-import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
 import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
 import { PlaylistHeaderButton } from '@/components/playlist-header-button';
 import { ThemeToggle } from '@/components/theme-toggle';
