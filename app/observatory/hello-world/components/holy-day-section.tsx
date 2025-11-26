@@ -46,10 +46,11 @@ export function HolyDaySection({ holyDay }: HolyDaySectionProps) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {topDays.slice(0, 3).map((day, index) => {
           const [month, date] = day.date.split('-');
-          const dateObj = new Date();
-          dateObj.setMonth(parseInt(month) - 1);
-          dateObj.setDate(parseInt(date));
-          const monthName = dateObj.toLocaleString('en-US', {
+          const monthName = new Date(
+            2000,
+            parseInt(month) - 1,
+            1,
+          ).toLocaleString('en-US', {
             month: 'long',
           });
 
