@@ -135,7 +135,7 @@ export function buildTopTags(prototypes: NormalizedPrototype[]): {
 
   const topTags = Object.entries(tagCounts)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
+    .slice(0, 30)
     .map(([tag, count]) => ({ tag, count }));
 
   return { topTags, tagCounts };
@@ -218,7 +218,7 @@ export function buildTopTeams(prototypes: NormalizedPrototype[]): {
 
   const topTeams = Object.entries(teamCounts)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
+    .slice(0, 30)
     .map(([team, count]) => ({ team, count }));
 
   return { topTeams, teamCounts };
