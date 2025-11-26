@@ -510,13 +510,18 @@ export function AnalysisDashboard({
         <div className="space-y-8 pb-2">
           {/* Section 1: Overview */}
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               📊 Overview
             </h3>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <AnalysisStat
                 label="Total Prototypes"
                 value={analysis.totalCount.toLocaleString()}
+              />
+              <AnalysisStat
+                label="Current Streak"
+                value={`${analysis.creationStreak.currentStreak.toLocaleString()} ${analysis.creationStreak.currentStreak === 1 ? 'day' : 'days'}`}
+                description={`Longest: ${analysis.creationStreak.longestStreak.toLocaleString()} ${analysis.creationStreak.longestStreak === 1 ? 'day' : 'days'}`}
               />
               <AnalysisStat
                 label="Days with Releases"
@@ -525,8 +530,8 @@ export function AnalysisDashboard({
               />
               <AnalysisStat
                 label="Average Age"
-                value={`${Math.round(analysis.averageAgeInDays).toLocaleString()} days`}
-                description={`~${Math.round(analysis.averageAgeInDays / 365)} years`}
+                value={`${Math.round(analysis.averageAgeInDays).toLocaleString()} ${Math.round(analysis.averageAgeInDays) === 1 ? 'day' : 'days'}`}
+                description={`~${Math.round(analysis.averageAgeInDays / 365)} ${Math.round(analysis.averageAgeInDays / 365) === 1 ? 'year' : 'years'}`}
               />
               <AnalysisStat
                 label="With Awards"
@@ -538,7 +543,7 @@ export function AnalysisDashboard({
 
           {/* Section 2: Today's Highlights */}
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               📅 Today&apos;s Highlights
             </h3>
             <div className="grid gap-4 md:grid-cols-2">
@@ -559,7 +564,7 @@ export function AnalysisDashboard({
 
           {/* Section 3: Prototype Status */}
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               🏗️ Prototype Status
             </h3>
             <StatusDistribution
@@ -569,7 +574,7 @@ export function AnalysisDashboard({
 
           {/* Section 4: Developer's Rhythm */}
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               🕰️ Developer&apos;s Rhythm
             </h3>
             <div className="grid gap-6 lg:grid-cols-2">
@@ -608,7 +613,7 @@ export function AnalysisDashboard({
 
           {/* Section 5: Community Trends */}
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               📈 Community Trends
             </h3>
             <div className="grid gap-6 md:grid-cols-1">
