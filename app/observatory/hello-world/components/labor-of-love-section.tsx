@@ -34,6 +34,7 @@ const Bar = ({
 
 export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
   const { longestGestation, distribution } = laborOfLove;
+  const maxCount = Math.max(...Object.values(distribution));
 
   return (
     <ObservatorySection
@@ -118,7 +119,6 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
           </h3>
           <div className="space-y-3">
             {Object.entries(distribution).map(([label, count]) => {
-              const maxCount = Math.max(...Object.values(distribution));
               const percent = maxCount > 0 ? (count / maxCount) * 100 : 0;
               return (
                 <div key={label}>
