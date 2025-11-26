@@ -453,7 +453,8 @@ function MakersRhythmSection({
               })}
             </div>
           </div>
-          ;{/* Daily Cycle */}
+
+          {/* Daily Cycle */}
           <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
               Daily Cycle (JST)
@@ -491,7 +492,6 @@ function MakersRhythmSection({
               <span>23:00</span>
             </div>
           </div>
-          ;;
         </div>
 
         <div className="relative z-10 pt-8 border-t border-orange-200/50 dark:border-orange-800/30">
