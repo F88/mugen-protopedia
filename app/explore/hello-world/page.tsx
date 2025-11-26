@@ -34,9 +34,14 @@
  *    - Separated by a top border
  *    - "Storytelling" elements explaining the data's significance
  */
+
 import Link from 'next/link';
-import { getLatestAnalysis } from '@/app/actions/analysis';
+
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
+
+import { getLatestAnalysis } from '@/app/actions/analysis';
+
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 import './labor-of-love.css';
 import './makers-rhythm.css';
@@ -287,7 +292,7 @@ function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
               {prototypes.map((proto) => (
                 <Link
                   key={proto.id}
-                  href={`https://protopedia.net/prototype/${proto.id}`}
+                  href={buildPrototypeLink(proto.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
@@ -761,7 +766,7 @@ function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
             {adopters.slice(0, 6).map((adopter) => (
               <Link
                 key={adopter.tag}
-                href={`https://protopedia.net/prototype/${adopter.prototypeId}`}
+                href={buildPrototypeLink(adopter.prototypeId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group block bg-white/80 dark:bg-gray-800/80 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-all"
@@ -883,7 +888,7 @@ function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
                 </span>
               </div>
               <Link
-                href={`https://protopedia.net/prototype/${penguin.prototype.id}`}
+                href={buildPrototypeLink(penguin.prototype.id)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group"
@@ -990,7 +995,7 @@ function StarAlignmentSection({ alignments }: StarAlignmentSectionProps) {
                   {alignment.prototypes.map((p) => (
                     <Link
                       key={p.id}
-                      href={`https://protopedia.net/prototype/${p.id}`}
+                      href={buildPrototypeLink(p.id)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-purple-100 dark:border-purple-800/50 hover:border-purple-400 dark:hover:border-purple-500 transition-colors shadow-sm"
@@ -1108,7 +1113,7 @@ function AnniversaryEffectSection({ holidays }: AnniversaryEffectSectionProps) {
                     {holiday.examples.slice(0, 3).map((ex) => (
                       <Link
                         key={ex.id}
-                        href={`https://protopedia.net/prototype/${ex.id}`}
+                        href={buildPrototypeLink(ex.id)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
@@ -1202,7 +1207,7 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
               {longestGestation.slice(0, 5).map((item, index) => (
                 <Link
                   key={item.id}
-                  href={`https://protopedia.net/prototype/${item.id}`}
+                  href={buildPrototypeLink(item.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between group hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"

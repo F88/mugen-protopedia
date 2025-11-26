@@ -7,7 +7,11 @@ import { cn } from '@/lib/utils';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
 import { formatDateForDisplay } from '@/lib/utils/format';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
-import { buildMaterialLink, buildTagLink } from '@/lib/utils/prototype-utils';
+import {
+  buildMaterialLink,
+  buildPrototypeLink,
+  buildTagLink,
+} from '@/lib/utils/prototype-utils';
 
 import { Castle, SquarePlay, UserRound } from 'lucide-react';
 
@@ -59,7 +63,7 @@ export const PrototypeCard = ({
     }
   };
 
-  const urlOfPageForPrototype = `https://protopedia.net/prototype/${prototype.id}`;
+  const urlOfPageForPrototype = buildPrototypeLink(prototype.id);
 
   const summary = (prototype.summary ?? '').trim();
   const isLongSummary = summary.length > 100;

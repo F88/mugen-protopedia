@@ -1,6 +1,8 @@
 import React from 'react';
 import { Info } from 'lucide-react';
 
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+
 import {
   Tooltip,
   TooltipContent,
@@ -25,7 +27,7 @@ export const PrototypeErrorLink = ({
         </TooltipContent>
       </Tooltip>
       <a
-        href={`https://protopedia.net/prototype/${expectedPrototypeId}`}
+        href={buildPrototypeLink(expectedPrototypeId)}
         target="_blank"
         rel="noopener noreferrer"
         className="block text-xl font-semibold text-blue-600 hover:underline truncate"
