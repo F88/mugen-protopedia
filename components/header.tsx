@@ -2,9 +2,11 @@ import { forwardRef, type ReactNode } from 'react';
 
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
-import { Dashboard, type DashboardProps } from './dashboard';
-import { PlaylistHeaderButton } from './playlist/playlist-header-button';
-import { ThemeToggle } from './theme-toggle';
+import { Dashboard, type DashboardProps } from '@/components/dashboard';
+import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
+import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
+import { PlaylistHeaderButton } from '@/components/playlist-header-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface HeaderProps {
   dashboard: DashboardProps;
@@ -93,6 +95,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             <div className="hidden lg:block">
               <PlaylistHeaderButton />
             </div>
+
+            {/* Observatory shortcut (hidden on small screens) */}
+            <ObservatoryHeaderButton />
 
             {/* Theme  */}
             <ThemeToggle />

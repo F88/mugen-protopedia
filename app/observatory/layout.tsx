@@ -1,4 +1,6 @@
 import Link from 'next/link';
+
+import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function ObservatoryLayout({
@@ -12,17 +14,18 @@ export default function ObservatoryLayout({
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
           <Link href="/observatory">Observatory</Link>
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <span className="text-sm text-gray-500 dark:text-gray-400">
             🕒 JST
           </span>
+          <MugenProtoPediaHomeButton />
           <ThemeToggle />
-          <Link
+          {/* <Link
             href="/"
             className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
           >
             Home
-          </Link>
+          </Link> */}
         </div>
       </header>
       <div className="pt-[calc(env(safe-area-inset-top)+64px)] flex-1">
