@@ -12,7 +12,10 @@ export default function ObservatoryLayout({
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-gray-900/50 transition-colors duration-200 p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          <Link href="/observatory">ProtoPedia Observatory</Link>
+          <Link href="/observatory">
+            <span className="sm:hidden">Observatory</span>
+            <span className="hidden sm:inline">ProtoPedia Observatory</span>
+          </Link>
         </h1>
         <div className="flex items-center gap-2 sm:gap-4">
           <span className="text-sm text-gray-500 dark:text-gray-400">
