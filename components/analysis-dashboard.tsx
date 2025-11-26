@@ -3,6 +3,7 @@ import { useCallback, useState, type ReactNode } from 'react';
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
 import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 import './analysis-dashboard.css';
 
@@ -216,11 +217,16 @@ function BirthdayPrototypes({
               <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
                 ID: {prototype.id}
               </span>
-              <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+              <a
+                href={buildPrototypeLink(prototype.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium wrap-break-word text-gray-900 dark:text-gray-100 hover:text-gray-900 dark:hover:text-gray-100 hover:underline"
+              >
                 {prototype.title}
-              </span>
+              </a>
             </div>
-            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold">
+            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold whitespace-nowrap self-center">
               🎂 {calculateAge(prototype.releaseDate).years} 歳
             </span>
           </div>
@@ -298,11 +304,16 @@ function NewbornPrototypes({
               <span className="text-xs font-semibold text-green-700 dark:text-green-300">
                 ID: {prototype.id}
               </span>
-              <span className="font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+              <a
+                href={buildPrototypeLink(prototype.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium wrap-break-word text-gray-900 dark:text-gray-100 hover:text-gray-900 dark:hover:text-gray-100 hover:underline"
+              >
                 {prototype.title}
-              </span>
+              </a>
             </div>
-            <span className="text-base text-green-700 dark:text-green-300">
+            <span className="text-base text-green-700 dark:text-green-300 whitespace-nowrap self-center">
               {`🎉 ` +
                 new Date(prototype.releaseDate).toLocaleTimeString('ja-JP', {
                   hour: '2-digit',
@@ -321,6 +332,92 @@ function NewbornPrototypes({
         🐣 Newborn Prototypes Today
       </h4>
       {newbornBody}
+    </div>
+  );
+}
+
+/**
+ * Component to display a list of trends (tags, materials, events) with frequency visualization.
+ */
+function TrendList({
+  title,
+  items,
+  colorTheme = 'indigo',
+}: {
+  title: string;
+  items: Array<{ label: string; count: number }>;
+  colorTheme?: 'indigo' | 'blue' | 'emerald';
+}) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {title}
+      </h4>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {items.map(({ label, count }, _, arr) => {
+          const maxCount = arr[0].count;
+          const ratio = count / maxCount;
+
+          let colorClasses = '';
+          // Simple color mapping to avoid complex dynamic class names
+          if (colorTheme === 'indigo') {
+            if (ratio > 0.8)
+              colorClasses =
+                'bg-indigo-200 dark:bg-indigo-800 border-indigo-300 dark:border-indigo-600';
+            else if (ratio > 0.5)
+              colorClasses =
+                'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-200 dark:border-indigo-700';
+            else
+              colorClasses =
+                'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800';
+          } else if (colorTheme === 'blue') {
+            if (ratio > 0.8)
+              colorClasses =
+                'bg-blue-200 dark:bg-blue-800 border-blue-300 dark:border-blue-600';
+            else if (ratio > 0.5)
+              colorClasses =
+                'bg-blue-100 dark:bg-blue-900/60 border-blue-200 dark:border-blue-700';
+            else
+              colorClasses =
+                'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800';
+          } else if (colorTheme === 'emerald') {
+            if (ratio > 0.8)
+              colorClasses =
+                'bg-emerald-200 dark:bg-emerald-800 border-emerald-300 dark:border-emerald-600';
+            else if (ratio > 0.5)
+              colorClasses =
+                'bg-emerald-100 dark:bg-emerald-900/60 border-emerald-200 dark:border-emerald-700';
+            else
+              colorClasses =
+                'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800';
+          }
+
+          const textColorClass =
+            colorTheme === 'indigo'
+              ? 'text-indigo-700 dark:text-indigo-300'
+              : colorTheme === 'blue'
+                ? 'text-blue-700 dark:text-blue-300'
+                : 'text-emerald-700 dark:text-emerald-300';
+
+          return (
+            <div
+              key={label}
+              className={`flex items-start justify-between gap-3 rounded border p-2 transition-colors ${colorClasses}`}
+            >
+              <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                {label}
+              </span>
+              <span
+                className={`shrink-0 text-sm font-semibold ${textColorClass}`}
+              >
+                {count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -673,43 +770,36 @@ export function AnalysisDashboard({
             </h3>
             <div className="grid gap-6 md:grid-cols-1">
               {analysis.maternityHospital?.topEvents?.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Top Events
-                  </h4>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {analysis.maternityHospital.topEvents.map(
-                      ({ event, count }, _, arr) => {
-                        const maxCount = arr[0].count;
-                        const ratio = count / maxCount;
-                        let bgClass =
-                          'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800';
-
-                        if (ratio > 0.8) {
-                          bgClass =
-                            'bg-indigo-200 dark:bg-indigo-800 border-indigo-300 dark:border-indigo-600';
-                        } else if (ratio > 0.5) {
-                          bgClass =
-                            'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-200 dark:border-indigo-700';
-                        }
-
-                        return (
-                          <div
-                            key={event}
-                            className={`flex items-start justify-between gap-3 rounded border p-2 transition-colors ${bgClass}`}
-                          >
-                            <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                              {event}
-                            </span>
-                            <span className="shrink-0 text-sm font-semibold text-indigo-700 dark:text-indigo-300">
-                              {count}
-                            </span>
-                          </div>
-                        );
-                      },
-                    )}
-                  </div>
-                </div>
+                <TrendList
+                  title="Top Events"
+                  items={analysis.maternityHospital.topEvents
+                    .slice(0, 20)
+                    .map((e) => ({
+                      label: e.event,
+                      count: e.count,
+                    }))}
+                  colorTheme="indigo"
+                />
+              )}
+              {analysis.topTags?.length > 0 && (
+                <TrendList
+                  title="Top Tags"
+                  items={analysis.topTags.slice(0, 20).map((t) => ({
+                    label: t.tag,
+                    count: t.count,
+                  }))}
+                  colorTheme="blue"
+                />
+              )}
+              {analysis.topMaterials?.length > 0 && (
+                <TrendList
+                  title="Top Materials"
+                  items={analysis.topMaterials.slice(0, 20).map((m) => ({
+                    label: m.material,
+                    count: m.count,
+                  }))}
+                  colorTheme="emerald"
+                />
               )}
             </div>
           </section>
@@ -759,7 +849,7 @@ export function AnalysisDashboard({
                     'topTags',
                     'topMaterials',
                     'averageAgeInDays',
-                    'analyzedAt',
+                    'announcedAt',
                     'anniversaryCandidates', // Used for client-side computation
                     'creationStreak', // Used in Overview
                     'maternityHospital', // Used in Community Trends
