@@ -14,4 +14,3 @@ export const IconHospital = () => <span>🏥</span>;
 export const IconDeadline = () => <span>💣</span>;
 export const IconWarrior = () => <span>⚔️</span>;
 export const IconHoly = () => <span>🙌</span>;
-
