@@ -37,6 +37,7 @@ import {
   isBirthDay,
   isToday,
 } from '@/lib/utils/anniversary-nerd';
+import { JST_OFFSET_MS } from '@/lib/utils/time';
 
 /**
  * Represents a prototype celebrating a birthday "today".
@@ -343,8 +344,6 @@ export function buildAnniversarySlice(
   };
 }
 
-const JST_OFFSET = 9 * 60 * 60 * 1000;
-
 /**
  * Computes release and update time distributions (heatmap data) and collects unique release dates.
  *
@@ -376,7 +375,7 @@ export function buildTimeDistributionsAndUniqueDates(
     if (Number.isNaN(date.getTime())) return;
 
     // Convert to JST
-    const jstDate = new Date(date.getTime() + JST_OFFSET);
+    const jstDate = new Date(date.getTime() + JST_OFFSET_MS);
 
     // Maker's Rhythm (Release)
     const d = jstDate.getUTCDay(); // 0-6 (Sunday is 0)
@@ -389,7 +388,7 @@ export function buildTimeDistributionsAndUniqueDates(
     if (p.updateDate) {
       const updateDate = new Date(p.updateDate);
       if (!Number.isNaN(updateDate.getTime())) {
-        const jstUpdateDate = new Date(updateDate.getTime() + JST_OFFSET);
+        const jstUpdateDate = new Date(updateDate.getTime() + JST_OFFSET_MS);
         const ud = jstUpdateDate.getUTCDay();
         const uh = jstUpdateDate.getUTCHours();
         updateDayOfWeek[ud]++;
@@ -476,7 +475,7 @@ export function calculateCreationStreak(
 
   // Determine "Current" streak
   // If the last release date is Today or Yesterday (JST), the streak is alive.
-  const nowJST = new Date(now.getTime() + JST_OFFSET);
+  const nowJST = new Date(now.getTime() + JST_OFFSET_MS);
   const todayJSTStr = nowJST.toISOString().split('T')[0]; // YYYY-MM-DD (UTC of JST time)
 
   const yesterdayJST = new Date(nowJST.getTime() - 24 * 60 * 60 * 1000);
@@ -581,7 +580,7 @@ export function buildAdvancedAnalysis(
     if (Number.isNaN(date.getTime())) return;
 
     // JST Conversion for Calendar-based analysis
-    const jstDate = new Date(date.getTime() + JST_OFFSET);
+    const jstDate = new Date(date.getTime() + JST_OFFSET_MS);
     const year = jstDate.getUTCFullYear();
     const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
     const dd = String(jstDate.getUTCDate()).padStart(2, '0');
