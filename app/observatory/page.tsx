@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 
+import { UniverseBackground } from '@/app/observatory/components/universe-background';
 import { ObservatoryCard } from '@/components/analysis/observatory-card';
 
 export const metadata: Metadata = {
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
 export default function ObservatoryPage() {
   return (
     <main className="">
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <UniverseBackground />
+      <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
             The ProtoPedia Universe
