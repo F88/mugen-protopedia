@@ -56,7 +56,7 @@ export default function ObservatoryPage() {
           {/* The Sci-Fi Lab Feature Card */}
           <ObservatoryCard
             title="The Sci-Fi Lab"
-            description="Exploring the unknown and the future. Where experimental narratives and futuristic concepts are analyzed."
+            description="Exploring the unknown. Analyzing mutations, time travelers, and out-of-place artifacts that defy the timeline."
             icon="🌌"
             color="purple"
             href={undefined}
