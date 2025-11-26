@@ -291,7 +291,9 @@ export function buildAnniversaries(
         prototype.releaseDate &&
         isBirthDay(prototype.releaseDate) &&
         // Exclude "newborns" (released today) from the birthday list.
-        // Note: isToday() checks the year, so this correctly allows future anniversaries.
+        // Note: isToday() checks the full date (YYYY-MM-DD), so prototypes released
+        // in previous years on this same month/day will return false for isToday()
+        // and correctly appear in the birthday list.
         !isToday(prototype.releaseDate),
     )
     .map((prototype) => {
