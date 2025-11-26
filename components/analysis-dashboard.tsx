@@ -153,25 +153,7 @@ function StatusDistribution({
 // TopTags and TopMaterials components removed as they are no longer used in the dashboard.
 
 /**
- * Component to display birthday prototypes.
- *
- * Output specification:
- * - Always renders the section; shows an empty-state message when none.
- * - Sorting: by `releaseDate` ascending (oldest first); ties by `id` ascending.
- * - Renders up to the first 5 items from the sorted list.
- * - Each row shows:
- *   - ID (numeric identifier)
- *   - Title (prototype name)
- *   - Age badge computed at render using the user's local timezone:
- *     "🎂 N 歳".
- *
- * Timezone note:
- * - Birthday detection and displayed age are intended to reflect the user's local timezone.
- * - The age badge is recalculated on render via `calculateAge(releaseDate)` to ensure
- *   it matches the user's locale/timezone even if upstream analysis was computed on the server.
- * - When there are more than 5 items, shows a trailing summary:
- *   "+X more prototypes" where X is the remaining count.
- * - Empty state message: "No birthdays today".
+ * Improved component to display birthday prototypes with a richer UI.
  */
 function BirthdayPrototypes({
   anniversaries,
@@ -189,79 +171,92 @@ function BirthdayPrototypes({
     return a.id - b.id; // tie-breaker by ID ascending
   });
 
-  let birthdayBody: ReactNode;
   if (isLoading) {
-    birthdayBody = (
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
         <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
         <span>Loading birthdays…</span>
       </div>
     );
-  } else if (birthdayCount === 0) {
-    birthdayBody = (
-      <div className="text-sm text-gray-500">No birthdays today</div>
-    );
-  } else {
-    const showCount = 10;
-    birthdayBody = (
-      <div className="space-y-1">
-        <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-          {birthdayCount.toLocaleString()} prototypes celebrating today!
-        </div>
-        {sortedBirthdayPrototypes.slice(0, showCount).map((prototype) => (
-          <div
-            key={prototype.id}
-            className="flex items-start justify-between gap-3 text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded"
-          >
-            <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                ID: {prototype.id}
-              </span>
-              <a
-                href={buildPrototypeLink(prototype.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium wrap-break-word text-gray-900 dark:text-gray-100 hover:text-gray-900 dark:hover:text-gray-100 hover:underline"
-              >
-                {prototype.title}
-              </a>
-            </div>
-            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold whitespace-nowrap self-center">
-              🎂 {calculateAge(prototype.releaseDate).years} 歳
-            </span>
-          </div>
-        ))}
-        {birthdayCount > showCount && (
-          <div className="text-xs text-gray-500">
-            +{birthdayCount - showCount} more prototypes
-          </div>
-        )}
+  }
+
+  if (birthdayCount === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-6 text-center dark:border-gray-700 bg-white/30 dark:bg-black/10">
+        <span className="text-2xl">🎂</span>
+        <span className="text-sm text-gray-500">No birthdays today</span>
       </div>
     );
   }
 
+  const showCount = 10;
+
   return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        🎉 Birthday Prototypes Today
-      </h4>
-      {birthdayBody}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span>🎉</span> Birthday Prototypes Today
+        </h4>
+        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+          {birthdayCount.toLocaleString()}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2">
+        {sortedBirthdayPrototypes.slice(0, showCount).map((prototype) => {
+          const age = calculateAge(prototype.releaseDate).years;
+          const releaseYear = new Date(prototype.releaseDate).getFullYear();
+
+          return (
+            <div
+              key={prototype.id}
+              className="group relative flex items-center justify-between gap-3 rounded-lg border border-blue-100 bg-white p-2.5 shadow-xs transition-all hover:border-blue-300 hover:shadow-md dark:border-blue-900 dark:bg-gray-800/80 dark:hover:border-blue-700"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xl dark:bg-blue-900/30">
+                  🎂
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <a
+                    href={buildPrototypeLink(prototype.id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400 text-sm"
+                  >
+                    {prototype.title}
+                  </a>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>ID: {prototype.id}</span>
+                    <span className="text-gray-300 dark:text-gray-600">•</span>
+                    <span>Born in {releaseYear}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0">
+                <span className="inline-flex flex-col items-center justify-center rounded-md bg-blue-50 px-2 py-1 min-w-12 text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+                  <span className="text-sm font-bold leading-none">{age}</span>
+                  <span className="text-[9px] font-medium opacity-80 leading-none mt-0.5">
+                    YEARS
+                  </span>
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {birthdayCount > showCount && (
+        <div className="text-center text-xs text-gray-500 pt-1">
+          and {birthdayCount - showCount} more prototypes celebrating today!
+        </div>
+      )}
     </div>
   );
 }
 
 /**
- * Component to display newborn prototypes (published today).
- *
- * Output specification:
- * - Lists all newborn items for "today" (no truncation/pagination).
- * - Sorted by `releaseDate` in descending order (most recent first).
- * - Each row shows:
- *   - ID (numeric identifier)
- *   - Title (prototype name)
- *   - Badge "NEW"
- *   - Published time in Japanese locale with seconds: HH:MM:SS (`ja-JP`).
- * - When there are no newborns, renders: "No newborns today".
+ * Improved component to display newborn prototypes with a richer UI.
  */
 function NewbornPrototypes({
   anniversaries,
@@ -277,61 +272,83 @@ function NewbornPrototypes({
       new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime(),
   );
 
-  let newbornBody: ReactNode;
   if (isLoading) {
-    newbornBody = (
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-500 py-4">
         <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
         <span>Loading newborns…</span>
       </div>
     );
-  } else if (newbornCount === 0) {
-    newbornBody = (
-      <div className="text-sm text-gray-500">No newborns today</div>
-    );
-  } else {
-    newbornBody = (
-      <div className="space-y-1">
-        <div className="text-lg font-bold text-green-600 dark:text-green-400">
-          {newbornCount.toLocaleString()} new prototypes published today!
-        </div>
-        {sortedNewbornPrototypes.map((prototype) => (
-          <div
-            key={prototype.id}
-            className="flex items-start justify-between gap-3 text-sm bg-green-50 dark:bg-green-900/20 p-2 rounded"
-          >
-            <div className="flex min-w-0 flex-col gap-1">
-              <span className="text-xs font-semibold text-green-700 dark:text-green-300">
-                ID: {prototype.id}
-              </span>
-              <a
-                href={buildPrototypeLink(prototype.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium wrap-break-word text-gray-900 dark:text-gray-100 hover:text-gray-900 dark:hover:text-gray-100 hover:underline"
-              >
-                {prototype.title}
-              </a>
-            </div>
-            <span className="text-base text-green-700 dark:text-green-300 whitespace-nowrap self-center">
-              {`🎉 ` +
-                new Date(prototype.releaseDate).toLocaleTimeString('ja-JP', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                })}
-            </span>
-          </div>
-        ))}
+  }
+
+  if (newbornCount === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-6 text-center dark:border-gray-700 bg-white/30 dark:bg-black/10">
+        <span className="text-2xl">🐣</span>
+        <span className="text-sm text-gray-500">No newborns today</span>
       </div>
     );
   }
+
   return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        🐣 Newborn Prototypes Today
-      </h4>
-      {newbornBody}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span>🐣</span> Newborn Prototypes Today
+        </h4>
+        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+          {newbornCount.toLocaleString()}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2">
+        {sortedNewbornPrototypes.map((prototype) => {
+          const publishedTime = new Date(
+            prototype.releaseDate,
+          ).toLocaleTimeString('ja-JP', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          });
+
+          return (
+            <div
+              key={prototype.id}
+              className="group relative flex items-center justify-between gap-3 rounded-lg border border-green-100 bg-white p-2.5 shadow-xs transition-all hover:border-green-300 hover:shadow-md dark:border-green-900 dark:bg-gray-800/80 dark:hover:border-green-700"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-50 text-xl dark:bg-green-900/30">
+                  🎉
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <a
+                    href={buildPrototypeLink(prototype.id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-gray-900 hover:text-green-600 hover:underline dark:text-gray-100 dark:hover:text-green-400 text-sm"
+                  >
+                    {prototype.title}
+                  </a>
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span>ID: {prototype.id}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="shrink-0">
+                <span className="inline-flex flex-col items-center justify-center rounded-md bg-green-50 px-2 py-1 min-w-12 text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30">
+                  <span className="py-2 text-sm font-bold leading-none">
+                    {publishedTime}
+                  </span>
+                  {/* <span className="text-[9px] font-medium opacity-80 leading-none mt-0.5"> */}
+                  {/* TIME */}
+                  {/* </span> */}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -643,7 +660,7 @@ export function AnalysisDashboard({
         </span>
       </AnalysisSummary>
 
-      <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-4xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-6xl">
         <DialogHeader className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">
           <Button
             type="button"
@@ -653,7 +670,7 @@ export function AnalysisDashboard({
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <DialogTitle className="self-center">{title}</DialogTitle>
+          <DialogTitle className="self-center text-2xl">{title}</DialogTitle>
           <DialogDescription className="self-center text-sm">
             Last updated: {formattedDate}
           </DialogDescription>
@@ -671,14 +688,14 @@ export function AnalysisDashboard({
                 value={analysis.totalCount.toLocaleString()}
               />
               <AnalysisStat
-                label="Current Streak"
-                value={`${analysis.creationStreak.currentStreak.toLocaleString()} ${analysis.creationStreak.currentStreak === 1 ? 'day' : 'days'}`}
-                description={`Longest: ${analysis.creationStreak.longestStreak.toLocaleString()} ${analysis.creationStreak.longestStreak === 1 ? 'day' : 'days'}`}
-              />
-              <AnalysisStat
                 label="Days with Releases"
                 value={analysis.creationStreak.totalActiveDays.toLocaleString()}
                 description="total active days"
+              />
+              <AnalysisStat
+                label="With Awards"
+                value={analysis.prototypesWithAwards}
+                description={`${((analysis.prototypesWithAwards / analysis.totalCount) * 100).toFixed(1).toLocaleString()}%`}
               />
               <AnalysisStat
                 label="Average Age"
@@ -686,9 +703,9 @@ export function AnalysisDashboard({
                 description={`~${Math.round(analysis.averageAgeInDays / 365)} ${Math.round(analysis.averageAgeInDays / 365) === 1 ? 'year' : 'years'}`}
               />
               <AnalysisStat
-                label="With Awards"
-                value={analysis.prototypesWithAwards}
-                description={`${((analysis.prototypesWithAwards / analysis.totalCount) * 100).toFixed(1).toLocaleString()}%`}
+                label="Current Streak"
+                value={`${analysis.creationStreak.currentStreak.toLocaleString()} ${analysis.creationStreak.currentStreak === 1 ? 'day' : 'days'}`}
+                description={`Longest: ${analysis.creationStreak.longestStreak.toLocaleString()} ${analysis.creationStreak.longestStreak === 1 ? 'day' : 'days'}`}
               />
             </div>
           </section>
@@ -698,14 +715,14 @@ export function AnalysisDashboard({
             <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
               📅 Today&apos;s Highlights
             </h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <BirthdayPrototypes
                   anniversaries={effectiveAnniversaries}
                   isLoading={anniversariesLoading}
                 />
               </div>
-              <div className="bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="min-w-0 bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
                 <NewbornPrototypes
                   anniversaries={effectiveAnniversaries}
                   isLoading={anniversariesLoading}
