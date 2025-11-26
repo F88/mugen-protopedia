@@ -18,6 +18,7 @@ export interface ObservatoryCardProps {
 const colorStyles = {
   gray: {
     gradient: 'from-gray-50 dark:from-gray-800/20',
+    cardBg: 'bg-gray-200/70 dark:bg-gray-800/70',
     iconBg: 'bg-gray-100 dark:bg-gray-800',
     iconText: 'text-gray-600 dark:text-gray-300',
     hoverText: 'group-hover:text-gray-600 dark:group-hover:text-gray-400',
@@ -25,6 +26,7 @@ const colorStyles = {
   },
   yellow: {
     gradient: 'from-yellow-50 dark:from-yellow-900/20',
+    cardBg: 'bg-yellow-100/70 dark:bg-yellow-900/70',
     iconBg: 'bg-yellow-100 dark:bg-yellow-800',
     iconText: 'text-yellow-600 dark:text-yellow-300',
     hoverText: 'group-hover:text-yellow-600 dark:group-hover:text-yellow-400',
@@ -32,6 +34,7 @@ const colorStyles = {
   },
   blue: {
     gradient: 'from-blue-50 dark:from-blue-900/20',
+    cardBg: 'bg-blue-200/70 dark:bg-blue-900/70',
     iconBg: 'bg-blue-100 dark:bg-blue-900',
     iconText: 'text-blue-600 dark:text-blue-300',
     hoverText: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
@@ -39,6 +42,7 @@ const colorStyles = {
   },
   purple: {
     gradient: 'from-purple-50 dark:from-purple-900/20',
+    cardBg: 'bg-purple-200/70 dark:bg-purple-900/70',
     iconBg: 'bg-purple-100 dark:bg-purple-900',
     iconText: 'text-purple-600 dark:text-purple-300',
     hoverText: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
@@ -46,6 +50,7 @@ const colorStyles = {
   },
   amber: {
     gradient: 'from-amber-50 dark:from-amber-900/20',
+    cardBg: 'bg-amber-100/70 dark:bg-amber-900/70',
     iconBg: 'bg-amber-100 dark:bg-amber-900',
     iconText: 'text-amber-600 dark:text-amber-300',
     hoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
@@ -111,7 +116,9 @@ export function ObservatoryCard({
 
   if (isComingSoon) {
     return (
-      <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-dashed border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 opacity-60 cursor-not-allowed">
+      <div
+        className={`group relative flex flex-col overflow-hidden rounded-2xl border border-dashed border-gray-300 ${styles.cardBg} opacity-60 cursor-not-allowed backdrop-blur-[2px]`}
+      >
         {content}
       </div>
     );
@@ -120,7 +127,7 @@ export function ObservatoryCard({
   return (
     <Link
       href={href!}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300"
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 ${styles.cardBg} dark:border-gray-800 hover:shadow-lg transition-all duration-300 backdrop-blur-[2px]`}
     >
       {content}
     </Link>

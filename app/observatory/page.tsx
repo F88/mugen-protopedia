@@ -1,3 +1,14 @@
+/**
+ * @file Observatory Top Page
+ * @description
+ *   The top-level page for the ProtoPedia Observatory feature. This page provides
+ *   an immersive universe-themed dashboard with animated backgrounds (stars and shooting stars in dark mode),
+ *   and feature cards for exploring various aspects of the ProtoPedia ecosystem.
+ *
+ *   - UniverseBackground: Renders a dynamic, theme-aware background (animation in dark mode only).
+ *   - ObservatoryCard: Feature cards for navigation to subpages (e.g., Hello World, Hall of Fame).
+ *   - Responsive layout and accessible design.
+ */
 import type { Metadata } from 'next';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
@@ -11,6 +22,19 @@ export const metadata: Metadata = {
     'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
 };
 
+/**
+ * ObservatoryPage component
+ *
+ * Renders the top-level Observatory dashboard with a universe-themed background and feature cards.
+ *
+ * ## Theme-specific background animation
+ * - **Dark mode:** Animated stars and shooting stars (UniverseBackground) are displayed for an immersive space effect.
+ * - **Light mode:** No stars or shooting stars. Only a static, bright gradient background is shown (no animation).
+ *
+ * - UniverseBackground: Theme-aware background (animation in dark mode only)
+ * - ObservatoryCard: Feature cards for subpages
+ * - Responsive and accessible layout
+ */
 export default function ObservatoryPage() {
   return (
     <main className="">
