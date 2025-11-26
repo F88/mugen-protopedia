@@ -170,8 +170,8 @@ export function UniverseBackground() {
       </div>
 
       {/* Light Mode: Stratosphere */}
-      <div className="absolute inset-0 bg-linear-to-b from-slate-100 via-white to-white dark:opacity-0 opacity-100 transition-opacity duration-700">
-        <div className="absolute inset-0 bg-linear-to-tr from-blue-50/50 via-transparent to-purple-50/30" />
+      <div className="absolute inset-0 bg-linear-to-b from-blue-200 via-blue-50 to-white dark:opacity-0 opacity-100 transition-opacity duration-700">
+        <div className="absolute inset-0 bg-linear-to-tr from-blue-200/40 via-transparent to-purple-200/40" />
       </div>
     </div>
   );
