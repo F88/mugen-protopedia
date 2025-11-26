@@ -53,11 +53,13 @@ const logLevel =
 
 // Check if token is set and valid (not a placeholder)
 const validToken =
-  accessToken && accessToken !== 'your_token_here' ? accessToken : undefined;
+  accessToken && accessToken !== 'your_token_here'
+    ? accessToken
+    : 'DUMMY_TOKEN_FOR_BUILD';
 
-if (!validToken) {
+if (validToken === 'DUMMY_TOKEN_FOR_BUILD') {
   baseLogger.warn(
-    'PROTOPEDIA_API_V2_TOKEN is not set or is using placeholder value. Attempting to access API without authentication.',
+    'PROTOPEDIA_API_V2_TOKEN is not set or is using placeholder value. Using dummy token to initialize client.',
   );
 }
 
