@@ -25,6 +25,7 @@ import { MaternityHospitalSection } from './components/maternity-hospital-sectio
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { HolyDaySection } from './components/holy-day-section';
+import { UniverseBackground } from '../components/universe-background';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
@@ -36,9 +37,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function HelloWorldPage() {
   // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
-  const result = await getLatestAnalysis({
-    forceRecompute: process.env.NODE_ENV === 'development',
-  });
+  const result = await getLatestAnalysis({ forceRecompute: true });
 
   if (!result.ok) {
     return (
@@ -129,9 +128,9 @@ export default async function HelloWorldPage() {
 
   return (
     <main className="min-h-screen bg-fixed bg-linear-to-br from-sky-100 via-indigo-100 to-purple-100 dark:from-blue-950 dark:via-gray-950 dark:to-purple-950">
-      <div className="px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <header className="mb-12 text-center space-y-4">
+      {/* <UniverseBackground /> */}
+      <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
             <span className="text-4xl">
               <IconGlobe />
@@ -159,7 +158,7 @@ export default async function HelloWorldPage() {
             </p>
             <p>* All times are displayed in Japan Standard Time (JST).</p>
           </div>
-        </header>
+        </div>
 
         <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
 
