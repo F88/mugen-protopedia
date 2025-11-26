@@ -146,12 +146,13 @@ function BirthdayPrototypes({
       <div className="text-sm text-gray-500">No birthdays today</div>
     );
   } else {
+    const showCount = 10;
     birthdayBody = (
       <div className="space-y-1">
         <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
           {birthdayCount.toLocaleString()} prototypes celebrating today!
         </div>
-        {sortedBirthdayPrototypes.slice(0, 5).map((prototype) => (
+        {sortedBirthdayPrototypes.slice(0, showCount).map((prototype) => (
           <div
             key={prototype.id}
             className="flex items-start justify-between gap-3 text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded"
@@ -169,14 +170,15 @@ function BirthdayPrototypes({
             </span>
           </div>
         ))}
-        {birthdayCount > 5 && (
+        {birthdayCount > showCount && (
           <div className="text-xs text-gray-500">
-            +{birthdayCount - 5} more prototypes
+            +{birthdayCount - showCount} more prototypes
           </div>
         )}
       </div>
     );
   }
+
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
