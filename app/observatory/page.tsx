@@ -1,4 +1,14 @@
+import type { Metadata } from 'next';
+
+import { APP_TITLE } from '@/lib/config/app-constants';
+
 import { ObservatoryCard } from '@/components/analysis/observatory-card';
+
+export const metadata: Metadata = {
+  title: `ProtoPedia Observatory | ${APP_TITLE}`,
+  description:
+    'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+};
 
 export default function ObservatoryPage() {
   return (
@@ -6,12 +16,12 @@ export default function ObservatoryPage() {
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-            ProtoPedia Observatory
+            The ProtoPedia Universe
           </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            Dive into curated collections and unique insights from the infinite
-            world of prototypes. All data in this section is analyzed based on
-            Japan Standard Time (JST).
+            Journey through the expanding universe of ideas. Fuel your curiosity
+            with the stories behind the weird, the wonderful, and the
+            revolutionary.
           </p>
         </div>
 
