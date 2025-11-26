@@ -68,6 +68,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-11-26
+
+- 📈 新しい分析情報
+
 ### 2025-11-24
 
 - 🧠 データ取得処理の改善、不要なデータ取得を抑制
