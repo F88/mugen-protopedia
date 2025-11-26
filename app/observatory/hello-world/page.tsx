@@ -35,7 +35,11 @@
  *    - "Storytelling" elements explaining the data's significance
  */
 
+import type { Metadata } from 'next';
+
 import Link from 'next/link';
+
+import { APP_TITLE } from '@/lib/config/app-constants';
 
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 
@@ -78,6 +82,12 @@ const IconHospital = () => <span>🏥</span>;
 const IconDeadline = () => <span>💣</span>;
 const IconWarrior = () => <span>⚔️</span>;
 const IconHoly = () => <span>🙌</span>;
+
+export const metadata: Metadata = {
+  title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
+  description:
+    'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+};
 
 export const dynamic = 'force-dynamic';
 
