@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
-export default function ExplorePage() {
+export default function ObservatoryPage() {
   return (
     <main className="">
       <div className="px-4 py-8 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-            Explore the ProtoPedia Universe
+            ProtoPedia Observatory
           </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
             Dive into curated collections and unique insights from the infinite
@@ -18,7 +18,7 @@ export default function ExplorePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Hello World Feature Card */}
           <Link
-            href="/explore/hello-world"
+            href="/observatory/hello-world"
             className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 hover:shadow-lg transition-all duration-300"
           >
             <div className="absolute inset-0 bg-linear-to-br from-blue-50 to-transparent dark:from-blue-900/20 dark:to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
