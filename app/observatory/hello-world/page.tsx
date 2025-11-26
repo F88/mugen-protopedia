@@ -67,21 +67,22 @@ const getLaborOfLoveWidthClass = (value: number) =>
 const getMaternityHospitalWidthClass = (value: number) =>
   `maternity-hospital-bar--${clampPercent(value)}`;
 
-// Icons
-const IconGlobe = () => <span>🌐</span>;
-const IconSparkles = () => <span>✨</span>;
-const IconFlame = () => <span>🔥</span>;
-const IconClock = () => <span>⏰</span>;
-const IconTelescope = () => <span>🔭</span>;
-const IconPenguin = () => <span>🐧</span>;
-const IconStar = () => <span>🌠</span>;
-const IconGift = () => <span>🎁</span>;
-const IconTool = () => <span>🛠️</span>;
-const IconHeart = () => <span>❤️</span>;
-const IconHospital = () => <span>🏥</span>;
-const IconDeadline = () => <span>💣</span>;
-const IconWarrior = () => <span>⚔️</span>;
-const IconHoly = () => <span>🙌</span>;
+import {
+  IconGlobe,
+  IconSparkles,
+  IconFlame,
+  IconClock,
+  IconTelescope,
+  IconPenguin,
+  IconStar,
+  IconGift,
+  IconTool,
+  IconHeart,
+  IconHospital,
+  IconDeadline,
+  IconWarrior,
+  IconHoly,
+} from '../components/icons';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,

@@ -8,3 +8,10 @@ export const IconTelescope = () => <span>🔭</span>;
 export const IconPenguin = () => <span>🐧</span>;
 export const IconStar = () => <span>🌠</span>;
 export const IconGift = () => <span>🎁</span>;
+export const IconTool = () => <span>🛠️</span>;
+export const IconHeart = () => <span>❤️</span>;
+export const IconHospital = () => <span>🏥</span>;
+export const IconDeadline = () => <span>💣</span>;
+export const IconWarrior = () => <span>⚔️</span>;
+export const IconHoly = () => <span>🙌</span>;
+
