@@ -6,16 +6,17 @@
  * playlist form interactions, etc.) to `PlaylistEditClient`.
  */
 import type { Metadata } from 'next';
-import Link from 'next/link';
+
 import { Suspense } from 'react';
 
-import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
-import { ThemeToggle } from '@/components/theme-toggle';
 import {
   buildURLSearchParams,
   type SearchParams,
 } from '@/lib/metadata/playlist-metadata';
+
 import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
+import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 // Note: This page intentionally uses static `metadata` instead of
 // `generateMetadata` because it does not depend on playlist queries.
