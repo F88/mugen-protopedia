@@ -49,9 +49,9 @@ export function StarAlignmentSection({
     >
       <div className="space-y-4 mb-8">
         {alignments.length > 0 ? (
-          alignments.slice(0, 3).map((alignment, i) => (
+          alignments.slice(0, 3).map((alignment) => (
             <div
-              key={i}
+              key={alignment.timestamp}
               className="bg-white/60 dark:bg-black/20 rounded-xl p-5 border border-purple-100 dark:border-purple-800/30"
             >
               <div className="flex items-center gap-2 mb-3">
