@@ -40,21 +40,19 @@ export function GatewayDrugSection({ topMaterials }: GatewayDrugSectionProps) {
       delay="delay-400"
     >
       <div className="flex flex-wrap justify-center md:justify-start gap-3">
-        {topMaterials
-          .slice(0, 15)
-          .map(({ material, count }: { material: string; count: number }) => (
-            <div
-              key={material}
-              className="flex items-center bg-white/80 dark:bg-black/20 rounded-lg px-4 py-2 border border-lime-100 dark:border-lime-800/50 hover:scale-105 transition-transform cursor-default"
-            >
-              <span className="text-base font-bold text-lime-800 dark:text-lime-200 mr-2">
-                {material}
-              </span>
-              <span className="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900/50 px-2 py-0.5 rounded-full">
-                {count}
-              </span>
-            </div>
-          ))}
+        {topMaterials.slice(0, 15).map(({ material, count }) => (
+          <div
+            key={material}
+            className="flex items-center bg-white/80 dark:bg-black/20 rounded-lg px-4 py-2 border border-lime-100 dark:border-lime-800/50 hover:scale-105 transition-transform cursor-default"
+          >
+            <span className="text-base font-bold text-lime-800 dark:text-lime-200 mr-2">
+              {material}
+            </span>
+            <span className="text-xs font-bold text-lime-600 dark:text-lime-400 bg-lime-100 dark:bg-lime-900/50 px-2 py-0.5 rounded-full">
+              {count}
+            </span>
+          </div>
+        ))}
       </div>
     </ObservatorySection>
   );
