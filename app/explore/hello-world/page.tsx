@@ -38,6 +38,10 @@ import Link from 'next/link';
 import { getLatestAnalysis } from '@/app/actions/analysis';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 
+import './labor-of-love.css';
+import './makers-rhythm.css';
+import './maternity-hospital.css';
+
 // Icons
 const IconGlobe = () => <span>🌐</span>;
 const IconSparkles = () => <span>✨</span>;
@@ -401,8 +405,12 @@ function MakersRhythmSection({
                   >
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full bg-orange-400 dark:bg-orange-500 rounded-t-md transition-all duration-500 group-hover:bg-orange-500 dark:group-hover:bg-orange-400"
-                        style={{ height: `${heightPercent}%` }}
+                        className="w-full bg-orange-400 dark:bg-orange-500 rounded-t-md transition-all duration-500 group-hover:bg-orange-500 dark:group-hover:bg-orange-400 makers-rhythm-bar"
+                        style={
+                          {
+                            '--bar-height': `${heightPercent}%`,
+                          } as React.CSSProperties
+                        }
                       >
                         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
                           {count} releases
@@ -435,8 +443,12 @@ function MakersRhythmSection({
                   >
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400"
-                        style={{ height: `${heightPercent}%` }}
+                        className="w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400 makers-rhythm-bar"
+                        style={
+                          {
+                            '--bar-height': `${heightPercent}%`,
+                          } as React.CSSProperties
+                        }
                       >
                         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
                           {hour}:00 - {count}
@@ -1243,8 +1255,12 @@ function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                     </div>
                     <div className="w-full bg-pink-100 dark:bg-pink-900/30 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-pink-400 dark:bg-pink-500 h-full rounded-full"
-                        style={{ width: `${percent}%` }}
+                        className="bg-pink-400 dark:bg-pink-500 h-full rounded-full labor-of-love-bar"
+                        style={
+                          {
+                            '--bar-width': `${percent}%`,
+                          } as React.CSSProperties
+                        }
                       ></div>
                     </div>
                   </div>
@@ -1644,7 +1660,7 @@ function HolyDaySection({ holyDay }: HolyDaySectionProps) {
           </div>
           <div className="shrink-0">
             <div className="relative w-32 h-32 flex items-center justify-center">
-              <div className="absolute inset-0 bg-amber-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
+              <div className="absolute inset-0 bg-yellow-400/20 rounded-full animate-pulse opacity-20 duration-3000"></div>
               <div className="text-6xl filter drop-shadow-lg">🙌</div>
             </div>
           </div>
