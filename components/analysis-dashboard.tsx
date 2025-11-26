@@ -368,6 +368,30 @@ function NewbornPrototypes({
   );
 }
 
+const COLOR_CLASS_MAP = {
+  indigo: {
+    high: 'bg-indigo-200 dark:bg-indigo-800 border-indigo-300 dark:border-indigo-600',
+    medium:
+      'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-200 dark:border-indigo-700',
+    low: 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800',
+    text: 'text-indigo-700 dark:text-indigo-300',
+  },
+  blue: {
+    high: 'bg-blue-200 dark:bg-blue-800 border-blue-300 dark:border-blue-600',
+    medium:
+      'bg-blue-100 dark:bg-blue-900/60 border-blue-200 dark:border-blue-700',
+    low: 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800',
+    text: 'text-blue-700 dark:text-blue-300',
+  },
+  emerald: {
+    high: 'bg-emerald-200 dark:bg-emerald-800 border-emerald-300 dark:border-emerald-600',
+    medium:
+      'bg-emerald-100 dark:bg-emerald-900/60 border-emerald-200 dark:border-emerald-700',
+    low: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800',
+    text: 'text-emerald-700 dark:text-emerald-300',
+  },
+};
+
 /**
  * Component to display a list of trends (tags, materials, events) with frequency visualization.
  */
@@ -392,46 +416,10 @@ function TrendList({
           const maxCount = arr[0].count;
           const ratio = count / maxCount;
 
-          let colorClasses = '';
-          // Simple color mapping to avoid complex dynamic class names
-          if (colorTheme === 'indigo') {
-            if (ratio > 0.8)
-              colorClasses =
-                'bg-indigo-200 dark:bg-indigo-800 border-indigo-300 dark:border-indigo-600';
-            else if (ratio > 0.5)
-              colorClasses =
-                'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-200 dark:border-indigo-700';
-            else
-              colorClasses =
-                'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-800';
-          } else if (colorTheme === 'blue') {
-            if (ratio > 0.8)
-              colorClasses =
-                'bg-blue-200 dark:bg-blue-800 border-blue-300 dark:border-blue-600';
-            else if (ratio > 0.5)
-              colorClasses =
-                'bg-blue-100 dark:bg-blue-900/60 border-blue-200 dark:border-blue-700';
-            else
-              colorClasses =
-                'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800';
-          } else if (colorTheme === 'emerald') {
-            if (ratio > 0.8)
-              colorClasses =
-                'bg-emerald-200 dark:bg-emerald-800 border-emerald-300 dark:border-emerald-600';
-            else if (ratio > 0.5)
-              colorClasses =
-                'bg-emerald-100 dark:bg-emerald-900/60 border-emerald-200 dark:border-emerald-700';
-            else
-              colorClasses =
-                'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800';
-          }
-
-          const textColorClass =
-            colorTheme === 'indigo'
-              ? 'text-indigo-700 dark:text-indigo-300'
-              : colorTheme === 'blue'
-                ? 'text-blue-700 dark:text-blue-300'
-                : 'text-emerald-700 dark:text-emerald-300';
+          const themeColors = COLOR_CLASS_MAP[colorTheme];
+          let colorClasses = themeColors.low;
+          if (ratio > 0.8) colorClasses = themeColors.high;
+          else if (ratio > 0.5) colorClasses = themeColors.medium;
 
           return (
             <div
@@ -442,7 +430,7 @@ function TrendList({
                 {label}
               </span>
               <span
-                className={`shrink-0 text-sm font-semibold ${textColorClass}`}
+                className={`shrink-0 text-sm font-semibold ${themeColors.text}`}
               >
                 {count}
               </span>
