@@ -1,0 +1,23 @@
+.prototype-status-bar-segment {
+  width: var(--segment-width);
+}
+
+.prototype-status-color-1 {
+  background-color: #dda424; /* Idea */
+}
+
+.prototype-status-color-2 {
+  background-color: #96e563; /* Developing */
+}
+
+.prototype-status-color-3 {
+  background-color: #02adbc; /* Completed */
+}
+
+.prototype-status-color-4 {
+  background-color: #ca72d3; /* Memorial/Kuyo */
+}
+
+.prototype-status-color-default {
+  background-color: #64748b;
+}

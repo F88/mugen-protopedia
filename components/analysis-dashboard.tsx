@@ -2,6 +2,9 @@ import { useCallback, useState, type ReactNode } from 'react';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
+import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
+
+import './analysis-dashboard.css';
 
 // The hook is injected to avoid importing server actions in Storybook bundles.
 // Do NOT import the real hook here.
@@ -62,9 +65,17 @@ function StatusDistribution({
 }: {
   statusDistribution: Record<string, number>;
 }) {
-  const entries = Object.entries(statusDistribution).sort(
-    ([, a], [, b]) => b - a,
-  );
+  const total = Object.values(statusDistribution).reduce((a, b) => a + b, 0);
+  const entries = Object.entries(statusDistribution)
+    .map(([status, count]) => ({
+      status: parseInt(status),
+      count,
+      percentage: total > 0 ? (count / total) * 100 : 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  // Sort by status ID for the stacked bar to show a logical progression
+  const sortedForBar = [...entries].sort((a, b) => a.status - b.status);
 
   if (entries.length === 0) {
     return (
@@ -72,23 +83,67 @@ function StatusDistribution({
     );
   }
 
+  const getStatusClass = (status: number) => {
+    switch (status) {
+      case 1:
+        return 'prototype-status-color-1'; // Idea
+      case 2:
+        return 'prototype-status-color-2'; // Developing
+      case 3:
+        return 'prototype-status-color-3'; // Completed
+      case 4:
+        return 'prototype-status-color-4'; // Memorial/Kuyo
+      default:
+        return 'prototype-status-color-default';
+    }
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
         Status Distribution
       </h4>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {entries.map(([status, count]) => (
-          <div
-            key={status}
-            className="flex items-center justify-between rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
-          >
-            <StatusBadge status={parseInt(status)} />
-            <span className="text-sm font-medium">
-              {count.toLocaleString()}
-            </span>
-          </div>
-        ))}
+      {/* Visual Distribution Bar */}
+      <div className="space-y-2">
+        <div className="flex h-4 w-full overflow-hidden rounded-full bg-gray-100 shadow-inner dark:bg-gray-800">
+          {sortedForBar.map(({ status, count, percentage }) => (
+            <div
+              key={status}
+              style={
+                {
+                  '--segment-width': `${percentage}%`,
+                } as React.CSSProperties
+              }
+              className={`relative group h-full transition-all duration-500 first:rounded-l-full last:rounded-r-full hover:opacity-90 prototype-status-bar-segment ${getStatusClass(status)}`}
+              title={`${getPrototypeStatusLabel(status)}: ${count} (${percentage.toFixed(1)}%)`}
+            />
+          ))}
+        </div>
+        <div className="flex justify-end px-1 text-xs text-gray-500">
+          <span>Total: {total.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* Detailed List */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {entries.map(({ status, count, percentage }) => (
+            <div
+              key={status}
+              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
+            >
+              <div className="flex items-center gap-2">
+                <StatusBadge status={status} />
+                <span className="text-xs text-gray-500">
+                  ({percentage.toFixed(1)}%)
+                </span>
+              </div>
+              <span className="text-sm font-medium">
+                {count.toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -165,7 +220,7 @@ function BirthdayPrototypes({
                 {prototype.title}
               </span>
             </div>
-            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold shrink-0 self-start">
+            <span className="text-base text-blue-600 dark:text-blue-400 font-semibold">
               🎂 {calculateAge(prototype.releaseDate).years} 歳
             </span>
           </div>
