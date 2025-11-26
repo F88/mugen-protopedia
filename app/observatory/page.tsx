@@ -55,7 +55,7 @@ export default function ObservatoryPage() {
           {/* Hello World Feature Card */}
           <ObservatoryCard
             title="Hello World"
-            description="The Origin. Witness the birth of light and vivid moments where new prototypes begin their journey."
+            description="Celebrate new creations. Witness the birth of light and vivid moments where new prototypes begin their journey."
             icon="🎉"
             color="blue"
             href="/observatory/hello-world"
