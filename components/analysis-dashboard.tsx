@@ -1,9 +1,9 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
-import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 
 import './analysis-dashboard.css';
 
@@ -16,8 +16,8 @@ import type {
 
 import { RefreshCw } from 'lucide-react';
 
-import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
 import { AnalysisSummary } from '@/components/analysis-summary';
+import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
 import { StatusBadge } from '@/components/ui/badges/status-badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +30,17 @@ import {
 } from '@/components/ui/dialog';
 
 const title = 'Prototype Analysis';
+
+/**
+ * Component to display a section title
+ */
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 pb-2">
+      {children}
+    </h3>
+  );
+}
 
 /**
  * Component to display a single analysis statistic
@@ -660,7 +671,7 @@ export function AnalysisDashboard({
         </span>
       </AnalysisSummary>
 
-      <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:p-6 space-y-6 sm:max-w-6xl">
+      <DialogContent className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 space-y-6 w-[calc(100%_-_2rem)] sm:max-w-6xl">
         <DialogHeader className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">
           <Button
             type="button"
@@ -679,9 +690,7 @@ export function AnalysisDashboard({
         <div className="space-y-8 pb-2">
           {/* Section 1: Overview */}
           <section className="space-y-4">
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              📊 Overview
-            </h3>
+            <SectionTitle>📊 Overview</SectionTitle>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <AnalysisStat
                 label="Total Prototypes"
@@ -712,9 +721,7 @@ export function AnalysisDashboard({
 
           {/* Section 2: Today's Highlights */}
           <section className="space-y-4">
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              📅 Today&apos;s Highlights
-            </h3>
+            <SectionTitle>📅 Today&apos;s Highlights</SectionTitle>
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <BirthdayPrototypes
@@ -733,9 +740,7 @@ export function AnalysisDashboard({
 
           {/* Section 3: Prototype Status */}
           <section className="space-y-4">
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              🏗️ Prototype Status
-            </h3>
+            <SectionTitle>🏗️ Prototype Status</SectionTitle>
             <StatusDistribution
               statusDistribution={analysis.statusDistribution}
             />
@@ -743,9 +748,7 @@ export function AnalysisDashboard({
 
           {/* Section 4: Developer's Rhythm */}
           <section className="space-y-4">
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              🕰️ Developer&apos;s Rhythm
-            </h3>
+            <SectionTitle>🕰️ Developer&apos;s Rhythm</SectionTitle>
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
                 <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -782,9 +785,7 @@ export function AnalysisDashboard({
 
           {/* Section 5: Community Trends */}
           <section className="space-y-4">
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
-              📈 Community Trends
-            </h3>
+            <SectionTitle>📈 Community Trends</SectionTitle>
             <div className="grid gap-6 md:grid-cols-1">
               {analysis.maternityHospital?.topEvents?.length > 0 && (
                 <TrendList
