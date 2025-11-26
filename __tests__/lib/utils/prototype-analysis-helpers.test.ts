@@ -74,7 +74,7 @@ describe('prototype-analysis helpers', () => {
   });
 
   describe('buildTopTags', () => {
-    it('returns aggregated tag counts sorted desc limited to 10', () => {
+    it('returns aggregated tag counts sorted desc limited to 30', () => {
       const prototypes: NormalizedPrototype[] = [];
       for (let i = 0; i < 12; i += 1) {
         prototypes.push(
@@ -87,7 +87,7 @@ describe('prototype-analysis helpers', () => {
 
       const { topTags, tagCounts } = buildTopTags(prototypes);
 
-      expect(topTags).toHaveLength(10);
+      expect(topTags).toHaveLength(13);
       expect(topTags[0]).toEqual({ tag: 'shared', count: 12 });
       expect(tagCounts['tag-0']).toBe(2);
     });
