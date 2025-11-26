@@ -31,6 +31,12 @@ import {
 
 const title = 'Prototype Analysis';
 
+const clampPercent = (value: number) =>
+  Math.max(0, Math.min(100, Math.round(value)));
+
+const getStatusSegmentWidthClass = (value: number) =>
+  `prototype-status-width-${clampPercent(value)}`;
+
 /**
  * Component to display a section title
  */
@@ -118,18 +124,16 @@ function StatusDistribution({
       {/* Visual Distribution Bar */}
       <div className="space-y-2">
         <div className="flex h-4 w-full overflow-hidden rounded-full bg-gray-100 shadow-inner dark:bg-gray-800">
-          {sortedForBar.map(({ status, count, percentage }) => (
-            <div
-              key={status}
-              style={
-                {
-                  '--segment-width': `${percentage}%`,
-                } as React.CSSProperties
-              }
-              className={`relative group h-full transition-all duration-500 first:rounded-l-full last:rounded-r-full hover:opacity-90 prototype-status-bar-segment ${getStatusClass(status)}`}
-              title={`${getPrototypeStatusLabel(status)}: ${count} (${percentage.toFixed(1)}%)`}
-            />
-          ))}
+          {sortedForBar.map(({ status, count, percentage }) => {
+            const widthClass = getStatusSegmentWidthClass(percentage);
+            return (
+              <div
+                key={status}
+                className={`relative group h-full transition-all duration-500 first:rounded-l-full last:rounded-r-full hover:opacity-90 prototype-status-bar-segment ${widthClass} ${getStatusClass(status)}`}
+                title={`${getPrototypeStatusLabel(status)}: ${count} (${percentage.toFixed(1)}%)`}
+              />
+            );
+          })}
         </div>
         <div className="flex justify-end px-1 text-xs text-gray-500">
           <span>Total: {total.toLocaleString()}</span>
@@ -671,7 +675,7 @@ export function AnalysisDashboard({
         </span>
       </AnalysisSummary>
 
-      <DialogContent className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 space-y-6 w-[calc(100%_-_2rem)] sm:max-w-6xl">
+      <DialogContent className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 space-y-6 w-[calc(100%-2rem)] sm:max-w-6xl">
         <DialogHeader className="flex flex-col items-center gap-2 text-center sm:items-start sm:text-left">
           <Button
             type="button"
