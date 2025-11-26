@@ -1,13 +1,13 @@
 import React from 'react';
 import { ObservatoryLayoutBase } from '@/components/observatory/ObservatoryLayoutBase';
 
-export default function ObservatoryLayout({
+export default function HelloWorldLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const headerClassName =
-    'bg-blue-500/80 dark:bg-gray-900/50 backdrop-blur-[2px]';
+    'bg-green-600/80 dark:bg-green-900/60 backdrop-blur-[2px]';
   return (
     <ObservatoryLayoutBase headerClassName={headerClassName}>
       {children}
