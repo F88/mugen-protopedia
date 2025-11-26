@@ -738,7 +738,7 @@ export function AnalysisDashboard({
             />
           </section>
 
-          {/* Section 4: Developer's Rhythm */}
+          {/* Section 4: Maker's Rhythm */}
           <section className="space-y-4">
             <SectionTitle>🕰️ Developer&apos;s Rhythm</SectionTitle>
             <div className="grid gap-6 lg:grid-cols-2">
