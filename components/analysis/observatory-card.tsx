@@ -103,7 +103,7 @@ export function ObservatoryCard({
               : `${styles.linkText} group-hover:translate-x-1 transition-transform`
           }`}
         >
-          {isComingSoon ? 'Coming soon...' : <>View Report &rarr;</>}
+          {isComingSoon ? 'Coming soon...' : <>Explore &rarr;</>}
         </div>
       </div>
     </>
