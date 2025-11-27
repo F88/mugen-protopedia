@@ -1,25 +1,39 @@
-# Play Mode 仕様
+---
+lang: en
+title: Play Mode Specification
+title-en: Play Mode Specification
+title-ja: プレイモード仕様
+related:
+    - docs/*
+instructions-for-ais:
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+    - Prohibit updating this front-matter.
+    - Prohibit updating title line (1st line) in this document.
+---
 
-プレイモードの役割と状態遷移についてまとめる。
+# Play Mode Specification
 
-プレイモード
+This document summarizes the roles and state transitions of play modes.
+
+Play modes:
 
 - normal
 - playlist
 
 ## `normal`: Normal Mode
 
-発動条件: 他のプレイモードが発動していない。
+Activation condition: No other play mode is active.
 
-モード概要:
+Mode overview:
 
-- コントロールパネルから個別にプロトタイプを表示出来る。
+- Prototypes can be displayed individually from the control panel.
 
-### `playlist`: Play playlist Mode
+## `playlist`: Play Playlist Mode
 
-発動条件: 直接起動パラメータに有効なプロトタイプIDリストが含まれている、または空白以外のタイトルが指定されている。
+Activation condition: The direct launch parameters contain a valid prototype ID list, or a non-empty title is specified.
 
-モード概要:
+Mode overview:
 
-- 指定されたプロトタイプIDのリストに基づいて、連続的にプロトタイプを表示するモード。
-- 指定されたプロトタイプID全てを処理した後も、プレイモードは変わらない。
+- A mode that continuously displays prototypes based on the specified list of prototype IDs.
+- After processing all specified prototype IDs, the play mode remains unchanged.

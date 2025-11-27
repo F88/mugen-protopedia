@@ -1,3 +1,15 @@
+---
+lang: en
+title: Development Guide
+title-en: Development Guide
+title-ja: 開発ガイド
+instructions-for-ais:
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+    - Prohibit updating this front-matter.
+    - Prohibit updating title line (1st line) in this document.
+---
+
 # Development Guide
 
 This document covers local development, configuration, architecture notes, testing, and quality tooling for MUGEN ProtoPedia.

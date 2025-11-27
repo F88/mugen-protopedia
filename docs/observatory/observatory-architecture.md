@@ -1,3 +1,15 @@
+---
+lang: en
+title: Observatory Architecture Guide
+related:
+    - docs/*
+instructions-for-ais:
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+    - Prohibit updating this front-matter.
+    - Prohibit updating title line (1st line) in this document.
+---
+
 # Observatory Architecture Guide
 
 ## Overview
@@ -56,20 +68,26 @@ Each Observatory page has its own `theme.ts` file with centralized configuration
 ```typescript
 // app/observatory/[page]/theme.ts
 export const pageTheme = {
-  colors: {
-    light: { /* light mode palette */ },
-    dark: { /* dark mode palette */ },
-  },
-  typography: {
-    fontFamily: 'FontName',
-  },
-  sections: {
-    sectionName: {
-      theme: 'colorScheme',  // Maps to ObservatorySection theme
-      delay: 'delay-100',     // Animation delay
+    colors: {
+        light: {
+            /* light mode palette */
+        },
+        dark: {
+            /* dark mode palette */
+        },
     },
-  },
-  animation: { /* animation settings */ },
+    typography: {
+        fontFamily: 'FontName',
+    },
+    sections: {
+        sectionName: {
+            theme: 'colorScheme', // Maps to ObservatorySection theme
+            delay: 'delay-100', // Animation delay
+        },
+    },
+    animation: {
+        /* animation settings */
+    },
 } as const;
 ```
 
@@ -168,16 +186,16 @@ Observatory uses a flexible header component:
 
 ## Key Differences from Main App
 
-| Aspect | Main App (`/`) | Observatory (`/observatory`) |
-|--------|----------------|------------------------------|
-| **Design** | Clean, minimal, content-focused | Immersive, thematic, visually rich |
-| **Layout** | Standard page layout | Full-page backgrounds, custom sections |
-| **Typography** | System fonts, consistent across app | Custom fonts per page (Marcellus, Audiowide, etc.) |
-| **Components** | Reusable UI components (Button, Card, etc.) | Page-specific analytical sections |
-| **Data** | Prototype listings, playlists | Statistical analysis, insights, narratives |
-| **Navigation** | Standard routing | Thematic page transitions |
-| **Background** | Solid colors or simple gradients | Animated space backgrounds, page-specific themes |
-| **State Management** | Client-side interactivity | Server-side data analysis, minimal client state |
+| Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |
+| -------------------- | ------------------------------------------- | -------------------------------------------------- |
+| **Design**           | Clean, minimal, content-focused             | Immersive, thematic, visually rich                 |
+| **Layout**           | Standard page layout                        | Full-page backgrounds, custom sections             |
+| **Typography**       | System fonts, consistent across app         | Custom fonts per page (Marcellus, Audiowide, etc.) |
+| **Components**       | Reusable UI components (Button, Card, etc.) | Page-specific analytical sections                  |
+| **Data**             | Prototype listings, playlists               | Statistical analysis, insights, narratives         |
+| **Navigation**       | Standard routing                            | Thematic page transitions                          |
+| **Background**       | Solid colors or simple gradients            | Animated space backgrounds, page-specific themes   |
+| **State Management** | Client-side interactivity                   | Server-side data analysis, minimal client state    |
 
 ## Best Practices
 
@@ -185,33 +203,33 @@ Observatory uses a flexible header component:
 
 1. **Create directory structure:**
 
-   ```
-   app/observatory/[page-name]/
-   ├── page.tsx
-   ├── background.tsx
-   ├── theme.ts
-   └── components/
-   ```
+    ```
+    app/observatory/[page-name]/
+    ├── page.tsx
+    ├── background.tsx
+    ├── theme.ts
+    └── components/
+    ```
 
 2. **Define theme in `theme.ts`:**
-   - Color palettes (light/dark)
-   - Typography
-   - Section mappings (theme + delay)
-   - Animation settings
+    - Color palettes (light/dark)
+    - Typography
+    - Section mappings (theme + delay)
+    - Animation settings
 
 3. **Create custom background:**
-   - Reuse `UniverseBackgroundMainDark` for dark mode
-   - Design unique light mode background matching page theme
+    - Reuse `UniverseBackgroundMainDark` for dark mode
+    - Design unique light mode background matching page theme
 
 4. **Build sections using `ObservatorySection`:**
-   - Map sections in theme.ts
-   - Use consistent icon, title, description pattern
-   - Include narratives for storytelling
+    - Map sections in theme.ts
+    - Use consistent icon, title, description pattern
+    - Include narratives for storytelling
 
 5. **Add to Observatory top page:**
-   - Create `ObservatoryCard` in `app/observatory/page.tsx`
-   - Configure in `app/observatory/theme.ts` cards section
-   - Use appropriate font and color scheme
+    - Create `ObservatoryCard` in `app/observatory/page.tsx`
+    - Configure in `app/observatory/theme.ts` cards section
+    - Use appropriate font and color scheme
 
 ### Naming Conventions
 
