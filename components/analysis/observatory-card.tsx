@@ -28,6 +28,8 @@ const colorStyles = {
     iconText: 'text-gray-600 dark:text-gray-300',
     hoverText: 'group-hover:text-gray-600 dark:group-hover:text-gray-400',
     linkText: 'text-gray-600 dark:text-gray-400',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-600 dark:text-gray-400',
   },
   yellow: {
     gradient: 'from-yellow-50 dark:from-yellow-900/20',
@@ -36,14 +38,19 @@ const colorStyles = {
     iconText: 'text-yellow-600 dark:text-yellow-300',
     hoverText: 'group-hover:text-yellow-600 dark:group-hover:text-yellow-400',
     linkText: 'text-yellow-600 dark:text-yellow-400',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-600 dark:text-gray-400',
   },
   blue: {
-    gradient: 'from-blue-50 dark:from-blue-900/20',
-    cardBg: 'bg-blue-200/70 dark:bg-blue-900/70',
-    iconBg: 'bg-blue-100 dark:bg-blue-900',
-    iconText: 'text-blue-600 dark:text-blue-300',
-    hoverText: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
-    linkText: 'text-blue-600 dark:text-blue-400',
+    gradient: 'from-pink-100 dark:from-pink-900/20',
+    cardBg:
+      'bg-gradient-to-br from-pink-200/80 via-rose-200/80 to-orange-200/80 dark:bg-gradient-to-br dark:from-pink-800/80 dark:via-rose-700/80 dark:to-orange-800/80',
+    iconBg: 'bg-gradient-to-br from-pink-300 to-orange-400 dark:bg-pink-900',
+    iconText: 'text-pink-700 dark:text-pink-300',
+    hoverText: 'group-hover:text-pink-600 dark:group-hover:text-pink-400',
+    linkText: 'text-pink-600 dark:text-pink-400',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-700 dark:text-pink-200',
   },
   purple: {
     gradient: 'from-purple-50 dark:from-purple-900/20',
@@ -52,6 +59,8 @@ const colorStyles = {
     iconText: 'text-purple-600 dark:text-purple-300',
     hoverText: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
     linkText: 'text-purple-600 dark:text-purple-400',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-600 dark:text-gray-400',
   },
   amber: {
     gradient: 'from-amber-50 dark:from-amber-900/20',
@@ -60,6 +69,8 @@ const colorStyles = {
     iconText: 'text-amber-600 dark:text-amber-300',
     hoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
     linkText: 'text-amber-600 dark:text-amber-400',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-600 dark:text-gray-400',
   },
   gold: {
     gradient: 'from-yellow-100 dark:from-yellow-600/30',
@@ -70,14 +81,18 @@ const colorStyles = {
     iconText: 'text-yellow-900 dark:text-yellow-100',
     hoverText: 'group-hover:text-yellow-700 dark:group-hover:text-yellow-300',
     linkText: 'text-yellow-700 dark:text-yellow-300',
+    textColor: 'text-gray-900 dark:text-white',
+    descriptionColor: 'text-gray-600 dark:text-gray-400',
   },
   cyber: {
-    gradient: 'from-gray-100 dark:from-green-500/20',
-    cardBg: 'bg-gray-100/70 dark:bg-black/90',
-    iconBg: 'bg-gray-300 dark:bg-green-900/40',
-    iconText: 'text-gray-700 dark:text-green-400',
-    hoverText: 'group-hover:text-gray-900 dark:group-hover:text-green-300',
-    linkText: 'text-gray-700 dark:text-green-400',
+    gradient: 'from-green-500/20 dark:from-green-500/20',
+    cardBg: 'bg-black/90 dark:bg-black/30',
+    iconBg: 'bg-green-900/40 dark:bg-green-900/40',
+    iconText: 'text-green-400 dark:text-green-400',
+    hoverText: 'group-hover:text-gray-200 dark:group-hover:text-green-300',
+    linkText: 'text-white dark:text-green-400',
+    textColor: 'text-white dark:text-green-400',
+    descriptionColor: 'text-gray-300 dark:text-green-500',
   },
 };
 
@@ -114,7 +129,7 @@ export function ObservatoryCard({
             className={`${titleSize} font-semibold ${
               isComingSoon
                 ? 'text-gray-500 dark:text-gray-400'
-                : `text-gray-900 dark:text-white ${styles.hoverText} transition-colors`
+                : `${styles.textColor} ${styles.hoverText} transition-colors`
             }`}
           >
             {title}
@@ -124,7 +139,7 @@ export function ObservatoryCard({
           className={`${descriptionSize} ${
             isComingSoon
               ? 'text-gray-500 dark:text-gray-500'
-              : 'text-gray-600 dark:text-gray-400'
+              : styles.descriptionColor
           } flex-1`}
         >
           {description}
