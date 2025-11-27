@@ -611,7 +611,9 @@ describe('analyzePrototypes', () => {
       expect(result.topTags.length).toBeLessThanOrEqual(30);
       expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
-      expect(Object.keys(result.releaseDateDistribution.year).length).toBeGreaterThan(0);
+      expect(
+        Object.keys(result.releaseDateDistribution.year).length,
+      ).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
     });
 
@@ -964,7 +966,9 @@ describe('analyzePrototypes', () => {
       expect(result.topTags.length).toBeLessThanOrEqual(30);
       expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
-      expect(Object.keys(result.releaseDateDistribution.year).length).toBeGreaterThan(0);
+      expect(
+        Object.keys(result.releaseDateDistribution.year).length,
+      ).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
 
       // Additional validation for large dataset
