@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IconSparkles } from '../../components/icons';
+import { IconSparkles } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 import { ObservatorySection } from './observatory-section';

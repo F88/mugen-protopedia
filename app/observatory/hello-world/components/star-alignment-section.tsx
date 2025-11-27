@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IconStar } from '../../components/icons';
+import { IconStar } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { ObservatorySection } from './observatory-section';
 

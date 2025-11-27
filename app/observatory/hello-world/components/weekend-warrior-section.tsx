@@ -1,4 +1,4 @@
-import { IconWarrior } from '../../components/icons';
+import { IconWarrior } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type WeekendWarriorSectionProps = {

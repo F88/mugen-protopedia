@@ -1,4 +1,4 @@
-import { IconDeadline } from '../../components/icons';
+import { IconDeadline } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type PowerOfDeadlinesSectionProps = {

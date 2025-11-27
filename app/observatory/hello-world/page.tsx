@@ -10,7 +10,7 @@ import type { Metadata } from 'next';
 import { APP_TITLE } from '@/lib/config/app-constants';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 import { getLatestAnalysis } from '@/app/actions/analysis';
-import { IconGlobe } from '../components/icons';
+import { IconGlobe } from '../shared/icons';
 
 // Import new components
 import { NewbornsSection } from './components/newborns-section';
@@ -26,8 +26,8 @@ import { MaternityHospitalSection } from './components/maternity-hospital-sectio
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { HolyDaySection } from './components/holy-day-section';
-import { UniverseBackground } from '../components/universe-background';
-import { ObservatoryHeader } from '@/components/observatory/ObservatoryHeader';
+import { HelloWorldBackground } from './background';
+import { ObservatoryHeader } from '@/components/observatory/observatory-header';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
@@ -133,7 +133,7 @@ export default async function HelloWorldPage() {
     <>
       <ObservatoryHeader colorScheme="pink" />
       <main>
-        <UniverseBackground />
+        <HelloWorldBackground />
         <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Bar } from '@/components/observatory/Bar';
+import { Bar } from '@/components/observatory/bar';
 
-import { IconClock } from '../../components/icons';
+import { IconClock } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
 

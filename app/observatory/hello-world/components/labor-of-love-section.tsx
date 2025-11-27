@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
-import { Bar } from '@/components/observatory/Bar';
+import { Bar } from '@/components/observatory/bar';
 
-import { IconHeart } from '../../components/icons';
+import { IconHeart } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
 

@@ -1,4 +1,4 @@
-import { IconFlame } from '../../components/icons';
+import { IconFlame } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type EternalFlameSectionProps = {

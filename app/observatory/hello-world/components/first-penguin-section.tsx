@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IconPenguin } from '../../components/icons';
+import { IconPenguin } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { ObservatorySection } from './observatory-section';
 

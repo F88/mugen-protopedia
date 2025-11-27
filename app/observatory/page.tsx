@@ -10,68 +10,18 @@
  *   - Responsive layout and accessible design.
  */
 import type { Metadata } from 'next';
-import {
-  Audiowide,
-  Orbitron,
-  Special_Elite,
-  Electrolize,
-  Chakra_Petch,
-  VT323,
-  Cinzel,
-  Marcellus,
-  Rye,
-} from 'next/font/google';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 
-import { UniverseBackground } from '@/app/observatory/components/universe-background';
-import { ObservatoryCard } from '@/components/analysis/observatory-card';
-import { ObservatoryHeader } from '@/components/observatory/ObservatoryHeader';
+import {
+  audiowideFont,
+  observatoryFonts,
+} from '@/app/observatory/shared/fonts';
+import { ObservatoryBackground } from '@/app/observatory/background';
+import { observatoryTheme } from '@/app/observatory/theme';
 
-const audiowideFont = Audiowide({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const orbitronFont = Orbitron({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-});
-
-const specialEliteFont = Special_Elite({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const electrolizeFont = Electrolize({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const chakraPetchFont = Chakra_Petch({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-});
-
-const vt323Font = VT323({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const cinzelFont = Cinzel({
-  weight: ['400', '700'],
-  subsets: ['latin'],
-});
-
-const marcellusFont = Marcellus({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const ryeFont = Rye({
-  weight: '400',
-  subsets: ['latin'],
-});
+import { ObservatoryCard } from '@/components/observatory/observatory-card';
+import { ObservatoryHeader } from '@/components/observatory/observatory-header';
 
 export const metadata: Metadata = {
   title: `ProtoPedia Observatory | ${APP_TITLE}`,
@@ -97,7 +47,7 @@ export default function ObservatoryPage() {
     <>
       <ObservatoryHeader colorScheme="blue" />
       <main className={audiowideFont.className}>
-        <UniverseBackground />
+        <ObservatoryBackground />
         <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
@@ -116,9 +66,12 @@ export default function ObservatoryPage() {
               title="Hello World"
               description="Celebrate new creations. Witness the birth of light and vivid moments where new prototypes begin their journey."
               icon="🎉"
-              color="blue"
+              color={observatoryTheme.cards.helloWorld.colorScheme}
               href="/observatory/hello-world"
-              className={marcellusFont.className}
+              className={
+                observatoryFonts[observatoryTheme.cards.helloWorld.font]
+                  .className
+              }
             />
 
             {/* Hall of Fame Feature Card (Coming Soon) */}
@@ -126,10 +79,13 @@ export default function ObservatoryPage() {
               title="Hall of Fame"
               description="Celebrating the legends. A collection of the most impactful and memorable prototypes in history."
               icon="🏛️"
-              color="gold"
+              color={observatoryTheme.cards.hallOfFame.colorScheme}
               href={undefined}
               // href={'/observatory/hall-of-fame/'}
-              className={cinzelFont.className}
+              className={
+                observatoryFonts[observatoryTheme.cards.hallOfFame.font]
+                  .className
+              }
             />
 
             {/* The Memorial Park Feature Card (Coming Soon) */}
@@ -137,10 +93,13 @@ export default function ObservatoryPage() {
               title="The Memorial Park"
               description="A place of respect and history. Honoring the prototypes that have completed their journey and the legacy they leave behind."
               icon="🪦"
-              color="gray"
+              color={observatoryTheme.cards.memorialPark.colorScheme}
               href={undefined}
               // href={'/observatory/memorial-park/'}
-              className={electrolizeFont.className}
+              className={
+                observatoryFonts[observatoryTheme.cards.memorialPark.font]
+                  .className
+              }
             />
 
             {/* The Sci-Fi Lab Feature Card */}
@@ -148,12 +107,14 @@ export default function ObservatoryPage() {
               title="The Sci-Fi Lab"
               description="Exploring the unknown. Analyzing mutations, time travelers, and out-of-place artifacts that defy the timeline."
               icon="🧪"
-              color="cyber"
+              color={observatoryTheme.cards.sciFiLab.colorScheme}
               href={undefined}
               // href={'/observatory/sci-fi-lab/'}
-              className={vt323Font.className}
-              titleSize="text-3xl"
-              descriptionSize="text-2xl"
+              className={
+                observatoryFonts[observatoryTheme.cards.sciFiLab.font].className
+              }
+              titleSize={observatoryTheme.cards.sciFiLab.titleSize}
+              descriptionSize={observatoryTheme.cards.sciFiLab.descriptionSize}
             />
 
             {/* The Explorer's Guild Feature Card */}
@@ -161,10 +122,13 @@ export default function ObservatoryPage() {
               title="The Explorer's Guild"
               description="Adventure, strategy, and community. Discovering the tech roadmap and the unsung heroes of the ecosystem."
               icon="🧭"
-              color="amber"
+              color={observatoryTheme.cards.explorersGuild.colorScheme}
               href={undefined}
               // href={'/observatory/explorers-guild/'}
-              className={ryeFont.className}
+              className={
+                observatoryFonts[observatoryTheme.cards.explorersGuild.font]
+                  .className
+              }
             />
           </div>
         </div>

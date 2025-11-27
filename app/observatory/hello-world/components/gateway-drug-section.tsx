@@ -1,4 +1,4 @@
-import { IconTool } from '../../components/icons';
+import { IconTool } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type GatewayDrugSectionProps = {

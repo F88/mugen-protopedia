@@ -101,7 +101,13 @@ function ShootingStar({
   );
 }
 
-export function UniverseBackground() {
+/**
+ * UniverseBackgroundMainDark
+ *
+ * Deep space background with animated stars and shooting stars.
+ * Reusable dark theme background component for Observatory pages.
+ */
+export function UniverseBackgroundMainDark() {
   const [stars, setStars] = useState<
     Array<{ id: number; style: React.CSSProperties }>
   >([]);
@@ -109,7 +115,6 @@ export function UniverseBackground() {
 
   useEffect(() => {
     // Generate stars on client side
-    // Using setTimeout to avoid "setState synchronously within an effect" warning
     const timer = setTimeout(() => {
       const newStars = Array.from({ length: 70 }).map((_, i) => ({
         id: i,
@@ -146,11 +151,11 @@ export function UniverseBackground() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <>
       <style>{shootingStarKeyframes}</style>
 
-      {/* Dark Mode: Deep Space */}
-      <div className="absolute inset-0 bg-[#020205] dark:opacity-100 opacity-0 transition-opacity duration-700">
+      {/* Deep Space */}
+      <div className="absolute inset-0 bg-[#020205]">
         {/* Subtle Gradient */}
         <div className="absolute inset-0 bg-linear-to-b from-indigo-950/10 via-transparent to-purple-950/10" />
 
@@ -168,11 +173,6 @@ export function UniverseBackground() {
           />
         ))}
       </div>
-
-      {/* Light Mode: Stratosphere (darker) */}
-      <div className="absolute inset-0 bg-linear-to-b from-blue-500 via-blue-200 to-blue-50 dark:opacity-0 opacity-100 transition-opacity duration-700">
-        <div className="absolute inset-0 bg-linear-to-tr from-blue-500/40 via-transparent to-purple-400/40" />
-      </div>
-    </div>
+    </>
   );
 }

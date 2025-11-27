@@ -1,4 +1,4 @@
-import { IconHoly } from '../../components/icons';
+import { IconHoly } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type HolyDaySectionProps = {

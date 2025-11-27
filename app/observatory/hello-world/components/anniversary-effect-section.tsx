@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
-import { Bar } from '@/components/observatory/Bar';
+import { Bar } from '@/components/observatory/bar';
 
-import { IconGift } from '../../components/icons';
+import { IconGift } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from './utils';
 

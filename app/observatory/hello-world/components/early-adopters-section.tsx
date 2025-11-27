@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
-import { IconTelescope } from '../../components/icons';
+import { IconTelescope } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
 
 type EarlyAdoptersSectionProps = {
