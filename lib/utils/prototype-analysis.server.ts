@@ -11,7 +11,6 @@ import {
   buildTopMaterials,
   buildTopTags,
   buildTopTeams,
-  buildYearDistribution,
   calculateCreationStreak,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
@@ -178,7 +177,6 @@ export function analyzePrototypesForServer(
       topTags: [],
       topMaterials: [],
       averageAgeInDays: 0,
-      yearDistribution: {},
       topTeams: [],
       analyzedAt: new Date().toISOString(),
       anniversaryCandidates: buildAnniversaryCandidates(
@@ -186,8 +184,12 @@ export function analyzePrototypesForServer(
         now,
         logger,
       ),
+      createTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      createDateDistribution: { month: [], year: {}, daily: {} },
       releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      releaseDateDistribution: { month: [], year: {}, daily: {} },
       updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      updateDateDistribution: { month: [], year: {}, daily: {} },
       creationStreak: {
         currentStreak: 0,
         longestStreak: 0,
@@ -208,6 +210,11 @@ export function analyzePrototypesForServer(
         totalCount: 0,
       },
       holyDay: { topDays: [] },
+      longTermEvolution: {
+        longestMaintenance: [],
+        averageMaintenanceDays: 0,
+        maintenanceRatio: 0,
+      },
       _debugMetrics: metrics,
     };
   }
@@ -231,10 +238,6 @@ export function analyzePrototypesForServer(
   metrics.averageAgeInDays = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const yearDistribution = buildYearDistribution(prototypes);
-  metrics.yearDistribution = performance.now() - stepStart;
-
-  stepStart = performance.now();
   const { topTeams, teamCounts } = buildTopTeams(prototypes);
   metrics.topTeams = performance.now() - stepStart;
 
@@ -254,8 +257,12 @@ export function analyzePrototypesForServer(
 
   // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
   const {
+    createTimeDistribution,
+    createDateDistribution,
     releaseTimeDistribution,
+    releaseDateDistribution,
     updateTimeDistribution,
+    updateDateDistribution,
     uniqueReleaseDates,
   } = buildTimeDistributionsAndUniqueDates(prototypes);
 
@@ -328,13 +335,16 @@ export function analyzePrototypesForServer(
     prototypesWithAwards,
     topTags,
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
-    yearDistribution,
     topTeams,
     topMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
+    createTimeDistribution,
+    createDateDistribution,
     releaseTimeDistribution,
+    releaseDateDistribution,
     updateTimeDistribution,
+    updateDateDistribution,
     creationStreak,
     earlyAdopters,
     firstPenguins,

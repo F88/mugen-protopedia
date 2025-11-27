@@ -22,7 +22,6 @@ describe('useLatestAnalysis', () => {
       prototypesWithAwards: 0,
       topTags: [],
       averageAgeInDays: 0,
-      yearDistribution: {},
       topTeams: [],
       analyzedAt: '2025-01-01T00:00:00.000Z',
       anniversaryCandidates: {
@@ -112,7 +111,6 @@ describe('useAllAnalyses', () => {
       prototypesWithAwards: 0,
       topTags: [],
       averageAgeInDays: 0,
-      yearDistribution: {},
       topTeams: [],
       analyzedAt: '2025-01-01T00:00:00.000Z',
       anniversaryCandidates: {

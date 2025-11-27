@@ -117,8 +117,6 @@ export type ServerPrototypeAnalysis = {
   topMaterials: Array<{ material: string; count: number }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
-  /** Distribution by release year */
-  yearDistribution: Record<number, number>;
   /** Teams with most prototypes */
   topTeams: Array<{ team: string; count: number }>;
   /** Analysis timestamp */
@@ -130,24 +128,64 @@ export type ServerPrototypeAnalysis = {
    */
   anniversaryCandidates: AnniversaryCandidates;
 
-  /** Release time distribution (Maker's Rhythm) */
-  releaseTimeDistribution: {
+  /** Create time distribution (hour and day-of-week patterns) */
+  createTimeDistribution: {
     /** Count by day of week (0=Sunday, 6=Saturday) */
     dayOfWeek: number[];
-    /** Count by hour of day (0-23) */
+    /** Count by hour of day (0-23, JST) */
     hour: number[];
     /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
     heatmap: number[][];
   };
 
-  /** Update time distribution (Maker's Rhythm - Update) */
-  updateTimeDistribution: {
+  /** Create date distribution (calendar-based patterns) */
+  createDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
+  };
+
+  /** Release time distribution (hour and day-of-week patterns) */
+  releaseTimeDistribution: {
     /** Count by day of week (0=Sunday, 6=Saturday) */
     dayOfWeek: number[];
-    /** Count by hour of day (0-23) */
+    /** Count by hour of day (0-23, JST) */
     hour: number[];
     /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
     heatmap: number[][];
+  };
+
+  /** Release date distribution (calendar-based patterns) */
+  releaseDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
+  };
+
+  /** Update time distribution (hour and day-of-week patterns) */
+  updateTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: number[];
+    /** Count by hour of day (0-23, JST) */
+    hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
+  };
+
+  /** Update date distribution (calendar-based patterns) */
+  updateDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
   };
 
   /** Creation streak analysis (The Eternal Flame) */

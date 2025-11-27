@@ -504,7 +504,7 @@ describe('analyzePrototypesForServer - core metrics', () => {
       { team: 'Team B', count: 1 },
     ]);
     expect(result.averageAgeInDays).toBe(4.33);
-    expect(result.yearDistribution).toEqual({ 2024: 1, 2025: 2 });
+    expect(result.releaseDateDistribution.year).toEqual({ 2024: 1, 2025: 2 });
     expect(result.analyzedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
   });
 
@@ -524,7 +524,7 @@ describe('analyzePrototypesForServer - core metrics', () => {
     expect(result.topTags).toEqual([]);
     expect(result.topTeams).toEqual([]);
     expect(result.averageAgeInDays).toBe(0);
-    expect(result.yearDistribution).toEqual({});
+    expect(result.releaseDateDistribution.year).toEqual({});
     expect(result.anniversaryCandidates.mmdd).toEqual([]);
     expect(result.anniversaryCandidates.metadata.windowUTC).toEqual({
       fromISO: '2025-11-13T00:00:00.000Z',

@@ -72,7 +72,7 @@ describe('analyzePrototypes', () => {
       expect(result.prototypesWithAwards).toBe(0);
       expect(result.topTags).toEqual([]);
       expect(result.averageAgeInDays).toBe(0);
-      expect(result.yearDistribution).toEqual({});
+      expect(result.releaseDateDistribution.year).toEqual({});
       expect(result.topTeams).toEqual([]);
       expect(result.analyzedAt).toBeDefined();
     });
@@ -201,7 +201,7 @@ describe('analyzePrototypes', () => {
 
       const result = analyzePrototypes(prototypes);
 
-      expect(result.yearDistribution).toEqual({
+      expect(result.releaseDateDistribution.year).toEqual({
         2023: 2,
         2024: 1,
       });
@@ -215,7 +215,7 @@ describe('analyzePrototypes', () => {
 
       const result = analyzePrototypes(prototypes);
 
-      expect(result.yearDistribution).toEqual({});
+      expect(result.releaseDateDistribution.year).toEqual({});
     });
   });
 
@@ -302,7 +302,7 @@ describe('analyzePrototypes', () => {
       expect(result.prototypesWithAwards).toBe(2);
       expect(result.topTags).toContainEqual({ tag: 'Arduino', count: 2 });
       expect(result.topTags).toContainEqual({ tag: 'IoT', count: 2 });
-      expect(result.yearDistribution).toEqual({
+      expect(result.releaseDateDistribution.year).toEqual({
         2023: 2,
         2024: 1,
       });
@@ -611,7 +611,7 @@ describe('analyzePrototypes', () => {
       expect(result.topTags.length).toBeLessThanOrEqual(30);
       expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
-      expect(Object.keys(result.yearDistribution).length).toBeGreaterThan(0);
+      expect(Object.keys(result.releaseDateDistribution.year).length).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
     });
 
@@ -964,7 +964,7 @@ describe('analyzePrototypes', () => {
       expect(result.topTags.length).toBeLessThanOrEqual(30);
       expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
-      expect(Object.keys(result.yearDistribution).length).toBeGreaterThan(0);
+      expect(Object.keys(result.releaseDateDistribution.year).length).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
 
       // Additional validation for large dataset

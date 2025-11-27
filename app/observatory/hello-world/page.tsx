@@ -66,6 +66,7 @@ export default async function HelloWorldPage() {
   const {
     anniversaryCandidates,
     releaseTimeDistribution,
+    releaseDateDistribution,
     updateTimeDistribution,
     creationStreak,
     earlyAdopters,
@@ -112,7 +113,24 @@ export default async function HelloWorldPage() {
   const hourCounts = releaseTimeDistribution?.hour || [];
   const maxHourCount = hourCounts.length > 0 ? Math.max(...hourCounts) : 0;
 
+  const monthCounts = releaseDateDistribution?.month || [];
+  const maxMonthCount = monthCounts.length > 0 ? Math.max(...monthCounts) : 0;
+
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   // Calculate Longest Streak Period
   let longestStreakPeriod = null;
@@ -175,11 +193,14 @@ export default async function HelloWorldPage() {
           <GatewayDrugSection topMaterials={topMaterials} />
 
           <MakersRhythmSection
-            distribution={releaseTimeDistribution}
+            timeDistribution={releaseTimeDistribution}
+            dateDistribution={releaseDateDistribution}
             updateDistribution={updateTimeDistribution}
             maxDayCount={maxDayCount}
             maxHourCount={maxHourCount}
+            maxMonthCount={maxMonthCount}
             days={days}
+            months={months}
           />
 
           <EternalFlameSection
