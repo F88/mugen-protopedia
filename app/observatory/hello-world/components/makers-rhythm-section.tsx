@@ -4,7 +4,7 @@ import { Bar } from '@/components/observatory/bar';
 
 import { IconClock } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
-import { clampPercent } from './utils';
+import { clampPercent } from '@/lib/utils/math';
 
 type MakersRhythmSectionProps = {
   distribution: { dayOfWeek: number[]; hour: number[] };

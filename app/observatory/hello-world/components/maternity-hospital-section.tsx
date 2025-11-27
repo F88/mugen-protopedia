@@ -4,7 +4,7 @@ import { Bar } from '@/components/observatory/bar';
 
 import { IconHospital } from '../../shared/icons';
 import { ObservatorySection } from './observatory-section';
-import { clampPercent } from './utils';
+import { clampPercent } from '@/lib/utils/math';
 
 type MaternityHospitalSectionProps = {
   maternityHospital: {
