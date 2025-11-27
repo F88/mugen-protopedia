@@ -21,14 +21,12 @@ import {
   Marcellus,
   Rye,
 } from 'next/font/google';
-import Link from 'next/link';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 
 import { UniverseBackground } from '@/app/observatory/components/universe-background';
 import { ObservatoryCard } from '@/components/analysis/observatory-card';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
+import { ObservatoryHeader } from '@/components/observatory/ObservatoryHeader';
 
 const audiowideFont = Audiowide({
   weight: '400',
@@ -95,28 +93,9 @@ export const metadata: Metadata = {
  * - Responsive and accessible layout
  */
 export default function ObservatoryPage() {
-  const headerClassName =
-    'bg-blue-500/80 dark:bg-gray-900/50 backdrop-blur-[2px]';
-
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 ${headerClassName} ${audiowideFont.className} transition-colors duration-200 p-4 flex items-center justify-between`}
-      >
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          <Link href="/observatory">
-            <span className="sm:hidden">Observatory</span>
-            <span className="hidden sm:inline">ProtoPedia Observatory</span>
-          </Link>
-        </h1>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            🕒 JST
-          </span>
-          <MugenProtoPediaHomeButton />
-          <ThemeToggle />
-        </div>
-      </header>
+      <ObservatoryHeader colorScheme="blue" />
       <main className={audiowideFont.className}>
         <UniverseBackground />
         <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
@@ -148,8 +127,8 @@ export default function ObservatoryPage() {
               description="Celebrating the legends. A collection of the most impactful and memorable prototypes in history."
               icon="🏛️"
               color="gold"
-              // href={undefined}
-              href={'/observatory/hall-of-fame/'}
+              href={undefined}
+              // href={'/observatory/hall-of-fame/'}
               className={cinzelFont.className}
             />
 
@@ -159,8 +138,8 @@ export default function ObservatoryPage() {
               description="A place of respect and history. Honoring the prototypes that have completed their journey and the legacy they leave behind."
               icon="🪦"
               color="gray"
-              // href={undefined}
-              href={'/observatory/memorial-park/'}
+              href={undefined}
+              // href={'/observatory/memorial-park/'}
               className={electrolizeFont.className}
             />
 
@@ -170,8 +149,8 @@ export default function ObservatoryPage() {
               description="Exploring the unknown. Analyzing mutations, time travelers, and out-of-place artifacts that defy the timeline."
               icon="🧪"
               color="cyber"
-              // href={undefined}
-              href={'/observatory/sci-fi-lab/'}
+              href={undefined}
+              // href={'/observatory/sci-fi-lab/'}
               className={vt323Font.className}
               titleSize="text-3xl"
               descriptionSize="text-2xl"
@@ -183,8 +162,8 @@ export default function ObservatoryPage() {
               description="Adventure, strategy, and community. Discovering the tech roadmap and the unsung heroes of the ecosystem."
               icon="🧭"
               color="amber"
-              // href={undefined}
-              href={'/observatory/explorers-guild/'}
+              href={undefined}
+              // href={'/observatory/explorers-guild/'}
               className={ryeFont.className}
             />
           </div>
