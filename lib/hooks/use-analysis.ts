@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @fileoverview React hooks for accessing cached prototype analysis data.
  *
@@ -6,6 +8,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import { logger as clientLogger } from '@/lib/logger.client';
 
 import {
   getAllAnalyses,
@@ -60,8 +63,24 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
 
   const performFetchLatest = useCallback(
     async (signal?: AbortSignal, options?: { forceRecompute?: boolean }) => {
+      // Ensure state updates happen asynchronously to avoid synchronous
+      // setState inside a React effect, which can trigger cascading renders.
+      await Promise.resolve();
+
+      const fetchStart = performance.now();
+      clientLogger.debug(
+        { options },
+        '[ANALYSIS] useLatestAnalysis - starting fetchLatest',
+      );
       try {
         const result = await getLatestAnalysis(options);
+
+        const fetchElapsedMs =
+          Math.round((performance.now() - fetchStart) * 100) / 100;
+        clientLogger.debug(
+          { fetchElapsedMs, resultOk: result?.ok ?? false },
+          '[ANALYSIS] useLatestAnalysis - fetchLatest completed',
+        );
 
         if (signal?.aborted) {
           return;
@@ -97,9 +116,18 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
   );
 
   useEffect(() => {
+    clientLogger.debug(
+      '[ANALYSIS] useLatestAnalysis - Fetching latest analysis',
+    );
     const controller = new AbortController();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void performFetchLatest(controller.signal);
+
+    // Defer initial fetch to the next microtask so any setState inside
+    // `performFetchLatest` cannot run synchronously during the effect body.
+    (async () => {
+      await Promise.resolve();
+      void performFetchLatest(controller.signal);
+    })();
+
     return () => {
       controller.abort();
     };
@@ -107,6 +135,10 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
 
   const refresh = useCallback(
     (options?: { forceRecompute?: boolean }) => {
+      clientLogger.debug(
+        options ?? {},
+        '[ANALYSIS] useLatestAnalysis - Refreshing latest analysis',
+      );
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       void performFetchLatest(undefined, options);
     },
@@ -141,8 +173,17 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
   });
 
   const performFetchAll = useCallback(async (signal?: AbortSignal) => {
+    const fetchStart = performance.now();
+    clientLogger.debug('[ANALYSIS] useAllAnalyses - starting fetchAll');
     try {
       const result = await getAllAnalyses();
+
+      const fetchElapsedMs =
+        Math.round((performance.now() - fetchStart) * 100) / 100;
+      clientLogger.debug(
+        { fetchElapsedMs },
+        '[ANALYSIS] useAllAnalyses - fetchAll completed',
+      );
 
       if (signal?.aborted) {
         return;
@@ -168,15 +209,23 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
   }, []);
 
   useEffect(() => {
+    clientLogger.debug('[ANALYSIS] useAllAnalyses - Fetching all analyses');
     const controller = new AbortController();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void performFetchAll(controller.signal);
+
+    // Defer initial fetch to the next microtask so any setState inside
+    // `performFetchAll` cannot run synchronously during the effect body.
+    (async () => {
+      await Promise.resolve();
+      void performFetchAll(controller.signal);
+    })();
+
     return () => {
       controller.abort();
     };
   }, [performFetchAll]);
 
   const refresh = useCallback(() => {
+    clientLogger.debug('[ANALYSIS] useAllAnalyses - Refreshing all analyses');
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     void performFetchAll();
   }, [performFetchAll]);
