@@ -5,7 +5,7 @@ import { observatoryTheme } from '@/app/observatory/theme';
 export type ObservatoryCardColorScheme =
   | 'gray'
   | 'yellow'
-  | 'blue'
+  | 'pink'
   | 'purple'
   | 'amber'
   | 'gold'
