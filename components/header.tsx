@@ -86,18 +86,16 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
               maxConcurrentFetches={dashboard.maxConcurrentFetches}
               size="compact"
             />
-
             {/* Analysis Dashboard */}
             {analysisDashboard}
-
             {/* Playlist editor shortcut (hidden on small screens) */}
             <div className="hidden lg:block">
               <PlaylistHeaderButton />
             </div>
-
-            {/* Observatory shortcut (hidden on small screens) */}
-            <ObservatoryHeaderButton />
-
+            {/* Observatory shortcut */}
+            {process.env.NODE_ENV === 'development' && (
+              <ObservatoryHeaderButton />
+            )}
             {/* Theme  */}
             <ThemeToggle />
           </div>
