@@ -1,5 +1,15 @@
 # Mugen ProtoPedia Analysis Feature Expansion Ideas
 
+> **⚠️ CRITICAL: THIS IS AN IDEA CATALOG, NOT A SPECIFICATION**
+>
+> This document is a collection of brainstorming ideas and conceptual possibilities for future analysis features. **It is NOT a specification document and does NOT define implementation requirements.**
+>
+> - ✅ **DO:** Use these ideas as inspiration and reference during implementation.
+> - ❌ **DO NOT:** Force implementation to strictly conform to these ideas.
+> - ❌ **DO NOT:** Treat this document as a source of truth for implementation details.
+>
+> Implementation should be driven by actual requirements, technical feasibility, and user value—not by adherence to this catalog. Feel free to modify, combine, or completely reimagine these concepts as needed.
+
 ## "Celebrating the Release"
 
 This document outlines ideas for expanding the analysis capabilities of Mugen ProtoPedia.
