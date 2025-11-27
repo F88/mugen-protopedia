@@ -131,10 +131,13 @@ describe('analyzeCandidates logging', () => {
 
     const result = analyzeCandidates(candidates, { logger, referenceDate });
 
-    expect(mockBuildAnniversaries).toHaveBeenCalledWith(candidates);
+    expect(mockBuildAnniversaries).toHaveBeenCalledWith(candidates, {
+      logger,
+    });
     expect(mockBuildAnniversarySlice).toHaveBeenCalledWith(
       birthdayPrototypes,
       newbornPrototypes,
+      { logger },
     );
     expect(logger.debug).toHaveBeenCalledWith(
       {
@@ -151,7 +154,7 @@ describe('analyzeCandidates logging', () => {
           newbornCount: 1,
         },
       },
-      'Client-side anniversaries computed from candidates',
+      '[ANALYSIS] Client-side anniversaries computed from candidates',
     );
     expect(result).toEqual({
       anniversaries: {
