@@ -5,7 +5,9 @@ export type ObservatoryCardColorScheme =
   | 'yellow'
   | 'blue'
   | 'purple'
-  | 'amber';
+  | 'amber'
+  | 'gold'
+  | 'cyber';
 
 export interface ObservatoryCardProps {
   title: string;
@@ -13,6 +15,9 @@ export interface ObservatoryCardProps {
   icon: React.ReactNode;
   color: ObservatoryCardColorScheme;
   href?: string;
+  className?: string;
+  titleSize?: string;
+  descriptionSize?: string;
 }
 
 const colorStyles = {
@@ -56,6 +61,24 @@ const colorStyles = {
     hoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
     linkText: 'text-amber-600 dark:text-amber-400',
   },
+  gold: {
+    gradient: 'from-yellow-100 dark:from-yellow-600/30',
+    cardBg:
+      'bg-gradient-to-br from-yellow-200/80 via-amber-200/80 to-yellow-300/80 dark:from-yellow-700/80 dark:via-amber-700/80 dark:to-yellow-600/80',
+    iconBg:
+      'bg-gradient-to-br from-yellow-300 to-amber-400 dark:from-yellow-500 dark:to-amber-600',
+    iconText: 'text-yellow-900 dark:text-yellow-100',
+    hoverText: 'group-hover:text-yellow-700 dark:group-hover:text-yellow-300',
+    linkText: 'text-yellow-700 dark:text-yellow-300',
+  },
+  cyber: {
+    gradient: 'from-gray-100 dark:from-green-500/20',
+    cardBg: 'bg-gray-100/70 dark:bg-black/90',
+    iconBg: 'bg-gray-300 dark:bg-green-900/40',
+    iconText: 'text-gray-700 dark:text-green-400',
+    hoverText: 'group-hover:text-gray-900 dark:group-hover:text-green-300',
+    linkText: 'text-gray-700 dark:text-green-400',
+  },
 };
 
 export function ObservatoryCard({
@@ -64,6 +87,9 @@ export function ObservatoryCard({
   icon,
   color,
   href,
+  className,
+  titleSize = 'text-xl',
+  descriptionSize = 'text-lg',
 }: ObservatoryCardProps) {
   const styles = colorStyles[color];
   const isComingSoon = !href;
@@ -75,7 +101,9 @@ export function ObservatoryCard({
           !isComingSoon ? 'group-hover:opacity-100 transition-opacity' : ''
         }`}
       />
-      <div className="p-6 relative z-10 flex flex-col h-full">
+      <div
+        className={`p-6 relative z-10 flex flex-col h-full ${className || ''}`}
+      >
         <div className="flex items-center gap-3 mb-4">
           <div
             className={`flex h-10 w-10 items-center justify-center rounded-full ${styles.iconBg} ${styles.iconText}`}
@@ -83,7 +111,7 @@ export function ObservatoryCard({
             {icon}
           </div>
           <h2
-            className={`text-xl font-semibold ${
+            className={`${titleSize} font-semibold ${
               isComingSoon
                 ? 'text-gray-500 dark:text-gray-400'
                 : `text-gray-900 dark:text-white ${styles.hoverText} transition-colors`
@@ -93,7 +121,7 @@ export function ObservatoryCard({
           </h2>
         </div>
         <p
-          className={`${
+          className={`${descriptionSize} ${
             isComingSoon
               ? 'text-gray-500 dark:text-gray-500'
               : 'text-gray-600 dark:text-gray-400'
