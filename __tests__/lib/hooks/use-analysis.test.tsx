@@ -7,7 +7,7 @@ import type {
   GetAllAnalysesResult,
   GetAnalysisResult,
 } from '@/app/actions/analysis';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 import * as analysisActions from '@/app/actions/analysis';
 
 describe('useLatestAnalysis', () => {

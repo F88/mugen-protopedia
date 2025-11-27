@@ -3,11 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   AnniversaryCandidatePrototype,
   ClientPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
-import type {
-  BirthdayPrototype,
-  NewbornPrototype,
-} from '@/lib/utils/prototype-analysis-helpers';
+} from '@/lib/analysis/types';
+import type { BirthdayPrototype, NewbornPrototype } from '@/lib/analysis/types';
 
 import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
 
@@ -34,7 +31,7 @@ const { mockBuildAnniversaries, mockBuildAnniversarySlice } = vi.hoisted(() => {
   return { mockBuildAnniversaries, mockBuildAnniversarySlice };
 });
 
-vi.mock('@/lib/utils/prototype-analysis-helpers', () => ({
+vi.mock('@/lib/analysis', () => ({
   buildAnniversaries: mockBuildAnniversaries,
   buildAnniversarySlice: mockBuildAnniversarySlice,
 }));

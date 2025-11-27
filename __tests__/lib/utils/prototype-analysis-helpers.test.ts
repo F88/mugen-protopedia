@@ -9,7 +9,7 @@ import {
   buildYearDistribution,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
-} from '@/lib/utils/prototype-analysis-helpers';
+} from '@/lib/analysis';
 
 function createPrototype(
   overrides: Partial<NormalizedPrototype> = {},

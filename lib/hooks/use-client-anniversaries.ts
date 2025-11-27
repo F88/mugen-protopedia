@@ -4,7 +4,7 @@ import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
 import type {
   PrototypeAnalysis,
   ServerPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis/types';
 
 export type ClientAnniversariesState = {
   anniversaries: PrototypeAnalysis['anniversaries'] | null;

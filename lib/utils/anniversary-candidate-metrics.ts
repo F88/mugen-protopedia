@@ -1,4 +1,4 @@
-import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
+import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 
 /**
  * Extracts month-day string in MM-DD format from a date string or Date object.

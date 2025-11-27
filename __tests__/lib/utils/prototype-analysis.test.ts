@@ -4,8 +4,8 @@ import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.serve
 import {
   buildAnniversaries,
   buildAnniversarySlice,
-} from '@/lib/utils/prototype-analysis-helpers';
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis';
+import type { PrototypeAnalysis } from '@/lib/analysis/types';
 
 // Helper function for tests
 function analyzePrototypes(

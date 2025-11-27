@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { IconSparkles } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
-import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
+import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 

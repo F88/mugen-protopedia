@@ -12,7 +12,7 @@ import './analysis-dashboard.css';
 import type {
   PrototypeAnalysis,
   ServerPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis/types';
 
 import { RefreshCw } from 'lucide-react';
 

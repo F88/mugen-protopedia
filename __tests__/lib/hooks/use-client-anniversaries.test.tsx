@@ -4,8 +4,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import * as analysisClient from '@/lib/utils/prototype-analysis.client';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
-import type { AnniversariesSlice } from '@/lib/utils/prototype-analysis-helpers';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnniversariesSlice } from '@/lib/analysis/types';
 
 describe('useClientAnniversaries', () => {
   beforeEach(() => {

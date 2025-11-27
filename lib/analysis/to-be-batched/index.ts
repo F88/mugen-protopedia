@@ -14,3 +14,4 @@ export * from './average-age';
 export * from './top-teams';
 export * from './status-distribution';
 export * from './awards-count';
+export * from './year-distribution';

@@ -2,14 +2,11 @@
 
 import { logger as clientLogger } from '@/lib/logger.client';
 import { buildAnniversaryCandidateTotals } from '@/lib/utils/anniversary-candidate-metrics';
-import {
-  buildAnniversaries,
-  buildAnniversarySlice,
-} from '@/lib/utils/prototype-analysis-helpers';
+import { buildAnniversaries, buildAnniversarySlice } from '@/lib/analysis';
 import type {
   AnniversaryCandidatePrototype,
   ClientPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis/types';
 
 /**
  * Minimal logger interface for dependency injection

@@ -16,8 +16,8 @@ import {
   buildTimeDistributionsAndUniqueDates,
   calculateCreationStreak,
   buildAdvancedAnalysis,
-} from '@/lib/utils/prototype-analysis-helpers';
-import type { PrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis';
+import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 

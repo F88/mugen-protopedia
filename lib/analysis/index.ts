@@ -23,5 +23,5 @@ export * from './batch';
 // (Do not re-export functions already provided by core)
 export * from './to-be-batched';
 // export * from './single'; // Uncomment when single-purpose analysis is implemented
-// export * from './shared'; // Uncomment when shared utilities are implemented
+export * from './shared';
 // export * from './types';  // Uncomment when types are separated

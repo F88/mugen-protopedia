@@ -14,7 +14,7 @@ import {
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
 import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 
 /**
  * Successful response containing analysis data

@@ -8,7 +8,7 @@
 import type { Metadata } from 'next';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
-import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
+import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 
 import { getLatestAnalysis } from '@/app/actions/analysis';
 

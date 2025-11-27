@@ -14,11 +14,11 @@ import {
   calculateCreationStreak,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
-} from '@/lib/utils/prototype-analysis-helpers';
+} from '@/lib/analysis';
 import type {
   AnniversaryCandidates,
   ServerPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis/types';
 
 export { extractMonthDay } from '@/lib/utils/anniversary-candidate-metrics';
 
