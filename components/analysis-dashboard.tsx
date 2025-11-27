@@ -139,19 +139,19 @@ function StatusDistribution({
 
       {/* Detailed List */}
       <div className="space-y-3">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {entries.map(({ status, count, percentage }) => (
             <div
               key={status}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
+              className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 min-w-0">
                 <StatusBadge status={status} />
                 <span className="text-xs text-gray-500">
                   ({percentage.toFixed(1)}%)
                 </span>
               </div>
-              <span className="text-sm font-medium">
+              <span className="text-xl font-medium text-center md:text-right">
                 {count.toLocaleString()}
               </span>
             </div>
