@@ -134,7 +134,7 @@ export function UniverseBackground() {
     // Check every 1 second, 20% chance to spawn a star
     const interval = setInterval(() => {
       if (Math.random() < 0.2) {
-        setShootingStars((prev) => [...prev, Date.now()]);
+        setShootingStars((prev) => [...prev, Date.now() + Math.random()]);
       }
     }, 1000);
 
