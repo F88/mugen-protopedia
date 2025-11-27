@@ -1,4 +1,5 @@
 import { IconWarrior } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type WeekendWarriorSectionProps = {
@@ -25,7 +26,7 @@ export function WeekendWarriorSection({
 
   return (
     <ObservatorySection
-      theme="slate"
+      theme={helloWorldTheme.sections.weekendWarrior.theme}
       icon={<IconWarrior />}
       title="The Weekend Warrior's Crunch"
       description="The battle against time. Witness the heroic efforts of makers who burn the midnight oil and sprint through Sunday nights."

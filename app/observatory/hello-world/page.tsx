@@ -9,10 +9,13 @@ import type { Metadata } from 'next';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
-import { getLatestAnalysis } from '@/app/actions/analysis';
-import { IconGlobe } from '../shared/icons';
 
-// Import new components
+import { getLatestAnalysis } from '@/app/actions/analysis';
+
+import { ObservatoryHeader } from '@/components/observatory/observatory-header';
+
+import { IconGlobe } from '@/app/observatory/shared/icons';
+
 import { NewbornsSection } from './components/newborns-section';
 import { MakersRhythmSection } from './components/makers-rhythm-section';
 import { EternalFlameSection } from './components/eternal-flame-section';
@@ -27,7 +30,6 @@ import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { HolyDaySection } from './components/holy-day-section';
 import { HelloWorldBackground } from './background';
-import { ObservatoryHeader } from '@/components/observatory/observatory-header';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,

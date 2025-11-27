@@ -5,6 +5,7 @@ import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { Bar } from '@/components/observatory/bar';
 
 import { IconGift } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from '@/lib/utils/math';
 
@@ -24,7 +25,7 @@ export function AnniversaryEffectSection({
 
   return (
     <ObservatorySection
-      theme="rose"
+      theme={helloWorldTheme.sections.anniversaryEffect.theme}
       icon={<IconGift />}
       title="The Anniversary Effect"
       description="Special days inspire special creations. See how holidays and anniversaries spark the community's imagination."

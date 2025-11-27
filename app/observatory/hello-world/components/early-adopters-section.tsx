@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 import { IconTelescope } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type EarlyAdoptersSectionProps = {
@@ -28,7 +29,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
 
   return (
     <ObservatorySection
-      theme="slate"
+      theme={helloWorldTheme.sections.earlyAdopters.theme}
       icon={<IconTelescope />}
       title="The Early Adopters"
       description="Who planted the first flag? Discover the pioneers who introduced new technologies to our world."

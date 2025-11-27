@@ -1,4 +1,5 @@
 import { IconTool } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type GatewayDrugSectionProps = {
@@ -8,7 +9,7 @@ type GatewayDrugSectionProps = {
 export function GatewayDrugSection({ topMaterials }: GatewayDrugSectionProps) {
   return (
     <ObservatorySection
-      theme="lime"
+      theme={helloWorldTheme.sections.gatewayDrug.theme}
       icon={<IconTool />}
       title="The Gateway Drug"
       description="Every addiction starts somewhere. These are the tools and materials that hooked us into the world of prototyping."

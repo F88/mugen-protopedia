@@ -55,11 +55,69 @@ export const helloWorldTheme = {
     fontFamily: 'Marcellus', // Classical, divine font
   },
 
+  // Section themes mapping
+  sections: {
+    newborns: {
+      theme: 'sky' as const,
+      delay: 'delay-0',
+    },
+    gatewayDrug: {
+      theme: 'lime' as const,
+      delay: 'delay-100',
+    },
+    makersRhythm: {
+      theme: 'orange' as const,
+      delay: 'delay-200',
+    },
+    eternalFlame: {
+      theme: 'red' as const,
+      delay: 'delay-300',
+    },
+    maternityHospital: {
+      theme: 'blue' as const,
+      delay: 'delay-[400ms]',
+    },
+    powerOfDeadlines: {
+      theme: 'rose' as const, // Changed from red to avoid duplication
+      delay: 'delay-[500ms]',
+    },
+    weekendWarrior: {
+      theme: 'teal' as const, // Changed from slate to avoid duplication
+      delay: 'delay-[600ms]',
+    },
+    laborOfLove: {
+      theme: 'pink' as const,
+      delay: 'delay-[700ms]',
+    },
+    earlyAdopters: {
+      theme: 'slate' as const,
+      delay: 'delay-[800ms]',
+    },
+    firstPenguin: {
+      theme: 'cyan' as const,
+      delay: 'delay-[900ms]',
+    },
+    starAlignment: {
+      theme: 'purple' as const,
+      delay: 'delay-[1000ms]',
+    },
+    holyDay: {
+      theme: 'amber' as const,
+      delay: 'delay-[1100ms]',
+    },
+    anniversaryEffect: {
+      theme: 'rose' as const,
+      delay: 'delay-[1200ms]',
+    },
+  },
+
   // Animation durations (in seconds)
   animation: {
     particleDuration: 8,
     fadeInDuration: 0.6,
+    sectionFadeIn: 'duration-700',
   },
 } as const;
 
 export type HelloWorldTheme = typeof helloWorldTheme;
+export type HelloWorldSectionKey = keyof typeof helloWorldTheme.sections;

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { IconPenguin } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type FirstPenguinSectionProps = {
@@ -18,7 +19,7 @@ type FirstPenguinSectionProps = {
 export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
   return (
     <ObservatorySection
-      theme="cyan"
+      theme={helloWorldTheme.sections.firstPenguin.theme}
       icon={<IconPenguin />}
       title="The First Penguin"
       description="The brave souls who broke the silence of the New Year. Celebrating the very first prototype of each year."

@@ -1,4 +1,5 @@
 import { IconHoly } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type HolyDaySectionProps = {
@@ -12,7 +13,7 @@ export function HolyDaySection({ holyDay }: HolyDaySectionProps) {
 
   return (
     <ObservatorySection
-      theme="amber"
+      theme={helloWorldTheme.sections.holyDay.theme}
       icon={<IconHoly />}
       title="The Holy Day"
       description="There are days when the stars align and creativity floods the world. These are the holiest days in the ProtoPedia calendar."

@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Bar } from '@/components/observatory/bar';
 
 import { IconHospital } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from '@/lib/utils/math';
 
@@ -33,7 +34,7 @@ export function MaternityHospitalSection({
 
   return (
     <ObservatorySection
-      theme="blue"
+      theme={helloWorldTheme.sections.maternityHospital.theme}
       icon={<IconHospital />}
       title="The Maternity Hospital"
       description="Where are ideas born? Some in the bustling delivery rooms of hackathons, others in the quiet solitude of a home lab."
