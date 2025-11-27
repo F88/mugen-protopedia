@@ -1,0 +1,16 @@
+export const IconRocket = () => <span aria-hidden="true">🚀</span>;
+export const IconGlobe = () => <span aria-hidden="true">🌐</span>;
+export const IconSparkles = () => <span aria-hidden="true">✨</span>;
+export const IconDNA = () => <span aria-hidden="true">🧬</span>;
+export const IconFlame = () => <span aria-hidden="true">🔥</span>;
+export const IconClock = () => <span aria-hidden="true">⏰</span>;
+export const IconTelescope = () => <span aria-hidden="true">🔭</span>;
+export const IconPenguin = () => <span aria-hidden="true">🐧</span>;
+export const IconStar = () => <span aria-hidden="true">🌠</span>;
+export const IconGift = () => <span aria-hidden="true">🎁</span>;
+export const IconTool = () => <span aria-hidden="true">🛠️</span>;
+export const IconHeart = () => <span aria-hidden="true">❤️</span>;
+export const IconHospital = () => <span aria-hidden="true">🏥</span>;
+export const IconDeadline = () => <span aria-hidden="true">💣</span>;
+export const IconWarrior = () => <span aria-hidden="true">⚔️</span>;
+export const IconHoly = () => <span aria-hidden="true">🙌</span>;

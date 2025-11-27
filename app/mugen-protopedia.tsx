@@ -48,6 +48,7 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 /**
  * Simulated delay ranges for different play modes.
@@ -76,7 +77,7 @@ const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
  * @returns absolute URL string to the ProtoPedia detail page
  */
 const urlOfPageForPrototype = (prototype: Prototype): string =>
-  `https://protopedia.net/prototype/${prototype.id}`;
+  buildPrototypeLink(prototype.id);
 
 const arePlayModeStatesEqual = (
   left: PlayModeState,
@@ -715,6 +716,7 @@ export function MugenProtoPedia() {
             defaultExpanded={false}
             useLatestAnalysisHook={useLatestAnalysis}
             preferClientTimezoneAnniversaries={true}
+            isDevelopment={process.env.NODE_ENV === 'development'}
           />
         }
       />

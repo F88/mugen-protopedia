@@ -86,8 +86,12 @@ export function getMaxPrototypeId(
   return maxId;
 }
 
-const PROTOPEDIA_TAG_BASE_URL = 'https://protopedia.net/tag';
+const PROTOPEDIA_PROTOTYPE_BASE_URL = 'https://protopedia.net/prototype';
+export const buildPrototypeLink = (prototypeId: number): string => {
+  return `${PROTOPEDIA_PROTOTYPE_BASE_URL}/${prototypeId}`;
+};
 
+const PROTOPEDIA_TAG_BASE_URL = 'https://protopedia.net/tag';
 export const buildTagLink = (tag: string): string => {
   const url = new URL(PROTOPEDIA_TAG_BASE_URL);
   url.searchParams.set('tag', tag);

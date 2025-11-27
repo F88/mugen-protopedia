@@ -6,15 +6,17 @@
  * playlist form interactions, etc.) to `PlaylistEditClient`.
  */
 import type { Metadata } from 'next';
-import Link from 'next/link';
+
 import { Suspense } from 'react';
 
-import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
-import { ThemeToggle } from '@/components/theme-toggle';
 import {
   buildURLSearchParams,
   type SearchParams,
 } from '@/lib/metadata/playlist-metadata';
+
+import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
+import { PlaylistEditClient } from '@/components/playlist/editor/playlist-edit-client';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 // Note: This page intentionally uses static `metadata` instead of
 // `generateMetadata` because it does not depend on playlist queries.
@@ -45,13 +47,14 @@ export default async function PlaylistEditPage(props: PlaylistEditPageProps) {
     <main className="mx-auto flex w-full max-w-full flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold">Playlist Editor (Beta)</h1>
-        <div className="flex items-center gap-3">
-          <Link
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* <Link
             href={href}
             className="text-sm text-blue-600 hover:underline dark:text-blue-400"
           >
             🏠 Back to home
-          </Link>
+          </Link> */}
+          <MugenProtoPediaHomeButton link={href} />
           <ThemeToggle />
         </div>
       </div>

@@ -74,7 +74,7 @@ describe('prototype-analysis helpers', () => {
   });
 
   describe('buildTopTags', () => {
-    it('returns aggregated tag counts sorted desc limited to 10', () => {
+    it('returns aggregated tag counts sorted desc', () => {
       const prototypes: NormalizedPrototype[] = [];
       for (let i = 0; i < 12; i += 1) {
         prototypes.push(
@@ -87,9 +87,26 @@ describe('prototype-analysis helpers', () => {
 
       const { topTags, tagCounts } = buildTopTags(prototypes);
 
-      expect(topTags).toHaveLength(10);
+      expect(topTags).toHaveLength(13);
       expect(topTags[0]).toEqual({ tag: 'shared', count: 12 });
       expect(tagCounts['tag-0']).toBe(2);
+    });
+
+    it('limits the result to top 30 tags', () => {
+      const prototypes: NormalizedPrototype[] = [];
+      // Create 35 unique tags
+      for (let i = 0; i < 35; i += 1) {
+        prototypes.push(
+          createPrototype({
+            id: i + 1,
+            tags: [`unique-tag-${i}`],
+          }),
+        );
+      }
+
+      const { topTags } = buildTopTags(prototypes);
+
+      expect(topTags).toHaveLength(30);
     });
   });
 
@@ -184,12 +201,6 @@ describe('prototype-analysis helpers', () => {
           title: 'Birthday',
           years: 2,
           releaseDate: '2022-03-10T00:00:00Z',
-        },
-        {
-          id: 2,
-          title: 'Newborn',
-          years: 0,
-          releaseDate: '2024-03-10T05:00:00Z',
         },
       ]);
       expect(newbornPrototypes).toEqual([

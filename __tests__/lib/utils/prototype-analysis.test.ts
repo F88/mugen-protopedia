@@ -143,10 +143,10 @@ describe('analyzePrototypes', () => {
       ]);
     });
 
-    it('should limit to top 10 tags', () => {
+    it('should limit to top 30 tags', () => {
       const prototypes: NormalizedPrototype[] = [];
-      // Create prototypes with 15 different tags
-      for (let i = 0; i < 15; i++) {
+      // Create prototypes with 35 different tags
+      for (let i = 0; i < 35; i++) {
         prototypes.push(
           createMockPrototype({
             id: i,
@@ -157,7 +157,7 @@ describe('analyzePrototypes', () => {
 
       const result = analyzePrototypes(prototypes);
 
-      expect(result.topTags).toHaveLength(10);
+      expect(result.topTags).toHaveLength(30);
       expect(result.topTags[0].count).toBe(3);
     });
   });
@@ -238,10 +238,10 @@ describe('analyzePrototypes', () => {
       ]);
     });
 
-    it('should limit to top 10 teams', () => {
+    it('should limit to top 30 teams', () => {
       const prototypes: NormalizedPrototype[] = [];
-      // Create prototypes with 15 different teams
-      for (let i = 0; i < 15; i++) {
+      // Create prototypes with 35 different teams
+      for (let i = 0; i < 35; i++) {
         prototypes.push(
           createMockPrototype({
             id: i,
@@ -258,7 +258,7 @@ describe('analyzePrototypes', () => {
 
       const result = analyzePrototypes(prototypes);
 
-      expect(result.topTeams).toHaveLength(10);
+      expect(result.topTeams).toHaveLength(30);
       expect(result.topTeams[0].count).toBe(2);
     });
   });
@@ -608,8 +608,8 @@ describe('analyzePrototypes', () => {
       // Validate results
       expect(result.totalCount).toBe(1000);
       expect(Object.keys(result.statusDistribution).length).toBeGreaterThan(0);
-      expect(result.topTags.length).toBeLessThanOrEqual(10);
-      expect(result.topTeams.length).toBeLessThanOrEqual(10);
+      expect(result.topTags.length).toBeLessThanOrEqual(30);
+      expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
       expect(Object.keys(result.yearDistribution).length).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
@@ -961,8 +961,8 @@ describe('analyzePrototypes', () => {
       // Validate results
       expect(result.totalCount).toBe(10000);
       expect(Object.keys(result.statusDistribution).length).toBeGreaterThan(0);
-      expect(result.topTags.length).toBeLessThanOrEqual(10);
-      expect(result.topTeams.length).toBeLessThanOrEqual(10);
+      expect(result.topTags.length).toBeLessThanOrEqual(30);
+      expect(result.topTeams.length).toBeLessThanOrEqual(30);
       expect(result.averageAgeInDays).toBeGreaterThan(0);
       expect(Object.keys(result.yearDistribution).length).toBeGreaterThan(0);
       expect(result.analyzedAt).toBeDefined();
@@ -972,8 +972,8 @@ describe('analyzePrototypes', () => {
       expect(result.prototypesWithAwards).toBeLessThan(10000);
 
       // Verify top 10 limitations are working
-      expect(result.topTags.length).toBeLessThanOrEqual(10);
-      expect(result.topTeams.length).toBeLessThanOrEqual(10);
+      expect(result.topTags.length).toBeLessThanOrEqual(30);
+      expect(result.topTeams.length).toBeLessThanOrEqual(30);
 
       // Check that counts are reasonable
       const totalTagCount = result.topTags.reduce(
@@ -986,7 +986,7 @@ describe('analyzePrototypes', () => {
         (sum, team) => sum + team.count,
         0,
       );
-      expect(totalTeamCount).toBe(1000); // Top 10 teams (100 prototypes each = 1000 total)
+      expect(totalTeamCount).toBe(3000); // Top 30 teams (100 prototypes each = 3000 total)
     });
   });
 });

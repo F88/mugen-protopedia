@@ -5,10 +5,14 @@ import {
   extractMonthDay,
 } from '@/lib/utils/anniversary-candidate-metrics';
 import {
+  buildAdvancedAnalysis,
   buildStatusDistribution,
+  buildTimeDistributionsAndUniqueDates,
+  buildTopMaterials,
   buildTopTags,
   buildTopTeams,
   buildYearDistribution,
+  calculateCreationStreak,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
 } from '@/lib/utils/prototype-analysis-helpers';
@@ -163,6 +167,7 @@ export function analyzePrototypesForServer(
   const startTime = performance.now();
 
   const now = options?.referenceDate ?? new Date();
+  const metrics: Record<string, number> = {};
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
@@ -171,6 +176,7 @@ export function analyzePrototypesForServer(
       statusDistribution: {},
       prototypesWithAwards: 0,
       topTags: [],
+      topMaterials: [],
       averageAgeInDays: 0,
       yearDistribution: {},
       topTeams: [],
@@ -180,22 +186,109 @@ export function analyzePrototypesForServer(
         now,
         logger,
       ),
+      releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+      creationStreak: {
+        currentStreak: 0,
+        longestStreak: 0,
+        longestStreakEndDate: null,
+        totalActiveDays: 0,
+      },
+      earlyAdopters: [],
+      firstPenguins: [],
+      starAlignments: [],
+      anniversaryEffect: [],
+      laborOfLove: { longestGestation: [], distribution: {} },
+      maternityHospital: { topEvents: [], independentRatio: 0 },
+      powerOfDeadlines: { spikes: [] },
+      weekendWarrior: {
+        sundaySprintCount: 0,
+        midnightCount: 0,
+        daytimeCount: 0,
+        totalCount: 0,
+      },
+      holyDay: { topDays: [] },
+      _debugMetrics: metrics,
     };
   }
 
+  // --- Metrics collection for individual analysis steps ---
+
+  let stepStart = performance.now();
   const statusDistribution = buildStatusDistribution(prototypes);
+  metrics.statusDistribution = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  metrics.prototypesWithAwards = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const { topTags, tagCounts } = buildTopTags(prototypes);
+  metrics.topTags = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const averageAgeInDays = computeAverageAgeInDays(prototypes, now);
+  metrics.averageAgeInDays = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const yearDistribution = buildYearDistribution(prototypes);
+  metrics.yearDistribution = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const { topTeams, teamCounts } = buildTopTeams(prototypes);
+  metrics.topTeams = performance.now() - stepStart;
+
+  stepStart = performance.now();
+  const { topMaterials, materialCounts } = buildTopMaterials(prototypes);
+  metrics.topMaterials = performance.now() - stepStart;
+
+  stepStart = performance.now();
   const anniversaryCandidates = buildAnniversaryCandidates(
     prototypes,
     now,
     logger,
   );
+  metrics.anniversaryCandidates = performance.now() - stepStart;
+
+  stepStart = performance.now();
+
+  // --- Maker's Rhythm & Eternal Flame Analysis (JST based) ---
+  const {
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    uniqueReleaseDates,
+  } = buildTimeDistributionsAndUniqueDates(prototypes);
+
+  metrics.makerRhythm = performance.now() - stepStart;
+
+  stepStart = performance.now();
+
+  // Calculate Streaks
+  const creationStreak = calculateCreationStreak(uniqueReleaseDates, now);
+
+  metrics.creationStreak = performance.now() - stepStart;
+
+  stepStart = performance.now();
+
+  // --- Advanced Analysis (First Penguin, Star Alignment, Anniversary, Early Adopters) ---
+  const {
+    firstPenguins,
+    starAlignments,
+    anniversaryEffect,
+    earlyAdopters,
+    laborOfLove,
+    maternityHospital,
+    powerOfDeadlines,
+    weekendWarrior,
+    holyDay,
+  } = buildAdvancedAnalysis(prototypes, topTags);
+
+  metrics.advancedAnalysis = performance.now() - stepStart;
+
+  // --- End metrics collection ---
 
   const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+  metrics.total = elapsedMs;
 
   // Compute dataset date range for diagnostics
   const validDates = prototypes
@@ -217,10 +310,12 @@ export function analyzePrototypesForServer(
         statusKinds: Object.keys(statusDistribution).length,
         uniqueTags: Object.keys(tagCounts).length,
         uniqueTeams: Object.keys(teamCounts).length,
+        uniqueMaterials: Object.keys(materialCounts).length,
         averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
         datasetMinISO: datasetMin,
         datasetMaxISO: datasetMax,
         elapsedMs,
+        metrics, // Add metrics to the summary log
       },
     },
     'Server-side analysis completed (TZ-independent data only)',
@@ -234,7 +329,21 @@ export function analyzePrototypesForServer(
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     yearDistribution,
     topTeams,
+    topMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
+    releaseTimeDistribution,
+    updateTimeDistribution,
+    creationStreak,
+    earlyAdopters,
+    firstPenguins,
+    starAlignments,
+    anniversaryEffect,
+    laborOfLove,
+    maternityHospital,
+    powerOfDeadlines,
+    weekendWarrior,
+    holyDay,
+    _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

@@ -2,9 +2,10 @@ import { forwardRef, type ReactNode } from 'react';
 
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
-import { Dashboard, type DashboardProps } from './dashboard';
-import { PlaylistHeaderButton } from './playlist/playlist-header-button';
-import { ThemeToggle } from './theme-toggle';
+import { Dashboard, type DashboardProps } from '@/components/dashboard';
+import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
+import { PlaylistHeaderButton } from '@/components/playlist-header-button';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface HeaderProps {
   dashboard: DashboardProps;
@@ -85,15 +86,16 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
               maxConcurrentFetches={dashboard.maxConcurrentFetches}
               size="compact"
             />
-
             {/* Analysis Dashboard */}
             {analysisDashboard}
-
             {/* Playlist editor shortcut (hidden on small screens) */}
             <div className="hidden lg:block">
               <PlaylistHeaderButton />
             </div>
-
+            {/* Observatory shortcut */}
+            {process.env.NODE_ENV === 'development' && (
+              <ObservatoryHeaderButton />
+            )}
             {/* Theme  */}
             <ThemeToggle />
           </div>

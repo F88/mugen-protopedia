@@ -113,6 +113,8 @@ export type ServerPrototypeAnalysis = {
   prototypesWithAwards: number;
   /** Most common tags (top 10) */
   topTags: Array<{ tag: string; count: number }>;
+  /** Most frequently used materials/tools (top 10) */
+  topMaterials: Array<{ material: string; count: number }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
   /** Distribution by release year */
@@ -127,6 +129,123 @@ export type ServerPrototypeAnalysis = {
    * performing timezone-aware anniversary detection.
    */
   anniversaryCandidates: AnniversaryCandidates;
+
+  /** Release time distribution (Maker's Rhythm) */
+  releaseTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: number[];
+    /** Count by hour of day (0-23) */
+    hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
+  };
+
+  /** Update time distribution (Maker's Rhythm - Update) */
+  updateTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: number[];
+    /** Count by hour of day (0-23) */
+    hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
+  };
+
+  /** Creation streak analysis (The Eternal Flame) */
+  creationStreak: {
+    /** Current streak of consecutive days with releases (up to yesterday/today) */
+    currentStreak: number;
+    /** Longest streak in history */
+    longestStreak: number;
+    /** Date when the longest streak ended */
+    longestStreakEndDate: string | null;
+    /** Total active days (days with at least one release) */
+    totalActiveDays: number;
+  };
+
+  /** Early Adopter analysis (The Origin) */
+  earlyAdopters: Array<{
+    tag: string;
+    prototypeId: number;
+    prototypeTitle: string;
+    releaseDate: string;
+  }>;
+
+  /** First Penguin analysis (First release of each year) */
+  firstPenguins: Array<{
+    year: number;
+    prototype: {
+      id: number;
+      title: string;
+      releaseDate: string;
+      user: string; // First user name or team name
+    };
+  }>;
+
+  /** Star Alignment analysis (Prototypes released at exact same time) */
+  starAlignments: Array<{
+    timestamp: string;
+    prototypes: Array<{
+      id: number;
+      title: string;
+    }>;
+  }>;
+
+  /** Anniversary Effect analysis (Releases on special days) */
+  anniversaryEffect: Array<{
+    name: string;
+    date: string; // MM-DD
+    count: number;
+    examples: Array<{ id: number; title: string; year: number }>;
+  }>;
+
+  /** Labor of Love analysis (Gestation period) */
+  laborOfLove: {
+    /** Top prototypes with longest gestation period */
+    longestGestation: Array<{
+      id: number;
+      title: string;
+      durationDays: number;
+      createDate: string;
+      releaseDate: string;
+    }>;
+    /** Distribution of gestation periods */
+    distribution: Record<string, number>;
+  };
+
+  /** The Maternity Hospital analysis (Events) */
+  maternityHospital: {
+    /** Top events by number of prototypes */
+    topEvents: Array<{ event: string; count: number }>;
+    /** Ratio of independent births (no event) */
+    independentRatio: number;
+  };
+
+  /** The Power of Deadlines analysis */
+  powerOfDeadlines: {
+    /** Top spikes in prototype releases */
+    spikes: Array<{ date: string; count: number; score: number }>;
+  };
+
+  /** The Weekend Warrior's Crunch analysis */
+  weekendWarrior: {
+    /** Count of prototypes released during Sunday 20:00 - Monday 05:00 */
+    sundaySprintCount: number;
+    /** Count of prototypes released between 23:00 - 04:00 */
+    midnightCount: number;
+    /** Count of prototypes released during daytime (09:00 - 18:00) */
+    daytimeCount: number;
+    /** Total count of prototypes released during the weekend warrior time slots */
+    totalCount: number;
+  };
+
+  /** The Holy Day analysis */
+  holyDay: {
+    /** Top days with highest prototype release counts */
+    topDays: Array<{ date: string; count: number }>; // MM-DD
+  };
+
+  /** Debug metrics for analysis performance */
+  _debugMetrics?: Record<string, number>;
 };
 
 /**
