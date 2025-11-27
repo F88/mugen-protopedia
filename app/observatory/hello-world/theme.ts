@@ -109,6 +109,10 @@ export const helloWorldTheme = {
       theme: 'rose' as const,
       delay: 'delay-[1200ms]',
     },
+    longTermEvolution: {
+      theme: 'emerald' as const,
+      delay: 'delay-[1300ms]',
+    },
   },
 
   // Animation durations (in seconds)

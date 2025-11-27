@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Bar } from '@/components/observatory/bar';
+import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
 
 import { IconClock } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';
@@ -8,7 +9,14 @@ import { ObservatorySection } from './observatory-section';
 import { clampPercent } from '@/lib/utils/math';
 
 type MakersRhythmSectionProps = {
-  distribution: { dayOfWeek: number[]; hour: number[] };
+  distribution: {
+    dayOfWeek: number[];
+    hour: number[];
+    heatmap?: number[][];
+  };
+  updateDistribution?: {
+    heatmap?: number[][];
+  };
   maxDayCount: number;
   maxHourCount: number;
   days: string[];
@@ -16,6 +24,7 @@ type MakersRhythmSectionProps = {
 
 export function MakersRhythmSection({
   distribution,
+  updateDistribution,
   maxDayCount,
   maxHourCount,
   days,
@@ -28,7 +37,8 @@ export function MakersRhythmSection({
       description="Every creation has a pulse. Observe the heartbeat of the community through time."
       sourceNote={
         <>
-          <strong>Release Date</strong> of all prototypes (Historical Data).
+          <strong>Release Date</strong> and <strong>Update Date</strong> of all
+          prototypes (Historical Data).
         </>
       }
       visualContent={
@@ -143,6 +153,32 @@ export function MakersRhythmSection({
             <span>23:00</span>
           </div>
         </div>
+      </div>
+
+      {/* Weekly Activity Heatmaps */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Release Activity Heatmap */}
+        {distribution.heatmap && (
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              Weekly Release Activity (JST)
+            </h3>
+            <ActivityHeatmap heatmap={distribution.heatmap} />
+          </div>
+        )}
+
+        {/* Update Activity Heatmap */}
+        {updateDistribution?.heatmap && (
+          <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              Weekly Update Activity (JST)
+            </h3>
+            <ActivityHeatmap
+              heatmap={updateDistribution.heatmap}
+              className="[&_.bg-green-200]:bg-blue-200 [&_.bg-green-300]:bg-blue-300 [&_.bg-green-400]:bg-blue-400 [&_.bg-green-500]:bg-blue-500 [&_.dark\:bg-green-900\/40]:dark:bg-blue-900/40 [&_.dark\:bg-green-800\/60]:dark:bg-blue-800/60 [&_.dark\:bg-green-700\/80]:dark:bg-blue-700/80 [&_.dark\:bg-green-600]:dark:bg-blue-600"
+            />
+          </div>
+        )}
       </div>
     </ObservatorySection>
   );
