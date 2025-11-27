@@ -13,7 +13,8 @@ export type ObservatorySectionTheme =
   | 'pink'
   | 'blue'
   | 'amber'
-  | 'teal';
+  | 'teal'
+  | 'emerald';
 
 interface ThemeStyles {
   container: string;
@@ -132,6 +133,15 @@ const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
     iconText: 'text-teal-600 dark:text-teal-300',
     decoration: 'bg-emerald-400/10',
     narrativeBorder: 'border-teal-200/50 dark:border-teal-800/30',
+  },
+  emerald: {
+    container:
+      'bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20',
+    border: 'border-emerald-100 dark:border-emerald-800/50',
+    iconBg: 'bg-emerald-100 dark:bg-emerald-800',
+    iconText: 'text-emerald-600 dark:text-emerald-300',
+    decoration: 'bg-green-400/10',
+    narrativeBorder: 'border-emerald-200/50 dark:border-emerald-800/30',
   },
 };
 

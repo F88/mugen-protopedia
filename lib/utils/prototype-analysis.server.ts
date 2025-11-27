@@ -281,6 +281,7 @@ export function analyzePrototypesForServer(
     powerOfDeadlines,
     weekendWarrior,
     holyDay,
+    longTermEvolution,
   } = buildAdvancedAnalysis(prototypes, topTags);
 
   metrics.advancedAnalysis = performance.now() - stepStart;
@@ -344,6 +345,7 @@ export function analyzePrototypesForServer(
     powerOfDeadlines,
     weekendWarrior,
     holyDay,
+    longTermEvolution,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

@@ -576,6 +576,17 @@ export function buildAdvancedAnalysis(
   // 9. Holy Day (MM-DD aggregation)
   const holyDayCounts: Record<string, number> = {};
 
+  // 10. Long-Term Evolution (Maintenance Period)
+  const maintenanceData: Array<{
+    id: number;
+    title: string;
+    maintenanceDays: number;
+    releaseDate: string;
+    updateDate: string;
+  }> = [];
+  let totalMaintenanceDays = 0;
+  let prototypesWithMaintenance = 0;
+
   prototypes.forEach((p) => {
     if (!p.releaseDate) return;
     const date = new Date(p.releaseDate);
@@ -701,6 +712,27 @@ export function buildAdvancedAnalysis(
       independentCount++;
       totalWithEventStatus++;
     }
+
+    // 10. Long-Term Evolution (Maintenance Period)
+    if (p.releaseDate && p.updateDate) {
+      const releaseTime = new Date(p.releaseDate).getTime();
+      const updateTime = new Date(p.updateDate).getTime();
+      const diffMs = updateTime - releaseTime;
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        prototypesWithMaintenance++;
+        totalMaintenanceDays += diffDays;
+
+        maintenanceData.push({
+          id: p.id,
+          title: p.prototypeNm,
+          maintenanceDays: diffDays,
+          releaseDate: p.releaseDate,
+          updateDate: p.updateDate,
+        });
+      }
+    }
   });
 
   // Format Results
@@ -787,6 +819,18 @@ export function buildAdvancedAnalysis(
       .map(([date, count]) => ({ date, count })),
   };
 
+  const longTermEvolution = {
+    longestMaintenance: maintenanceData
+      .sort((a, b) => b.maintenanceDays - a.maintenanceDays)
+      .slice(0, 30),
+    averageMaintenanceDays:
+      prototypesWithMaintenance > 0
+        ? totalMaintenanceDays / prototypesWithMaintenance
+        : 0,
+    maintenanceRatio:
+      prototypes.length > 0 ? prototypesWithMaintenance / prototypes.length : 0,
+  };
+
   return {
     firstPenguins,
     starAlignments,
@@ -797,5 +841,6 @@ export function buildAdvancedAnalysis(
     powerOfDeadlines,
     weekendWarrior,
     holyDay,
+    longTermEvolution,
   };
 }

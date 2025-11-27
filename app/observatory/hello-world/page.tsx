@@ -29,6 +29,7 @@ import { MaternityHospitalSection } from './components/maternity-hospital-sectio
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { HolyDaySection } from './components/holy-day-section';
+import { LongTermEvolutionSection } from './components/long-term-evolution-section';
 import { HelloWorldBackground } from './background';
 
 export const metadata: Metadata = {
@@ -65,6 +66,7 @@ export default async function HelloWorldPage() {
   const {
     anniversaryCandidates,
     releaseTimeDistribution,
+    updateTimeDistribution,
     creationStreak,
     earlyAdopters,
     firstPenguins,
@@ -76,6 +78,7 @@ export default async function HelloWorldPage() {
     powerOfDeadlines,
     weekendWarrior,
     holyDay,
+    longTermEvolution,
   } = analysis;
 
   // Determine "Now" and "24 Hours Ago" for filtering newborns
@@ -173,6 +176,7 @@ export default async function HelloWorldPage() {
 
           <MakersRhythmSection
             distribution={releaseTimeDistribution}
+            updateDistribution={updateTimeDistribution}
             maxDayCount={maxDayCount}
             maxHourCount={maxHourCount}
             days={days}
@@ -200,6 +204,8 @@ export default async function HelloWorldPage() {
           <HolyDaySection holyDay={holyDay} />
 
           <AnniversaryEffectSection holidays={anniversaryEffect} />
+
+          <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
         </div>
       </main>
     </>

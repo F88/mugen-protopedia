@@ -244,6 +244,22 @@ export type ServerPrototypeAnalysis = {
     topDays: Array<{ date: string; count: number }>; // MM-DD
   };
 
+  /** Long-Term Evolution analysis (Long maintenance periods) */
+  longTermEvolution: {
+    /** Top prototypes with longest update span (releaseDate to updateDate) */
+    longestMaintenance: Array<{
+      id: number;
+      title: string;
+      maintenanceDays: number;
+      releaseDate: string;
+      updateDate: string;
+    }>;
+    /** Average maintenance period in days */
+    averageMaintenanceDays: number;
+    /** Percentage of prototypes still being maintained (updated after release) */
+    maintenanceRatio: number;
+  };
+
   /** Debug metrics for analysis performance */
   _debugMetrics?: Record<string, number>;
 };
