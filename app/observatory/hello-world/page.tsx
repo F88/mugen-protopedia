@@ -6,14 +6,16 @@
  */
 
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
-import { getLatestAnalysis } from '@/app/actions/analysis';
-import { IconGlobe } from '../components/icons';
 
-// Import new components
+import { getLatestAnalysis } from '@/app/actions/analysis';
+
+import { ObservatoryHeader } from '@/components/observatory/observatory-header';
+
+import { IconGlobe } from '@/app/observatory/shared/icons';
+
 import { NewbornsSection } from './components/newborns-section';
 import { MakersRhythmSection } from './components/makers-rhythm-section';
 import { EternalFlameSection } from './components/eternal-flame-section';
@@ -27,9 +29,7 @@ import { MaternityHospitalSection } from './components/maternity-hospital-sectio
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { HolyDaySection } from './components/holy-day-section';
-import { UniverseBackground } from '../components/universe-background';
-import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { HelloWorldBackground } from './background';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
@@ -41,7 +41,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function HelloWorldPage() {
   // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
-  const result = await getLatestAnalysis({ forceRecompute: true });
+  // const result = await getLatestAnalysis({ forceRecompute: true });
+  const result = await getLatestAnalysis({ forceRecompute: false });
 
   if (!result.ok) {
     return (
@@ -130,30 +131,11 @@ export default async function HelloWorldPage() {
     longestStreakPeriod = `${startStr} - ${endStr}`;
   }
 
-  const headerClassName =
-    'bg-green-600/80 dark:bg-green-900/60 backdrop-blur-[2px]';
-
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 ${headerClassName} transition-colors duration-200 p-4 flex items-center justify-between`}
-      >
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          <Link href="/observatory">
-            <span className="sm:hidden">Observatory</span>
-            <span className="hidden sm:inline">ProtoPedia Observatory</span>
-          </Link>
-        </h1>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            🕒 JST
-          </span>
-          <MugenProtoPediaHomeButton />
-          <ThemeToggle />
-        </div>
-      </header>
+      <ObservatoryHeader colorScheme="pink" />
       <main>
-        <UniverseBackground />
+        <HelloWorldBackground />
         <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">

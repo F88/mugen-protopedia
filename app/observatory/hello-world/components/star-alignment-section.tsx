@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { IconStar } from '../../components/icons';
+import { IconStar } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type StarAlignmentSectionProps = {
@@ -15,7 +16,7 @@ export function StarAlignmentSection({
 }: StarAlignmentSectionProps) {
   return (
     <ObservatorySection
-      theme="purple"
+      theme={helloWorldTheme.sections.starAlignment.theme}
       icon={<IconStar />}
       title="The Star Alignment"
       description="A miracle of timing. Discover prototypes that were released at the exact same moment, connected by cosmic synchronicity."

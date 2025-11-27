@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
-import { Bar } from '@/components/observatory/Bar';
+import { Bar } from '@/components/observatory/bar';
 
-import { IconHeart } from '../../components/icons';
+import { IconHeart } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
-import { clampPercent } from './utils';
+import { clampPercent } from '@/lib/utils/math';
 
 type LaborOfLoveSectionProps = {
   laborOfLove: {
@@ -40,7 +41,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
 
   return (
     <ObservatorySection
-      theme="pink"
+      theme={helloWorldTheme.sections.laborOfLove.theme}
       icon={<IconHeart />}
       title="Labor of Love"
       description="Great things take time. These prototypes are the result of long incubation periods, proving that persistence pays off."

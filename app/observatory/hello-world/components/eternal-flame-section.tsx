@@ -1,4 +1,5 @@
-import { IconFlame } from '../../components/icons';
+import { IconFlame } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type EternalFlameSectionProps = {
@@ -16,7 +17,7 @@ export function EternalFlameSection({
 }: EternalFlameSectionProps) {
   return (
     <ObservatorySection
-      theme="red"
+      theme={helloWorldTheme.sections.eternalFlame.theme}
       icon={<IconFlame />}
       title="The Eternal Flame"
       description="The Eternal Flame represents the unbroken chain of creativity."

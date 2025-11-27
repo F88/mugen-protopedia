@@ -141,9 +141,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors`}
-      >
+      <body className={`${inter.className} min-h-screen`}>
         {children}
         <ServiceWorkerRegister />
         <Analytics />

@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { Bar } from '@/components/observatory/Bar';
+import { Bar } from '@/components/observatory/bar';
 
-import { IconClock } from '../../components/icons';
+import { IconClock } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
-import { clampPercent } from './utils';
+import { clampPercent } from '@/lib/utils/math';
 
 type MakersRhythmSectionProps = {
   distribution: { dayOfWeek: number[]; hour: number[] };
@@ -21,7 +22,7 @@ export function MakersRhythmSection({
 }: MakersRhythmSectionProps) {
   return (
     <ObservatorySection
-      theme="orange"
+      theme={helloWorldTheme.sections.makersRhythm.theme}
       icon={<IconClock />}
       title="Maker's Rhythm"
       description="Every creation has a pulse. Observe the heartbeat of the community through time."

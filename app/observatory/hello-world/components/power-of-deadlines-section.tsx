@@ -1,4 +1,5 @@
-import { IconDeadline } from '../../components/icons';
+import { IconDeadline } from '../../shared/icons';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type PowerOfDeadlinesSectionProps = {
@@ -14,7 +15,7 @@ export function PowerOfDeadlinesSection({
 
   return (
     <ObservatorySection
-      theme="red"
+      theme={helloWorldTheme.sections.powerOfDeadlines.theme}
       icon={<IconDeadline />}
       title="The Power of Deadlines"
       description="Deadlines are the mother of invention. Observe the massive spikes in creativity that occur just before the clock strikes zero."

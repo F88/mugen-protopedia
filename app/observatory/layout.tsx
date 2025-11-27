@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ObservatoryLayoutBase } from '@/components/observatory/ObservatoryLayoutBase';
+import { ObservatoryLayoutBase } from '@/components/observatory/observatory-layout-base';
 
 export default function ObservatoryLayout({
   children,

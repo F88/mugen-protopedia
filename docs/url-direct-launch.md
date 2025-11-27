@@ -1,24 +1,38 @@
-# URLから直接起動する機能
+---
+lang: en
+title: URL Direct Launch
+title-en: URL Direct Launch
+title-ja: URL直接起動
+related:
+    - docs/*
+instructions-for-ais:
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+    - Prohibit updating this front-matter.
+    - Prohibit updating title line (1st line) in this document.
+---
 
-URLクエリパラメータを使用してアプリケーションを起動した際の挙動を定義する。
+# URL Direct Launch
 
-## クエリパラメータ
+This document defines the application behavior when launched via URL query parameters.
 
-- `id`: カンマ区切りのIDリスト。IDは数字で構成され、与えられた順序で処理される。重複は許容される。
-- `title`: 任意。新たに画面上に表示するタイトル。楽曲プレイリストにおけるタイトルに相当する。
+## Query Parameters
 
-## プレイモードの決定
+- `id`: Comma-separated list of IDs. IDs consist of numbers and are processed in the given order. Duplicates are allowed.
+- `title`: Optional. The title to be displayed on the screen. Equivalent to a playlist title in music applications.
 
-- 検証に成功した`id`リストが空でない場合、プレイモードは`playlist`として初期化される。
-- `id`パラメータが存在しない、または検証失敗により空と判定された場合、プレイモードは`normal`として初期化される。
-- プレイモードそのものの振る舞いについては`docs/specs/play-mode.md`を参照。
+## Play Mode Determination
 
-## 参考実装
+- If the validated `id` list is not empty, the play mode is initialized as `playlist`.
+- If the `id` parameter does not exist or is determined to be empty due to validation failure, the play mode is initialized as `normal`.
+- For the behavior of play modes themselves, refer to `docs/mugen-pp/play-mode.md`.
+
+## Reference Implementation
 
 - `lib/utils/resolve-play-mode.ts`
 - `app/page.tsx`
 
-## プレイリストの例
+## Playlist Examples
 
 ```text
 #ヒーローズリーグ 2025 予選 in 第一部 (12) | 無限ProtoPedia

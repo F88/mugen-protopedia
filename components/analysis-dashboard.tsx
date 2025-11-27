@@ -84,16 +84,31 @@ function StatusDistribution({
   statusDistribution: Record<string, number>;
 }) {
   const total = Object.values(statusDistribution).reduce((a, b) => a + b, 0);
-  const entries = Object.entries(statusDistribution)
-    .map(([status, count]) => ({
-      status: parseInt(status),
-      count,
-      percentage: total > 0 ? (count / total) * 100 : 0,
-    }))
-    .sort((a, b) => b.count - a.count);
-
+  const entries = Object.entries(statusDistribution).map(([status, count]) => ({
+    status: parseInt(status),
+    count,
+    percentage: total > 0 ? (count / total) * 100 : 0,
+  }));
   // Sort by status ID for the stacked bar to show a logical progression
   const sortedForBar = [...entries].sort((a, b) => a.status - b.status);
+
+  const renderNarrowDetail = (
+    status: number,
+    count: number,
+    percentage: number,
+  ) => (
+    <div className="space-y-2">
+      <div className="flex items-center justify-center gap-3">
+        <StatusBadge status={status} />
+        <span className="text-xs text-gray-500">
+          ({percentage.toFixed(1)}%)
+        </span>
+      </div>
+      <div className="text-xl font-medium text-center">
+        {count.toLocaleString()}
+      </div>
+    </div>
+  );
 
   if (entries.length === 0) {
     return (
@@ -142,23 +157,17 @@ function StatusDistribution({
 
       {/* Detailed List */}
       <div className="space-y-3">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {entries.map(({ status, count, percentage }) => (
-            <div
-              key={status}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
-            >
-              <div className="flex items-center gap-2">
-                <StatusBadge status={status} />
-                <span className="text-xs text-gray-500">
-                  ({percentage.toFixed(1)}%)
-                </span>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {entries.map(({ status, count, percentage }) => {
+            return (
+              <div
+                key={status}
+                className="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
+              >
+                {renderNarrowDetail(status, count, percentage)}
               </div>
-              <span className="text-sm font-medium">
-                {count.toLocaleString()}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -683,7 +692,7 @@ export function AnalysisDashboard({
           {/* Section 1: Overview */}
           <section className="space-y-4">
             <SectionTitle>📊 Overview</SectionTitle>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <AnalysisStat
                 label="Total Prototypes"
                 value={analysis.totalCount.toLocaleString()}

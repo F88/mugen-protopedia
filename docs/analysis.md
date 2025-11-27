@@ -1,3 +1,17 @@
+---
+lang: en
+title: Analysis Specification
+title-en: Analysis Specification
+title-ja: 分析仕様
+related:
+    - docs/*
+instructions-for-ais:
+    - This document should be written in English for AI readability.
+    - Content within code fences may be written in languages other than English.
+    - Prohibit updating this front-matter.
+    - Prohibit updating title line (1st line) in this document.
+---
+
 # Analysis Specification
 
 This document captures the end-to-end specification for the prototype analysis

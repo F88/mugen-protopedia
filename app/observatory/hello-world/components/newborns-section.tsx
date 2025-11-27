@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { IconSparkles } from '../../components/icons';
+import { IconSparkles } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
+import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
 type NewbornsSectionProps = {
@@ -12,7 +13,7 @@ type NewbornsSectionProps = {
 export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
   return (
     <ObservatorySection
-      theme="sky"
+      theme={helloWorldTheme.sections.newborns.theme}
       icon={<IconSparkles />}
       title="The Newborn Stars"
       description="Witness the latest prototypes that have just materialized into our world."
@@ -42,7 +43,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
           </p>
         ),
       }}
-      delay="duration-700"
+      delay={helloWorldTheme.sections.newborns.delay}
     >
       {count === 0 ? (
         <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-12 text-center border border-dashed border-sky-200 dark:border-sky-800/30">

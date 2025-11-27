@@ -10,14 +10,18 @@
  *   - Responsive layout and accessible design.
  */
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
 import { APP_TITLE } from '@/lib/config/app-constants';
 
-import { UniverseBackground } from '@/app/observatory/components/universe-background';
-import { ObservatoryCard } from '@/components/analysis/observatory-card';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
+import {
+  audiowideFont,
+  observatoryFonts,
+} from '@/app/observatory/shared/fonts';
+import { ObservatoryBackground } from '@/app/observatory/background';
+import { observatoryTheme } from '@/app/observatory/theme';
+
+import { ObservatoryCard } from '@/components/observatory/observatory-card';
+import { ObservatoryHeader } from '@/components/observatory/observatory-header';
 
 export const metadata: Metadata = {
   title: `ProtoPedia Observatory | ${APP_TITLE}`,
@@ -39,30 +43,11 @@ export const metadata: Metadata = {
  * - Responsive and accessible layout
  */
 export default function ObservatoryPage() {
-  const headerClassName =
-    'bg-blue-500/80 dark:bg-gray-900/50 backdrop-blur-[2px]';
-
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 ${headerClassName} transition-colors duration-200 p-4 flex items-center justify-between`}
-      >
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          <Link href="/observatory">
-            <span className="sm:hidden">Observatory</span>
-            <span className="hidden sm:inline">ProtoPedia Observatory</span>
-          </Link>
-        </h1>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            🕒 JST
-          </span>
-          <MugenProtoPediaHomeButton />
-          <ThemeToggle />
-        </div>
-      </header>
-      <main>
-        <UniverseBackground />
+      <ObservatoryHeader colorScheme="blue" />
+      <main className={audiowideFont.className}>
+        <ObservatoryBackground />
         <div className="px-4 py-8 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
@@ -81,8 +66,12 @@ export default function ObservatoryPage() {
               title="Hello World"
               description="Celebrate new creations. Witness the birth of light and vivid moments where new prototypes begin their journey."
               icon="🎉"
-              color="blue"
+              color={observatoryTheme.cards.helloWorld.colorScheme}
               href="/observatory/hello-world"
+              className={
+                observatoryFonts[observatoryTheme.cards.helloWorld.font]
+                  .className
+              }
             />
 
             {/* Hall of Fame Feature Card (Coming Soon) */}
@@ -90,8 +79,13 @@ export default function ObservatoryPage() {
               title="Hall of Fame"
               description="Celebrating the legends. A collection of the most impactful and memorable prototypes in history."
               icon="🏛️"
-              color="yellow"
+              color={observatoryTheme.cards.hallOfFame.colorScheme}
               href={undefined}
+              // href={'/observatory/hall-of-fame/'}
+              className={
+                observatoryFonts[observatoryTheme.cards.hallOfFame.font]
+                  .className
+              }
             />
 
             {/* The Memorial Park Feature Card (Coming Soon) */}
@@ -99,17 +93,28 @@ export default function ObservatoryPage() {
               title="The Memorial Park"
               description="A place of respect and history. Honoring the prototypes that have completed their journey and the legacy they leave behind."
               icon="🪦"
-              color="gray"
+              color={observatoryTheme.cards.memorialPark.colorScheme}
               href={undefined}
+              // href={'/observatory/memorial-park/'}
+              className={
+                observatoryFonts[observatoryTheme.cards.memorialPark.font]
+                  .className
+              }
             />
 
             {/* The Sci-Fi Lab Feature Card */}
             <ObservatoryCard
               title="The Sci-Fi Lab"
               description="Exploring the unknown. Analyzing mutations, time travelers, and out-of-place artifacts that defy the timeline."
-              icon="🌌"
-              color="purple"
+              icon="🧪"
+              color={observatoryTheme.cards.sciFiLab.colorScheme}
               href={undefined}
+              // href={'/observatory/sci-fi-lab/'}
+              className={
+                observatoryFonts[observatoryTheme.cards.sciFiLab.font].className
+              }
+              titleSize={observatoryTheme.cards.sciFiLab.titleSize}
+              descriptionSize={observatoryTheme.cards.sciFiLab.descriptionSize}
             />
 
             {/* The Explorer's Guild Feature Card */}
@@ -117,8 +122,13 @@ export default function ObservatoryPage() {
               title="The Explorer's Guild"
               description="Adventure, strategy, and community. Discovering the tech roadmap and the unsung heroes of the ecosystem."
               icon="🧭"
-              color="amber"
+              color={observatoryTheme.cards.explorersGuild.colorScheme}
               href={undefined}
+              // href={'/observatory/explorers-guild/'}
+              className={
+                observatoryFonts[observatoryTheme.cards.explorersGuild.font]
+                  .className
+              }
             />
           </div>
         </div>
