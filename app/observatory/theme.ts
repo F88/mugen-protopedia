@@ -49,7 +49,7 @@ export const observatoryTheme = {
   cards: {
     helloWorld: {
       font: 'Marcellus',
-      colorScheme: 'blue',
+      colorScheme: 'pink',
     },
     hallOfFame: {
       font: 'Cinzel',
@@ -93,7 +93,7 @@ export const observatoryTheme = {
       textColor: 'text-gray-900 dark:text-white',
       descriptionColor: 'text-gray-600 dark:text-gray-400',
     },
-    blue: {
+    pink: {
       gradient: 'from-pink-100 dark:from-pink-900/20',
       cardBg:
         'bg-gradient-to-br from-pink-200/80 via-rose-200/80 to-orange-200/80 dark:bg-gradient-to-br dark:from-pink-800/80 dark:via-rose-700/80 dark:to-orange-800/80',
