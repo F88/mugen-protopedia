@@ -13,7 +13,7 @@ import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
 import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 
 /**

@@ -4,7 +4,7 @@ import {
   analyzePrototypesForServer,
   buildAnniversaryCandidates,
   extractMonthDay,
-} from '@/lib/utils/prototype-analysis.server';
+} from '@/lib/analysis/entrypoints/server';
 
 // Helper function to create mock prototype data
 function createMockPrototype(

@@ -2,7 +2,10 @@
 
 import { logger as clientLogger } from '@/lib/logger.client';
 import { buildAnniversaryCandidateTotals } from '@/lib/utils/anniversary-candidate-metrics';
-import { buildAnniversaries, buildAnniversarySlice } from '@/lib/analysis';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '../shared/anniversaries';
 import type {
   AnniversaryCandidatePrototype,
   ClientPrototypeAnalysis,

@@ -6,7 +6,7 @@ import type {
 } from '@/lib/analysis/types';
 import type { BirthdayPrototype, NewbornPrototype } from '@/lib/analysis/types';
 
-import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
+import { analyzeCandidates } from '@/lib/analysis/entrypoints/client';
 
 type AnniversarySlice = ClientPrototypeAnalysis['anniversaries'];
 
@@ -31,7 +31,7 @@ const { mockBuildAnniversaries, mockBuildAnniversarySlice } = vi.hoisted(() => {
   return { mockBuildAnniversaries, mockBuildAnniversarySlice };
 });
 
-vi.mock('@/lib/analysis', () => ({
+vi.mock('@/lib/analysis/shared/anniversaries', () => ({
   buildAnniversaries: mockBuildAnniversaries,
   buildAnniversarySlice: mockBuildAnniversarySlice,
 }));

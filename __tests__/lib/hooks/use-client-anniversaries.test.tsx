@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
-import * as analysisClient from '@/lib/utils/prototype-analysis.client';
+import * as analysisClient from '@/lib/analysis/entrypoints/client';
 import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 import type { AnniversariesSlice } from '@/lib/analysis/types';
 

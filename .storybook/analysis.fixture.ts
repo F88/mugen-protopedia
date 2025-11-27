@@ -1,4 +1,4 @@
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { buildAnniversaries, buildAnniversarySlice } from '@/lib/analysis';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';

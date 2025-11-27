@@ -36,8 +36,6 @@
  * - See `docs/specs/analysis.md` for the full policy and rationale.
  */
 
-
-
 import type {
   BirthdayPrototype,
   NewbornPrototype,

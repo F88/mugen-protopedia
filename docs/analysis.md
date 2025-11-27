@@ -71,11 +71,13 @@ its required fields so that payload pruning can be evaluated.
 
 1. `app/actions/prototypes.ts` fetches up to 10,000 prototypes and normalizes
    them via `normalizePrototype` (dates become ISO UTC strings).
-2. `analyzePrototypes` in `lib/utils/prototype-analysis.ts` consumes the
-   normalized array and returns a `PrototypeAnalysis` object.
-3. The result is stored in `analysisCache` alongside metadata
+2. `analyzePrototypesForServer` in `lib/analysis/entrypoints/server.ts` consumes the
+   normalized array and returns a `ServerPrototypeAnalysis` snapshot.
+3. `analyzeCandidates` in `lib/analysis/entrypoints/client.ts` recomputes the
+   anniversary slice on the client when a timezone override is enabled.
+4. The result is stored in `analysisCache` alongside metadata
    (`limit`,`offset`,`totalCount`).
-4. `components/analysis-dashboard.tsx` (and related hooks) render the cached
+5. `components/analysis-dashboard.tsx` (and related hooks) render the cached
    snapshot. Optional client recomputation only reprocesses the lightweight
    subset needed for timezone-aware anniversaries.
 

@@ -1,10 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
-import {
-  buildAnniversaries,
-  buildAnniversarySlice,
-} from '@/lib/analysis';
+import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { buildAnniversaries, buildAnniversarySlice } from '@/lib/analysis';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 
 // Helper function for tests
