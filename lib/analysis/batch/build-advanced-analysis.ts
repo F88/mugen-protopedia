@@ -1,5 +1,9 @@
 import { NormalizedPrototype } from '@/lib/api/prototypes';
 
+type MinimalLogger = {
+  debug: (payload: unknown, message?: string) => void;
+};
+
 export type AdvancedAnalysis = {
   firstPenguins: Array<{
     year: number;
@@ -77,7 +81,9 @@ export type AdvancedAnalysis = {
 export function buildAdvancedAnalysis(
   prototypes: NormalizedPrototype[],
   topTags: { tag: string; count: number }[],
+  options?: { logger?: MinimalLogger },
 ): AdvancedAnalysis {
+  const startTime = performance.now();
   // 1. First Penguins (Earliest release of each year - JST)
   const firstPenguinsMap = new Map<number, NormalizedPrototype>();
   // 2. Star Alignment (Exact same timestamp)
@@ -353,7 +359,7 @@ export function buildAdvancedAnalysis(
     maintenanceRatio:
       prototypes.length > 0 ? prototypesWithMaintenance / prototypes.length : 0,
   };
-  return {
+  const result: AdvancedAnalysis = {
     firstPenguins,
     starAlignments,
     anniversaryEffect,
@@ -365,4 +371,17 @@ export function buildAdvancedAnalysis(
     holyDay,
     longTermEvolution,
   };
+
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        outputs: Object.keys(result),
+      },
+      '[ANALYSIS]Advanced analysis computed',
+    );
+  }
+
+  return result;
 }

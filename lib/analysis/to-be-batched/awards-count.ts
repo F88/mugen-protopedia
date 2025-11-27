@@ -6,6 +6,10 @@
  */
 import type { NormalizedPrototype } from '../../api/prototypes';
 
+type MinimalLogger = {
+  debug: (payload: unknown, message?: string) => void;
+};
+
 /**
  * Counts how many prototypes include at least one award entry.
  *
@@ -15,8 +19,22 @@ import type { NormalizedPrototype } from '../../api/prototypes';
  */
 export function countPrototypesWithAwards(
   prototypes: NormalizedPrototype[],
+  options?: { logger?: MinimalLogger },
 ): number {
-  return prototypes.filter(
+  const startTime = performance.now();
+  const count = prototypes.filter(
     (prototype) => prototype.awards && prototype.awards.length > 0,
   ).length;
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        totalSamples: prototypes.length,
+        prototypesWithAwards: count,
+      },
+      '[ANALYSIS] Counted prototypes with awards',
+    );
+  }
+  return count;
 }

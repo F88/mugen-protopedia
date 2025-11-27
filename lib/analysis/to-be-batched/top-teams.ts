@@ -6,6 +6,10 @@
  */
 import type { NormalizedPrototype } from '../../api/prototypes';
 
+type MinimalLogger = {
+  debug: (payload: unknown, message?: string) => void;
+};
+
 /**
  * Tallies prototypes per team, trimming whitespace and returning the top teams alongside the raw counts map.
  *
@@ -13,10 +17,14 @@ import type { NormalizedPrototype } from '../../api/prototypes';
  * @param prototypes - Array of normalized prototypes to analyze.
  * @returns Object containing top teams array and complete team counts map.
  */
-export function buildTopTeams(prototypes: NormalizedPrototype[]): {
+export function buildTopTeams(
+  prototypes: NormalizedPrototype[],
+  options?: { logger?: MinimalLogger },
+): {
   topTeams: Array<{ team: string; count: number }>;
   teamCounts: Record<string, number>;
 } {
+  const startTime = performance.now();
   const teamCounts: Record<string, number> = {};
   prototypes.forEach((prototype) => {
     if (prototype.teamNm && prototype.teamNm.trim() !== '') {
@@ -28,5 +36,17 @@ export function buildTopTeams(prototypes: NormalizedPrototype[]): {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 30)
     .map(([team, count]) => ({ team, count }));
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        distinctTeams: Object.keys(teamCounts).length,
+        topTeamCount: topTeams.length,
+        totalSamples: prototypes.length,
+      },
+      '[ANALYSIS] Built top teams',
+    );
+  }
   return { topTeams, teamCounts };
 }

@@ -46,7 +46,11 @@ export type CreationStreak = {
 export function calculateCreationStreak(
   uniqueReleaseDates: Set<string>,
   now: Date,
+  options?: {
+    logger?: { debug: (payload: unknown, message?: string) => void };
+  },
 ): CreationStreak {
+  const startTime = performance.now();
   const sortedDates = Array.from(uniqueReleaseDates).sort();
   let currentStreak = 0;
   let longestStreak = 0;
@@ -96,12 +100,28 @@ export function calculateCreationStreak(
   } else {
     currentStreak = 0;
   }
-  return {
+  const result: CreationStreak = {
     currentStreak,
     longestStreak,
     longestStreakEndDate,
     totalActiveDays: sortedDates.length,
   };
+
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        totalDates: sortedDates.length,
+        currentStreak,
+        longestStreak,
+        longestStreakEndDate,
+      },
+      '[ANALYSIS] Calculated creation streak',
+    );
+  }
+
+  return result;
 }
 
 /**

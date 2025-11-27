@@ -79,8 +79,10 @@ export function analyzeCandidates(
   }
 
   // Compute timezone-sensitive anniversaries
-  const { birthdayPrototypes, newbornPrototypes } =
-    buildAnniversaries(candidates);
+  const { birthdayPrototypes, newbornPrototypes } = buildAnniversaries(
+    candidates,
+    { logger },
+  );
 
   logger.debug(
     {
@@ -90,12 +92,13 @@ export function analyzeCandidates(
         newbornCount: newbornPrototypes.length,
       },
     },
-    'Client-side anniversaries computed from candidates',
+    '[ANALYSIS] Client-side anniversaries computed from candidates',
   );
 
   const anniversaries = buildAnniversarySlice(
     birthdayPrototypes,
     newbornPrototypes,
+    { logger },
   );
 
   return { anniversaries };

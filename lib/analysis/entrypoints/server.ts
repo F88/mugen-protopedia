@@ -71,6 +71,7 @@ export function buildAnniversaryCandidates(
   referenceDate: Date,
   logger?: MinimalLogger,
 ): AnniversaryCandidates {
+  const startTime = performance.now();
   const uYear = referenceDate.getUTCFullYear();
   const uMonth = referenceDate.getUTCMonth(); // 0-based
   const uDate = referenceDate.getUTCDate();
@@ -125,10 +126,12 @@ export function buildAnniversaryCandidates(
 
     logger.debug(
       {
+        elapsedMs: Math.round((performance.now() - startTime) * 100) / 100,
         metadata,
         totals,
+        outputs: ['metadata', 'mmdd'],
       },
-      'Built anniversary candidates',
+      '[ANALYSIS] Built anniversary candidates',
     );
   }
 
@@ -224,27 +227,33 @@ export function analyzePrototypesForServer(
   // --- Metrics collection for individual analysis steps ---
 
   let stepStart = performance.now();
-  const statusDistribution = buildStatusDistribution(prototypes);
+  const statusDistribution = buildStatusDistribution(prototypes, { logger });
   metrics.statusDistribution = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  const prototypesWithAwards = countPrototypesWithAwards(prototypes, {
+    logger,
+  });
   metrics.prototypesWithAwards = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topTags, tagCounts } = buildTopTags(prototypes);
+  const { topTags, tagCounts } = buildTopTags(prototypes, { logger });
   metrics.topTags = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const averageAgeInDays = computeAverageAgeInDays(prototypes, now);
+  const averageAgeInDays = computeAverageAgeInDays(prototypes, now, {
+    logger,
+  });
   metrics.averageAgeInDays = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topTeams, teamCounts } = buildTopTeams(prototypes);
+  const { topTeams, teamCounts } = buildTopTeams(prototypes, { logger });
   metrics.topTeams = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topMaterials, materialCounts } = buildTopMaterials(prototypes);
+  const { topMaterials, materialCounts } = buildTopMaterials(prototypes, {
+    logger,
+  });
   metrics.topMaterials = performance.now() - stepStart;
 
   stepStart = performance.now();
@@ -266,14 +275,16 @@ export function analyzePrototypesForServer(
     updateTimeDistribution,
     updateDateDistribution,
     uniqueReleaseDates,
-  } = buildTimeDistributionsAndUniqueDates(prototypes);
+  } = buildTimeDistributionsAndUniqueDates(prototypes, { logger });
 
   metrics.makerRhythm = performance.now() - stepStart;
 
   stepStart = performance.now();
 
   // Calculate Streaks
-  const creationStreak = calculateCreationStreak(uniqueReleaseDates, now);
+  const creationStreak = calculateCreationStreak(uniqueReleaseDates, now, {
+    logger,
+  });
 
   metrics.creationStreak = performance.now() - stepStart;
 
@@ -291,7 +302,7 @@ export function analyzePrototypesForServer(
     weekendWarrior,
     holyDay,
     longTermEvolution,
-  } = buildAdvancedAnalysis(prototypes, topTags);
+  } = buildAdvancedAnalysis(prototypes, topTags, { logger });
 
   metrics.advancedAnalysis = performance.now() - stepStart;
 
@@ -328,7 +339,7 @@ export function analyzePrototypesForServer(
         metrics, // Add metrics to the summary log
       },
     },
-    'Server-side analysis completed (TZ-independent data only)',
+    '[ANALYSIS] Server-side analysis completed (TZ-independent data only)',
   );
 
   return {

@@ -1,5 +1,9 @@
 import { NormalizedPrototype } from '@/lib/api/prototypes';
 
+type MinimalLogger = {
+  debug: (payload: unknown, message?: string) => void;
+};
+
 export type TimeDistributionsAndUniqueDates = {
   createTimeDistribution: {
     dayOfWeek: number[];
@@ -44,7 +48,9 @@ export type TimeDistributionsAndUniqueDates = {
  */
 export function buildTimeDistributionsAndUniqueDates(
   prototypes: NormalizedPrototype[],
+  options?: { logger?: MinimalLogger },
 ): TimeDistributionsAndUniqueDates {
+  const startTime = performance.now();
   // JST offset in milliseconds
   const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
   const createDayOfWeek: number[] = new Array(7).fill(0);
@@ -156,7 +162,7 @@ export function buildTimeDistributionsAndUniqueDates(
     const dd = String(jstDate.getUTCDate()).padStart(2, '0');
     uniqueReleaseDates.add(`${yyyy}-${mm}-${dd}`);
   });
-  return {
+  const result: TimeDistributionsAndUniqueDates = {
     createTimeDistribution: {
       dayOfWeek: createDayOfWeek,
       hour: createHour,
@@ -181,4 +187,25 @@ export function buildTimeDistributionsAndUniqueDates(
     },
     uniqueReleaseDates,
   };
+
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        outputs: {
+          createTimeDistribution: Object.keys(result.createTimeDistribution),
+          createDateDistribution: Object.keys(result.createDateDistribution),
+          releaseTimeDistribution: Object.keys(result.releaseTimeDistribution),
+          releaseDateDistribution: Object.keys(result.releaseDateDistribution),
+          updateTimeDistribution: Object.keys(result.updateTimeDistribution),
+          updateDateDistribution: Object.keys(result.updateDateDistribution),
+          uniqueReleaseDates: 'Set<string>',
+        },
+      },
+      '[ANALYSIS] Time distributions computed',
+    );
+  }
+
+  return result;
 }

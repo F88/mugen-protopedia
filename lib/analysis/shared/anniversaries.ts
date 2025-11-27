@@ -63,10 +63,14 @@ export function buildAnniversaries(
     title?: string;
     prototypeNm?: string;
   }>,
+  options?: {
+    logger?: { debug: (payload: unknown, message?: string) => void };
+  },
 ): {
   birthdayPrototypes: BirthdayPrototype[];
   newbornPrototypes: NewbornPrototype[];
 } {
+  const startTime = performance.now();
   const getTitle = (p: { title?: string; prototypeNm?: string }): string =>
     p.title ?? p.prototypeNm ?? '';
 
@@ -97,6 +101,19 @@ export function buildAnniversaries(
       releaseDate: prototype.releaseDate,
     }));
 
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        inputCount: prototypes.length,
+        birthdayCount: birthdayPrototypes.length,
+        newbornCount: newbornPrototypes.length,
+      },
+      '[ANALYSIS] Built anniversaries lists',
+    );
+  }
+
   return { birthdayPrototypes, newbornPrototypes };
 }
 
@@ -109,11 +126,29 @@ export function buildAnniversaries(
 export function buildAnniversarySlice(
   birthdayPrototypes: BirthdayPrototype[],
   newbornPrototypes: NewbornPrototype[],
+  options?: {
+    logger?: { debug: (payload: unknown, message?: string) => void };
+  },
 ): AnniversariesSlice {
-  return {
+  const startTime = performance.now();
+  const slice: AnniversariesSlice = {
     birthdayCount: birthdayPrototypes.length,
     birthdayPrototypes,
     newbornCount: newbornPrototypes.length,
     newbornPrototypes,
   };
+
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        birthdayCount: slice.birthdayCount,
+        newbornCount: slice.newbornCount,
+      },
+      '[ANALYSIS] Built anniversary slice',
+    );
+  }
+
+  return slice;
 }

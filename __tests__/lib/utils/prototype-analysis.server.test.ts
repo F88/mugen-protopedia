@@ -582,7 +582,9 @@ describe('analyzePrototypesForServer - diagnostics and edge cases', () => {
           datasetMaxISO: '2024-07-20T12:34:56.000Z',
         }),
       }),
-      'Server-side analysis completed (TZ-independent data only)',
+      expect.stringContaining(
+        'Server-side analysis completed (TZ-independent data only)',
+      ),
     );
   });
 });
@@ -946,7 +948,7 @@ describe('buildAnniversaryCandidates (direct unit tests)', () => {
             candidates: 2,
           }),
         }),
-        'Built anniversary candidates',
+        expect.stringContaining('Built anniversary candidates'),
       );
     });
   });
