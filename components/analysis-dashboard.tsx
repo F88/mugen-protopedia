@@ -740,7 +740,7 @@ export function AnalysisDashboard({
 
           {/* Section 4: Maker's Rhythm */}
           <section className="space-y-4">
-            <SectionTitle>🕰️ Developer&apos;s Rhythm</SectionTitle>
+            <SectionTitle>🕰️ Maker&apos;s Rhythm</SectionTitle>
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/50">
                 <h4 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
