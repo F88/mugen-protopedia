@@ -92,6 +92,24 @@ function StatusDistribution({
   // Sort by status ID for the stacked bar to show a logical progression
   const sortedForBar = [...entries].sort((a, b) => a.status - b.status);
 
+  const renderNarrowDetail = (
+    status: number,
+    count: number,
+    percentage: number,
+  ) => (
+    <div className="space-y-2">
+      <div className="flex items-center justify-center gap-3">
+        <StatusBadge status={status} />
+        <span className="text-xs text-gray-500">
+          ({percentage.toFixed(1)}%)
+        </span>
+      </div>
+      <div className="text-xl font-medium text-center">
+        {count.toLocaleString()}
+      </div>
+    </div>
+  );
+
   if (entries.length === 0) {
     return (
       <div className="text-sm text-gray-500">No status data available</div>
@@ -139,23 +157,17 @@ function StatusDistribution({
 
       {/* Detailed List */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {entries.map(({ status, count, percentage }) => (
-            <div
-              key={status}
-              className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <StatusBadge status={status} />
-                <span className="text-xs text-gray-500">
-                  ({percentage.toFixed(1)}%)
-                </span>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {entries.map(({ status, count, percentage }) => {
+            return (
+              <div
+                key={status}
+                className="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800/60"
+              >
+                {renderNarrowDetail(status, count, percentage)}
               </div>
-              <span className="text-xl font-medium text-center md:text-right">
-                {count.toLocaleString()}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
