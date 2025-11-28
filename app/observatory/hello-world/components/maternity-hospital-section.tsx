@@ -94,7 +94,7 @@ export function MaternityHospitalSection({
               Top Stage
             </div>
             <div
-              className="text-2xl font-bold text-gray-800 dark:text-gray-100 max-w-[200px]"
+              className="text-2xl font-bold text-gray-800 dark:text-gray-100"
               title={topEvents[0]?.event}
             >
               {topEvents[0]?.event || 'None'}
