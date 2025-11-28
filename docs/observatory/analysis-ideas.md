@@ -17,9 +17,9 @@ The core philosophy is to provide unique insights that differ from the official 
 
 ### Core Philosophy
 
-1.  **Respect the "Release":** Place the highest value on the fact that a prototype was released.
-2.  **Beyond Search:** Provide analytical insights into "Time," "Trends," and "Community Dynamics," rather than just search or categorization.
-3.  **Visualize History:** Visualize the "Ecology" and "History" of the prototyping community.
+1. **Respect the "Release":** Place the highest value on the fact that a prototype was released.
+2. **Beyond Search:** Provide analytical insights into "Time," "Trends," and "Community Dynamics," rather than just search or categorization.
+3. **Visualize History:** Visualize the "Ecology" and "History" of the prototyping community.
 
 ### Presentation Strategy
 
@@ -423,37 +423,37 @@ The core philosophy is to provide unique insights that differ from the official 
 
 #### Unacceptable ideas
 
-1.  **Comment Volume Analysis (コメント数分析)**
+1. **Comment Volume Analysis (コメント数分析)**
     - **Reason:**
         - The overall trend of the data shows that the number of comments is not very high.
         - Comments are a form of evaluation for a work, and increasing comment count itself should not be a target for gamification (as it may encourage spam-like behavior).
         - The "quality of discussion" cannot be measured by quantity alone.
 
-2.  **The Refined Prototype (磨き抜かれた作品)**
+2. **The Refined Prototype (磨き抜かれた作品)**
     - **Reason:**
         - An investigation of the `revision` field in the sample data (`tools/sample-data/20251115-002631-prototypes-10000.json`) revealed that the value is `0` for almost all prototypes, meaning it does not contain significant data useful for analysis.
 
-3.  **License Type Analysis (ライセンスの種類分析)**
+3. **License Type Analysis (ライセンスの種類分析)**
     - **Reason:**
         - `licenseType` refers to the license format on the ProtoPedia site and does not represent the specific OSS license of the work itself. Therefore, it is not suitable for analyzing the "sharing culture" of works.
 
-4.  **Video/Link Presence Analysis (動画・リンク有無分析)**
+4. **Video/Link Presence Analysis (動画・リンク有無分析)**
     - **Reason:**
         - The `videoUrl` and `relatedLink` fields only indicate the presence or absence of a video/link and do not allow for in-depth analysis of its content or quality. Analyzing the mere existence of videos or links is unlikely to lead to deep insights about the work.
 
-5.  **The Social Graph (チームの流動性分析)**
+5. **The Social Graph (チームの流動性分析)**
     - **Reason:**
         - Analysis of user relationships and activity patterns may touch upon individual privacy and sensitive information. Therefore, its priority is set low at this time.
 
-6.  **Thanks Flag Analysis (感謝フラグ分析)**
+6. **Thanks Flag Analysis (感謝フラグ分析)**
     - **Reason:**
         - The nature of `thanksFlg` data is not suitable for analysis (e.g., values are uniform or lack meaningful variations). Detailed analysis would require additional data or background information.
 
-7.  **The Birth Weight (出生体重)**
+7. **The Birth Weight (出生体重)**
     - **Reason:**
         - The API only provides the latest `description` and `tags`, and no snapshot data from the time of release (birth) is available. Therefore, it is impossible to accurately analyze the initial volume of the work.
 
-8.  **The Global Village (地球村 / 地域分析)**
+8. **The Global Village (地球村 / 地域分析)**
     - **Reason:**
         - Analysis based on place names risks inadvertently revealing developers' residential or activity locations. Therefore, it will not be implemented from the perspective of privacy protection.
 
