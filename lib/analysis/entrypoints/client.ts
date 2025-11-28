@@ -9,18 +9,8 @@ import {
 import type {
   AnniversaryCandidatePrototype,
   ClientPrototypeAnalysis,
+  MinimalLogger,
 } from '@/lib/analysis/types';
-
-/**
- * Minimal logger interface for dependency injection
- */
-type MinimalLogger = {
-  debug: (...args: unknown[]) => void;
-  info: (...args: unknown[]) => void;
-  warn: (...args: unknown[]) => void;
-  error: (...args: unknown[]) => void;
-  child: (bindings: Record<string, unknown>) => MinimalLogger;
-};
 
 /**
  * Analyzes anniversary candidates in the user's local timezone.

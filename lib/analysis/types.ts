@@ -10,6 +10,19 @@
  */
 
 /**
+ * Minimal logger contract used across analysis modules for dependency injection.
+ *
+ * Mirrors the subset of pino-style loggers we rely on while remaining framework agnostic.
+ */
+export interface MinimalLogger {
+  debug: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  child: (bindings: Record<string, unknown>) => MinimalLogger;
+}
+
+/**
  * Represents a prototype celebrating a birthday "today".
  *
  * @property years - Age in years; depends on the timezone where

@@ -116,7 +116,7 @@ export function calculateCreationStreak(
     lastRelevantDate === todayJSTStr ||
     lastRelevantDate === yesterdayJSTStr
   ) {
-    currentStreak = streakByDate.get(lastRelevantDate) ?? 0;
+    currentStreak = streakByDate?.get(lastRelevantDate) ?? 0;
   } else {
     currentStreak = 0;
   }

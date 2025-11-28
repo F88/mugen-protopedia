@@ -7,15 +7,12 @@
  */
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { MinimalLogger } from '../types';
 
 import {
   createLifecycleMomentContext,
   createPrototypeLifecycleContext,
 } from '../lifecycle';
-
-type MinimalLogger = {
-  debug: (payload: unknown, message?: string) => void;
-};
 
 export type CoreSummaries = {
   statusDistribution: Record<string, number>;
