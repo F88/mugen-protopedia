@@ -8,18 +8,18 @@ import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 import { clampPercent } from '@/lib/utils/math';
 
-type BirthPulseSectionProps = {
-  releaseTimeDistribution: {
+type AfterglowRhythmSectionProps = {
+  updateTimeDistribution: {
     dayOfWeek: number[];
     hour: number[];
     heatmap?: number[][];
   };
-  releaseDateDistribution: {
+  updateDateDistribution: {
     month: number[];
   };
-  maxReleaseDayCount: number;
-  maxReleaseHourCount: number;
-  maxReleaseMonthCount: number;
+  maxUpdateDayCount: number;
+  maxUpdateHourCount: number;
+  maxUpdateMonthCount: number;
   days: string[];
   months: string[];
 };
@@ -186,107 +186,110 @@ function renderMonthlyCycle({
   );
 }
 
-export function BirthPulseSection({
-  releaseTimeDistribution,
-  releaseDateDistribution,
-  maxReleaseDayCount,
-  maxReleaseHourCount,
-  maxReleaseMonthCount,
+export function AfterglowRhythmSection({
+  updateTimeDistribution,
+  updateDateDistribution,
+  maxUpdateDayCount,
+  maxUpdateHourCount,
+  maxUpdateMonthCount,
   days,
   months,
-}: BirthPulseSectionProps) {
+}: AfterglowRhythmSectionProps) {
   return (
     <ObservatorySection
-      theme={helloWorldTheme.sections.birthPulse.theme}
+      theme={helloWorldTheme.sections.afterglowRhythm.theme}
       icon={<IconClock />}
-      title="Birth Pulse"
-      description="Follow the cadence of fresh releases and witness when new ideas burst into life."
+      title="Afterglow Rhythm"
+      description="Trace the enduring pulse of prototypes kept alive through steady updates."
       sourceNote={
         <>
-          <strong>Release Date</strong> of all prototypes (Historical Data).
+          <strong>Update Date</strong> of all prototypes (Historical Data).
         </>
       }
       visualContent={
         <div className="relative w-32 h-32 flex items-center justify-center">
-          <div className="absolute inset-0 bg-orange-400/20 rounded-full animate-ping opacity-20 duration-3000"></div>
-          <div className="absolute inset-2 bg-yellow-400/20 rounded-full animate-pulse opacity-30"></div>
-          <div className="text-6xl filter drop-shadow-lg">⏰</div>
+          <div className="absolute inset-0 bg-blue-400/20 rounded-full animate-ping opacity-20 duration-3000"></div>
+          <div className="absolute inset-2 bg-indigo-400/20 rounded-full animate-pulse opacity-30"></div>
+          <div className="text-6xl filter drop-shadow-lg">💡</div>
         </div>
       }
       narrative={{
         title: (
           <>
-            <span className="text-xl">🕰️</span> The Creator&apos;s Heartbeat
+            <span className="text-xl">💡</span> The Sustainer&apos;s Whisper
           </>
         ),
         content: (
           <div className="grid md:grid-cols-2 gap-8">
             <div>
               <p className="mb-2 font-semibold text-gray-800 dark:text-gray-200">
-                The Weekend Warriors
+                The Rekindlers
               </p>
               <p>
-                New releases spike across the weekend, where passion overrides
-                obligation and Makers usher in fresh ideas as the world exhales
-                from the work week.
+                Updates bring dormant ideas back to life. Whenever makers
+                rekindle a project, the graph brightens, proving that the flame
+                never truly went out.
               </p>
             </div>
             <div>
               <p className="mb-2 font-semibold text-gray-800 dark:text-gray-200">
-                The Midnight Oil
+                The Pulse Keepers
               </p>
               <p>
-                Late-night surges highlight inspiration striking in the quiet of
-                night. While most of the world sleeps, the boldest experiments
-                ignite and prototypes take their very first breath.
+                Maintenance, polish, and iteration keep prototypes breathing.
+                Watch how the pulses stay steady long after the initial launch
+                excitement fades.
               </p>
             </div>
           </div>
         ),
       }}
-      delay={helloWorldTheme.sections.birthPulse.delay}
+      delay={helloWorldTheme.sections.afterglowRhythm.delay}
     >
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         {renderDailyCycle({
-          counts: releaseTimeDistribution?.hour ?? [],
-          maxCount: maxReleaseHourCount,
+          counts: updateTimeDistribution?.hour ?? [],
+          maxCount: maxUpdateHourCount,
           containerClassName:
-            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30',
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30',
           barClassName:
             'w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400',
           title: 'Daily Cycle (JST)',
           footerLabels: ['00:00', '06:00', '12:00', '18:00', '23:00'],
         })}
         {renderWeeklyCycle({
-          counts: releaseTimeDistribution?.dayOfWeek ?? [],
-          maxCount: maxReleaseDayCount,
+          counts: updateTimeDistribution?.dayOfWeek ?? [],
+          maxCount: maxUpdateDayCount,
           containerClassName:
-            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30',
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30',
           barClassName:
-            'w-full bg-orange-400 dark:bg-orange-500 rounded-t-md transition-all duration-500 group-hover:bg-orange-500 dark:group-hover:bg-orange-400',
+            'w-full bg-blue-400 dark:bg-blue-500 rounded-t-md transition-all duration-500 group-hover:bg-blue-500 dark:group-hover:bg-blue-400',
           days,
           title: 'Weekly Pulse',
-          unitLabel: 'releases',
+          unitLabel: 'updates',
         })}
         {renderMonthlyCycle({
-          counts: releaseDateDistribution?.month ?? [],
-          maxCount: maxReleaseMonthCount,
+          counts: updateDateDistribution?.month ?? [],
+          maxCount: maxUpdateMonthCount,
           containerClassName:
-            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30',
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30',
           barClassName:
-            'w-full bg-pink-400 dark:bg-pink-500 rounded-t-md transition-all duration-500 group-hover:bg-pink-500 dark:group-hover:bg-pink-400',
+            'w-full bg-cyan-400 dark:bg-cyan-500 rounded-t-md transition-all duration-500 group-hover:bg-cyan-500 dark:group-hover:bg-cyan-400',
           months,
-          title: 'Monthly Pulse (Birth Season)',
-          unitLabel: 'releases',
+          title: 'Monthly Pulse (Care Season)',
+          unitLabel: 'updates',
         })}
       </div>
 
-      {releaseTimeDistribution.heatmap && (
-        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
+      {updateTimeDistribution.heatmap && (
+        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800/30">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Weekly Release Activity (JST)
+            Weekly Update Activity (JST)
           </h3>
-          <ActivityHeatmap heatmap={releaseTimeDistribution.heatmap} />
+          <ActivityHeatmap
+            heatmap={updateTimeDistribution.heatmap}
+            className="[&_.bg-green-200]:bg-blue-200 [&_.bg-green-300]:bg-blue-300 [&_.bg-green-400]:bg-blue-400 [&_.bg-green-500]:bg-blue-500 [&_.dark\:bg-green-900\/40]:dark:bg-blue-900/40 [&_.dark\:bg-green-800\/60]:dark:bg-blue-800/60 [&_.dark\:bg-green-700\/80]:dark:bg-blue-700/80 [&_.dark\:bg-green-600]:dark:bg-blue-600"
+          />
         </div>
       )}
     </ObservatorySection>
