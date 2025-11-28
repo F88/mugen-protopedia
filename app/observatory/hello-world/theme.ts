@@ -65,9 +65,13 @@ export const helloWorldTheme = {
       theme: 'lime' as const,
       delay: 'delay-100',
     },
-    makersRhythm: {
+    birthPulse: {
       theme: 'orange' as const,
       delay: 'delay-200',
+    },
+    afterglowRhythm: {
+      theme: 'blue' as const,
+      delay: 'delay-[210ms]',
     },
     eternalFlame: {
       theme: 'red' as const,
