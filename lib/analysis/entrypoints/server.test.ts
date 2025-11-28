@@ -203,10 +203,8 @@ describe('analyzePrototypesForServer', () => {
       maternityHospital: { topEvents: [], independentRatio: 0 },
       powerOfDeadlines: { spikes: [] },
       weekendWarrior: {
-        sundaySprintCount: 0,
-        midnightCount: 0,
-        daytimeCount: 0,
-        totalCount: 0,
+        weekendHourlyCounts: [],
+        totalWeekendCount: 0,
       },
       holyDay: { topDays: [] },
       longTermEvolution: {
@@ -295,7 +293,10 @@ describe('analyzePrototypesForServer', () => {
     expect(calculateCreationStreakMock).toHaveBeenCalledWith(
       uniqueDates.uniqueReleaseDates,
       referenceDate,
-      { logger: childLogger },
+      {
+        logger: childLogger,
+        dailyCounts: timeDistributionsResult.releaseDateDistribution.daily,
+      },
     );
     expect(buildAdvancedAnalysisMock).toHaveBeenCalledWith(
       prototypes,

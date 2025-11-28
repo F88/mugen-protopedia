@@ -88,10 +88,8 @@ export type AdvancedAnalysis = {
    * Weekend and late-night release habits summary.
    */
   weekendWarrior: {
-    sundaySprintCount: number;
-    midnightCount: number;
-    daytimeCount: number;
-    totalCount: number;
+    weekendHourlyCounts: number[];
+    totalWeekendCount: number;
   };
   /**
    * Top MM-DD release clusters across the catalog.
@@ -213,10 +211,13 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   let independentCount = 0;
   let totalWithEventStatus = 0;
   const dailyReleaseCounts: Record<string, number> = {};
-  let sundaySprintCount = 0;
-  let midnightCount = 0;
-  let daytimeCount = 0;
-  let totalReleaseCount = 0;
+  // Fri 18:00 - Mon 24:00 (Total 78 hours)
+  // 0-5: Fri 18-23
+  // 6-29: Sat 00-23
+  // 30-53: Sun 00-23
+  // 54-77: Mon 00-23
+  const weekendHourlyCounts = new Array(78).fill(0);
+  let totalWeekendCount = 0;
   const holyDayCounts: Record<string, number> = {};
   const maintenanceData: Array<{
     id: number;
@@ -368,21 +369,29 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   }
 
   function collectWeekendWarrior(release: LifecycleMomentContext) {
-    totalReleaseCount += 1;
-
-    if (
-      (release.weekday === 0 && release.hour >= 20) ||
-      (release.weekday === 1 && release.hour < 5)
-    ) {
-      sundaySprintCount += 1;
+    // Fri (5) 18:00 - 23:00
+    if (release.weekday === 5 && release.hour >= 18) {
+      const index = release.hour - 18; // 0-5
+      weekendHourlyCounts[index] += 1;
+      totalWeekendCount += 1;
     }
-
-    if (release.hour >= 23 || release.hour < 4) {
-      midnightCount += 1;
+    // Sat (6) 00:00 - 23:00
+    else if (release.weekday === 6) {
+      const index = 6 + release.hour; // 6-29
+      weekendHourlyCounts[index] += 1;
+      totalWeekendCount += 1;
     }
-
-    if (release.hour >= 9 && release.hour < 18) {
-      daytimeCount += 1;
+    // Sun (0) 00:00 - 23:00
+    else if (release.weekday === 0) {
+      const index = 30 + release.hour; // 30-53
+      weekendHourlyCounts[index] += 1;
+      totalWeekendCount += 1;
+    }
+    // Mon (1) 00:00 - 23:00
+    else if (release.weekday === 1) {
+      const index = 54 + release.hour; // 54-77
+      weekendHourlyCounts[index] += 1;
+      totalWeekendCount += 1;
     }
   }
 
@@ -524,10 +533,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
   function finalizeWeekendWarrior() {
     return {
-      sundaySprintCount,
-      midnightCount,
-      daytimeCount,
-      totalCount: totalReleaseCount,
+      weekendHourlyCounts,
+      totalWeekendCount,
     };
   }
 

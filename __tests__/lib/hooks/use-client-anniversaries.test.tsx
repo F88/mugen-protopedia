@@ -54,10 +54,8 @@ describe('useClientAnniversaries', () => {
     maternityHospital: { topEvents: [], independentRatio: 0 },
     powerOfDeadlines: { spikes: [] },
     weekendWarrior: {
-      sundaySprintCount: 0,
-      midnightCount: 0,
-      daytimeCount: 0,
-      totalCount: 0,
+      weekendHourlyCounts: [],
+      totalWeekendCount: 0,
     },
     holyDay: { topDays: [] },
     longTermEvolution: {

@@ -274,14 +274,18 @@ export type ServerPrototypeAnalysis = {
 
   /** The Weekend Warrior's Crunch analysis */
   weekendWarrior: {
-    /** Count of prototypes released during Sunday 20:00 - Monday 05:00 */
-    sundaySprintCount: number;
-    /** Count of prototypes released between 23:00 - 04:00 */
-    midnightCount: number;
-    /** Count of prototypes released during daytime (09:00 - 18:00) */
-    daytimeCount: number;
-    /** Total count of prototypes released during the weekend warrior time slots */
-    totalCount: number;
+    /**
+     * Hourly release counts for the "Extended Weekend Realm" (Fri 18:00 - Mon 24:00).
+     * Total 78 hours.
+     * Index 0 = Fri 18:00
+     * Index 6 = Sat 00:00
+     * Index 30 = Sun 00:00
+     * Index 54 = Mon 00:00
+     * Index 77 = Mon 23:00
+     */
+    weekendHourlyCounts: number[];
+    /** Total count of prototypes released during this 78-hour window */
+    totalWeekendCount: number;
   };
 
   /** The Holy Day analysis */

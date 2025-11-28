@@ -235,29 +235,28 @@ export default async function HelloWorldPage() {
             longestStreakPeriod={longestStreakPeriod}
           />
 
+          {/* With events */}
           <MaternityHospitalSection maternityHospital={maternityHospital} />
-
           <PowerOfDeadlinesSection
             powerOfDeadlines={powerOfDeadlines}
             dailyReleaseCounts={releaseDateDistribution.daily}
           />
-
           <WeekendWarriorSection weekendWarrior={weekendWarrior} />
 
-          <LaborOfLoveSection laborOfLove={laborOfLove} />
-
-          <EarlyAdoptersSection adopters={earlyAdopters} />
-
+          {/* Date based */}
+          <StarAlignmentSection alignments={starAlignments} />
+          <HolyDaySection holyDay={holyDay} />
+          <AnniversaryEffectSection holidays={anniversaryEffect} />
           <FirstPenguinSection penguins={firstPenguins} />
 
-          <StarAlignmentSection alignments={starAlignments} />
-
-          <HolyDaySection holyDay={holyDay} />
-
-          <AnniversaryEffectSection holidays={anniversaryEffect} />
-
+          {/* Term based */}
+          <LaborOfLoveSection laborOfLove={laborOfLove} />
           <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
 
+          {/* Tag based   */}
+          <EarlyAdoptersSection adopters={earlyAdopters} />
+
+          {/* Material based   */}
           <GatewayDrugSection topMaterials={topMaterials} />
         </div>
       </main>

@@ -155,11 +155,9 @@ describe('buildAdvancedAnalysis', () => {
     });
 
     expect(result.weekendWarrior).toMatchObject({
-      sundaySprintCount: 1,
-      midnightCount: 3,
-      daytimeCount: 1,
-      totalCount: 4,
+      totalWeekendCount: 1,
     });
+    expect(result.weekendWarrior.weekendHourlyCounts[54]).toBe(1);
 
     expect(result.holyDay.topDays[0]).toMatchObject({
       date: '07-07',
