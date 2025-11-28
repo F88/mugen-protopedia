@@ -70,6 +70,7 @@ export function calculateCreationStreak(
   let longestStreakEndDate: string | null = null;
   let tempStreak = 0;
   let prevDateVal: number | null = null;
+  const streakByDate = new Map<string, number>();
   // Helper to parse YYYY-MM-DD to timestamp (UTC midnight, but represents JST date)
   const parseDateStr = (str: string) => {
     const [y, m, d] = str.split('-').map(Number);
@@ -95,6 +96,7 @@ export function calculateCreationStreak(
       }
     }
     prevDateVal = dateVal;
+    streakByDate.set(dateStr, tempStreak);
   }
   if (tempStreak > longestStreak) {
     longestStreak = tempStreak;
@@ -107,9 +109,14 @@ export function calculateCreationStreak(
   const todayJSTStr = nowJST.toISOString().split('T')[0];
   const yesterdayJST = new Date(nowJST.getTime() - 24 * 60 * 60 * 1000);
   const yesterdayJSTStr = yesterdayJST.toISOString().split('T')[0];
-  const lastReleaseDate = sortedDates[sortedDates.length - 1];
-  if (lastReleaseDate === todayJSTStr || lastReleaseDate === yesterdayJSTStr) {
-    currentStreak = tempStreak;
+  const lastRelevantDate = [...sortedDates]
+    .reverse()
+    .find((dateStr) => dateStr <= todayJSTStr);
+  if (
+    lastRelevantDate === todayJSTStr ||
+    lastRelevantDate === yesterdayJSTStr
+  ) {
+    currentStreak = streakByDate.get(lastRelevantDate) ?? 0;
   } else {
     currentStreak = 0;
   }

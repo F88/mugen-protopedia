@@ -163,7 +163,13 @@ export function buildAnniversaryCandidates(
  */
 export function analyzePrototypesForServer(
   prototypes: NormalizedPrototype[],
-  options?: { logger?: MinimalLogger; referenceDate?: Date },
+  options?: {
+    logger?: MinimalLogger;
+    referenceDate?: Date;
+    overrides?: {
+      buildAnniversaryCandidates?: typeof buildAnniversaryCandidates;
+    };
+  },
 ): ServerPrototypeAnalysis {
   const base: MinimalLogger = options?.logger ?? serverLogger;
   const logger = base.child({ action: 'analyzePrototypesForServer' });
@@ -171,6 +177,9 @@ export function analyzePrototypesForServer(
 
   const now = options?.referenceDate ?? new Date();
   const metrics: Record<string, number> = {};
+  const overrides = options?.overrides;
+  const buildAnniversaryCandidatesFn =
+    overrides?.buildAnniversaryCandidates ?? buildAnniversaryCandidates;
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
@@ -262,7 +271,7 @@ export function analyzePrototypesForServer(
   metrics.topMaterials = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const anniversaryCandidates = buildAnniversaryCandidates(
+  const anniversaryCandidates = buildAnniversaryCandidatesFn(
     prototypes,
     now,
     logger,
