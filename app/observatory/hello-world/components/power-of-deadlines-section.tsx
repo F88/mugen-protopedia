@@ -18,10 +18,7 @@ export function PowerOfDeadlinesSection({
   const otherSpikes = spikes.slice(1, 7); // Top 2-7
 
   const getDailyCount = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // 1-12
-    const day = date.getDate(); // 1-31
+    const [year, month, day] = dateStr.split('-').map(Number);
     return dailyReleaseCounts[year]?.[month]?.[day] || 0;
   };
 
