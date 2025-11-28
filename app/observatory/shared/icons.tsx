@@ -11,6 +11,7 @@ export const IconGift = () => <span aria-hidden="true">🎁</span>;
 export const IconTool = () => <span aria-hidden="true">🛠️</span>;
 export const IconHeart = () => <span aria-hidden="true">❤️</span>;
 export const IconHospital = () => <span aria-hidden="true">🏥</span>;
+export const IconGarage = () => <span aria-hidden="true">🎸</span>;
 export const IconDeadline = () => <span aria-hidden="true">💣</span>;
 export const IconWarrior = () => <span aria-hidden="true">⚔️</span>;
 export const IconHoly = () => <span aria-hidden="true">🙌</span>;
