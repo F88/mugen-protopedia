@@ -35,6 +35,7 @@ import { NewbornsSection } from './components/newborns-section';
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
 import { StarAlignmentSection } from './components/star-alignment-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
+import { StarAlignmentSection2 } from './components/star-alignment-section-2';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
@@ -245,6 +246,7 @@ export default async function HelloWorldPage() {
 
           {/* Date based */}
           <StarAlignmentSection alignments={starAlignments} />
+          <StarAlignmentSection2 alignments={starAlignments} />
           <HolyDaySection holyDay={holyDay} />
           <AnniversaryEffectSection holidays={anniversaryEffect} />
 
