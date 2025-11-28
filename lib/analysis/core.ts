@@ -3,9 +3,15 @@ export {
   type AdvancedAnalysis,
 } from './batch/build-advanced-analysis';
 export {
-  buildTimeDistributionsAndUniqueDates,
-  type TimeDistributionsAndUniqueDates,
-} from './batch/build-time-distributions-and-unique-dates';
+  buildTimeDistributions,
+  type TimeDistributions,
+} from './batch/build-time-distributions';
+export {
+  createDateBasedReleaseInsights,
+  trackDateBasedReleaseInsights,
+  buildDateBasedReleaseInsights,
+  type DateBasedReleaseInsights,
+} from './batch/collect-unique-release-dates';
 
 /**
  * @fileoverview
@@ -19,12 +25,13 @@ export {
  */
 
 /**
- * Computes release and update time distributions (heatmap data) and collects unique release dates.
+ * Computes release and update time distributions (heatmap data) for Maker's
+ * Rhythm visualizations.
  *
  * Runs on: server or UI (timezone-agnostic logic, but hardcoded to JST for specific analysis).
  *
  * @param prototypes - Array of normalized prototypes to analyze.
- * @returns Object containing release/update distributions and unique release dates set.
+ * @returns Aggregated time distributions.
  */
 
 /**

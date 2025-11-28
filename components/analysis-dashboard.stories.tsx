@@ -13,7 +13,8 @@ import {
   computeAverageAgeInDays,
   countPrototypesWithAwards,
   buildTopMaterials,
-  buildTimeDistributionsAndUniqueDates,
+  buildTimeDistributions,
+  buildDateBasedReleaseInsights,
   calculateCreationStreak,
   buildAdvancedAnalysis,
 } from '@/lib/analysis';
@@ -39,8 +40,8 @@ function analyzePrototypes(
     releaseDateDistribution,
     updateTimeDistribution,
     updateDateDistribution,
-    uniqueReleaseDates,
-  } = buildTimeDistributionsAndUniqueDates(prototypes);
+  } = buildTimeDistributions(prototypes);
+  const { uniqueReleaseDates } = buildDateBasedReleaseInsights(prototypes);
   const creationStreak = calculateCreationStreak(
     uniqueReleaseDates,
     referenceDate,

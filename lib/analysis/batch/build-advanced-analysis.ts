@@ -1,10 +1,24 @@
+/**
+ * @fileoverview
+ * Batch-oriented prototype insights covering advanced storytelling metrics.
+ *
+ * Runs where timezone is stable (server or UI) but applies JST conversions for
+ * calendar-grouped aggregations to keep reporting consistent across platforms.
+ */
+
 import { NormalizedPrototype } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
 };
 
+/**
+ * Story-driven batch insights built from a single traversal over normalized prototypes.
+ */
 export type AdvancedAnalysis = {
+  /**
+   * First release of each year (JST) highlighting pioneering creators.
+   */
   firstPenguins: Array<{
     year: number;
     prototype: {
@@ -14,22 +28,34 @@ export type AdvancedAnalysis = {
       user: string;
     };
   }>;
+  /**
+   * Identical release timestamps that signal coordinated launches.
+   */
   starAlignments: Array<{
     timestamp: string;
     prototypes: Array<{ id: number; title: string }>;
   }>;
+  /**
+   * Special day releases (e.g. Tanabata, Halloween) with recent examples.
+   */
   anniversaryEffect: Array<{
     name: string;
     date: string;
     count: number;
     examples: Array<{ id: number; title: string; year: number }>;
   }>;
+  /**
+   * Earliest adopters for top tags, capturing trendsetters.
+   */
   earlyAdopters: Array<{
     tag: string;
     prototypeId: number;
     prototypeTitle: string;
     releaseDate: string;
   }>;
+  /**
+   * Gestation durations from creation to release and category distribution.
+   */
   laborOfLove: {
     longestGestation: Array<{
       id: number;
@@ -40,22 +66,37 @@ export type AdvancedAnalysis = {
     }>;
     distribution: Record<string, number>;
   };
+  /**
+   * Event participation mix and independent creators ratio.
+   */
   maternityHospital: {
     topEvents: Array<{ event: string; count: number }>;
     independentRatio: number;
   };
+  /**
+   * Daily release spikes scored by volume.
+   */
   powerOfDeadlines: {
     spikes: Array<{ date: string; count: number; score: number }>;
   };
+  /**
+   * Weekend and late-night release habits summary.
+   */
   weekendWarrior: {
     sundaySprintCount: number;
     midnightCount: number;
     daytimeCount: number;
     totalCount: number;
   };
+  /**
+   * Top MM-DD release clusters across the catalog.
+   */
   holyDay: {
     topDays: Array<{ date: string; count: number }>;
   };
+  /**
+   * Maintenance longevity statistics after release.
+   */
   longTermEvolution: {
     longestMaintenance: Array<{
       id: number;
@@ -76,6 +117,7 @@ export type AdvancedAnalysis = {
  *
  * @param prototypes - Array of normalized prototypes to analyze.
  * @param topTags - Array of top tags for Early Adopter analysis.
+ * @param options - Optional logger injection for telemetry instrumentation.
  * @returns Object containing advanced analysis results.
  */
 export function buildAdvancedAnalysis(

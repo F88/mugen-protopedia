@@ -1,55 +1,87 @@
+/**
+ * @fileoverview
+ * Batch utilities that summarize prototype activity timelines using
+ * JST-aligned buckets for consistent reporting.
+ */
+
 import { NormalizedPrototype } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
 };
 
-export type TimeDistributionsAndUniqueDates = {
-  createTimeDistribution: {
-    dayOfWeek: number[];
-    hour: number[];
-    heatmap: number[][];
-  };
+/**
+ * Maker's Rhythm heatmaps and bucketed counts separated from date-keyed insights.
+ */
+export type TimeDistributions = {
+  /**
+   * Maker's Rhythm (create) grouped by month/year/day (JST).
+   * - `month`: index 0-11 → Jan-Dec counts.
+   * - `year`: YYYY → total created that year.
+   * - `daily`: YYYY -> MM -> DD → granular bucket for heatmaps.
+   */
   createDateDistribution: {
     month: number[];
     year: Record<number, number>;
     daily: Record<number, Record<number, Record<number, number>>>;
   };
-  releaseTimeDistribution: {
-    dayOfWeek: number[];
-    hour: number[];
-    heatmap: number[][];
-  };
-  releaseDateDistribution: {
-    month: number[];
-    year: Record<number, number>;
-    daily: Record<number, Record<number, Record<number, number>>>;
-  };
-  updateTimeDistribution: {
-    dayOfWeek: number[];
-    hour: number[];
-    heatmap: number[][];
-  };
+  /**
+   * Maker's Rhythm (update) grouped by month/year/day (JST) using the latest update timestamp.
+   */
   updateDateDistribution: {
     month: number[];
     year: Record<number, number>;
     daily: Record<number, Record<number, Record<number, number>>>;
   };
-  uniqueReleaseDates: Set<string>;
+  /**
+   * Maker's Rhythm (release) grouped by month/year/day (JST) for release timeline visualizations.
+   */
+  releaseDateDistribution: {
+    month: number[];
+    year: Record<number, number>;
+    daily: Record<number, Record<number, Record<number, number>>>;
+  };
+  /**
+   * Maker's Rhythm (create) aggregated by weekday/hour with a 7×24 heatmap matrix.
+   */
+  createTimeDistribution: {
+    dayOfWeek: number[];
+    hour: number[];
+    heatmap: number[][];
+  };
+  /**
+   * Maker's Rhythm (update) aggregated by weekday/hour with a 7×24 heatmap matrix.
+   */
+  updateTimeDistribution: {
+    dayOfWeek: number[];
+    hour: number[];
+    heatmap: number[][];
+  };
+  /**
+   * Maker's Rhythm (release) aggregated by weekday/hour with a 7×24 heatmap matrix.
+   */
+  releaseTimeDistribution: {
+    dayOfWeek: number[];
+    hour: number[];
+    heatmap: number[][];
+  };
 };
 
 /**
- * Computes release and update time distributions (heatmap data) and collects unique release dates.
+ * Computes release and update time distributions (heatmap data).
+ * Use `buildDateBasedReleaseInsights` when you need date-keyed metrics such as
+ * unique release days.
  *
  * Runs on: server or UI (timezone-agnostic logic, but hardcoded to JST for specific analysis).
  *
  * @param prototypes - Array of normalized prototypes to analyze.
- * @returns Object containing release/update distributions and unique release dates set.
+ * @param options - Optional logger injection for telemetry instrumentation.
+ * @returns Aggregated time distributions for create/release/update events.
  */
-export function buildTimeDistributionsAndUniqueDates(
+export function buildTimeDistributions(
   prototypes: NormalizedPrototype[],
   options?: { logger?: MinimalLogger },
-): TimeDistributionsAndUniqueDates {
+): TimeDistributions {
   const startTime = performance.now();
   // JST offset in milliseconds
   const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
@@ -85,8 +117,6 @@ export function buildTimeDistributionsAndUniqueDates(
   const updateHeatmap: number[][] = Array.from({ length: 7 }, () =>
     new Array(24).fill(0),
   );
-
-  const uniqueReleaseDates = new Set<string>();
 
   prototypes.forEach((p) => {
     // Maker's Rhythm (Create)
@@ -156,13 +186,8 @@ export function buildTimeDistributionsAndUniqueDates(
         updateHeatmap[ud][uh]++;
       }
     }
-    // Eternal Flame (YYYY-MM-DD in JST)
-    const yyyy = jstDate.getUTCFullYear();
-    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
-    uniqueReleaseDates.add(`${yyyy}-${mm}-${dd}`);
   });
-  const result: TimeDistributionsAndUniqueDates = {
+  const timeDistributions: TimeDistributions = {
     createTimeDistribution: {
       dayOfWeek: createDayOfWeek,
       hour: createHour,
@@ -185,7 +210,6 @@ export function buildTimeDistributionsAndUniqueDates(
       year: updateYear,
       daily: updateDaily,
     },
-    uniqueReleaseDates,
   };
 
   if (options?.logger) {
@@ -194,18 +218,29 @@ export function buildTimeDistributionsAndUniqueDates(
       {
         elapsedMs,
         outputs: {
-          createTimeDistribution: Object.keys(result.createTimeDistribution),
-          createDateDistribution: Object.keys(result.createDateDistribution),
-          releaseTimeDistribution: Object.keys(result.releaseTimeDistribution),
-          releaseDateDistribution: Object.keys(result.releaseDateDistribution),
-          updateTimeDistribution: Object.keys(result.updateTimeDistribution),
-          updateDateDistribution: Object.keys(result.updateDateDistribution),
-          uniqueReleaseDates: 'Set<string>',
+          createTimeDistribution: Object.keys(
+            timeDistributions.createTimeDistribution,
+          ),
+          createDateDistribution: Object.keys(
+            timeDistributions.createDateDistribution,
+          ),
+          releaseTimeDistribution: Object.keys(
+            timeDistributions.releaseTimeDistribution,
+          ),
+          releaseDateDistribution: Object.keys(
+            timeDistributions.releaseDateDistribution,
+          ),
+          updateTimeDistribution: Object.keys(
+            timeDistributions.updateTimeDistribution,
+          ),
+          updateDateDistribution: Object.keys(
+            timeDistributions.updateDateDistribution,
+          ),
         },
       },
       '[ANALYSIS] Time distributions computed',
     );
   }
 
-  return result;
+  return timeDistributions;
 }

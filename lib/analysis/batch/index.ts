@@ -9,4 +9,5 @@
  */
 
 export * from './build-advanced-analysis';
-export * from './build-time-distributions-and-unique-dates';
+export * from './build-time-distributions';
+export * from './collect-unique-release-dates';

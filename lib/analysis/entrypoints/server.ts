@@ -6,7 +6,8 @@ import {
 } from '@/lib/utils/anniversary-candidate-metrics';
 import {
   buildAdvancedAnalysis,
-  buildTimeDistributionsAndUniqueDates,
+  buildTimeDistributions,
+  buildDateBasedReleaseInsights,
   calculateCreationStreak,
 } from '../core';
 import {
@@ -274,10 +275,16 @@ export function analyzePrototypesForServer(
     releaseDateDistribution,
     updateTimeDistribution,
     updateDateDistribution,
-    uniqueReleaseDates,
-  } = buildTimeDistributionsAndUniqueDates(prototypes, { logger });
+  } = buildTimeDistributions(prototypes, { logger });
 
   metrics.makerRhythm = performance.now() - stepStart;
+
+  stepStart = performance.now();
+  const dateBasedReleaseInsights = buildDateBasedReleaseInsights(prototypes, {
+    logger,
+  });
+  metrics.dateBasedReleaseInsights = performance.now() - stepStart;
+  const { uniqueReleaseDates } = dateBasedReleaseInsights;
 
   stepStart = performance.now();
 
