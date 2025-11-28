@@ -102,7 +102,7 @@ export const helloWorldTheme = {
       delay: 'delay-[900ms]',
     },
     starAlignment: {
-      theme: 'purple' as const,
+      theme: 'space' as const,
       delay: 'delay-[1000ms]',
     },
     starAlignment2: {

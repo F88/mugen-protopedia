@@ -25,6 +25,9 @@ interface ThemeStyles {
   iconText: string;
   decoration: string;
   narrativeBorder: string;
+  title?: string;
+  description?: string;
+  muted?: string;
 }
 
 const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
@@ -155,13 +158,15 @@ const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
     narrativeBorder: 'border-fuchsia-200/50 dark:border-fuchsia-800/30',
   },
   space: {
-    container:
-      'bg-black text-white border-purple-900/50 shadow-2xl shadow-purple-900/20',
-    border: 'border-purple-800/50',
-    iconBg: 'bg-purple-900/30',
-    iconText: 'text-yellow-400',
-    decoration: 'bg-purple-600/20',
-    narrativeBorder: 'border-purple-800/30',
+    container: 'bg-slate-900/100 dark:bg-slate-900/30 shadow-black/40',
+    border: 'border-slate-700/50 dark:border-slate-800/50',
+    iconBg: 'bg-slate-800/80 dark:bg-slate-900/80',
+    iconText: 'text-yellow-200',
+    decoration: 'bg-purple-500/10',
+    narrativeBorder: 'border-slate-700/50 dark:border-slate-800/50',
+    title: 'text-slate-100',
+    description: 'text-slate-300',
+    muted: 'text-slate-400',
   },
 };
 
@@ -234,15 +239,30 @@ export function ObservatorySection({
               >
                 {icon}
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h2
+                className={cn(
+                  'text-3xl font-bold',
+                  styles.title || 'text-gray-900 dark:text-white',
+                )}
+              >
                 {title}
               </h2>
             </div>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p
+              className={cn(
+                'text-lg',
+                styles.description || 'text-gray-600 dark:text-gray-300',
+              )}
+            >
               {description}
             </p>
             {sourceNote && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              <p
+                className={cn(
+                  'text-xs mt-2',
+                  styles.muted || 'text-gray-400 dark:text-gray-500',
+                )}
+              >
                 * Source: {sourceNote}
               </p>
             )}
@@ -261,10 +281,20 @@ export function ObservatorySection({
               styles.narrativeBorder,
             )}
           >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <h3
+              className={cn(
+                'text-lg font-bold mb-3 flex items-center gap-2',
+                styles.title || 'text-gray-900 dark:text-white',
+              )}
+            >
               {narrative.title}
             </h3>
-            <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            <div
+              className={cn(
+                'text-sm leading-relaxed',
+                styles.description || 'text-gray-700 dark:text-gray-300',
+              )}
+            >
               {narrative.content}
             </div>
           </div>

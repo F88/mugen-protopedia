@@ -37,10 +37,6 @@ function getStarCoordinates(
   });
 }
 
-// Background class for a cosmic/space theme
-const spaceSectionBg =
-  'relative bg-[#050510] bg-[radial-gradient(ellipse_at_60%_20%,#18181f_60%,#050510_100%)] overflow-hidden';
-
 export function StarAlignmentSection2({
   alignments,
 }: StarAlignmentSectionProps) {
@@ -59,7 +55,6 @@ export function StarAlignmentSection2({
           second).
         </>
       }
-      className={spaceSectionBg} // Apply space background to the whole section
       visualContent={
         <div className="relative w-32 h-32 flex items-center justify-center">
           {/* Decorative constellation in the icon area */}
@@ -71,8 +66,8 @@ export function StarAlignmentSection2({
               x2="50"
               y2="20"
               stroke="currentColor"
-              strokeWidth="1"
-              className="text-purple-300"
+              strokeWidth="0.5"
+              className="text-slate-600"
             />
             <line
               x1="50"
@@ -80,8 +75,8 @@ export function StarAlignmentSection2({
               x2="80"
               y2="60"
               stroke="currentColor"
-              strokeWidth="1"
-              className="text-purple-300"
+              strokeWidth="0.5"
+              className="text-slate-600"
             />
             <line
               x1="80"
@@ -89,29 +84,27 @@ export function StarAlignmentSection2({
               x2="20"
               y2="80"
               stroke="currentColor"
-              strokeWidth="1"
-              className="text-purple-300"
+              strokeWidth="0.5"
+              className="text-slate-600"
             />
             {/* Stars with pulsing animation */}
             <circle
               cx="20"
               cy="80"
-              r="3"
-              className="fill-purple-200 animate-pulse"
+              r="2"
+              className="fill-yellow-100 animate-pulse"
             />
             <circle
               cx="50"
               cy="20"
-              r="4"
-              className="fill-purple-100 animate-pulse"
-              style={{ animationDelay: '0.1s' }}
+              r="3"
+              className="fill-yellow-200 animate-pulse [animation-delay:100ms]"
             />
             <circle
               cx="80"
               cy="60"
-              r="3"
-              className="fill-purple-200 animate-pulse"
-              style={{ animationDelay: '0.2s' }}
+              r="2"
+              className="fill-yellow-100 animate-pulse [animation-delay:200ms]"
             />
           </svg>
         </div>
@@ -142,14 +135,14 @@ export function StarAlignmentSection2({
             return (
               <div
                 key={alignment.timestamp}
-                className="group relative rounded-xl overflow-hidden border border-blue-400/20 bg-gray-900/40 p-6 flex flex-col items-center justify-start transition-all duration-300 hover:border-blue-300/50 hover:shadow-[0_0_20px_theme(colors.purple.500/50)]"
+                className="group relative rounded-xl overflow-hidden border border-white/10 bg-[#0B0B15]/80 p-6 flex flex-col items-center justify-start transition-all duration-300 hover:border-yellow-200/30 hover:shadow-[0_0_30px_rgba(253,224,71,0.1)]"
               >
                 {/* Timestamp */}
                 <div className="text-center mb-4">
-                  <div className="font-mono text-lg font-bold text-white tracking-wider drop-shadow-[0_0_4px_theme(colors.purple.500/50)]">
+                  <div className="font-mono text-3xl font-bold text-slate-400 tracking-wider">
                     {date.toLocaleDateString('en-CA')}
                   </div>
-                  <div className="font-mono text-3xl font-extrabold text-[#FFE066] tracking-widest drop-shadow-[0_0_8px_#FFE06699]">
+                  <div className="font-mono text-3xl font-extrabold text-yellow-100 tracking-widest drop-shadow-[0_0_15px_rgba(253,224,71,0.3)]">
                     {date.toLocaleTimeString('en-GB')}
                   </div>
                 </div>
@@ -186,8 +179,8 @@ export function StarAlignmentSection2({
                           y1={pt.y}
                           x2={next.x}
                           y2={next.y}
-                          className="stroke-blue-300/50 group-hover:stroke-blue-200/80 transition-all"
-                          strokeWidth="1.5"
+                          className="stroke-slate-600 group-hover:stroke-yellow-200/50 transition-all duration-500"
+                          strokeWidth="1"
                         />
                       );
                     })}
@@ -197,11 +190,9 @@ export function StarAlignmentSection2({
                         key={`star-${i}`}
                         cx={pt.x}
                         cy={pt.y}
-                        r="6"
-                        fill="#fff"
-                        stroke="#FFE066"
-                        strokeWidth="2"
-                        className="transition-all duration-300 group-hover:r-7"
+                        r="4"
+                        fill="#FEF08A"
+                        className="transition-all duration-300 group-hover:r-5"
                         filter="url(#starGlow)"
                       />
                     ))}
@@ -209,14 +200,14 @@ export function StarAlignmentSection2({
                 </div>
 
                 {/* Prototype titles */}
-                <div className="flex flex-wrap gap-2 justify-center mb-4 z-10">
+                <div className="flex flex-wrap gap-2 justify-center mb-6 z-10">
                   {alignment.prototypes.map((p) => (
                     <Link
                       key={p.id}
                       href={buildPrototypeLink(p.id)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-bold text-purple-300 bg-transparent border border-purple-400/50 rounded-full px-3 py-1 transition-colors hover:bg-purple-400/10 hover:text-purple-200"
+                      className="text-xl font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 transition-all hover:bg-white/10 hover:text-white hover:border-white/30"
                     >
                       {p.title}
                     </Link>
@@ -224,14 +215,14 @@ export function StarAlignmentSection2({
                 </div>
 
                 {/* "X Stars Aligned" text */}
-                <div className="text-white text-xl mt-auto uppercase tracking-wider font-extrabold text-center drop-shadow-[0_0_8px_theme(colors.blue.400/80)]">
+                <div className="text-slate-500 text-xl uppercase tracking-[0.2em] font-bold text-center group-hover:text-yellow-200/70 transition-colors">
                   {count} STARS ALIGNED
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="col-span-full text-center py-12 text-gray-400 bg-slate-900/50 rounded-xl border border-dashed border-gray-700">
+          <div className="text-2xl col-span-full text-center py-12 text-gray-400 bg-slate-900/50 rounded-xl border border-dashed border-gray-700">
             <p>The stars have not yet aligned...</p>
             <p className="text-sm mt-2">
               Waiting for the first simultaneous release.

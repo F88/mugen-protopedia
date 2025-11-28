@@ -245,7 +245,7 @@ export default async function HelloWorldPage() {
           <WeekendWarriorSection weekendWarrior={weekendWarrior} />
 
           {/* Date based */}
-          <StarAlignmentSection alignments={starAlignments} />
+          {/* <StarAlignmentSection alignments={starAlignments} /> */}
           <StarAlignmentSection2 alignments={starAlignments} />
           <HolyDaySection holyDay={holyDay} />
           <AnniversaryEffectSection holidays={anniversaryEffect} />

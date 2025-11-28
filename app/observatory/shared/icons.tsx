@@ -6,7 +6,7 @@ export const IconFlame = () => <span aria-hidden="true">🔥</span>;
 export const IconClock = () => <span aria-hidden="true">⏰</span>;
 export const IconTelescope = () => <span aria-hidden="true">🔭</span>;
 export const IconPenguin = () => <span aria-hidden="true">🐧</span>;
-export const IconStar = () => <span aria-hidden="true">🌠</span>;
+export const IconStar = () => <span aria-hidden="true">⭐️</span>;
 export const IconGift = () => <span aria-hidden="true">🎁</span>;
 export const IconTool = () => <span aria-hidden="true">🛠️</span>;
 export const IconHeart = () => <span aria-hidden="true">❤️</span>;
