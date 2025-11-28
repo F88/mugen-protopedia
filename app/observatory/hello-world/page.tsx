@@ -26,8 +26,10 @@ import { GatewayDrugSection } from './components/gateway-drug-section';
 import { HolyDaySection } from './components/holy-day-section';
 import { LaborOfLoveSection } from './components/labor-of-love-section';
 import { LongTermEvolutionSection } from './components/long-term-evolution-section';
-import { BirthPulseSection } from './components/makers-rhythm-section';
-import { AfterglowRhythmSection } from './components/afterglow-rhythm-section';
+import {
+  AfterglowRhythmSection,
+  BirthPulseSection,
+} from './components/makers-rhythm-section';
 import { MaternityHospitalSection } from './components/maternity-hospital-section';
 import { NewbornsSection } from './components/newborns-section';
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';

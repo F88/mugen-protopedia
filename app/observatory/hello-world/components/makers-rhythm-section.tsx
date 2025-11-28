@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Bar } from '@/components/observatory/bar';
 import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
+import { Bar } from '@/components/observatory/bar';
 
+import { clampPercent } from '@/lib/utils/math';
 import { IconClock } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
-import { clampPercent } from '@/lib/utils/math';
 
 type BirthPulseSectionProps = {
   releaseTimeDistribution: {
@@ -440,6 +440,208 @@ export function BirthPulseSection({
             Weekly Release Activity (JST)
           </h3>
           <ActivityHeatmap heatmap={releaseTimeDistribution.heatmap} />
+        </div>
+      )}
+    </ObservatorySection>
+  );
+}
+
+type AfterglowRhythmSectionProps = {
+  updateTimeDistribution: {
+    dayOfWeek: number[];
+    hour: number[];
+    heatmap?: number[][];
+  };
+  updateDateDistribution: {
+    month: number[];
+  };
+  maxUpdateDayCount: number;
+  maxUpdateHourCount: number;
+  maxUpdateMonthCount: number;
+  days: string[];
+  months: string[];
+};
+
+export function AfterglowRhythmSection({
+  updateTimeDistribution,
+  updateDateDistribution,
+  maxUpdateDayCount,
+  maxUpdateHourCount,
+  maxUpdateMonthCount,
+  days,
+  months,
+}: AfterglowRhythmSectionProps) {
+  const { weekendRate, afterHoursRate, weeklyPeaks } = calculateStats(
+    updateTimeDistribution.dayOfWeek,
+    updateTimeDistribution.hour,
+    updateTimeDistribution.heatmap,
+  );
+
+  return (
+    <ObservatorySection
+      theme={helloWorldTheme.sections.afterglowRhythm.theme}
+      icon={<IconClock />}
+      title="Afterglow Rhythm"
+      description="Analysis of update timing and maintenance cycles."
+      sourceNote={
+        <>
+          <strong>Last Update Date</strong> of all prototypes.
+        </>
+      }
+      visualContent={
+        <div className="relative w-32 h-32 flex items-center justify-center">
+          <div className="absolute inset-0 bg-purple-400/20 rounded-full animate-ping opacity-20 duration-3000"></div>
+          <div className="absolute inset-2 bg-pink-400/20 rounded-full animate-pulse opacity-30"></div>
+          <div className="text-6xl filter drop-shadow-lg">✨</div>
+        </div>
+      }
+      narrative={{
+        title: (
+          <>
+            <span className="text-xl">✨</span> The Pulse of Maintenance
+          </>
+        ),
+        content: (
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <p className="mb-2 font-semibold text-gray-800 dark:text-gray-200">
+                The Weekend Polish
+              </p>
+              <p>
+                Updates often follow a different rhythm than releases. Weekend
+                updates suggest hobbyist dedication, refining projects in free
+                time.
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 font-semibold text-gray-800 dark:text-gray-200">
+                The Evening Glow
+              </p>
+              <p>
+                Post-work updates reflect the &quot;Afterglow&quot; - the
+                persistent effort to improve and maintain creations after the
+                initial release.
+              </p>
+            </div>
+          </div>
+        ),
+      }}
+      delay={helloWorldTheme.sections.afterglowRhythm.delay}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-4 border border-purple-100 dark:border-purple-800/30 flex items-center gap-4">
+          <div className="p-3 bg-purple-100 dark:bg-purple-800/30 rounded-full text-2xl">
+            🏖️
+          </div>
+          <div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              Weekend Update Rate
+            </div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              {weekendRate}%
+            </div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">
+              of updates happen on Sat/Sun
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800/30 flex items-center gap-4">
+          <div className="p-3 bg-indigo-100 dark:bg-indigo-800/30 rounded-full text-2xl">
+            🌙
+          </div>
+          <div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              After Hours Rate
+            </div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              {afterHoursRate}%
+            </div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">
+              updates between 18:00 - 09:00
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {weeklyPeaks.length > 0 && (
+        <div className="mb-8 bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+            <span className="text-lg">☀️</span>
+            Golden Hour by Day (Updates)
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {days.map((day, index) => {
+              const dayData = weeklyPeaks.find((p) => p.dayIndex === index);
+              if (!dayData) return null;
+
+              const Icon = getPeakTimeIcon(dayData.peakHour);
+
+              return (
+                <div
+                  key={day}
+                  className="flex flex-col items-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-purple-50 dark:border-purple-900/20"
+                >
+                  <span className="text-xs font-medium text-gray-400 mb-2">
+                    {day}
+                  </span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xl">{Icon}</span>
+                    <span className="text-lg font-bold text-gray-700 dark:text-gray-200">
+                      {dayData.peakHour}:00
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {dayData.count} updates
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
+        {renderDailyCycle({
+          counts: updateTimeDistribution?.hour ?? [],
+          maxCount: maxUpdateHourCount,
+          containerClassName:
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30',
+          barClassName:
+            'w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400',
+          title: 'Daily Cycle (JST)',
+          footerLabels: ['00:00', '06:00', '12:00', '18:00', '23:00'],
+        })}
+        {renderWeeklyCycle({
+          counts: updateTimeDistribution?.dayOfWeek ?? [],
+          maxCount: maxUpdateDayCount,
+          containerClassName:
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30',
+          barClassName:
+            'w-full bg-purple-400 dark:bg-purple-500 rounded-t-md transition-all duration-500 group-hover:bg-purple-500 dark:group-hover:bg-purple-400',
+          days,
+          title: 'Weekly Rhythm',
+          unitLabel: 'updates',
+        })}
+        {renderMonthlyCycle({
+          counts: updateDateDistribution?.month ?? [],
+          maxCount: maxUpdateMonthCount,
+          containerClassName:
+            'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30',
+          barClassName:
+            'w-full bg-pink-400 dark:bg-pink-500 rounded-t-md transition-all duration-500 group-hover:bg-pink-500 dark:group-hover:bg-pink-400',
+          months,
+          title: 'Monthly Rhythm',
+          unitLabel: 'updates',
+        })}
+      </div>
+
+      {updateTimeDistribution.heatmap && (
+        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Weekly Update Activity (JST)
+          </h3>
+          <ActivityHeatmap heatmap={updateTimeDistribution.heatmap} />
         </div>
       )}
     </ObservatorySection>
