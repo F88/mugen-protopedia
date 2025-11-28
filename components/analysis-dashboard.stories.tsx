@@ -12,7 +12,7 @@ import {
   buildUserTeamAnalytics,
   buildMaterialAnalytics,
   buildTimeDistributions,
-  buildDateBasedReleaseInsights,
+  buildDateBasedPrototypeInsights,
   calculateCreationStreak,
   buildAdvancedAnalysis,
 } from '@/lib/analysis';
@@ -42,7 +42,7 @@ function analyzePrototypes(
     updateTimeDistribution,
     updateDateDistribution,
   } = buildTimeDistributions(prototypes);
-  const { uniqueReleaseDates } = buildDateBasedReleaseInsights(prototypes);
+  const { uniqueReleaseDates } = buildDateBasedPrototypeInsights(prototypes);
   const creationStreak = calculateCreationStreak(
     uniqueReleaseDates,
     referenceDate,

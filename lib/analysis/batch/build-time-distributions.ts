@@ -4,7 +4,12 @@
  * JST-aligned buckets for consistent reporting.
  */
 
-import { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import {
+  createLifecycleMomentContext,
+  createPrototypeLifecycleContext,
+  type LifecycleMomentContext,
+} from '../lifecycle';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -68,9 +73,65 @@ export type TimeDistributions = {
 };
 
 /**
+ * Records time-of-day information (weekday/hour/heatmap) for a lifecycle moment.
+ */
+function recordTimeBuckets(
+  moment: LifecycleMomentContext,
+  dayOfWeek: number[],
+  hour: number[],
+  heatmap: number[][],
+): void {
+  const weekday = moment.weekday;
+  const hourOfDay = moment.hour;
+  dayOfWeek[weekday] += 1;
+  hour[hourOfDay] += 1;
+  heatmap[weekday][hourOfDay] += 1;
+}
+
+/**
+ * Records calendar-based information (month/year/daily counts) for a lifecycle moment.
+ */
+function recordDateBuckets(
+  moment: LifecycleMomentContext,
+  month: number[],
+  year: Record<number, number>,
+  daily: Record<number, Record<number, Record<number, number>>>,
+): void {
+  const [yearNum, monthNum, dayNum] = moment.yyyymmdd
+    .split('-')
+    .map((value) => Number(value));
+
+  if (
+    !Number.isFinite(yearNum) ||
+    !Number.isFinite(monthNum) ||
+    !Number.isFinite(dayNum)
+  ) {
+    return;
+  }
+  if (yearNum <= 1900) {
+    return;
+  }
+
+  const monthIndex = monthNum - 1;
+  if (monthIndex >= 0 && monthIndex < month.length) {
+    month[monthIndex] += 1;
+  }
+
+  year[yearNum] = (year[yearNum] ?? 0) + 1;
+  if (!daily[yearNum]) {
+    daily[yearNum] = {};
+  }
+  if (!daily[yearNum][monthNum]) {
+    daily[yearNum][monthNum] = {};
+  }
+  daily[yearNum][monthNum][dayNum] =
+    (daily[yearNum][monthNum][dayNum] ?? 0) + 1;
+}
+
+/**
  * Computes release and update time distributions (heatmap data).
- * Use `buildDateBasedReleaseInsights` when you need date-keyed metrics such as
- * unique release days.
+ * Use `buildDateBasedPrototypeInsights` when you need date-keyed metrics such as
+ * unique create/update/release days.
  *
  * Runs on: server or UI (timezone-agnostic logic, but hardcoded to JST for specific analysis).
  *
@@ -83,8 +144,6 @@ export function buildTimeDistributions(
   options?: { logger?: MinimalLogger },
 ): TimeDistributions {
   const startTime = performance.now();
-  // JST offset in milliseconds
-  const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
   const createDayOfWeek: number[] = new Array(7).fill(0);
   const createHour: number[] = new Array(24).fill(0);
   const createMonth: number[] = new Array(12).fill(0);
@@ -118,73 +177,35 @@ export function buildTimeDistributions(
     new Array(24).fill(0),
   );
 
-  prototypes.forEach((p) => {
-    // Maker's Rhythm (Create)
-    if (p.createDate) {
-      const createDate = new Date(p.createDate);
-      if (!Number.isNaN(createDate.getTime())) {
-        const jstCreateDate = new Date(createDate.getTime() + JST_OFFSET_MS);
-        const cd = jstCreateDate.getUTCDay();
-        const ch = jstCreateDate.getUTCHours();
-        const cm = jstCreateDate.getUTCMonth();
-        const cy = jstCreateDate.getUTCFullYear();
-        const cday = jstCreateDate.getUTCDate();
-        createDayOfWeek[cd]++;
-        createHour[ch]++;
-        createMonth[cm]++;
-        if (cy > 1900) {
-          createYear[cy] = (createYear[cy] ?? 0) + 1;
-          if (!createDaily[cy]) createDaily[cy] = {};
-          if (!createDaily[cy][cm + 1]) createDaily[cy][cm + 1] = {};
-          createDaily[cy][cm + 1][cday] =
-            (createDaily[cy][cm + 1][cday] ?? 0) + 1;
-        }
-        createHeatmap[cd][ch]++;
-      }
+  prototypes.forEach((prototype) => {
+    let createMoment = createLifecycleMomentContext(prototype.createDate);
+
+    const lifecycle = createPrototypeLifecycleContext(prototype);
+    if (lifecycle?.create) {
+      createMoment = lifecycle.create;
     }
-    if (!p.releaseDate) return;
-    const date = new Date(p.releaseDate);
-    if (Number.isNaN(date.getTime())) return;
-    // Convert to JST
-    const jstDate = new Date(date.getTime() + JST_OFFSET_MS);
-    // Maker's Rhythm (Release)
-    const d = jstDate.getUTCDay();
-    const h = jstDate.getUTCHours();
-    const m = jstDate.getUTCMonth();
-    const y = jstDate.getUTCFullYear();
-    const day = jstDate.getUTCDate();
-    dayOfWeek[d]++;
-    hour[h]++;
-    month[m]++;
-    if (y > 1900) {
-      year[y] = (year[y] ?? 0) + 1;
-      if (!daily[y]) daily[y] = {};
-      if (!daily[y][m + 1]) daily[y][m + 1] = {};
-      daily[y][m + 1][day] = (daily[y][m + 1][day] ?? 0) + 1;
+
+    if (createMoment) {
+      recordTimeBuckets(
+        createMoment,
+        createDayOfWeek,
+        createHour,
+        createHeatmap,
+      );
+      recordDateBuckets(createMoment, createMonth, createYear, createDaily);
     }
-    heatmap[d][h]++;
-    // Maker's Rhythm (Update)
-    if (p.updateDate) {
-      const updateDate = new Date(p.updateDate);
-      if (!Number.isNaN(updateDate.getTime())) {
-        const jstUpdateDate = new Date(updateDate.getTime() + JST_OFFSET_MS);
-        const ud = jstUpdateDate.getUTCDay();
-        const uh = jstUpdateDate.getUTCHours();
-        const um = jstUpdateDate.getUTCMonth();
-        const uy = jstUpdateDate.getUTCFullYear();
-        const uday = jstUpdateDate.getUTCDate();
-        updateDayOfWeek[ud]++;
-        updateHour[uh]++;
-        updateMonth[um]++;
-        if (uy > 1900) {
-          updateYear[uy] = (updateYear[uy] ?? 0) + 1;
-          if (!updateDaily[uy]) updateDaily[uy] = {};
-          if (!updateDaily[uy][um + 1]) updateDaily[uy][um + 1] = {};
-          updateDaily[uy][um + 1][uday] =
-            (updateDaily[uy][um + 1][uday] ?? 0) + 1;
-        }
-        updateHeatmap[ud][uh]++;
-      }
+
+    if (!lifecycle) {
+      return;
+    }
+
+    const { release, update } = lifecycle;
+    recordTimeBuckets(release, dayOfWeek, hour, heatmap);
+    recordDateBuckets(release, month, year, daily);
+
+    if (update) {
+      recordTimeBuckets(update, updateDayOfWeek, updateHour, updateHeatmap);
+      recordDateBuckets(update, updateMonth, updateYear, updateDaily);
     }
   });
   const timeDistributions: TimeDistributions = {

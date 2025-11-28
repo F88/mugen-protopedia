@@ -4,62 +4,90 @@
  */
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import {
+  createLifecycleMomentContext,
+  createPrototypeLifecycleContext,
+  type LifecycleMomentContext,
+} from '../lifecycle';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
 };
 
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
-
-export type DateBasedReleaseInsights = {
+export type DateBasedPrototypeInsights = {
+  uniqueCreateDates: Set<string>;
+  uniqueUpdateDates: Set<string>;
   uniqueReleaseDates: Set<string>;
 };
 
+type DateKind = 'create' | 'update' | 'release';
+
 /**
- * Initializes the aggregation container for daily release insights.
+ * Initializes the aggregation container for daily prototype insights.
  */
-export function createDateBasedReleaseInsights(): DateBasedReleaseInsights {
+export function createDateBasedPrototypeInsights(): DateBasedPrototypeInsights {
   return {
+    uniqueCreateDates: new Set<string>(),
+    uniqueUpdateDates: new Set<string>(),
     uniqueReleaseDates: new Set<string>(),
   };
 }
 
 /**
- * Tracks a release taking place at the provided JST date by recording the YYYY-MM-DD string.
+ * Tracks a prototype event taking place at the provided JST date by recording the YYYY-MM-DD string.
  */
-export function trackDateBasedReleaseInsights(
-  insights: DateBasedReleaseInsights,
-  jstDate: Date,
+export function trackDateBasedPrototypeInsights(
+  insights: DateBasedPrototypeInsights,
+  moment: LifecycleMomentContext,
+  kind: DateKind,
 ): void {
-  const year = jstDate.getUTCFullYear();
-  if (Number.isNaN(year)) {
-    return;
+  const key = moment.yyyymmdd;
+
+  switch (kind) {
+    case 'create':
+      insights.uniqueCreateDates.add(key);
+      break;
+    case 'update':
+      insights.uniqueUpdateDates.add(key);
+      break;
+    case 'release':
+      insights.uniqueReleaseDates.add(key);
+      break;
+    default:
+      break;
   }
-  const month = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(jstDate.getUTCDate()).padStart(2, '0');
-  insights.uniqueReleaseDates.add(`${year}-${month}-${day}`);
 }
 
 /**
- * Builds release-date keyed insights (e.g., unique JST dates) in a single pass.
+ * Builds date-keyed insights (create/update/release JST dates) in a single pass.
  */
-export function buildDateBasedReleaseInsights(
+export function buildDateBasedPrototypeInsights(
   prototypes: NormalizedPrototype[],
   options?: { logger?: MinimalLogger },
-): DateBasedReleaseInsights {
+): DateBasedPrototypeInsights {
   const startTime = performance.now();
-  const insights = createDateBasedReleaseInsights();
+  const insights = createDateBasedPrototypeInsights();
 
   prototypes.forEach((prototype) => {
-    if (!prototype.releaseDate) {
-      return;
+    const lifecycle = createPrototypeLifecycleContext(prototype);
+
+    const createMoment =
+      lifecycle?.create ?? createLifecycleMomentContext(prototype.createDate);
+    if (createMoment) {
+      trackDateBasedPrototypeInsights(insights, createMoment, 'create');
     }
-    const releaseDate = new Date(prototype.releaseDate);
-    if (Number.isNaN(releaseDate.getTime())) {
-      return;
+
+    const updateMoment =
+      lifecycle?.update ?? createLifecycleMomentContext(prototype.updateDate);
+    if (updateMoment) {
+      trackDateBasedPrototypeInsights(insights, updateMoment, 'update');
     }
-    const jstDate = new Date(releaseDate.getTime() + JST_OFFSET_MS);
-    trackDateBasedReleaseInsights(insights, jstDate);
+
+    const releaseMoment =
+      lifecycle?.release ?? createLifecycleMomentContext(prototype.releaseDate);
+    if (releaseMoment) {
+      trackDateBasedPrototypeInsights(insights, releaseMoment, 'release');
+    }
   });
 
   if (options?.logger) {
@@ -67,9 +95,11 @@ export function buildDateBasedReleaseInsights(
     options.logger.debug(
       {
         elapsedMs,
+        uniqueCreateDates: insights.uniqueCreateDates.size,
+        uniqueUpdateDates: insights.uniqueUpdateDates.size,
         uniqueReleaseDates: insights.uniqueReleaseDates.size,
       },
-      '[ANALYSIS] Date-based release insights computed',
+      '[ANALYSIS] Date-based prototype insights computed',
     );
   }
 

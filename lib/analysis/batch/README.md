@@ -7,7 +7,7 @@ in the UI, refer to `docs/analysis.md`.
 
 - `build-advanced-analysis.ts`: Story-driven metrics (First Penguins, Star Alignments, etc.).
 - `build-time-distributions.ts`: Maker's Rhythm time/date distributions (JST-aligned buckets).
-- `collect-unique-release-dates.ts`: Date-keyed utilities (unique release days etc.).
+- `collect-unique-release-dates.ts`: Date-keyed utilities (unique create/update/release days etc.).
 - `index.ts`: Aggregate exports for the batch helpers.
 
 | Module                            | Performs Full Scan? | Primary Inputs                                                | Primary Outputs                                                  |
@@ -18,7 +18,7 @@ in the UI, refer to `docs/analysis.md`.
 | `build-material-analytics.ts`     | true                | `NormalizedPrototype[]`                                       | Material rankings & counts (`MaterialAnalytics`)                 |
 | `build-user-team-analytics.ts`    | true                | `NormalizedPrototype[]`                                       | Team rankings & user-analytics placeholder (`UserTeamAnalytics`) |
 | `build-core-summaries.ts`         | true                | `NormalizedPrototype[]`, optional reference date              | Status, awards, average age (`CoreSummaries`)                    |
-| `collect-unique-release-dates.ts` | true                | `NormalizedPrototype[]` (for `buildDateBasedReleaseInsights`) | Date-keyed insights (`DateBasedReleaseInsights`)                 |
+| `collect-unique-release-dates.ts` | true                | `NormalizedPrototype[]` (for `buildDateBasedPrototypeInsights`) | Date-keyed insights (`DateBasedPrototypeInsights`)                |
 
 ## Full Dataset Scans
 

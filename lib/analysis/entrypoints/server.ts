@@ -7,7 +7,7 @@ import {
 import {
   buildAdvancedAnalysis,
   buildTimeDistributions,
-  buildDateBasedReleaseInsights,
+  buildDateBasedPrototypeInsights,
   calculateCreationStreak,
 } from '../core';
 import {
@@ -284,11 +284,14 @@ export function analyzePrototypesForServer(
   metrics.makerRhythm = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const dateBasedReleaseInsights = buildDateBasedReleaseInsights(prototypes, {
-    logger,
-  });
-  metrics.dateBasedReleaseInsights = performance.now() - stepStart;
-  const { uniqueReleaseDates } = dateBasedReleaseInsights;
+  const dateBasedPrototypeInsights = buildDateBasedPrototypeInsights(
+    prototypes,
+    {
+      logger,
+    },
+  );
+  metrics.dateBasedPrototypeInsights = performance.now() - stepStart;
+  const { uniqueReleaseDates } = dateBasedPrototypeInsights;
 
   stepStart = performance.now();
 

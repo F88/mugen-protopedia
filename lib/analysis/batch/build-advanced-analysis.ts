@@ -7,6 +7,11 @@
  */
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import {
+  createPrototypeLifecycleContext,
+  type LifecycleMomentContext,
+  type PrototypeLifecycleContext,
+} from '../lifecycle';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -129,7 +134,7 @@ export function buildAdvancedAnalysis(
   const collectors = createAdvancedCollectors(topTags);
 
   prototypes.forEach((prototype) => {
-    const context = createPrototypeContext(prototype);
+    const context = createPrototypeLifecycleContext(prototype);
     if (context) {
       collectors.collect(context);
     }
@@ -151,61 +156,11 @@ export function buildAdvancedAnalysis(
   return result;
 }
 
-type ReleaseContext = {
-  iso: string;
-  timestampMs: number;
-  year: number;
-  mmdd: string;
-  yyyymmdd: string;
-  weekday: number;
-  hour: number;
-};
-
-type PrototypeContext = {
-  prototype: NormalizedPrototype;
-  release: ReleaseContext;
-};
-
 type SpecialDayStats = {
   name: string;
   count: number;
   examples: Array<{ id: number; title: string; year: number }>;
 };
-
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
-
-function createPrototypeContext(
-  prototype: NormalizedPrototype,
-): PrototypeContext | null {
-  const { releaseDate } = prototype;
-  if (!releaseDate) {
-    return null;
-  }
-
-  const releaseTimestamp = Date.parse(releaseDate);
-  if (Number.isNaN(releaseTimestamp)) {
-    return null;
-  }
-
-  const jstTime = releaseTimestamp + JST_OFFSET_MS;
-  const jstDate = new Date(jstTime);
-  const year = jstDate.getUTCFullYear();
-  const month = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(jstDate.getUTCDate()).padStart(2, '0');
-
-  return {
-    prototype,
-    release: {
-      iso: releaseDate,
-      timestampMs: releaseTimestamp,
-      year,
-      mmdd: `${month}-${day}`,
-      yyyymmdd: `${year}-${month}-${day}`,
-      weekday: jstDate.getUTCDay(),
-      hour: jstDate.getUTCHours(),
-    },
-  };
-}
 
 function createSpecialDayMap(): Record<string, SpecialDayStats> {
   return {
@@ -273,7 +228,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   let totalMaintenanceDays = 0;
   let prototypesWithMaintenance = 0;
 
-  function collect(context: PrototypeContext) {
+  function collect(context: PrototypeLifecycleContext) {
     const { prototype, release } = context;
 
     collectFirstPenguin(release, prototype);
@@ -285,11 +240,11 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     collectDeadlines(release);
     collectWeekendWarrior(release);
     collectHolyDay(release);
-    collectMaintenance(prototype, release);
+    collectMaintenance(context);
   }
 
   function collectFirstPenguin(
-    release: ReleaseContext,
+    release: LifecycleMomentContext,
     prototype: NormalizedPrototype,
   ) {
     const record = firstPenguins.get(release.year);
@@ -302,7 +257,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   }
 
   function collectStarAlignment(
-    release: ReleaseContext,
+    release: LifecycleMomentContext,
     prototype: NormalizedPrototype,
   ) {
     const list = timestampMap.get(release.iso);
@@ -314,7 +269,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   }
 
   function collectSpecialDays(
-    release: ReleaseContext,
+    release: LifecycleMomentContext,
     prototype: NormalizedPrototype,
   ) {
     const bucket = specialDays[release.mmdd];
@@ -331,7 +286,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   }
 
   function collectEarlyAdopters(
-    release: ReleaseContext,
+    release: LifecycleMomentContext,
     prototype: NormalizedPrototype,
   ) {
     if (!prototype.tags || prototype.tags.length === 0) {
@@ -407,12 +362,12 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     independentCount += 1;
   }
 
-  function collectDeadlines(release: ReleaseContext) {
+  function collectDeadlines(release: LifecycleMomentContext) {
     dailyReleaseCounts[release.yyyymmdd] =
       (dailyReleaseCounts[release.yyyymmdd] ?? 0) + 1;
   }
 
-  function collectWeekendWarrior(release: ReleaseContext) {
+  function collectWeekendWarrior(release: LifecycleMomentContext) {
     totalReleaseCount += 1;
 
     if (
@@ -431,25 +386,18 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     }
   }
 
-  function collectHolyDay(release: ReleaseContext) {
+  function collectHolyDay(release: LifecycleMomentContext) {
     holyDayCounts[release.mmdd] = (holyDayCounts[release.mmdd] ?? 0) + 1;
   }
 
-  function collectMaintenance(
-    prototype: NormalizedPrototype,
-    release: ReleaseContext,
-  ) {
-    if (!prototype.updateDate) {
-      return;
-    }
-
-    const updateTime = Date.parse(prototype.updateDate);
-    if (Number.isNaN(updateTime)) {
+  function collectMaintenance(context: PrototypeLifecycleContext) {
+    const { prototype, release, update } = context;
+    if (!update) {
       return;
     }
 
     const diffDays = Math.floor(
-      (updateTime - release.timestampMs) / (1000 * 60 * 60 * 24),
+      (update.timestampMs - release.timestampMs) / (1000 * 60 * 60 * 24),
     );
     if (diffDays <= 0) {
       return;
@@ -462,7 +410,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       title: prototype.prototypeNm,
       maintenanceDays: diffDays,
       releaseDate: release.iso,
-      updateDate: prototype.updateDate,
+      updateDate: update.iso,
     });
   }
 
