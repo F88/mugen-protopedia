@@ -53,6 +53,84 @@ type MonthlyCycleConfig = {
   unitLabel: string;
 };
 
+function getPeakTimeIcon(hour: number) {
+  if (hour < 0) return '❓';
+  if (hour < 5) return '🦉';
+  if (hour < 9) return '🌅';
+  if (hour < 17) return '☀️';
+  if (hour < 20) return '🌇';
+  return '🌙';
+}
+
+function calculateStats(
+  dayOfWeek: number[],
+  hour: number[],
+  heatmap?: number[][],
+) {
+  const total = dayOfWeek.reduce((a, b) => a + b, 0);
+  if (total === 0)
+    return { weekendRate: 0, afterHoursRate: 0, weeklyPeaks: [] };
+
+  // Weekend Warrior Rate
+  // 0=Sun, 6=Sat
+  const weekendCount = (dayOfWeek[0] ?? 0) + (dayOfWeek[6] ?? 0);
+  const weekendRate = Math.round((weekendCount / total) * 100);
+
+  // After Hours Rate
+  let afterHoursCount = 0;
+  let weekdayTotal = 0;
+
+  if (heatmap) {
+    // heatmap: [day][hour]
+    // Days: 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+    for (let d = 1; d <= 5; d++) {
+      // Mon to Fri
+      if (!heatmap[d]) continue;
+      for (let h = 0; h < 24; h++) {
+        const count = heatmap[d][h] ?? 0;
+        weekdayTotal += count;
+        // After hours: < 9 or >= 18
+        if (h < 9 || h >= 18) {
+          afterHoursCount += count;
+        }
+      }
+    }
+  } else {
+    // Fallback: use hour distribution (includes weekends if heatmap missing)
+    weekdayTotal = total;
+    hour.forEach((count, h) => {
+      if (h < 9 || h >= 18) {
+        afterHoursCount += count;
+      }
+    });
+  }
+
+  const afterHoursRate =
+    weekdayTotal > 0 ? Math.round((afterHoursCount / weekdayTotal) * 100) : 0;
+
+  // Weekly Peaks
+  const weeklyPeaks: { dayIndex: number; peakHour: number; count: number }[] =
+    [];
+  if (heatmap) {
+    for (let d = 0; d < 7; d++) {
+      let max = -1;
+      let peakHour = -1;
+      if (heatmap[d]) {
+        for (let h = 0; h < 24; h++) {
+          const count = heatmap[d][h] ?? 0;
+          if (count > max) {
+            max = count;
+            peakHour = h;
+          }
+        }
+      }
+      weeklyPeaks.push({ dayIndex: d, peakHour, count: max });
+    }
+  }
+
+  return { weekendRate, afterHoursRate, weeklyPeaks };
+}
+
 function renderDailyCycle({
   counts,
   maxCount,
@@ -195,6 +273,12 @@ export function BirthPulseSection({
   days,
   months,
 }: BirthPulseSectionProps) {
+  const { weekendRate, afterHoursRate, weeklyPeaks } = calculateStats(
+    releaseTimeDistribution.dayOfWeek,
+    releaseTimeDistribution.hour,
+    releaseTimeDistribution.heatmap,
+  );
+
   return (
     <ObservatorySection
       theme={helloWorldTheme.sections.birthPulse.theme}
@@ -246,6 +330,75 @@ export function BirthPulseSection({
       }}
       delay={helloWorldTheme.sections.birthPulse.delay}
     >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl p-4 border border-orange-100 dark:border-orange-800/30 flex items-center gap-4">
+          <div className="p-3 bg-orange-100 dark:bg-orange-800/30 rounded-full text-2xl">
+            🏖️
+          </div>
+          <div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              Weekend Warrior Rate
+            </div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              {weekendRate}%
+            </div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">
+              of releases happen on Sat/Sun
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-xl p-4 border border-indigo-100 dark:border-indigo-800/30 flex items-center gap-4">
+          <div className="p-3 bg-indigo-100 dark:bg-indigo-800/30 rounded-full text-2xl">
+            🌙
+          </div>
+          <div>
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              After Hours Rate
+            </div>
+            <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              {afterHoursRate}%
+            </div>
+            <div className="text-xs text-gray-400 dark:text-gray-500">
+              created outside 9:00-18:00 (Mon-Fri)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {weeklyPeaks.length > 0 && (
+        <div className="mb-8">
+          <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+            <span>Golden Hour by Day</span>
+            <span className="text-xs font-normal normal-case text-gray-400 border border-gray-200 dark:border-gray-700 px-2 py-0.5 rounded-full">
+              Most active hour
+            </span>
+          </h4>
+          <div className="grid grid-cols-7 gap-2">
+            {weeklyPeaks.map((peak, index) => (
+              <div
+                key={index}
+                className="bg-white/40 dark:bg-white/5 rounded-lg p-2 border border-orange-100 dark:border-orange-800/30 flex flex-col items-center text-center"
+              >
+                <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 mb-1">
+                  {days[index].slice(0, 3)}
+                </span>
+                <span
+                  className="text-xl mb-1"
+                  role="img"
+                  aria-label="time icon"
+                >
+                  {getPeakTimeIcon(peak.peakHour)}
+                </span>
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {peak.peakHour >= 0 ? `${peak.peakHour}:00` : '-'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         {renderDailyCycle({
           counts: releaseTimeDistribution?.hour ?? [],
