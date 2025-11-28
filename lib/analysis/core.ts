@@ -3,21 +3,21 @@ export {
   type AdvancedAnalysis,
 } from './batch/build-advanced-analysis';
 export {
-  type PrototypeLifecycleContext,
-  type LifecycleMomentContext,
-  createPrototypeLifecycleContext,
-  createLifecycleMomentContext,
-} from './lifecycle';
-export {
   buildTimeDistributions,
   type TimeDistributions,
 } from './batch/build-time-distributions';
 export {
+  buildDateBasedPrototypeInsights,
   createDateBasedPrototypeInsights,
   trackDateBasedPrototypeInsights,
-  buildDateBasedPrototypeInsights,
   type DateBasedPrototypeInsights,
 } from './batch/collect-unique-release-dates';
+export {
+  createLifecycleMomentContext,
+  createPrototypeLifecycleContext,
+  type LifecycleMomentContext,
+  type PrototypeLifecycleContext,
+} from './lifecycle';
 
 /**
  * @fileoverview

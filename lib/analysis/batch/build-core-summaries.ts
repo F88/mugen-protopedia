@@ -8,6 +8,11 @@
 
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 
+import {
+  createLifecycleMomentContext,
+  createPrototypeLifecycleContext,
+} from '../lifecycle';
+
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
 };
@@ -28,6 +33,7 @@ export function buildCoreSummaries(
 ): CoreSummaries {
   const startTime = performance.now();
   const referenceDate = options?.referenceDate ?? new Date();
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
   const statusDistribution: Record<string, number> = {};
   let prototypesWithAwards = 0;
@@ -43,15 +49,16 @@ export function buildCoreSummaries(
       prototypesWithAwards += 1;
     }
 
-    if (prototype.releaseDate) {
-      const releaseTimestamp = Date.parse(prototype.releaseDate);
-      if (!Number.isNaN(releaseTimestamp)) {
-        const ageInDays =
-          (referenceDate.getTime() - releaseTimestamp) / (1000 * 60 * 60 * 24);
-        if (ageInDays >= 0) {
-          ageTotal += ageInDays;
-          validAgeSampleCount += 1;
-        }
+    const lifecycle = createPrototypeLifecycleContext(prototype);
+    const releaseMoment =
+      lifecycle?.release ?? createLifecycleMomentContext(prototype.releaseDate);
+
+    if (releaseMoment) {
+      const ageInDays =
+        (referenceDate.getTime() - releaseMoment.timestampMs) / MS_PER_DAY;
+      if (ageInDays >= 0) {
+        ageTotal += ageInDays;
+        validAgeSampleCount += 1;
       }
     }
   });
