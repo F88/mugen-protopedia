@@ -12,12 +12,14 @@ import {
 } from '../core';
 import {
   buildStatusDistribution,
-  buildTopMaterials,
-  buildTopTags,
-  buildTopTeams,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
 } from '../to-be-batched';
+import {
+  buildMaterialAnalytics,
+  buildTagAnalytics,
+  buildUserTeamAnalytics,
+} from '../batch';
 import type {
   AnniversaryCandidates,
   ServerPrototypeAnalysis,
@@ -238,7 +240,7 @@ export function analyzePrototypesForServer(
   metrics.prototypesWithAwards = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topTags, tagCounts } = buildTopTags(prototypes, { logger });
+  const { topTags, tagCounts } = buildTagAnalytics(prototypes, { logger });
   metrics.topTags = performance.now() - stepStart;
 
   stepStart = performance.now();
@@ -248,11 +250,13 @@ export function analyzePrototypesForServer(
   metrics.averageAgeInDays = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topTeams, teamCounts } = buildTopTeams(prototypes, { logger });
+  const {
+    teams: { topTeams, teamCounts },
+  } = buildUserTeamAnalytics(prototypes, { logger });
   metrics.topTeams = performance.now() - stepStart;
 
   stepStart = performance.now();
-  const { topMaterials, materialCounts } = buildTopMaterials(prototypes, {
+  const { topMaterials, materialCounts } = buildMaterialAnalytics(prototypes, {
     logger,
   });
   metrics.topMaterials = performance.now() - stepStart;

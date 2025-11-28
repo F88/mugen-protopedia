@@ -10,4 +10,7 @@
 
 export * from './build-advanced-analysis';
 export * from './build-time-distributions';
+export * from './build-tag-analytics';
+export * from './build-material-analytics';
+export * from './build-user-team-analytics';
 export * from './collect-unique-release-dates';

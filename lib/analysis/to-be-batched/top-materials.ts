@@ -5,6 +5,7 @@
  * This function is kept for compatibility and will be refactored into a batch process.
  */
 import type { NormalizedPrototype } from '../../api/prototypes';
+import { buildMaterialAnalytics } from '../batch/build-material-analytics';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -24,30 +25,5 @@ export function buildTopMaterials(
   topMaterials: Array<{ material: string; count: number }>;
   materialCounts: Record<string, number>;
 } {
-  const startTime = performance.now();
-  const materialCounts: Record<string, number> = {};
-  prototypes.forEach((prototype) => {
-    if (prototype.materials && Array.isArray(prototype.materials)) {
-      prototype.materials.forEach((material) => {
-        materialCounts[material] = (materialCounts[material] ?? 0) + 1;
-      });
-    }
-  });
-  const topMaterials = Object.entries(materialCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 30)
-    .map(([material, count]) => ({ material, count }));
-  if (options?.logger) {
-    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
-    options.logger.debug(
-      {
-        elapsedMs,
-        distinctMaterials: Object.keys(materialCounts).length,
-        topMaterialCount: topMaterials.length,
-        totalSamples: prototypes.length,
-      },
-      '[ANALYSIS] Built top materials',
-    );
-  }
-  return { topMaterials, materialCounts };
+  return buildMaterialAnalytics(prototypes, options);
 }
