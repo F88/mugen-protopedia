@@ -105,6 +105,10 @@ export const helloWorldTheme = {
       theme: 'purple' as const,
       delay: 'delay-[1000ms]',
     },
+    starAlignment2: {
+      theme: 'space' as const,
+      delay: 'delay-[1000ms]',
+    },
     holyDay: {
       theme: 'amber' as const,
       delay: 'delay-[1100ms]',
