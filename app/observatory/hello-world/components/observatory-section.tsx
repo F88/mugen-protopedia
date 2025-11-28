@@ -15,7 +15,8 @@ export type ObservatorySectionTheme =
   | 'amber'
   | 'teal'
   | 'emerald'
-  | 'fuchsia';
+  | 'fuchsia'
+  | 'space';
 
 interface ThemeStyles {
   container: string;
@@ -152,6 +153,15 @@ const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
     iconText: 'text-fuchsia-600 dark:text-fuchsia-300',
     decoration: 'bg-pink-400/10',
     narrativeBorder: 'border-fuchsia-200/50 dark:border-fuchsia-800/30',
+  },
+  space: {
+    container:
+      'bg-black text-white border-purple-900/50 shadow-2xl shadow-purple-900/20',
+    border: 'border-purple-800/50',
+    iconBg: 'bg-purple-900/30',
+    iconText: 'text-yellow-400',
+    decoration: 'bg-purple-600/20',
+    narrativeBorder: 'border-purple-800/30',
   },
 };
 
