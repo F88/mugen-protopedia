@@ -131,6 +131,7 @@ export function StarAlignmentSection2({
             const count = alignment.prototypes.length;
             const date = new Date(alignment.timestamp);
             const points = getStarCoordinates(count); // Get consistent coordinates
+            const filterId = `starGlow-${alignment.timestamp}`;
 
             return (
               <div
@@ -152,7 +153,7 @@ export function StarAlignmentSection2({
                   <svg viewBox="0 0 100 100" className="w-full h-full">
                     <defs>
                       <filter
-                        id="starGlow"
+                        id={filterId}
                         x="-50%"
                         y="-50%"
                         width="200%"
@@ -193,7 +194,7 @@ export function StarAlignmentSection2({
                         r="4"
                         fill="#FEF08A"
                         className="transition-all duration-300 group-hover:r-5"
-                        filter="url(#starGlow)"
+                        filter={`url(#${filterId})`}
                       />
                     ))}
                   </svg>
