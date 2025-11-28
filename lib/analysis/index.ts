@@ -13,15 +13,11 @@
  * individual/, single/ : Small analysis functions for single prototype objects.
  * shared/        : Shared logic/utilities used by both batch and single analysis.
  * types/         : Type definitions for separation and reuse.
- * to-be-batched/ : Legacy or inefficient analysis functions to be batched/refactored in the future.
  * batch/         : Efficient, multi-prototype (batch) analysis logic.
  */
 
 export * from './core';
 export * from './batch';
-// Only re-export non-conflicting legacy functions from to-be-batched
-// (Do not re-export functions already provided by core)
-export * from './to-be-batched';
 // export * from './single'; // Uncomment when single-purpose analysis is implemented
 export * from './shared';
 // export * from './types';  // Uncomment when types are separated

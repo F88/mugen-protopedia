@@ -7,10 +7,8 @@ import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
   buildAnniversaries,
   buildAnniversarySlice,
-  buildStatusDistribution,
-  computeAverageAgeInDays,
-  countPrototypesWithAwards,
   buildTagAnalytics,
+  buildCoreSummaries,
   buildUserTeamAnalytics,
   buildMaterialAnalytics,
   buildTimeDistributions,
@@ -30,8 +28,11 @@ function analyzePrototypes(
 ): PrototypeAnalysis {
   const referenceDate = new Date();
   const totalCount = prototypes.length;
-  const statusDistribution = buildStatusDistribution(prototypes);
-  const prototypesWithAwards = countPrototypesWithAwards(prototypes);
+  const {
+    statusDistribution,
+    prototypesWithAwards,
+    averageAgeInDays: rawAverageAgeInDays,
+  } = buildCoreSummaries(prototypes, { referenceDate });
   const { topTags } = buildTagAnalytics(prototypes);
   const { teams } = buildUserTeamAnalytics(prototypes);
   const { topMaterials } = buildMaterialAnalytics(prototypes);
@@ -49,10 +50,7 @@ function analyzePrototypes(
   const advancedAnalysis = buildAdvancedAnalysis(prototypes, topTags);
 
   const averageAgeInDays =
-    totalCount > 0
-      ? Math.round(computeAverageAgeInDays(prototypes, referenceDate) * 100) /
-        100
-      : 0;
+    totalCount > 0 ? Math.round(rawAverageAgeInDays * 100) / 100 : 0;
 
   const anniversariesSliceSource = buildAnniversaries(prototypes);
   const anniversaries = buildAnniversarySlice(

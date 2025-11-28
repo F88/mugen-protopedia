@@ -11,14 +11,10 @@ import {
   calculateCreationStreak,
 } from '../core';
 import {
-  buildStatusDistribution,
-  computeAverageAgeInDays,
-  countPrototypesWithAwards,
-} from '../to-be-batched';
-import {
   buildMaterialAnalytics,
   buildTagAnalytics,
   buildUserTeamAnalytics,
+  buildCoreSummaries,
 } from '../batch';
 import type {
   AnniversaryCandidates,
@@ -230,24 +226,28 @@ export function analyzePrototypesForServer(
   // --- Metrics collection for individual analysis steps ---
 
   let stepStart = performance.now();
-  const statusDistribution = buildStatusDistribution(prototypes, { logger });
-  metrics.statusDistribution = performance.now() - stepStart;
-
-  stepStart = performance.now();
-  const prototypesWithAwards = countPrototypesWithAwards(prototypes, {
-    logger,
-  });
-  metrics.prototypesWithAwards = performance.now() - stepStart;
+  const { statusDistribution, prototypesWithAwards, averageAgeInDays } =
+    (() => {
+      const coreStart = performance.now();
+      const summaries = buildCoreSummaries(prototypes, {
+        logger,
+        referenceDate: now,
+      });
+      const elapsed = performance.now() - coreStart;
+      metrics.coreSummaries = elapsed;
+      metrics.statusDistribution = elapsed;
+      metrics.prototypesWithAwards = elapsed;
+      metrics.averageAgeInDays = elapsed;
+      return {
+        statusDistribution: summaries.statusDistribution,
+        prototypesWithAwards: summaries.prototypesWithAwards,
+        averageAgeInDays: summaries.averageAgeInDays,
+      };
+    })();
 
   stepStart = performance.now();
   const { topTags, tagCounts } = buildTagAnalytics(prototypes, { logger });
   metrics.topTags = performance.now() - stepStart;
-
-  stepStart = performance.now();
-  const averageAgeInDays = computeAverageAgeInDays(prototypes, now, {
-    logger,
-  });
-  metrics.averageAgeInDays = performance.now() - stepStart;
 
   stepStart = performance.now();
   const {

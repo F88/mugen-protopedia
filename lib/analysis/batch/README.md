@@ -17,6 +17,7 @@ in the UI, refer to `docs/analysis.md`.
 | `build-tag-analytics.ts`          | true                | `NormalizedPrototype[]`                                       | Tag rankings & counts (`TagAnalytics`)                           |
 | `build-material-analytics.ts`     | true                | `NormalizedPrototype[]`                                       | Material rankings & counts (`MaterialAnalytics`)                 |
 | `build-user-team-analytics.ts`    | true                | `NormalizedPrototype[]`                                       | Team rankings & user-analytics placeholder (`UserTeamAnalytics`) |
+| `build-core-summaries.ts`         | true                | `NormalizedPrototype[]`, optional reference date              | Status, awards, average age (`CoreSummaries`)                    |
 | `collect-unique-release-dates.ts` | true                | `NormalizedPrototype[]` (for `buildDateBasedReleaseInsights`) | Date-keyed insights (`DateBasedReleaseInsights`)                 |
 
 ## Full Dataset Scans

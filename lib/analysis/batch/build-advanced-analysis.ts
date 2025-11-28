@@ -6,7 +6,7 @@
  * calendar-grouped aggregations to keep reporting consistent across platforms.
  */
 
-import { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { NormalizedPrototype } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -126,19 +126,89 @@ export function buildAdvancedAnalysis(
   options?: { logger?: MinimalLogger },
 ): AdvancedAnalysis {
   const startTime = performance.now();
-  // 1. First Penguins (Earliest release of each year - JST)
-  const firstPenguinsMap = new Map<number, NormalizedPrototype>();
-  // 2. Star Alignment (Exact same timestamp)
-  const timestampMap = new Map<string, NormalizedPrototype[]>();
-  // 3. Anniversary Effect (Special Days)
-  const specialDays: Record<
-    string,
-    {
-      name: string;
-      count: number;
-      examples: Array<{ id: number; title: string; year: number }>;
+  const collectors = createAdvancedCollectors(topTags);
+
+  prototypes.forEach((prototype) => {
+    const context = createPrototypeContext(prototype);
+    if (context) {
+      collectors.collect(context);
     }
-  > = {
+  });
+
+  const result = collectors.finalize({ totalPrototypes: prototypes.length });
+
+  if (options?.logger) {
+    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
+    options.logger.debug(
+      {
+        elapsedMs,
+        outputs: Object.keys(result),
+      },
+      '[ANALYSIS]Advanced analysis computed',
+    );
+  }
+
+  return result;
+}
+
+type ReleaseContext = {
+  iso: string;
+  timestampMs: number;
+  year: number;
+  mmdd: string;
+  yyyymmdd: string;
+  weekday: number;
+  hour: number;
+};
+
+type PrototypeContext = {
+  prototype: NormalizedPrototype;
+  release: ReleaseContext;
+};
+
+type SpecialDayStats = {
+  name: string;
+  count: number;
+  examples: Array<{ id: number; title: string; year: number }>;
+};
+
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+function createPrototypeContext(
+  prototype: NormalizedPrototype,
+): PrototypeContext | null {
+  const { releaseDate } = prototype;
+  if (!releaseDate) {
+    return null;
+  }
+
+  const releaseTimestamp = Date.parse(releaseDate);
+  if (Number.isNaN(releaseTimestamp)) {
+    return null;
+  }
+
+  const jstTime = releaseTimestamp + JST_OFFSET_MS;
+  const jstDate = new Date(jstTime);
+  const year = jstDate.getUTCFullYear();
+  const month = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(jstDate.getUTCDate()).padStart(2, '0');
+
+  return {
+    prototype,
+    release: {
+      iso: releaseDate,
+      timestampMs: releaseTimestamp,
+      year,
+      mmdd: `${month}-${day}`,
+      yyyymmdd: `${year}-${month}-${day}`,
+      weekday: jstDate.getUTCDay(),
+      hour: jstDate.getUTCHours(),
+    },
+  };
+}
+
+function createSpecialDayMap(): Record<string, SpecialDayStats> {
+  return {
     '01-01': { name: "New Year's Day", count: 0, examples: [] },
     '02-14': { name: "Valentine's Day", count: 0, examples: [] },
     '03-14': { name: 'White Day', count: 0, examples: [] },
@@ -149,10 +219,26 @@ export function buildAdvancedAnalysis(
     '11-11': { name: 'Pocky Day', count: 0, examples: [] },
     '12-25': { name: 'Christmas', count: 0, examples: [] },
   };
-  // 4. Early Adopters (First use of Top Tags)
-  const earlyAdoptersMap = new Map<string, NormalizedPrototype>();
-  const topTagNames = new Set(topTags.slice(0, 50).map((t) => t.tag));
-  // 5. Labor of Love (Gestation Period)
+}
+
+function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
+  const firstPenguins = new Map<
+    number,
+    {
+      prototype: NormalizedPrototype;
+      timestampMs: number;
+    }
+  >();
+  const timestampMap = new Map<string, NormalizedPrototype[]>();
+  const specialDays = createSpecialDayMap();
+  const earlyAdopters = new Map<
+    string,
+    {
+      prototype: NormalizedPrototype;
+      timestampMs: number;
+    }
+  >();
+  const topTagNames = new Set(topTags.slice(0, 50).map((tag) => tag.tag));
   const gestationData: Array<{
     id: number;
     title: string;
@@ -168,20 +254,15 @@ export function buildAdvancedAnalysis(
     '6 months - 1 year': 0,
     'Over 1 year': 0,
   };
-  // 6. Maternity Hospital (Events)
   const eventCounts: Record<string, number> = {};
   let independentCount = 0;
   let totalWithEventStatus = 0;
-  // 7. Power of Deadlines (Daily Spikes)
   const dailyReleaseCounts: Record<string, number> = {};
-  // 8. Weekend Warrior
   let sundaySprintCount = 0;
   let midnightCount = 0;
   let daytimeCount = 0;
   let totalReleaseCount = 0;
-  // 9. Holy Day (MM-DD aggregation)
   const holyDayCounts: Record<string, number> = {};
-  // 10. Long-Term Evolution (Maintenance Period)
   const maintenanceData: Array<{
     id: number;
     title: string;
@@ -191,239 +272,346 @@ export function buildAdvancedAnalysis(
   }> = [];
   let totalMaintenanceDays = 0;
   let prototypesWithMaintenance = 0;
-  // JST offset in milliseconds
-  const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
-  prototypes.forEach((p) => {
-    if (!p.releaseDate) return;
-    const date = new Date(p.releaseDate);
-    if (Number.isNaN(date.getTime())) return;
-    // JST Conversion for Calendar-based analysis
-    const jstDate = new Date(date.getTime() + JST_OFFSET_MS);
-    const year = jstDate.getUTCFullYear();
-    const mm = String(jstDate.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(jstDate.getUTCDate()).padStart(2, '0');
-    const mmdd = `${mm}-${dd}`;
-    const yyyymmdd = `${year}-${mm}-${dd}`;
-    // 7. Power of Deadlines
-    dailyReleaseCounts[yyyymmdd] = (dailyReleaseCounts[yyyymmdd] || 0) + 1;
-    // 8. Weekend Warrior
-    const day = jstDate.getUTCDay();
-    const hour = jstDate.getUTCHours();
-    totalReleaseCount++;
-    if ((day === 0 && hour >= 20) || (day === 1 && hour < 5)) {
-      sundaySprintCount++;
-    }
-    if (hour >= 23 || hour < 4) {
-      midnightCount++;
-    }
-    if (hour >= 9 && hour < 18) {
-      daytimeCount++;
-    }
-    // 9. Holy Day
-    holyDayCounts[mmdd] = (holyDayCounts[mmdd] || 0) + 1;
-    // 1. First Penguin
-    if (!firstPenguinsMap.has(year)) {
-      firstPenguinsMap.set(year, p);
-    } else {
-      const currentFirst = firstPenguinsMap.get(year)!;
-      if (
-        new Date(p.releaseDate).getTime() <
-        new Date(currentFirst.releaseDate).getTime()
-      ) {
-        firstPenguinsMap.set(year, p);
-      }
-    }
-    // 2. Star Alignment
-    const ts = p.releaseDate;
-    if (!timestampMap.has(ts)) {
-      timestampMap.set(ts, []);
-    }
-    timestampMap.get(ts)!.push(p);
-    // 3. Anniversary Effect
-    if (specialDays[mmdd]) {
-      specialDays[mmdd].count++;
-      specialDays[mmdd].examples.push({
-        id: p.id,
-        title: p.prototypeNm,
-        year: year,
-      });
-    }
-    // 4. Early Adopters
-    if (p.tags) {
-      p.tags.forEach((tag) => {
-        if (topTagNames.has(tag)) {
-          if (!earlyAdoptersMap.has(tag)) {
-            earlyAdoptersMap.set(tag, p);
-          } else {
-            const current = earlyAdoptersMap.get(tag)!;
-            if (
-              new Date(p.releaseDate).getTime() <
-              new Date(current.releaseDate).getTime()
-            ) {
-              earlyAdoptersMap.set(tag, p);
-            }
-          }
-        }
-      });
-    }
-    // 5. Labor of Love
-    if (p.createDate && p.releaseDate) {
-      const createTime = new Date(p.createDate).getTime();
-      const releaseTime = new Date(p.releaseDate).getTime();
-      const diffMs = releaseTime - createTime;
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      if (diffDays > 0) {
-        gestationData.push({
-          id: p.id,
-          title: p.prototypeNm,
-          durationDays: diffDays,
-          createDate: p.createDate,
-          releaseDate: p.releaseDate,
-        });
-        if (diffDays < 7) gestationDistribution['Less than 1 week']++;
-        else if (diffDays < 30) gestationDistribution['1 week - 1 month']++;
-        else if (diffDays < 90) gestationDistribution['1 month - 3 months']++;
-        else if (diffDays < 180) gestationDistribution['3 months - 6 months']++;
-        else if (diffDays < 365) gestationDistribution['6 months - 1 year']++;
-        else gestationDistribution['Over 1 year']++;
-      }
-    }
-    // 6. Maternity Hospital
-    if (p.events && p.events.length > 0) {
-      totalWithEventStatus++;
-      p.events.forEach((event) => {
-        eventCounts[event] = (eventCounts[event] || 0) + 1;
-      });
-    } else {
-      independentCount++;
-      totalWithEventStatus++;
-    }
-    // 10. Long-Term Evolution (Maintenance Period)
-    if (p.releaseDate && p.updateDate) {
-      const releaseTime = new Date(p.releaseDate).getTime();
-      const updateTime = new Date(p.updateDate).getTime();
-      const diffMs = updateTime - releaseTime;
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      if (diffDays > 0) {
-        prototypesWithMaintenance++;
-        totalMaintenanceDays += diffDays;
-        maintenanceData.push({
-          id: p.id,
-          title: p.prototypeNm,
-          maintenanceDays: diffDays,
-          releaseDate: p.releaseDate,
-          updateDate: p.updateDate,
-        });
-      }
-    }
-  });
-  const firstPenguins = Array.from(firstPenguinsMap.entries())
-    .sort((a, b) => b[0] - a[0])
-    .map(([year, p]) => ({
-      year,
-      prototype: {
-        id: p.id,
-        title: p.prototypeNm,
-        releaseDate: p.releaseDate,
-        user:
-          p.teamNm ||
-          (p.users && p.users.length > 0 ? p.users[0] : 'Unknown Creator'),
-      },
-    }));
-  const starAlignments = Array.from(timestampMap.entries())
-    .filter(([, protos]) => protos.length > 1)
-    .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
-    .slice(0, 30)
-    .map(([ts, protos]) => ({
-      timestamp: ts,
-      prototypes: protos.map((p) => ({ id: p.id, title: p.prototypeNm })),
-    }));
-  const anniversaryEffect = Object.entries(specialDays)
-    .map(([date, data]) => ({
-      name: data.name,
-      date,
-      count: data.count,
-      examples: data.examples.sort((a, b) => b.year - a.year).slice(0, 5),
-    }))
-    .filter((d) => d.count > 0)
-    .sort((a, b) => b.count - a.count);
-  const earlyAdopters = Array.from(earlyAdoptersMap.entries())
-    .map(([tag, p]) => ({
-      tag,
-      prototypeId: p.id,
-      prototypeTitle: p.prototypeNm,
-      releaseDate: p.releaseDate,
-    }))
-    .sort(
-      (a, b) =>
-        new Date(a.releaseDate).getTime() - new Date(b.releaseDate).getTime(),
-    );
-  const laborOfLove = {
-    longestGestation: gestationData
-      .sort((a, b) => b.durationDays - a.durationDays)
-      .slice(0, 30),
-    distribution: gestationDistribution,
-  };
-  const maternityHospital = {
-    topEvents: Object.entries(eventCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([event, count]) => ({ event, count })),
-    independentRatio:
-      totalWithEventStatus > 0 ? independentCount / totalWithEventStatus : 0,
-  };
-  const powerOfDeadlines = {
-    spikes: Object.entries(dailyReleaseCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([date, count]) => ({ date, count, score: count })),
-  };
-  const weekendWarrior = {
-    sundaySprintCount,
-    midnightCount,
-    daytimeCount,
-    totalCount: totalReleaseCount,
-  };
-  const holyDay = {
-    topDays: Object.entries(holyDayCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 30)
-      .map(([date, count]) => ({ date, count })),
-  };
-  const longTermEvolution = {
-    longestMaintenance: maintenanceData
-      .sort((a, b) => b.maintenanceDays - a.maintenanceDays)
-      .slice(0, 30),
-    averageMaintenanceDays:
-      prototypesWithMaintenance > 0
-        ? totalMaintenanceDays / prototypesWithMaintenance
-        : 0,
-    maintenanceRatio:
-      prototypes.length > 0 ? prototypesWithMaintenance / prototypes.length : 0,
-  };
-  const result: AdvancedAnalysis = {
-    firstPenguins,
-    starAlignments,
-    anniversaryEffect,
-    earlyAdopters,
-    laborOfLove,
-    maternityHospital,
-    powerOfDeadlines,
-    weekendWarrior,
-    holyDay,
-    longTermEvolution,
-  };
 
-  if (options?.logger) {
-    const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
-    options.logger.debug(
-      {
-        elapsedMs,
-        outputs: Object.keys(result),
-      },
-      '[ANALYSIS]Advanced analysis computed',
-    );
+  function collect(context: PrototypeContext) {
+    const { prototype, release } = context;
+
+    collectFirstPenguin(release, prototype);
+    collectStarAlignment(release, prototype);
+    collectSpecialDays(release, prototype);
+    collectEarlyAdopters(release, prototype);
+    collectGestation(prototype);
+    collectEvents(prototype);
+    collectDeadlines(release);
+    collectWeekendWarrior(release);
+    collectHolyDay(release);
+    collectMaintenance(prototype, release);
   }
 
-  return result;
+  function collectFirstPenguin(
+    release: ReleaseContext,
+    prototype: NormalizedPrototype,
+  ) {
+    const record = firstPenguins.get(release.year);
+    if (!record || release.timestampMs < record.timestampMs) {
+      firstPenguins.set(release.year, {
+        prototype,
+        timestampMs: release.timestampMs,
+      });
+    }
+  }
+
+  function collectStarAlignment(
+    release: ReleaseContext,
+    prototype: NormalizedPrototype,
+  ) {
+    const list = timestampMap.get(release.iso);
+    if (list) {
+      list.push(prototype);
+    } else {
+      timestampMap.set(release.iso, [prototype]);
+    }
+  }
+
+  function collectSpecialDays(
+    release: ReleaseContext,
+    prototype: NormalizedPrototype,
+  ) {
+    const bucket = specialDays[release.mmdd];
+    if (!bucket) {
+      return;
+    }
+
+    bucket.count += 1;
+    bucket.examples.push({
+      id: prototype.id,
+      title: prototype.prototypeNm,
+      year: release.year,
+    });
+  }
+
+  function collectEarlyAdopters(
+    release: ReleaseContext,
+    prototype: NormalizedPrototype,
+  ) {
+    if (!prototype.tags || prototype.tags.length === 0) {
+      return;
+    }
+
+    prototype.tags.forEach((tag) => {
+      if (!topTagNames.has(tag)) {
+        return;
+      }
+
+      const current = earlyAdopters.get(tag);
+      if (!current || release.timestampMs < current.timestampMs) {
+        earlyAdopters.set(tag, {
+          prototype,
+          timestampMs: release.timestampMs,
+        });
+      }
+    });
+  }
+
+  function collectGestation(prototype: NormalizedPrototype) {
+    if (!prototype.createDate || !prototype.releaseDate) {
+      return;
+    }
+
+    const createTime = Date.parse(prototype.createDate);
+    const releaseTime = Date.parse(prototype.releaseDate);
+    if (Number.isNaN(createTime) || Number.isNaN(releaseTime)) {
+      return;
+    }
+
+    const diffDays = Math.floor(
+      (releaseTime - createTime) / (1000 * 60 * 60 * 24),
+    );
+    if (diffDays <= 0) {
+      return;
+    }
+
+    gestationData.push({
+      id: prototype.id,
+      title: prototype.prototypeNm,
+      durationDays: diffDays,
+      createDate: prototype.createDate,
+      releaseDate: prototype.releaseDate,
+    });
+
+    if (diffDays < 7) {
+      gestationDistribution['Less than 1 week'] += 1;
+    } else if (diffDays < 30) {
+      gestationDistribution['1 week - 1 month'] += 1;
+    } else if (diffDays < 90) {
+      gestationDistribution['1 month - 3 months'] += 1;
+    } else if (diffDays < 180) {
+      gestationDistribution['3 months - 6 months'] += 1;
+    } else if (diffDays < 365) {
+      gestationDistribution['6 months - 1 year'] += 1;
+    } else {
+      gestationDistribution['Over 1 year'] += 1;
+    }
+  }
+
+  function collectEvents(prototype: NormalizedPrototype) {
+    totalWithEventStatus += 1;
+
+    if (prototype.events && prototype.events.length > 0) {
+      prototype.events.forEach((event) => {
+        eventCounts[event] = (eventCounts[event] ?? 0) + 1;
+      });
+      return;
+    }
+
+    independentCount += 1;
+  }
+
+  function collectDeadlines(release: ReleaseContext) {
+    dailyReleaseCounts[release.yyyymmdd] =
+      (dailyReleaseCounts[release.yyyymmdd] ?? 0) + 1;
+  }
+
+  function collectWeekendWarrior(release: ReleaseContext) {
+    totalReleaseCount += 1;
+
+    if (
+      (release.weekday === 0 && release.hour >= 20) ||
+      (release.weekday === 1 && release.hour < 5)
+    ) {
+      sundaySprintCount += 1;
+    }
+
+    if (release.hour >= 23 || release.hour < 4) {
+      midnightCount += 1;
+    }
+
+    if (release.hour >= 9 && release.hour < 18) {
+      daytimeCount += 1;
+    }
+  }
+
+  function collectHolyDay(release: ReleaseContext) {
+    holyDayCounts[release.mmdd] = (holyDayCounts[release.mmdd] ?? 0) + 1;
+  }
+
+  function collectMaintenance(
+    prototype: NormalizedPrototype,
+    release: ReleaseContext,
+  ) {
+    if (!prototype.updateDate) {
+      return;
+    }
+
+    const updateTime = Date.parse(prototype.updateDate);
+    if (Number.isNaN(updateTime)) {
+      return;
+    }
+
+    const diffDays = Math.floor(
+      (updateTime - release.timestampMs) / (1000 * 60 * 60 * 24),
+    );
+    if (diffDays <= 0) {
+      return;
+    }
+
+    prototypesWithMaintenance += 1;
+    totalMaintenanceDays += diffDays;
+    maintenanceData.push({
+      id: prototype.id,
+      title: prototype.prototypeNm,
+      maintenanceDays: diffDays,
+      releaseDate: release.iso,
+      updateDate: prototype.updateDate,
+    });
+  }
+
+  function finalize({
+    totalPrototypes,
+  }: {
+    totalPrototypes: number;
+  }): AdvancedAnalysis {
+    return {
+      firstPenguins: finalizeFirstPenguins(),
+      starAlignments: finalizeStarAlignments(),
+      anniversaryEffect: finalizeAnniversaryEffect(),
+      earlyAdopters: finalizeEarlyAdopters(),
+      laborOfLove: finalizeLaborOfLove(),
+      maternityHospital: finalizeMaternityHospital(),
+      powerOfDeadlines: finalizePowerOfDeadlines(),
+      weekendWarrior: finalizeWeekendWarrior(),
+      holyDay: finalizeHolyDay(),
+      longTermEvolution: finalizeLongTermEvolution(totalPrototypes),
+    };
+  }
+
+  function finalizeFirstPenguins() {
+    return Array.from(firstPenguins.entries())
+      .sort((a, b) => b[0] - a[0])
+      .map(([year, record]) => ({
+        year,
+        prototype: {
+          id: record.prototype.id,
+          title: record.prototype.prototypeNm,
+          releaseDate: record.prototype.releaseDate!,
+          user:
+            record.prototype.teamNm ||
+            (record.prototype.users && record.prototype.users.length > 0
+              ? record.prototype.users[0]
+              : 'Unknown Creator'),
+        },
+      }));
+  }
+
+  function finalizeStarAlignments() {
+    return Array.from(timestampMap.entries())
+      .filter(([, protos]) => protos.length > 1)
+      .sort((a, b) => Date.parse(b[0]) - Date.parse(a[0]))
+      .slice(0, 30)
+      .map(([timestamp, protos]) => ({
+        timestamp,
+        prototypes: protos.map((prototype) => ({
+          id: prototype.id,
+          title: prototype.prototypeNm,
+        })),
+      }));
+  }
+
+  function finalizeAnniversaryEffect() {
+    return Object.entries(specialDays)
+      .map(([date, data]) => ({
+        name: data.name,
+        date,
+        count: data.count,
+        examples: data.examples
+          .slice()
+          .sort((a, b) => b.year - a.year)
+          .slice(0, 5),
+      }))
+      .filter((entry) => entry.count > 0)
+      .sort((a, b) => b.count - a.count);
+  }
+
+  function finalizeEarlyAdopters() {
+    return Array.from(earlyAdopters.entries())
+      .map(([tag, record]) => ({
+        tag,
+        prototypeId: record.prototype.id,
+        prototypeTitle: record.prototype.prototypeNm,
+        releaseDate: record.prototype.releaseDate!,
+      }))
+      .sort((a, b) => Date.parse(a.releaseDate) - Date.parse(b.releaseDate));
+  }
+
+  function finalizeLaborOfLove() {
+    return {
+      longestGestation: gestationData
+        .slice()
+        .sort((a, b) => b.durationDays - a.durationDays)
+        .slice(0, 30),
+      distribution: gestationDistribution,
+    };
+  }
+
+  function finalizeMaternityHospital() {
+    const topEvents = Object.entries(eventCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 30)
+      .map(([event, count]) => ({ event, count }));
+
+    const independentRatio =
+      totalWithEventStatus > 0 ? independentCount / totalWithEventStatus : 0;
+
+    return { topEvents, independentRatio };
+  }
+
+  function finalizePowerOfDeadlines() {
+    return {
+      spikes: Object.entries(dailyReleaseCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 30)
+        .map(([date, count]) => ({ date, count, score: count })),
+    };
+  }
+
+  function finalizeWeekendWarrior() {
+    return {
+      sundaySprintCount,
+      midnightCount,
+      daytimeCount,
+      totalCount: totalReleaseCount,
+    };
+  }
+
+  function finalizeHolyDay() {
+    return {
+      topDays: Object.entries(holyDayCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 30)
+        .map(([date, count]) => ({ date, count })),
+    };
+  }
+
+  function finalizeLongTermEvolution(totalPrototypes: number) {
+    const longestMaintenance = maintenanceData
+      .slice()
+      .sort((a, b) => b.maintenanceDays - a.maintenanceDays)
+      .slice(0, 30);
+
+    const averageMaintenanceDays =
+      prototypesWithMaintenance > 0
+        ? totalMaintenanceDays / prototypesWithMaintenance
+        : 0;
+
+    const maintenanceRatio =
+      totalPrototypes > 0 ? prototypesWithMaintenance / totalPrototypes : 0;
+
+    return {
+      longestMaintenance,
+      averageMaintenanceDays,
+      maintenanceRatio,
+    };
+  }
+
+  return { collect, finalize };
 }
