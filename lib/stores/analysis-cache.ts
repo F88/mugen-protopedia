@@ -1,4 +1,4 @@
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /**

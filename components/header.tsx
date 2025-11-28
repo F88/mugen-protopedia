@@ -93,9 +93,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
               <PlaylistHeaderButton />
             </div>
             {/* Observatory shortcut */}
-            {process.env.NODE_ENV === 'development' && (
-              <ObservatoryHeaderButton />
-            )}
+            {/* {process.env.NODE_ENV === 'development' && ( */}
+            <ObservatoryHeaderButton />
+            {/* )} */}
             {/* Theme  */}
             <ThemeToggle />
           </div>

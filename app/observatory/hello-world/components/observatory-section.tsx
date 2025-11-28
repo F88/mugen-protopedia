@@ -14,7 +14,9 @@ export type ObservatorySectionTheme =
   | 'blue'
   | 'amber'
   | 'teal'
-  | 'emerald';
+  | 'emerald'
+  | 'fuchsia'
+  | 'space';
 
 interface ThemeStyles {
   container: string;
@@ -23,6 +25,9 @@ interface ThemeStyles {
   iconText: string;
   decoration: string;
   narrativeBorder: string;
+  title?: string;
+  description?: string;
+  muted?: string;
 }
 
 const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
@@ -143,6 +148,26 @@ const THEME_STYLES: Record<ObservatorySectionTheme, ThemeStyles> = {
     decoration: 'bg-green-400/10',
     narrativeBorder: 'border-emerald-200/50 dark:border-emerald-800/30',
   },
+  fuchsia: {
+    container:
+      'bg-linear-to-r from-fuchsia-50 to-pink-50 dark:from-fuchsia-900/20 dark:to-pink-900/20',
+    border: 'border-fuchsia-100 dark:border-fuchsia-800/50',
+    iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-800',
+    iconText: 'text-fuchsia-600 dark:text-fuchsia-300',
+    decoration: 'bg-pink-400/10',
+    narrativeBorder: 'border-fuchsia-200/50 dark:border-fuchsia-800/30',
+  },
+  space: {
+    container: 'bg-slate-900/100 dark:bg-slate-900/30 shadow-black/40',
+    border: 'border-slate-700/50 dark:border-slate-800/50',
+    iconBg: 'bg-slate-800/80 dark:bg-slate-900/80',
+    iconText: 'text-yellow-200',
+    decoration: 'bg-purple-500/10',
+    narrativeBorder: 'border-slate-700/50 dark:border-slate-800/50',
+    title: 'text-slate-100',
+    description: 'text-slate-300',
+    muted: 'text-slate-400',
+  },
 };
 
 interface ObservatorySectionProps {
@@ -182,7 +207,6 @@ export function ObservatorySection({
       className={cn(
         'mb-16 animate-in fade-in slide-in-from-bottom-8 duration-700',
         delay,
-        className,
       )}
     >
       <div
@@ -190,6 +214,7 @@ export function ObservatorySection({
           'relative overflow-hidden rounded-3xl p-8 border',
           styles.container,
           styles.border,
+          className,
         )}
       >
         {/* Background Decoration */}
@@ -214,15 +239,30 @@ export function ObservatorySection({
               >
                 {icon}
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h2
+                className={cn(
+                  'text-3xl font-bold',
+                  styles.title || 'text-gray-900 dark:text-white',
+                )}
+              >
                 {title}
               </h2>
             </div>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
+            <p
+              className={cn(
+                'text-lg',
+                styles.description || 'text-gray-600 dark:text-gray-300',
+              )}
+            >
               {description}
             </p>
             {sourceNote && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              <p
+                className={cn(
+                  'text-xs mt-2',
+                  styles.muted || 'text-gray-400 dark:text-gray-500',
+                )}
+              >
                 * Source: {sourceNote}
               </p>
             )}
@@ -241,10 +281,20 @@ export function ObservatorySection({
               styles.narrativeBorder,
             )}
           >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <h3
+              className={cn(
+                'text-lg font-bold mb-3 flex items-center gap-2',
+                styles.title || 'text-gray-900 dark:text-white',
+              )}
+            >
               {narrative.title}
             </h3>
-            <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+            <div
+              className={cn(
+                'text-sm leading-relaxed',
+                styles.description || 'text-gray-700 dark:text-gray-300',
+              )}
+            >
               {narrative.content}
             </div>
           </div>

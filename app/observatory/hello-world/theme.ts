@@ -65,9 +65,13 @@ export const helloWorldTheme = {
       theme: 'lime' as const,
       delay: 'delay-100',
     },
-    makersRhythm: {
+    birthPulse: {
       theme: 'orange' as const,
       delay: 'delay-200',
+    },
+    afterglowRhythm: {
+      theme: 'blue' as const,
+      delay: 'delay-[210ms]',
     },
     eternalFlame: {
       theme: 'red' as const,
@@ -78,7 +82,7 @@ export const helloWorldTheme = {
       delay: 'delay-[400ms]',
     },
     powerOfDeadlines: {
-      theme: 'rose' as const, // Changed from red to avoid duplication
+      theme: 'fuchsia' as const,
       delay: 'delay-[500ms]',
     },
     weekendWarrior: {
@@ -98,7 +102,11 @@ export const helloWorldTheme = {
       delay: 'delay-[900ms]',
     },
     starAlignment: {
-      theme: 'purple' as const,
+      theme: 'space' as const,
+      delay: 'delay-[1000ms]',
+    },
+    starAlignment2: {
+      theme: 'space' as const,
       delay: 'delay-[1000ms]',
     },
     holyDay: {

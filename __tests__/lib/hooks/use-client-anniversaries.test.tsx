@@ -3,9 +3,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
-import * as analysisClient from '@/lib/utils/prototype-analysis.client';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
-import type { AnniversariesSlice } from '@/lib/utils/prototype-analysis-helpers';
+import * as analysisClient from '@/lib/analysis/entrypoints/client';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnniversariesSlice } from '@/lib/analysis/types';
 
 describe('useClientAnniversaries', () => {
   beforeEach(() => {
@@ -17,8 +17,8 @@ describe('useClientAnniversaries', () => {
     statusDistribution: {},
     prototypesWithAwards: 0,
     topTags: [],
+    topMaterials: [],
     averageAgeInDays: 0,
-    yearDistribution: {},
     topTeams: [],
     analyzedAt: '2025-01-01T00:00:00.000Z',
     anniversaryCandidates: {
@@ -34,6 +34,36 @@ describe('useClientAnniversaries', () => {
         { id: 2, title: 'p2', releaseDate: '2020-01-02T00:00:00.000Z' },
       ],
     },
+    createTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+    createDateDistribution: { month: [], year: {}, daily: {} },
+    releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+    releaseDateDistribution: { month: [], year: {}, daily: {} },
+    updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
+    updateDateDistribution: { month: [], year: {}, daily: {} },
+    creationStreak: {
+      currentStreak: 0,
+      longestStreak: 0,
+      longestStreakEndDate: null,
+      totalActiveDays: 0,
+    },
+    earlyAdopters: [],
+    firstPenguins: [],
+    starAlignments: [],
+    anniversaryEffect: [],
+    laborOfLove: { longestGestation: [], distribution: {} },
+    maternityHospital: { topEvents: [], independentRatio: 0 },
+    powerOfDeadlines: { spikes: [] },
+    weekendWarrior: {
+      weekendHourlyCounts: [],
+      totalWeekendCount: 0,
+    },
+    holyDay: { topDays: [] },
+    longTermEvolution: {
+      longestMaintenance: [],
+      averageMaintenanceDays: 0,
+      maintenanceRatio: 0,
+    },
+    _debugMetrics: {},
   };
 
   it('does nothing when disabled', async () => {

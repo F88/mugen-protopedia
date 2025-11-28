@@ -68,10 +68,13 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-11-28
+
+- 🔭 ProtoPedia Observatory (beta) を追加
+
 ### 2025-11-27
 
 - 📈 新しい分析情報
-- 🔭 ProtoPedia Observatory (beta) を追加
 
 ### 2025-11-24
 

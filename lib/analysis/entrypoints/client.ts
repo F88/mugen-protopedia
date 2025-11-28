@@ -5,22 +5,12 @@ import { buildAnniversaryCandidateTotals } from '@/lib/utils/anniversary-candida
 import {
   buildAnniversaries,
   buildAnniversarySlice,
-} from '@/lib/utils/prototype-analysis-helpers';
+} from '../shared/anniversaries';
 import type {
   AnniversaryCandidatePrototype,
   ClientPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
-
-/**
- * Minimal logger interface for dependency injection
- */
-type MinimalLogger = {
-  debug: (...args: unknown[]) => void;
-  info: (...args: unknown[]) => void;
-  warn: (...args: unknown[]) => void;
-  error: (...args: unknown[]) => void;
-  child: (bindings: Record<string, unknown>) => MinimalLogger;
-};
+  MinimalLogger,
+} from '@/lib/analysis/types';
 
 /**
  * Analyzes anniversary candidates in the user's local timezone.
@@ -79,8 +69,10 @@ export function analyzeCandidates(
   }
 
   // Compute timezone-sensitive anniversaries
-  const { birthdayPrototypes, newbornPrototypes } =
-    buildAnniversaries(candidates);
+  const { birthdayPrototypes, newbornPrototypes } = buildAnniversaries(
+    candidates,
+    { logger },
+  );
 
   logger.debug(
     {
@@ -90,12 +82,13 @@ export function analyzeCandidates(
         newbornCount: newbornPrototypes.length,
       },
     },
-    'Client-side anniversaries computed from candidates',
+    '[ANALYSIS] Client-side anniversaries computed from candidates',
   );
 
   const anniversaries = buildAnniversarySlice(
     birthdayPrototypes,
     newbornPrototypes,
+    { logger },
   );
 
   return { anniversaries };

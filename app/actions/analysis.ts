@@ -13,8 +13,8 @@ import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 
 /**
  * Successful response containing analysis data
@@ -134,8 +134,11 @@ const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
     topTeams: analysis.topTeams,
   },
   temporal: {
-    yearDistribution: analysis.yearDistribution,
+    createDateDistribution: analysis.createDateDistribution,
+    createTimeDistribution: analysis.createTimeDistribution,
+    releaseDateDistribution: analysis.releaseDateDistribution,
     releaseTimeDistribution: analysis.releaseTimeDistribution,
+    updateDateDistribution: analysis.updateDateDistribution,
     updateTimeDistribution: analysis.updateTimeDistribution,
     creationStreak: analysis.creationStreak,
   },
@@ -279,6 +282,8 @@ export async function getLatestAnalysis(options?: {
       cachedAt: cached.cachedAt,
       elapsedMs,
       hasReleaseTimeDistribution: !!cached.analysis.releaseTimeDistribution, // DEBUG
+      hasReleaseDateDistribution: !!cached.analysis.releaseDateDistribution, // DEBUG
+      hasUpdateDateDistribution: !!cached.analysis.updateDateDistribution, // DEBUG
     },
     'Latest analysis retrieved from cache',
   );

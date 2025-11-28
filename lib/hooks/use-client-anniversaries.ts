@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { analyzeCandidates } from '@/lib/utils/prototype-analysis.client';
+import { analyzeCandidates } from '@/lib/analysis/entrypoints/client';
 import type {
   PrototypeAnalysis,
   ServerPrototypeAnalysis,
-} from '@/lib/utils/prototype-analysis.types';
+} from '@/lib/analysis/types';
 
 export type ClientAnniversariesState = {
   anniversaries: PrototypeAnalysis['anniversaries'] | null;

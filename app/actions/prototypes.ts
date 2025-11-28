@@ -25,7 +25,7 @@ import {
 } from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
-import { analyzePrototypesForServer } from '@/lib/utils/prototype-analysis.server';
+import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
 
 import type {
   FetchPrototypeByIdResult,

@@ -7,8 +7,8 @@
 
 import type { Metadata } from 'next';
 
+import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 import { APP_TITLE } from '@/lib/config/app-constants';
-import type { AnniversaryCandidatePrototype } from '@/lib/utils/prototype-analysis.types';
 
 import { getLatestAnalysis } from '@/app/actions/analysis';
 
@@ -16,21 +16,26 @@ import { ObservatoryHeader } from '@/components/observatory/observatory-header';
 
 import { IconGlobe } from '@/app/observatory/shared/icons';
 
-import { NewbornsSection } from './components/newborns-section';
-import { MakersRhythmSection } from './components/makers-rhythm-section';
-import { EternalFlameSection } from './components/eternal-flame-section';
-import { GatewayDrugSection } from './components/gateway-drug-section';
-import { EarlyAdoptersSection } from './components/early-adopters-section';
-import { FirstPenguinSection } from './components/first-penguin-section';
-import { StarAlignmentSection } from './components/star-alignment-section';
-import { AnniversaryEffectSection } from './components/anniversary-effect-section';
-import { LaborOfLoveSection } from './components/labor-of-love-section';
-import { MaternityHospitalSection } from './components/maternity-hospital-section';
-import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
-import { WeekendWarriorSection } from './components/weekend-warrior-section';
-import { HolyDaySection } from './components/holy-day-section';
-import { LongTermEvolutionSection } from './components/long-term-evolution-section';
 import { HelloWorldBackground } from './background';
+
+import { AnniversaryEffectSection } from './components/anniversary-effect-section';
+import { EarlyAdoptersSection } from './components/early-adopters-section';
+import { EternalFlameSection } from './components/eternal-flame-section';
+import { FirstPenguinSection } from './components/first-penguin-section';
+import { GatewayDrugSection } from './components/gateway-drug-section';
+import { HolyDaySection } from './components/holy-day-section';
+import { LaborOfLoveSection } from './components/labor-of-love-section';
+import { LongTermEvolutionSection } from './components/long-term-evolution-section';
+import {
+  AfterglowRhythmSection,
+  BirthPulseSection,
+} from './components/makers-rhythm-section';
+import { MaternityHospitalSection } from './components/maternity-hospital-section';
+import { NewbornsSection } from './components/newborns-section';
+import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
+import { StarAlignmentSection } from './components/star-alignment-section';
+import { WeekendWarriorSection } from './components/weekend-warrior-section';
+import { StarAlignmentSection2 } from './components/star-alignment-section-2';
 
 export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
@@ -66,7 +71,9 @@ export default async function HelloWorldPage() {
   const {
     anniversaryCandidates,
     releaseTimeDistribution,
+    releaseDateDistribution,
     updateTimeDistribution,
+    updateDateDistribution,
     creationStreak,
     earlyAdopters,
     firstPenguins,
@@ -106,13 +113,45 @@ export default async function HelloWorldPage() {
   );
 
   // Prepare Maker's Rhythm Data
-  const dayCounts = releaseTimeDistribution?.dayOfWeek || [];
-  const maxDayCount = dayCounts.length > 0 ? Math.max(...dayCounts) : 0;
+  const releaseDayCounts = releaseTimeDistribution?.dayOfWeek || [];
+  const maxReleaseDayCount =
+    releaseDayCounts.length > 0 ? Math.max(...releaseDayCounts) : 0;
 
-  const hourCounts = releaseTimeDistribution?.hour || [];
-  const maxHourCount = hourCounts.length > 0 ? Math.max(...hourCounts) : 0;
+  const releaseHourCounts = releaseTimeDistribution?.hour || [];
+  const maxReleaseHourCount =
+    releaseHourCounts.length > 0 ? Math.max(...releaseHourCounts) : 0;
+
+  const releaseMonthCounts = releaseDateDistribution?.month || [];
+  const maxReleaseMonthCount =
+    releaseMonthCounts.length > 0 ? Math.max(...releaseMonthCounts) : 0;
+
+  const updateDayCounts = updateTimeDistribution?.dayOfWeek || [];
+  const maxUpdateDayCount =
+    updateDayCounts.length > 0 ? Math.max(...updateDayCounts) : 0;
+
+  const updateHourCounts = updateTimeDistribution?.hour || [];
+  const maxUpdateHourCount =
+    updateHourCounts.length > 0 ? Math.max(...updateHourCounts) : 0;
+
+  const updateMonthCounts = updateDateDistribution?.month || [];
+  const maxUpdateMonthCount =
+    updateMonthCounts.length > 0 ? Math.max(...updateMonthCounts) : 0;
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   // Calculate Longest Streak Period
   let longestStreakPeriod = null;
@@ -172,14 +211,24 @@ export default async function HelloWorldPage() {
 
           <NewbornsSection count={newbornCount} prototypes={sortedNewborns} />
 
-          <GatewayDrugSection topMaterials={topMaterials} />
-
-          <MakersRhythmSection
-            distribution={releaseTimeDistribution}
-            updateDistribution={updateTimeDistribution}
-            maxDayCount={maxDayCount}
-            maxHourCount={maxHourCount}
+          <BirthPulseSection
+            releaseTimeDistribution={releaseTimeDistribution}
+            releaseDateDistribution={releaseDateDistribution}
+            maxReleaseDayCount={maxReleaseDayCount}
+            maxReleaseHourCount={maxReleaseHourCount}
+            maxReleaseMonthCount={maxReleaseMonthCount}
             days={days}
+            months={months}
+          />
+
+          <AfterglowRhythmSection
+            updateTimeDistribution={updateTimeDistribution}
+            updateDateDistribution={updateDateDistribution}
+            maxUpdateDayCount={maxUpdateDayCount}
+            maxUpdateHourCount={maxUpdateHourCount}
+            maxUpdateMonthCount={maxUpdateMonthCount}
+            days={days}
+            months={months}
           />
 
           <EternalFlameSection
@@ -187,25 +236,32 @@ export default async function HelloWorldPage() {
             longestStreakPeriod={longestStreakPeriod}
           />
 
+          {/* With events */}
           <MaternityHospitalSection maternityHospital={maternityHospital} />
-
-          <PowerOfDeadlinesSection powerOfDeadlines={powerOfDeadlines} />
-
+          <PowerOfDeadlinesSection
+            powerOfDeadlines={powerOfDeadlines}
+            dailyReleaseCounts={releaseDateDistribution.daily}
+          />
           <WeekendWarriorSection weekendWarrior={weekendWarrior} />
 
-          <LaborOfLoveSection laborOfLove={laborOfLove} />
-
-          <EarlyAdoptersSection adopters={earlyAdopters} />
-
-          <FirstPenguinSection penguins={firstPenguins} />
-
-          <StarAlignmentSection alignments={starAlignments} />
-
+          {/* Date based */}
+          {/* <StarAlignmentSection alignments={starAlignments} /> */}
+          <StarAlignmentSection2 alignments={starAlignments} />
           <HolyDaySection holyDay={holyDay} />
-
           <AnniversaryEffectSection holidays={anniversaryEffect} />
 
+          {/* Year based */}
+          <FirstPenguinSection penguins={firstPenguins} />
+
+          {/* Term based */}
+          <LaborOfLoveSection laborOfLove={laborOfLove} />
           <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
+
+          {/* Tag based   */}
+          <EarlyAdoptersSection adopters={earlyAdopters} />
+
+          {/* Material based   */}
+          <GatewayDrugSection topMaterials={topMaterials} />
         </div>
       </main>
     </>

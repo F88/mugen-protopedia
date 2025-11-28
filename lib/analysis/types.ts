@@ -1,4 +1,63 @@
-import type { AnniversariesSlice } from '@/lib/utils/prototype-analysis-helpers';
+/**
+ * @fileoverview
+ * Type definitions for all prototype analysis results and related data structures.
+ *
+ * - Shared types for server/client analysis results
+ * - Return types for each analysis feature
+ * - Individual analysis types (e.g. Anniversary, Labor of Love)
+ *
+ * Always provide TSDoc for each type and field to clarify intent and usage.
+ */
+
+/**
+ * Minimal logger contract used across analysis modules for dependency injection.
+ *
+ * Mirrors the subset of pino-style loggers we rely on while remaining framework agnostic.
+ */
+export interface MinimalLogger {
+  debug: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  child: (bindings: Record<string, unknown>) => MinimalLogger;
+}
+
+/**
+ * Represents a prototype celebrating a birthday "today".
+ *
+ * @property years - Age in years; depends on the timezone where
+ *   `calculateAge` was executed. UI recomputation recommended.
+ */
+export type BirthdayPrototype = {
+  id: number;
+  title: string;
+  years: number;
+  releaseDate: string;
+};
+
+/**
+ * Represents a prototype published "today".
+ *
+ * Membership determined by `isToday` at runtime; timezone-sensitive.
+ */
+export type NewbornPrototype = {
+  id: number;
+  title: string;
+  releaseDate: string;
+};
+
+/**
+ * Summary slice containing birthday and newborn prototypes for "today".
+ *
+ * This type is timezone-sensitive: counts and arrays reflect the timezone where
+ * `buildAnniversaries` executed. UI recomputation is strongly recommended.
+ */
+export type AnniversariesSlice = {
+  birthdayCount: number;
+  birthdayPrototypes: BirthdayPrototype[];
+  newbornCount: number;
+  newbornPrototypes: NewbornPrototype[];
+};
 
 /**
  * Minimal prototype data required for anniversary analysis.
@@ -21,57 +80,6 @@ export type AnniversaryCandidatePrototype = {
  * help clients efficiently filter prototypes before performing timezone-aware
  * anniversary detection. Instead of fetching and analyzing all prototypes,
  * clients can use these metadata to request only relevant candidates.
- *
- * **Purpose:**
- * Enables a "Payload Minimization Strategy" where the server provides UTC-based
- * hints about which prototypes might be anniversaries in the user's timezone,
- * allowing clients to fetch a minimal subset rather than the entire dataset.
- *
- * **Typical data volume:**
- * The 3-day UTC window typically contains a small subset of prototypes compared
- * to the full dataset (~10,000 items). However, due to project deadlines and
- * scheduled release dates, certain days may have concentrated releases resulting
- * in several dozen to over 100 candidates per day. This is expected behavior
- * and still represents significant payload reduction (99%+) compared to fetching
- * the entire dataset.
- *
- * **Fields:**
- * - `metadata.computedAt`: ISO 8601 timestamp of when these candidates were computed.
- *   Used for cache validation and debugging.
- *
- * - `metadata.windowUTC`: ISO 8601 date range covering [yesterday 00:00, tomorrow 23:59:59.999]
- *   in UTC. Prototypes with `releaseDate` within this window are candidates for
- *   anniversary detection (newborn, birthday, yearly milestone, etc. in user's timezone).
- *
- * - `prototypes`: Array of prototype data within the 3-day UTC window.
- *   This allows clients to perform anniversary analysis without fetching the entire dataset.
- *
- * **Usage Pattern:**
- * 1. Server computes these candidates during analysis and includes them in the response
- * 2. Client receives candidates with pre-filtered prototype data (3-day window only)
- * 3. Client runs `analyzePrototypes()` on the small candidate subset in their timezone
- *
- * **Example:**
- * ```typescript
- * // Server provides:
- * {
- *   metadata: {
- *     computedAt: '2025-11-14T09:00:00.000Z',
- *     windowUTC: {
- *       fromISO: '2025-11-13T00:00:00.000Z',
- *       toISO: '2025-11-15T23:59:59.999Z'
- *     }
- *   },
- *   mmdd: [...]
- * }
- *
- * // Client uses pre-filtered data:
- * const analysis = analyzePrototypes(candidates.mmdd);
- * // No need to fetch 10,000 items - only candidates are transferred
- * ```
- *
- * @see {@link buildAnniversaryCandidates} - Function that computes these candidates
- * @see {@link ServerPrototypeAnalysis.anniversaryCandidates} - Where this type is used
  */
 export type AnniversaryCandidates = {
   /** Metadata about when and how these candidates were computed */
@@ -101,7 +109,7 @@ export type AnniversaryCandidates = {
  * can use to pre-filter prototypes before performing timezone-aware anniversary
  * detection in the user's local timezone.
  *
- * **Anniversary data MUST be computed client-side** using the user's timezone
+ * Anniversary data MUST be computed client-side using the user's timezone
  * via `useClientAnniversaries` hook or `analyzePrototypes` executed in browser.
  */
 export type ServerPrototypeAnalysis = {
@@ -117,8 +125,6 @@ export type ServerPrototypeAnalysis = {
   topMaterials: Array<{ material: string; count: number }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
-  /** Distribution by release year */
-  yearDistribution: Record<number, number>;
   /** Teams with most prototypes */
   topTeams: Array<{ team: string; count: number }>;
   /** Analysis timestamp */
@@ -130,24 +136,64 @@ export type ServerPrototypeAnalysis = {
    */
   anniversaryCandidates: AnniversaryCandidates;
 
-  /** Release time distribution (Maker's Rhythm) */
-  releaseTimeDistribution: {
+  /** Create time distribution (hour and day-of-week patterns) */
+  createTimeDistribution: {
     /** Count by day of week (0=Sunday, 6=Saturday) */
     dayOfWeek: number[];
-    /** Count by hour of day (0-23) */
+    /** Count by hour of day (0-23, JST) */
     hour: number[];
     /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
     heatmap: number[][];
   };
 
-  /** Update time distribution (Maker's Rhythm - Update) */
-  updateTimeDistribution: {
+  /** Create date distribution (calendar-based patterns) */
+  createDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
+  };
+
+  /** Release time distribution (hour and day-of-week patterns) */
+  releaseTimeDistribution: {
     /** Count by day of week (0=Sunday, 6=Saturday) */
     dayOfWeek: number[];
-    /** Count by hour of day (0-23) */
+    /** Count by hour of day (0-23, JST) */
     hour: number[];
     /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
     heatmap: number[][];
+  };
+
+  /** Release date distribution (calendar-based patterns) */
+  releaseDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
+  };
+
+  /** Update time distribution (hour and day-of-week patterns) */
+  updateTimeDistribution: {
+    /** Count by day of week (0=Sunday, 6=Saturday) */
+    dayOfWeek: number[];
+    /** Count by hour of day (0-23, JST) */
+    hour: number[];
+    /** Heatmap data: 7 arrays (days) of 24 numbers (hours) */
+    heatmap: number[][];
+  };
+
+  /** Update date distribution (calendar-based patterns) */
+  updateDateDistribution: {
+    /** Count by month (0=January, 11=December) */
+    month: number[];
+    /** Count by year (e.g., 2024: 150, 2025: 200) */
+    year: Record<number, number>;
+    /** Count by date (year -> month -> day -> count). Optimized for O(1) lookup and flexible aggregation. */
+    daily: Record<number, Record<number, Record<number, number>>>;
   };
 
   /** Creation streak analysis (The Eternal Flame) */
@@ -228,14 +274,18 @@ export type ServerPrototypeAnalysis = {
 
   /** The Weekend Warrior's Crunch analysis */
   weekendWarrior: {
-    /** Count of prototypes released during Sunday 20:00 - Monday 05:00 */
-    sundaySprintCount: number;
-    /** Count of prototypes released between 23:00 - 04:00 */
-    midnightCount: number;
-    /** Count of prototypes released during daytime (09:00 - 18:00) */
-    daytimeCount: number;
-    /** Total count of prototypes released during the weekend warrior time slots */
-    totalCount: number;
+    /**
+     * Hourly release counts for the "Extended Weekend Realm" (Fri 18:00 - Mon 24:00).
+     * Total 78 hours.
+     * Index 0 = Fri 18:00
+     * Index 6 = Sat 00:00
+     * Index 30 = Sun 00:00
+     * Index 54 = Mon 00:00
+     * Index 77 = Mon 23:00
+     */
+    weekendHourlyCounts: number[];
+    /** Total count of prototypes released during this 78-hour window */
+    totalWeekendCount: number;
   };
 
   /** The Holy Day analysis */

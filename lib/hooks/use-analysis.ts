@@ -16,7 +16,7 @@ import {
   type GetAllAnalysesResult,
 } from '@/app/actions/analysis';
 
-import type { ServerPrototypeAnalysis } from '@/lib/utils/prototype-analysis.types';
+import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 
 /**
  * Shared state shape returned by analysis hooks.
