@@ -4,8 +4,8 @@ import {
   buildAnniversaries,
   buildAnniversarySlice,
   buildStatusDistribution,
-  buildTopTags,
-  buildTopTeams,
+  buildTagAnalytics,
+  buildUserTeamAnalytics,
   buildYearDistribution,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
@@ -73,7 +73,7 @@ describe('prototype-analysis helpers', () => {
     });
   });
 
-  describe('buildTopTags', () => {
+  describe('buildTagAnalytics', () => {
     it('returns aggregated tag counts sorted desc', () => {
       const prototypes: NormalizedPrototype[] = [];
       for (let i = 0; i < 12; i += 1) {
@@ -85,7 +85,7 @@ describe('prototype-analysis helpers', () => {
         );
       }
 
-      const { topTags, tagCounts } = buildTopTags(prototypes);
+      const { topTags, tagCounts } = buildTagAnalytics(prototypes);
 
       expect(topTags).toHaveLength(13);
       expect(topTags[0]).toEqual({ tag: 'shared', count: 12 });
@@ -104,7 +104,7 @@ describe('prototype-analysis helpers', () => {
         );
       }
 
-      const { topTags } = buildTopTags(prototypes);
+      const { topTags } = buildTagAnalytics(prototypes);
 
       expect(topTags).toHaveLength(30);
     });
@@ -141,7 +141,7 @@ describe('prototype-analysis helpers', () => {
     });
   });
 
-  describe('buildTopTeams', () => {
+  describe('buildUserTeamAnalytics.teams', () => {
     it('normalizes whitespace and limits to top 10 teams', () => {
       const prototypes = [
         createPrototype({ teamNm: 'Team A' }),
@@ -151,7 +151,9 @@ describe('prototype-analysis helpers', () => {
         createPrototype({ teamNm: '' }),
       ];
 
-      const { topTeams, teamCounts } = buildTopTeams(prototypes);
+      const {
+        teams: { topTeams, teamCounts },
+      } = buildUserTeamAnalytics(prototypes);
 
       expect(topTeams).toEqual([
         { team: 'Team A', count: 2 },

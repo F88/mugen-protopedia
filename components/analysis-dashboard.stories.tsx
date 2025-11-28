@@ -8,11 +8,11 @@ import {
   buildAnniversaries,
   buildAnniversarySlice,
   buildStatusDistribution,
-  buildTopTags,
-  buildTopTeams,
   computeAverageAgeInDays,
   countPrototypesWithAwards,
-  buildTopMaterials,
+  buildTagAnalytics,
+  buildUserTeamAnalytics,
+  buildMaterialAnalytics,
   buildTimeDistributions,
   buildDateBasedReleaseInsights,
   calculateCreationStreak,
@@ -32,9 +32,9 @@ function analyzePrototypes(
   const totalCount = prototypes.length;
   const statusDistribution = buildStatusDistribution(prototypes);
   const prototypesWithAwards = countPrototypesWithAwards(prototypes);
-  const { topTags } = buildTopTags(prototypes);
-  const { topTeams } = buildTopTeams(prototypes);
-  const { topMaterials } = buildTopMaterials(prototypes);
+  const { topTags } = buildTagAnalytics(prototypes);
+  const { teams } = buildUserTeamAnalytics(prototypes);
+  const { topMaterials } = buildMaterialAnalytics(prototypes);
   const {
     releaseTimeDistribution,
     releaseDateDistribution,
@@ -86,7 +86,7 @@ function analyzePrototypes(
       topTags,
       topMaterials,
       averageAgeInDays,
-      topTeams,
+      topTeams: teams.topTeams,
       analyzedAt: referenceDate.toISOString(),
       anniversaryCandidates,
       anniversaries,
@@ -108,7 +108,7 @@ function analyzePrototypes(
     topTags,
     topMaterials,
     averageAgeInDays,
-    topTeams,
+    topTeams: teams.topTeams,
     analyzedAt: referenceDate.toISOString(),
     anniversaryCandidates,
     anniversaries,

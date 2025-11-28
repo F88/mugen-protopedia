@@ -8,10 +8,7 @@
  * - Use this index to aggregate exports for easier import elsewhere.
  */
 
-export * from './top-tags';
-export * from './top-materials';
 export * from './average-age';
-export * from './top-teams';
 export * from './status-distribution';
 export * from './awards-count';
 export * from './year-distribution';
