@@ -121,6 +121,21 @@ export function WeekendWarriorSection({
           })}
         </div>
       </div>
+
+      <div className="flex flex-wrap gap-4 justify-center text-xs text-gray-500 dark:text-gray-400 mt-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-indigo-500 dark:bg-indigo-400 rounded-sm" />
+          <span>Night Ops (23:00-05:00)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-teal-500 dark:bg-teal-400 rounded-sm" />
+          <span>Sunday Sprint (Sun 20:00-Mon 05:00)</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-slate-300 dark:bg-slate-600 rounded-sm" />
+          <span>Regular Hours</span>
+        </div>
+      </div>
     </ObservatorySection>
   );
 }

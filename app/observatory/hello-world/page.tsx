@@ -247,6 +247,8 @@ export default async function HelloWorldPage() {
           <StarAlignmentSection alignments={starAlignments} />
           <HolyDaySection holyDay={holyDay} />
           <AnniversaryEffectSection holidays={anniversaryEffect} />
+
+          {/* Year based */}
           <FirstPenguinSection penguins={firstPenguins} />
 
           {/* Term based */}
