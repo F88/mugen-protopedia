@@ -7,6 +7,8 @@ type EternalFlameSectionProps = {
     currentStreak: number;
     longestStreak: number;
     totalActiveDays: number;
+    intensity?: Array<{ date: string; count: number }>;
+    longestStreakIntensity?: Array<{ date: string; count: number }>;
   };
   longestStreakPeriod: string | null;
 };
@@ -15,6 +17,44 @@ export function EternalFlameSection({
   streak,
   longestStreakPeriod,
 }: EternalFlameSectionProps) {
+  const renderIntensityChart = (
+    data: Array<{ date: string; count: number }> | undefined,
+    title: string,
+    colorClass: string,
+  ) => {
+    if (!data || data.length === 0) return null;
+
+    const localMax = Math.max(...data.map((d) => d.count), 0);
+
+    return (
+      <div className="mb-8 bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-red-100 dark:border-red-800/30">
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
+          <span className="text-lg">🔥</span>
+          {title} ({data.length} Days)
+        </h3>
+        <div className="flex items-end gap-px h-32 w-full overflow-x-auto pb-2">
+          {data.map((day) => {
+            const heightPercent =
+              localMax > 0 ? (day.count / localMax) * 100 : 0;
+            const height = Math.max(heightPercent, day.count > 0 ? 5 : 0);
+
+            return (
+              <div
+                key={day.date}
+                className={`group relative flex-1 min-w-1 max-w-8 rounded-t-sm transition-colors ${colorClass}`}
+                style={{ height: `${height}%` }}
+              >
+                <div className="opacity-0 group-hover:opacity-100 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
+                  {day.date}: {day.count} releases
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <ObservatorySection
       theme={helloWorldTheme.sections.eternalFlame.theme}
@@ -75,36 +115,72 @@ export function EternalFlameSection({
       delay="delay-200"
     >
       <div className="mb-8">
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-          For the past{' '}
-          <span className="font-bold text-red-600 dark:text-red-400">
-            {streak.currentStreak.toLocaleString()}
-          </span>{' '}
-          days, at least one new prototype has been released every single day.
-        </p>
-        <div className="flex flex-wrap justify-center md:justify-start gap-4">
-          <div className="bg-white/60 dark:bg-black/20 px-4 py-2 rounded-lg border border-red-100 dark:border-red-800/30">
-            <span className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Longest Streak
-            </span>
-            <span className="text-xl font-bold text-gray-800 dark:text-gray-200">
-              {streak.longestStreak.toLocaleString()} Days
-            </span>
-            {longestStreakPeriod && (
-              <span className="block text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-mono">
-                {longestStreakPeriod}
-              </span>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-red-50 dark:bg-red-900/10 rounded-xl p-4 border border-red-100 dark:border-red-800/30 flex items-center gap-4">
+            <div className="p-3 bg-red-100 dark:bg-red-800/30 rounded-full text-2xl">
+              🔥
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Current Streak
+              </div>
+              <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                {streak.currentStreak.toLocaleString()} Days
+              </div>
+              <div className="text-xs text-gray-400 dark:text-gray-500">
+                Consecutive days with releases
+              </div>
+            </div>
           </div>
-          <div className="bg-white/60 dark:bg-black/20 px-4 py-2 rounded-lg border border-red-100 dark:border-red-800/30">
-            <span className="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Total Active Days
-            </span>
-            <span className="text-xl font-bold text-gray-800 dark:text-gray-200">
-              {streak.totalActiveDays.toLocaleString()} Days
-            </span>
+
+          <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl p-4 border border-orange-100 dark:border-orange-800/30 flex items-center gap-4">
+            <div className="p-3 bg-orange-100 dark:bg-orange-800/30 rounded-full text-2xl">
+              🏆
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Longest Streak
+              </div>
+              <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                {streak.longestStreak.toLocaleString()} Days
+              </div>
+              {longestStreakPeriod && (
+                <div className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+                  {longestStreakPeriod}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 dark:bg-yellow-900/10 rounded-xl p-4 border border-yellow-100 dark:border-yellow-800/30 flex items-center gap-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-800/30 rounded-full text-2xl">
+              📅
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Total Active Days
+              </div>
+              <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                {streak.totalActiveDays.toLocaleString()} Days
+              </div>
+              <div className="text-xs text-gray-400 dark:text-gray-500">
+                Days with at least one release
+              </div>
+            </div>
           </div>
         </div>
+
+        {renderIntensityChart(
+          streak.intensity,
+          'Current Flame Intensity',
+          'bg-red-400 dark:bg-red-500 hover:bg-red-500 dark:hover:bg-red-400',
+        )}
+
+        {renderIntensityChart(
+          streak.longestStreakIntensity,
+          'Longest Streak Intensity (The Golden Era)',
+          'bg-orange-300 dark:bg-orange-600 hover:bg-orange-400 dark:hover:bg-orange-500',
+        )}
       </div>
     </ObservatorySection>
   );
