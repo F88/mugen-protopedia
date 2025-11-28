@@ -84,14 +84,14 @@ its required fields so that payload pruning can be evaluated.
 ## Output Schema (Server)
 
 `PrototypeAnalysis` contains the following top-level fields. All dates are ISO
-8601 UTC strings.
+8601 UTC strings. For implementation specifics and batch-module policies see
+`lib/analysis/batch/README.md`.
 
 - `totalCount`: total prototypes analyzed.
 - `statusDistribution`: map of status code to count.
 - `prototypesWithAwards`: count of entries whose `awards[].length > 0`.
 - `topTags`: top 10 `{ tag, count }` pairs.
 - `averageAgeInDays`: mean days since `releaseDate`.
-- `yearDistribution`: `{ [year]: count }` derived from `releaseDate`.
 - `topTeams`: top 10 `{ team, count }` entries using `teamNm`.
 - `anniversaries`: birthday/newborn slices (detailed later).
 - `anniversaryCandidates` (optional): UTC helper windows for client TZ reruns.
@@ -113,7 +113,6 @@ its required fields so that payload pruning can be evaluated.
 | Metric                                        | Source Field  | Notes                                    |
 | --------------------------------------------- | ------------- | ---------------------------------------- |
 | `averageAgeInDays`                            | `releaseDate` | Computed in UTC on the server.           |
-| `yearDistribution`                            | `releaseDate` | UTC year bucket; unaffected by TZ.       |
 | `anniversaries`                               | `releaseDate` | Candidate for client TZ recomputation.   |
 | `anniversaryCandidates.newborn.windowUTC`     | `releaseDate` | Provides UTC window for local filtering. |
 | `anniversaryCandidates.birthday.monthDaysUTC` | `releaseDate` | List of UTC MM-DD strings to avoid gaps. |

@@ -2,7 +2,8 @@
 
 This directory hosts batch-oriented analysis helpers grouped by concern. Each file
 performs a single pass over `NormalizedPrototype[]` inputs and exposes a documented
-entrypoint for consumers.
+entrypoint for consumers. For a product-level overview of how these metrics surface
+in the UI, refer to `docs/analysis.md`.
 
 - `build-advanced-analysis.ts`: Story-driven metrics (First Penguins, Star Alignments, etc.).
 - `build-time-distributions.ts`: Maker's Rhythm time/date distributions (JST-aligned buckets).
