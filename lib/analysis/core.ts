@@ -54,6 +54,8 @@ export type CreationStreak = {
   longestStreak: number;
   longestStreakEndDate: string | null;
   totalActiveDays: number;
+  intensity?: Array<{ date: string; count: number }>;
+  longestStreakIntensity?: Array<{ date: string; count: number }>;
 };
 
 export function calculateCreationStreak(
@@ -61,6 +63,7 @@ export function calculateCreationStreak(
   now: Date,
   options?: {
     logger?: { debug: (payload: unknown, message?: string) => void };
+    dailyCounts?: Record<number, Record<number, Record<number, number>>>;
   },
 ): CreationStreak {
   const startTime = performance.now();
@@ -71,15 +74,25 @@ export function calculateCreationStreak(
   let tempStreak = 0;
   let prevDateVal: number | null = null;
   const streakByDate = new Map<string, number>();
+
+  // Track indices for longest streak calculation
+  let tempStartIndex = 0;
+  let longestStreakStartIndex = 0;
+  let longestStreakEndIndex = 0;
+
   // Helper to parse YYYY-MM-DD to timestamp (UTC midnight, but represents JST date)
   const parseDateStr = (str: string) => {
     const [y, m, d] = str.split('-').map(Number);
     return Date.UTC(y, m - 1, d);
   };
-  for (const dateStr of sortedDates) {
+
+  for (let i = 0; i < sortedDates.length; i++) {
+    const dateStr = sortedDates[i];
     const dateVal = parseDateStr(dateStr);
+
     if (prevDateVal === null) {
       tempStreak = 1;
+      tempStartIndex = i;
     } else {
       const diff = dateVal - prevDateVal;
       const oneDay = 24 * 60 * 60 * 1000;
@@ -91,17 +104,25 @@ export function calculateCreationStreak(
           longestStreakEndDate = new Date(prevDateVal)
             .toISOString()
             .split('T')[0];
+          longestStreakStartIndex = tempStartIndex;
+          longestStreakEndIndex = i - 1;
         }
         tempStreak = 1;
+        tempStartIndex = i;
       }
     }
     prevDateVal = dateVal;
     streakByDate.set(dateStr, tempStreak);
   }
+
+  // Check final streak
   if (tempStreak > longestStreak) {
     longestStreak = tempStreak;
     longestStreakEndDate = sortedDates[sortedDates.length - 1];
+    longestStreakStartIndex = tempStartIndex;
+    longestStreakEndIndex = sortedDates.length - 1;
   }
+
   // Determine "Current" streak
   // If the last release date is Today or Yesterday (JST), the streak is alive.
   const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
@@ -120,11 +141,47 @@ export function calculateCreationStreak(
   } else {
     currentStreak = 0;
   }
+
+  // Helper to build intensity array
+  const buildIntensity = (dates: string[]) => {
+    if (!options?.dailyCounts) return undefined;
+    return dates.map((date) => {
+      const [y, m, d] = date.split('-').map(Number);
+      const count = options.dailyCounts?.[y]?.[m]?.[d] ?? 0;
+      return { date, count };
+    });
+  };
+
+  // Calculate intensity for the current streak
+  let intensity: Array<{ date: string; count: number }> | undefined;
+  if (currentStreak > 0 && lastRelevantDate) {
+    const endIndex = sortedDates.indexOf(lastRelevantDate);
+    if (endIndex !== -1) {
+      const startIndex = Math.max(0, endIndex - currentStreak + 1);
+      const streakDates = sortedDates.slice(startIndex, endIndex + 1);
+      intensity = buildIntensity(streakDates);
+    }
+  }
+
+  // Calculate intensity for the longest streak
+  let longestStreakIntensity:
+    | Array<{ date: string; count: number }>
+    | undefined;
+  if (longestStreak > 0) {
+    const streakDates = sortedDates.slice(
+      longestStreakStartIndex,
+      longestStreakEndIndex + 1,
+    );
+    longestStreakIntensity = buildIntensity(streakDates);
+  }
+
   const result: CreationStreak = {
     currentStreak,
     longestStreak,
     longestStreakEndDate,
     totalActiveDays: sortedDates.length,
+    intensity,
+    longestStreakIntensity,
   };
 
   if (options?.logger) {

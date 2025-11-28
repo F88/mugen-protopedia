@@ -188,6 +188,7 @@ function runAnalysisPipelines(
     now,
     {
       logger,
+      dailyCounts: releaseDateDistribution.daily,
     },
   );
   metrics.creationStreak = performance.now() - stepStartStreak;
