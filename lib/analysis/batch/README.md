@@ -10,15 +10,15 @@ in the UI, refer to `docs/analysis.md`.
 - `collect-unique-release-dates.ts`: Date-keyed utilities (unique create/update/release days etc.).
 - `index.ts`: Aggregate exports for the batch helpers.
 
-| Module                            | Performs Full Scan? | Primary Inputs                                                | Primary Outputs                                                  |
-| --------------------------------- | ------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `build-advanced-analysis.ts`      | true                | `NormalizedPrototype[]`, top tag summary                      | Story-driven metrics (`AdvancedAnalysis`)                        |
-| `build-time-distributions.ts`     | true                | `NormalizedPrototype[]`                                       | Maker's Rhythm time/date distributions (`TimeDistributions`)     |
-| `build-tag-analytics.ts`          | true                | `NormalizedPrototype[]`                                       | Tag rankings & counts (`TagAnalytics`)                           |
-| `build-material-analytics.ts`     | true                | `NormalizedPrototype[]`                                       | Material rankings & counts (`MaterialAnalytics`)                 |
-| `build-user-team-analytics.ts`    | true                | `NormalizedPrototype[]`                                       | Team rankings & user-analytics placeholder (`UserTeamAnalytics`) |
-| `build-core-summaries.ts`         | true                | `NormalizedPrototype[]`, optional reference date              | Status, awards, average age (`CoreSummaries`)                    |
-| `collect-unique-release-dates.ts` | true                | `NormalizedPrototype[]` (for `buildDateBasedPrototypeInsights`) | Date-keyed insights (`DateBasedPrototypeInsights`)                |
+| Module                            | Performs Full Scan? | Primary Inputs                                                  | Primary Outputs                                                  |
+| --------------------------------- | ------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `build-advanced-analysis.ts`      | true                | `NormalizedPrototype[]`, top tag summary                        | Story-driven metrics (`AdvancedAnalysis`)                        |
+| `build-time-distributions.ts`     | true                | `NormalizedPrototype[]`                                         | Maker's Rhythm time/date distributions (`TimeDistributions`)     |
+| `build-tag-analytics.ts`          | true                | `NormalizedPrototype[]`                                         | Tag rankings & counts (`TagAnalytics`)                           |
+| `build-material-analytics.ts`     | true                | `NormalizedPrototype[]`                                         | Material rankings & counts (`MaterialAnalytics`)                 |
+| `build-user-team-analytics.ts`    | true                | `NormalizedPrototype[]`                                         | Team rankings & user-analytics placeholder (`UserTeamAnalytics`) |
+| `build-core-summaries.ts`         | true                | `NormalizedPrototype[]`, optional reference date                | Status, awards, average age (`CoreSummaries`)                    |
+| `collect-unique-release-dates.ts` | true                | `NormalizedPrototype[]` (for `buildDateBasedPrototypeInsights`) | Date-keyed insights (`DateBasedPrototypeInsights`)               |
 
 ## Full Dataset Scans
 
