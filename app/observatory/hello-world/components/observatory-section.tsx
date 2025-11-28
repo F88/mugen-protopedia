@@ -202,7 +202,6 @@ export function ObservatorySection({
       className={cn(
         'mb-16 animate-in fade-in slide-in-from-bottom-8 duration-700',
         delay,
-        className,
       )}
     >
       <div
@@ -210,6 +209,7 @@ export function ObservatorySection({
           'relative overflow-hidden rounded-3xl p-8 border',
           styles.container,
           styles.border,
+          className,
         )}
       >
         {/* Background Decoration */}

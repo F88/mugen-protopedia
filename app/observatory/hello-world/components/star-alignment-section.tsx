@@ -12,8 +12,8 @@ type StarAlignmentSectionProps = {
 };
 
 export function StarAlignmentSection({
-                                       alignments,
-                                     }: StarAlignmentSectionProps) {
+  alignments,
+}: StarAlignmentSectionProps) {
   return (
     <ObservatorySection
       theme={helloWorldTheme.sections.starAlignment.theme}

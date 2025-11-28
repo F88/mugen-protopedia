@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import { IconStar } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { helloWorldTheme } from '../theme';
@@ -18,14 +19,16 @@ function getStarCoordinates(
   centerX: number = 50,
   centerY: number = 50,
 ) {
+  // For 2, create a diagonal line
   if (count === 2) {
     return [
       { x: centerX - radius / 1.5, y: centerY + radius / 2 },
       { x: centerX + radius / 1.5, y: centerY - radius / 2 },
     ];
   }
+  // For 3+, create a regular polygon
   return Array.from({ length: count }).map((_, i) => {
-    // Start from top ( -PI/2 )
+    // Start from top ( -PI/2 ) to have one point at the top
     const angle = (i * 2 * Math.PI) / count - Math.PI / 2;
     return {
       x: centerX + radius * Math.cos(angle),
@@ -34,14 +37,14 @@ function getStarCoordinates(
   });
 }
 
-// 宇宙テーマ用の背景クラス
+// Background class for a cosmic/space theme
 const spaceSectionBg =
   'relative bg-[#050510] bg-[radial-gradient(ellipse_at_60%_20%,#18181f_60%,#050510_100%)] overflow-hidden';
 
 export function StarAlignmentSection2({
   alignments,
 }: StarAlignmentSectionProps) {
-  // Show the latest 6 alignments (assuming input is chronological, take end and reverse)
+  // Show the latest 6 alignments
   const topAlignments = [...alignments].reverse().slice(0, 6);
 
   return (
@@ -56,27 +59,12 @@ export function StarAlignmentSection2({
           second).
         </>
       }
+      className={spaceSectionBg} // Apply space background to the whole section
       visualContent={
         <div className="relative w-32 h-32 flex items-center justify-center">
-          {/* 星空の粒子エフェクト */}
-          <div className="absolute inset-0 pointer-events-none z-0">
-            <svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 128 128"
-              className="w-full h-full"
-            >
-              <circle cx="10" cy="20" r="1.2" fill="#fff" opacity="0.7" />
-              <circle cx="40" cy="80" r="0.8" fill="#fff" opacity="0.5" />
-              <circle cx="90" cy="30" r="1.5" fill="#FFE066" opacity="0.7" />
-              <circle cx="120" cy="100" r="1.1" fill="#fff" opacity="0.4" />
-              <circle cx="60" cy="60" r="0.7" fill="#fff" opacity="0.6" />
-              <circle cx="80" cy="110" r="1.3" fill="#FFE066" opacity="0.5" />
-              <circle cx="30" cy="110" r="0.9" fill="#fff" opacity="0.5" />
-            </svg>
-          </div>
-          {/* Simple decorative constellation in the icon area */}
+          {/* Decorative constellation in the icon area */}
           <svg viewBox="0 0 100 100" className="w-24 h-24 absolute opacity-80">
+            {/* Lines */}
             <line
               x1="20"
               y1="80"
@@ -104,6 +92,7 @@ export function StarAlignmentSection2({
               strokeWidth="1"
               className="text-purple-300"
             />
+            {/* Stars with pulsing animation */}
             <circle
               cx="20"
               cy="80"
@@ -114,13 +103,15 @@ export function StarAlignmentSection2({
               cx="50"
               cy="20"
               r="4"
-              className="fill-purple-100 animate-pulse delay-75"
+              className="fill-purple-100 animate-pulse"
+              style={{ animationDelay: '0.1s' }}
             />
             <circle
               cx="80"
               cy="60"
               r="3"
-              className="fill-purple-200 animate-pulse delay-150"
+              className="fill-purple-200 animate-pulse"
+              style={{ animationDelay: '0.2s' }}
             />
           </svg>
         </div>
@@ -141,174 +132,106 @@ export function StarAlignmentSection2({
       }}
       delay="delay-800"
     >
-      <div
-        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 ${spaceSectionBg}`}
-        style={{
-          boxShadow: '0 0 120px #000c',
-        }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {topAlignments.length > 0 ? (
           topAlignments.map((alignment) => {
             const count = alignment.prototypes.length;
             const date = new Date(alignment.timestamp);
+            const points = getStarCoordinates(count); // Get consistent coordinates
 
             return (
               <div
                 key={alignment.timestamp}
-                className="group relative bg-[#050510] rounded-xl overflow-hidden border-2 border-[#FFE066] shadow-lg flex flex-col items-center justify-center py-8"
-                style={{ boxShadow: '0 0 32px #FFE06688, 0 0 0 #000' }}
+                className="group relative rounded-xl overflow-hidden border border-blue-400/20 bg-gray-900/40 p-6 flex flex-col items-center justify-start transition-all duration-300 hover:border-blue-300/50 hover:shadow-[0_0_20px_theme(colors.purple.500/50)]"
               >
-                {/* 日時表示（2行・中央・白＋ゴールド） */}
-                <div className="w-full px-2 mb-2 flex flex-col items-center justify-center">
-                  <div className="font-mono text-base md:text-lg font-bold text-white text-center mb-0.5 tracking-widest">
-                    {date.toLocaleDateString('ja-JP')}
+                {/* Timestamp */}
+                <div className="text-center mb-4">
+                  <div className="font-mono text-lg font-bold text-white tracking-wider drop-shadow-[0_0_4px_theme(colors.purple.500/50)]">
+                    {date.toLocaleDateString('en-CA')}
                   </div>
-                  <div className="font-mono text-2xl md:text-3xl font-extrabold text-[#FFE066] text-center tracking-widest">
-                    {date.toLocaleTimeString('ja-JP', { hour12: false })}
+                  <div className="font-mono text-3xl font-extrabold text-[#FFE066] tracking-widest drop-shadow-[0_0_8px_#FFE06699]">
+                    {date.toLocaleTimeString('en-GB')}
                   </div>
                 </div>
-                {/* 星座SVG（白＋ゴールド光輪） */}
-                <div className="w-40 h-40 relative mb-4 z-10 flex items-center justify-center">
+
+                {/* Constellation SVG */}
+                <div className="w-40 h-40 relative mb-4 flex items-center justify-center">
                   <svg viewBox="0 0 100 100" className="w-full h-full">
-                    {(() => {
-                      if (count === 2) {
-                        const patterns = [
-                          [
-                            { x: 30, y: 30 },
-                            { x: 70, y: 70 },
-                          ],
-                          [
-                            { x: 30, y: 70 },
-                            { x: 70, y: 30 },
-                          ],
-                          [
-                            { x: 20, y: 50 },
-                            { x: 80, y: 50 },
-                          ],
-                          [
-                            { x: 50, y: 20 },
-                            { x: 50, y: 80 },
-                          ],
-                        ];
-                        const idx = Math.floor(
-                          date.getTime() % patterns.length,
-                        );
-                        const [a, b] = patterns[idx];
-                        return [
-                          <line
-                            key="line-2"
-                            x1={a.x}
-                            y1={a.y}
-                            x2={b.x}
-                            y2={b.y}
-                            stroke="#fff"
-                            strokeWidth="2.5"
-                            strokeOpacity="0.9"
-                          />, // 白い線
-                          <circle
-                            key="star-2a"
-                            cx={a.x}
-                            cy={a.y}
-                            r="9"
-                            fill="#fff"
-                            stroke="#FFE066"
-                            strokeWidth="3"
-                            filter="url(#glow)"
-                          />,
-                          <circle
-                            key="star-2b"
-                            cx={b.x}
-                            cy={b.y}
-                            r="9"
-                            fill="#fff"
-                            stroke="#FFE066"
-                            strokeWidth="3"
-                            filter="url(#glow)"
-                          />,
-                        ];
-                      } else {
-                        const seed = date.getTime();
-                        const points = Array.from({ length: count }).map(
-                          (_, i) => {
-                            const angle =
-                              ((seed / (i + 1)) % 360) * (Math.PI / 180);
-                            const r = 30 + ((seed >> (i + 2)) % 20);
-                            return {
-                              x: 50 + r * Math.cos(angle + i),
-                              y: 50 + r * Math.sin(angle + i),
-                            };
-                          },
-                        );
-                        const lines = points.map((pt, i) => {
-                          const next = points[(i + 1) % count];
-                          return (
-                            <line
-                              key={`line-${i}`}
-                              x1={pt.x}
-                              y1={pt.y}
-                              x2={next.x}
-                              y2={next.y}
-                              stroke="#fff"
-                              strokeWidth="2.5"
-                              strokeOpacity="0.9"
-                            />
-                          );
-                        });
-                        const stars = points.map((pt, i) => (
-                          <circle
-                            key={`star-${i}`}
-                            cx={pt.x}
-                            cy={pt.y}
-                            r="9"
-                            fill="#fff"
-                            stroke="#FFE066"
-                            strokeWidth="3"
-                            filter="url(#glow)"
-                          />
-                        ));
-                        return [...lines, ...stars];
-                      }
-                    })()}
                     <defs>
                       <filter
-                        id="glow"
+                        id="starGlow"
                         x="-50%"
                         y="-50%"
                         width="200%"
                         height="200%"
                       >
-                        <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                        <feGaussianBlur
+                          in="SourceGraphic"
+                          stdDeviation="2"
+                          result="blur"
+                        />
                         <feMerge>
-                          <feMergeNode in="coloredBlur" />
+                          <feMergeNode in="blur" />
                           <feMergeNode in="SourceGraphic" />
                         </feMerge>
                       </filter>
                     </defs>
+                    {/* Lines connecting the stars */}
+                    {points.map((pt, i) => {
+                      const next = points[(i + 1) % count];
+                      return (
+                        <line
+                          key={`line-${i}`}
+                          x1={pt.x}
+                          y1={pt.y}
+                          x2={next.x}
+                          y2={next.y}
+                          className="stroke-blue-300/50 group-hover:stroke-blue-200/80 transition-all"
+                          strokeWidth="1.5"
+                        />
+                      );
+                    })}
+                    {/* Stars */}
+                    {points.map((pt, i) => (
+                      <circle
+                        key={`star-${i}`}
+                        cx={pt.x}
+                        cy={pt.y}
+                        r="6"
+                        fill="#fff"
+                        stroke="#FFE066"
+                        strokeWidth="2"
+                        className="transition-all duration-300 group-hover:r-7"
+                        filter="url(#starGlow)"
+                      />
+                    ))}
                   </svg>
                 </div>
-                {/* 作品名リスト（大きく・中央・ゴールド単色バッジ） */}
-                <div className="flex flex-wrap gap-2 justify-center mb-4 z-20">
+
+                {/* Prototype titles */}
+                <div className="flex flex-wrap gap-2 justify-center mb-4 z-10">
                   {alignment.prototypes.map((p) => (
-                    <a
+                    <Link
                       key={p.id}
                       href={buildPrototypeLink(p.id)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-base md:text-lg font-bold text-black bg-[#FFE066] px-3 py-1 rounded-full shadow border-2 border-[#FFE066] hover:bg-white transition-colors"
+                      className="text-sm font-bold text-purple-300 bg-transparent border border-purple-400/50 rounded-full px-3 py-1 transition-colors hover:bg-purple-400/10 hover:text-purple-200"
                     >
                       {p.title}
-                    </a>
+                    </Link>
                   ))}
                 </div>
-                {/* n stars aligned（白＋ゴールド・大きく・中央） */}
-                <div className="text-white text-xl mt-2 uppercase tracking-wider font-extrabold drop-shadow-[0_0_8px_#FFE066] text-center">
+
+                {/* "X Stars Aligned" text */}
+                <div className="text-white text-xl mt-auto uppercase tracking-wider font-extrabold text-center drop-shadow-[0_0_8px_theme(colors.blue.400/80)]">
                   {count} STARS ALIGNED
                 </div>
               </div>
             );
           })
         ) : (
-          <div className="col-span-full text-center py-12 text-gray-500 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+          <div className="col-span-full text-center py-12 text-gray-400 bg-slate-900/50 rounded-xl border border-dashed border-gray-700">
             <p>The stars have not yet aligned...</p>
             <p className="text-sm mt-2">
               Waiting for the first simultaneous release.

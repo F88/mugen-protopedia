@@ -18,6 +18,6 @@
 export * from './core';
 export * from './batch';
 export * from './shared';
-export * from './types';  // Uncomment when types are separated
+export * from './types'; // Uncomment when types are separated
 export * from './entrypoints/server';
 export * from './entrypoints/client';
