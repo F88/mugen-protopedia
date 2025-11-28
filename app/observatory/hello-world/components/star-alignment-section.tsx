@@ -46,7 +46,7 @@ export function StarAlignmentSection({
 
   return (
     <ObservatorySection
-      theme={{ ...helloWorldTheme.sections.starAlignment.theme, space: true }}
+      theme={helloWorldTheme.sections.starAlignment.theme}
       icon={<IconStar />}
       title="The Star Alignment"
       description="A miracle of timing. Discover prototypes that were released at the exact same moment, connected by cosmic synchronicity."
