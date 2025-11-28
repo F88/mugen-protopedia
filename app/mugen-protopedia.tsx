@@ -70,14 +70,14 @@ const SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
  */
 const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
-/**
- * Build the external ProtoPedia detail page URL for a given prototype.
- *
- * @param prototype - Normalized prototype object
- * @returns absolute URL string to the ProtoPedia detail page
- */
-const urlOfPageForPrototype = (prototype: Prototype): string =>
-  buildPrototypeLink(prototype.id);
+// /**
+//  * Build the external ProtoPedia detail page URL for a given prototype.
+//  *
+//  * @param prototype - Normalized prototype object
+//  * @returns absolute URL string to the ProtoPedia detail page
+//  */
+// const urlOfPageForPrototype = (prototype: Prototype): string =>
+//   buildPrototypeLink(prototype.id);
 
 const arePlayModeStatesEqual = (
   left: PlayModeState,
@@ -564,9 +564,11 @@ export function MugenProtoPedia() {
   const openCurrentPrototypeInProtoPedia = useCallback(() => {
     if (currentFocusIndex >= 0 && currentFocusIndex < prototypeSlots.length) {
       const currentSlot = prototypeSlots[currentFocusIndex];
+      const prototypeId =
+        currentSlot.prototype?.id ?? currentSlot.expectedPrototypeId;
 
-      if (currentSlot.prototype) {
-        const url = urlOfPageForPrototype(currentSlot.prototype);
+      if (prototypeId !== undefined) {
+        const url = buildPrototypeLink(prototypeId);
         if (url.length > 0) {
           window.open(url, '_blank', 'noopener,noreferrer');
         }
