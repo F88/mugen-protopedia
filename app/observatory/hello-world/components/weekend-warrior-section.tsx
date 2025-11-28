@@ -56,7 +56,7 @@ export function WeekendWarriorSection({
     >
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         {/* Sunday Night Sprint */}
-        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-teal-100 dark:border-teal-800/30 text-center flex flex-col items-center">
           <div className="text-4xl mb-2">🏃💨</div>
           <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
             Sunday Night Sprint
@@ -64,14 +64,20 @@ export function WeekendWarriorSection({
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             Sun 20:00 - Mon 05:00
           </p>
-          <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+          <div className="text-3xl font-black text-teal-600 dark:text-teal-400 mb-2">
             {sundaySprintPercent}%
           </div>
-          <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2 overflow-hidden">
+            <div
+              className="bg-teal-500 h-full rounded-full"
+              style={{ width: `${sundaySprintPercent}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-500">of all releases</p>
         </div>
 
         {/* Midnight Oil */}
-        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-800/30 text-center flex flex-col items-center">
           <div className="text-4xl mb-2">🦉🌙</div>
           <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
             Midnight Oil
@@ -79,14 +85,20 @@ export function WeekendWarriorSection({
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             23:00 - 04:00
           </p>
-          <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+          <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mb-2">
             {midnightPercent}%
           </div>
-          <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2 overflow-hidden">
+            <div
+              className="bg-indigo-500 h-full rounded-full"
+              style={{ width: `${midnightPercent}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-500">of all releases</p>
         </div>
 
         {/* Daywalker */}
-        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-slate-100 dark:border-slate-800/30 text-center">
+        <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-amber-100 dark:border-amber-800/30 text-center flex flex-col items-center">
           <div className="text-4xl mb-2">☀️☕</div>
           <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
             Daywalker
@@ -94,10 +106,16 @@ export function WeekendWarriorSection({
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             09:00 - 18:00
           </p>
-          <div className="text-3xl font-black text-slate-700 dark:text-slate-300">
+          <div className="text-3xl font-black text-amber-600 dark:text-amber-400 mb-2">
             {daytimePercent}%
           </div>
-          <p className="text-xs text-gray-500 mt-1">of all releases</p>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2 overflow-hidden">
+            <div
+              className="bg-amber-500 h-full rounded-full"
+              style={{ width: `${daytimePercent}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-500">of all releases</p>
         </div>
       </div>
     </ObservatorySection>

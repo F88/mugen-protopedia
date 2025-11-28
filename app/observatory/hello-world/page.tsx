@@ -237,7 +237,10 @@ export default async function HelloWorldPage() {
 
           <MaternityHospitalSection maternityHospital={maternityHospital} />
 
-          <PowerOfDeadlinesSection powerOfDeadlines={powerOfDeadlines} />
+          <PowerOfDeadlinesSection
+            powerOfDeadlines={powerOfDeadlines}
+            dailyReleaseCounts={releaseDateDistribution.daily}
+          />
 
           <WeekendWarriorSection weekendWarrior={weekendWarrior} />
 

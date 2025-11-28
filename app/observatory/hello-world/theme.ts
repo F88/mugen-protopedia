@@ -82,7 +82,7 @@ export const helloWorldTheme = {
       delay: 'delay-[400ms]',
     },
     powerOfDeadlines: {
-      theme: 'rose' as const, // Changed from red to avoid duplication
+      theme: 'fuchsia' as const,
       delay: 'delay-[500ms]',
     },
     weekendWarrior: {
