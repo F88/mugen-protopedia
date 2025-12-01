@@ -14,9 +14,10 @@ export default async function PlaylistRedirectPage({ params }: Props) {
   // params are already decoded by Next.js, so we use them as is.
   // URLSearchParams will handle encoding for the query string.
   searchParams.set('title', decodeURIComponent(title));
-  searchParams.set('id', ids);
+  searchParams.set('id', decodeURIComponent(ids));
 
   const destination = `/?${searchParams.toString()}`;
 
+  // return <>{destination}</>;
   return <ClientRedirect destination={destination} />;
 }
