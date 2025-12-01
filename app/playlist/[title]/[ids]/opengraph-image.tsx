@@ -6,7 +6,6 @@ import {
 import { truncateString } from '@/lib/utils';
 import { logger } from '@/lib/logger.client';
 
-export const runtime = 'edge';
 export { size, contentType };
 export const alt = 'Playlist Mode | 無限ProtoPedia';
 

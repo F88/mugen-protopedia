@@ -4,7 +4,6 @@ import {
   contentType,
 } from '../observatory/shared/og-image-generator';
 
-export const runtime = 'edge';
 export { size, contentType };
 export const alt = 'Playlist Mode - 無限ProtoPedia';
 

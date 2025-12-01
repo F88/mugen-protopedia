@@ -9,6 +9,8 @@
  */
 import { ImageResponse } from 'next/og';
 import React, { type ReactNode, type CSSProperties } from 'react';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export interface ObservatoryOgTheme {
   background: string;
@@ -65,10 +67,10 @@ async function loadGoogleFont(fontFamily: string) {
 }
 
 async function loadLogo() {
-  const logoData = await fetch(
-    new URL('../../../assets/logos/960x240-black.png', import.meta.url),
-  ).then((res) => res.arrayBuffer());
-  return `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
+  const logoData = await readFile(
+    join(process.cwd(), 'assets/logos/960x240-black.png'),
+  );
+  return `data:image/png;base64,${logoData.toString('base64')}`;
 }
 
 // --- Components ---
