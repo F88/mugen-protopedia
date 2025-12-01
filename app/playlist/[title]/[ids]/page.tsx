@@ -2,11 +2,11 @@
 import { Playlist } from './playlist';
 
 type Props = {
-  params: {
+  params: Promise<{
     title: string;
     ids: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 /**
