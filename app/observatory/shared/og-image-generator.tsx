@@ -71,7 +71,21 @@ async function loadLogo() {
 
 // --- Components ---
 
+// Simple Linear Congruential Generator for deterministic randomness
+class Random {
+  private seed: number;
+  constructor(seed: number) {
+    this.seed = seed;
+  }
+  next() {
+    this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;
+    return this.seed / 4294967296;
+  }
+}
+
 const Stars = () => {
+  const rng = new Random(12419); // Fixed seed for consistent output
+
   return (
     <div
       style={{
@@ -84,17 +98,13 @@ const Stars = () => {
       }}
     >
       {Array.from({ length: 80 }).map((_, i) => {
-        // eslint-disable-next-line react-hooks/purity
-        const leftVal = Math.random() * 100;
-        // eslint-disable-next-line react-hooks/purity
-        const topVal = Math.random() * 100;
+        const leftVal = rng.next() * 100;
+        const topVal = rng.next() * 100;
 
         const left = `${leftVal}%`;
         const top = `${topVal}%`;
-        // eslint-disable-next-line react-hooks/purity
-        const size = Math.random() * 3 + 2; // 2px to 5px
-        // eslint-disable-next-line react-hooks/purity
-        const opacity = Math.random() * 0.7 + 0.3; // 0.3 to 1.0
+        const size = rng.next() * 3 + 2; // 2px to 5px
+        const opacity = rng.next() * 0.7 + 0.3; // 0.3 to 1.0
 
         return (
           <div
