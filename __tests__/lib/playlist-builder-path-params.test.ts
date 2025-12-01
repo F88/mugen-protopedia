@@ -28,8 +28,8 @@ describe('buildPlaylistUrlWithPathParams', () => {
     const ids: number[] = [];
     const title = 'Title Only';
     const url = buildPlaylistUrlWithPathParams(ids, title);
-    // buildPlaylistUrl returns empty string if no IDs (and title is present but logic there might differ slightly depending on implementation details, 
-    // but let's check what buildPlaylistUrl does. 
+    // buildPlaylistUrl returns empty string if no IDs (and title is present but logic there might differ slightly depending on implementation details,
+    // but let's check what buildPlaylistUrl does.
     // Actually buildPlaylistUrl allows title-only playlist if title is valid.
     // Let's check buildPlaylistUrl implementation again.
     // "if ((!ids || ids.length === 0) && (!title || title.length === 0)) { return ''; }"
