@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { ClientRedirect } from './client-redirect';
 
 type Props = {
   params: Promise<{
@@ -16,5 +16,7 @@ export default async function PlaylistRedirectPage({ params }: Props) {
   searchParams.set('title', decodeURIComponent(title));
   searchParams.set('id', ids);
 
-  redirect(`/?${searchParams.toString()}`);
+  const destination = `/?${searchParams.toString()}`;
+
+  return <ClientRedirect destination={destination} />;
 }

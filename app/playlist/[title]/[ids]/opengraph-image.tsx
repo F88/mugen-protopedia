@@ -23,7 +23,6 @@ export async function generateImageMetadata({
   return [
     {
       alt: `${displayTitle} - Playlist Mode | 無限ProtoPedia`,
-      id: 'playlist-og',
       size,
       contentType,
     },
