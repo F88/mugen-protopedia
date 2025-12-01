@@ -31,7 +31,7 @@ export default async function Image() {
       </div>
     ),
     subtitle: 'ProtoPedia Observatory',
-    font: helloWorldTheme.ogImage.font as ObservatoryOgOptions['font'],
+    font: helloWorldTheme.ogImage.font,
     theme: helloWorldTheme.ogImage.theme,
     logo,
   });
