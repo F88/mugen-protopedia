@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { observatoryTheme } from '@/app/observatory/theme';
+import { observatoryTheme } from '../theme';
 
 export type ObservatoryCardColorScheme =
   | 'gray'

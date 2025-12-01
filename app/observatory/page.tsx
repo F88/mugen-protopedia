@@ -20,7 +20,7 @@ import {
 import { ObservatoryBackground } from './_components/background';
 import { observatoryTheme } from '@/app/observatory/theme';
 
-import { ObservatoryCard } from './components/observatory-card';
+import { ObservatoryCard } from './_components/observatory-card';
 import { ObservatoryHeader } from './components/observatory-header';
 
 export const metadata: Metadata = {
