@@ -17,7 +17,7 @@ import {
   audiowideFont,
   observatoryFonts,
 } from '@/app/observatory/shared/fonts';
-import { ObservatoryBackground } from '@/app/observatory/background';
+import { ObservatoryBackground } from './_components/background';
 import { observatoryTheme } from '@/app/observatory/theme';
 
 import { ObservatoryCard } from './components/observatory-card';
