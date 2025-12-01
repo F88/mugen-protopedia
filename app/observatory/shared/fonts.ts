@@ -40,7 +40,7 @@ export const observatoryFonts = {
   Electrolize: electrolizeFont,
   VT323: vt323Font,
   Rye: ryeFont,
-  'M PLUS 1 Code': mPlus1CodeFont,
+  M_PLUS_1_Code: mPlus1CodeFont,
 } as const;
 
 export type ObservatoryFontName = keyof typeof observatoryFonts;
