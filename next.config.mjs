@@ -49,14 +49,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: '/playlist',
-        destination: '/',
-      },
-    ];
-  },
 };
 
 export default nextConfig;
