@@ -17,14 +17,16 @@ The OGP image generation logic is centralized in `app/observatory/shared/og-imag
 
 ### Usage
 
-To create an OGP image for a new Observatory page, create an `opengraph-image.tsx` file in your page directory and use the `generateObservatoryOgImage` function.
+To create an OGP image for a new Observatory page, create an `opengraph-image.tsx` file in your page directory. Import the shared generator and your page's theme configuration.
 
 ```tsx
 import {
   generateObservatoryOgImage,
   size,
   contentType,
+  type ObservatoryOgOptions,
 } from '../shared/og-image-generator'; // Adjust path as needed
+import { pageTheme } from './theme';
 
 export const runtime = 'edge';
 export { size, contentType };
@@ -34,40 +36,26 @@ export default async function Image() {
   return generateObservatoryOgImage({
     title: 'Page Title',
     subtitle: 'Page Subtitle',
-    theme: {
-      // Background gradient (CSS)
-      background: 'linear-gradient(...)',
-
-      // Card styles
-      cardBackground: 'rgba(...)',
-      cardBorder: '1px solid ...',
-      cardShadow: '0 0 40px ...',
-
-      // Text styles
-      titleGradient: 'linear-gradient(...)',
-      subtitleColor: '#...',
-
-      // Ambient glows (CSS gradients)
-      glowTop: 'radial-gradient(...)',
-      glowBottom: 'radial-gradient(...)',
-    },
+    // Use configuration from theme.ts
+    font: pageTheme.ogImage.font as ObservatoryOgOptions['font'],
+    theme: pageTheme.ogImage.theme,
   });
 }
 ```
 
 ## Theme Guidelines
 
-When defining a theme for a new page, follow these guidelines:
+Theme configurations are defined in `theme.ts` using the `ObservatoryThemeConfig` type. This ensures that OGP settings are consistent with the page design.
 
-1. **Background:** Use a dark, deep gradient that fits the "Universe" concept. Start with a very dark color (e.g., slate-950) and blend into a theme color.
-2. **Legibility:** Ensure the title and subtitle are legible against the background. The card background should be semi-transparent with a blur effect.
-3. **Consistency:** Use the standard `size` and `contentType` exported from the generator.
+1. **Define in `theme.ts`**: Add an `ogImage` property to your theme object.
+2. **Background**: Use a dark, deep gradient that fits the "Universe" concept.
+3. **Legibility**: Ensure the title and subtitle are legible against the background.
 
 ## Adding New Pages
 
 When adding a new page to the Observatory (e.g., `app/observatory/page-a/page.tsx`):
 
-1. Copy the `opengraph-image.tsx` from an existing page (e.g., `hello-world`).
-2. Update the `alt` text.
-3. Update the `title` and `subtitle` passed to `generateObservatoryOgImage`.
-4. Customize the `theme` object to match the visual identity of the new page.
+1. Define the `ogImage` configuration in `app/observatory/page-a/theme.ts`.
+2. Copy the `opengraph-image.tsx` from an existing page (e.g., `hello-world`).
+3. Update the imports to point to your new `theme.ts`.
+4. Update the `alt`, `title`, and `subtitle`.

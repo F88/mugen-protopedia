@@ -1,3 +1,5 @@
+import type { ObservatoryThemeConfig } from '../shared/theme.types';
+
 /**
  * Hello World Theme Configuration
  *
@@ -53,6 +55,23 @@ export const helloWorldTheme = {
   // Typography
   typography: {
     fontFamily: 'Marcellus', // Classical, divine font
+  },
+
+  // Open Graph Image Configuration
+  ogImage: {
+    font: 'Audiowide', // Use Audiowide for OGP to maintain Observatory brand consistency, even if page uses Marcellus
+    theme: {
+      background: 'linear-gradient(to bottom right, #020617, #0c4a6e, #0f172a)', // slate-950 -> sky-900 -> slate-900
+      cardBackground: 'rgba(2, 6, 23, 0.7)',
+      cardBorder: '1px solid rgba(56, 189, 248, 0.3)',
+      cardShadow: '0 0 40px rgba(56, 189, 248, 0.15)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
+      subtitleColor: '#38bdf8', // sky-400
+      glowTop:
+        'radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%)',
+      glowBottom:
+        'radial-gradient(circle, rgba(14, 165, 233, 0.15), transparent 70%)',
+    },
   },
 
   // Section themes mapping
@@ -129,7 +148,7 @@ export const helloWorldTheme = {
     fadeInDuration: 0.6,
     sectionFadeIn: 'duration-700',
   },
-} as const;
+} as const satisfies ObservatoryThemeConfig;
 
 export type HelloWorldTheme = typeof helloWorldTheme;
 export type HelloWorldSectionKey = keyof typeof helloWorldTheme.sections;

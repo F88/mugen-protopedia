@@ -63,39 +63,55 @@ app/observatory/
 
 ### 1. Theme System
 
-Each Observatory page has its own `theme.ts` file with centralized configuration:
+Each Observatory page has its own `theme.ts` file with centralized configuration. We use a shared type definition `ObservatoryThemeConfig` to ensure consistency across all themes while allowing for page-specific extensions.
+
+**Type Definition (`app/observatory/shared/theme.types.ts`):**
+
+Defines the required structure for all themes, including color palettes, typography, and OGP settings.
+
+**Theme Implementation (`app/observatory/[page]/theme.ts`):**
+
+We use the `satisfies` operator to enforce the `ObservatoryThemeConfig` contract while preserving the specific literal types of the theme object (e.g., specific section keys or animation settings).
 
 ```typescript
-// app/observatory/[page]/theme.ts
+import type { ObservatoryThemeConfig } from '../shared/theme.types';
+
 export const pageTheme = {
     colors: {
-        light: {
-            /* light mode palette */
-        },
-        dark: {
-            /* dark mode palette */
-        },
+        light: { /* ... */ },
+        dark: { /* ... */ },
     },
     typography: {
         fontFamily: 'FontName',
     },
+    // OGP Configuration (Required)
+    ogImage: {
+        font: 'FontName',
+        theme: { /* ... */ }
+    },
+    // Page-specific sections (Preserved by 'satisfies')
     sections: {
         sectionName: {
-            theme: 'colorScheme', // Maps to ObservatorySection theme
-            delay: 'delay-100', // Animation delay
+            theme: 'colorScheme',
+            delay: 'delay-100',
         },
     },
+    // Page-specific animation settings
     animation: {
-        /* animation settings */
+        /* ... */
     },
-} as const;
+} as const satisfies ObservatoryThemeConfig;
+
+// Export specific types inferred from the implementation
+export type PageTheme = typeof pageTheme;
+export type PageSectionKey = keyof typeof pageTheme.sections;
 ```
 
 **Benefits:**
 
-- Single source of truth for page styling
-- Easy theme updates without touching components
-- Consistent color schemes across sections
+- **Type Safety**: Ensures all themes have the required properties (colors, OGP, etc.).
+- **Precise Inference**: `satisfies` allows TypeScript to infer the exact shape of `sections` and `animation`, enabling strict typing for section keys.
+- **Single Source of Truth**: OGP and page styles share the same configuration.
 
 ### 2. Background Components
 

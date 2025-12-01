@@ -1,3 +1,5 @@
+import type { ObservatoryThemeConfig } from './shared/theme.types';
+
 /**
  * Observatory Top Page Theme Configuration
  *
@@ -43,6 +45,23 @@ export const observatoryTheme = {
   // Typography
   typography: {
     fontFamily: 'Audiowide', // Futuristic, tech-inspired font
+  },
+
+  // Open Graph Image Configuration
+  ogImage: {
+    font: 'Audiowide',
+    theme: {
+      background: 'linear-gradient(to bottom right, #020617, #172554, #1e1b4b)', // slate-950 -> blue-950 -> indigo-950
+      cardBackground: 'rgba(2, 6, 23, 0.7)',
+      cardBorder: '1px solid rgba(148, 163, 184, 0.2)',
+      cardShadow: '0 0 40px rgba(56, 189, 248, 0.1)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
+      subtitleColor: '#cbd5e1',
+      glowTop:
+        'radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%)',
+      glowBottom:
+        'radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%)',
+    },
   },
 
   // Card configurations (for ObservatoryCard component)
@@ -154,6 +173,6 @@ export const observatoryTheme = {
     shootingStarInterval: 3000, // ms
     starTwinkleDuration: 2, // seconds
   },
-} as const;
+} as const satisfies ObservatoryThemeConfig;
 
 export type ObservatoryTheme = typeof observatoryTheme;
