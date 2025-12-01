@@ -9,7 +9,6 @@ import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-
 function getAggregateCardState(options: {
   hasError: boolean;
   hasAnyValid: boolean;
