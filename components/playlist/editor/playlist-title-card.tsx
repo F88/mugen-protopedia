@@ -1,11 +1,14 @@
 import React from 'react';
 
+import { playlistTitleSchema } from '@/schemas/playlist';
+
+import { splitGraphemes } from '@/lib/utils';
+
+import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
 
-import { playlistTitleSchema } from '@/schemas/playlist';
 
 function getAggregateCardState(options: {
   hasError: boolean;
