@@ -3,6 +3,7 @@ import {
   size,
   contentType,
 } from '@/app/observatory/shared/og-image-generator';
+import { truncateString } from '@/lib/utils';
 
 export const runtime = 'edge';
 export { size, contentType };
@@ -10,12 +11,18 @@ export { size, contentType };
 export async function generateImageMetadata({
   params,
 }: {
-  params: { title: string };
+  params: { title: string; ids: string };
 }) {
-  const title = decodeURIComponent(params.title);
+  const rawTitle = decodeURIComponent(params.title);
+  const ids = decodeURIComponent(params.ids);
+  const count = ids.split(',').filter(Boolean).length;
+
+  const title = truncateString(rawTitle, 100);
+  const displayTitle = count > 0 ? `${title} (${count})` : title;
+
   return [
     {
-      alt: `${title} - Playlist Mode | 無限ProtoPedia`,
+      alt: `${displayTitle} - Playlist Mode | 無限ProtoPedia`,
       id: 'playlist-og',
       size,
       contentType,
@@ -26,9 +33,14 @@ export async function generateImageMetadata({
 export default async function Image({
   params,
 }: {
-  params: { title: string };
+  params: { title: string; ids: string };
 }) {
-  const title = decodeURIComponent(params.title);
+  const rawTitle = decodeURIComponent(params.title);
+  const ids = decodeURIComponent(params.ids);
+  const count = ids.split(',').filter(Boolean).length;
+
+  const title = truncateString(rawTitle, 100);
+  const displayTitle = count > 0 ? `${title} (${count})` : title;
 
   return await generateObservatoryOgImage({
     title: (
@@ -39,7 +51,7 @@ export default async function Image({
           gap: '24px',
         }}
       >
-        <span>▶️</span> {title}
+        <span>▶️</span> {displayTitle}
       </div>
     ),
     subtitle: 'Continuous Playback',
