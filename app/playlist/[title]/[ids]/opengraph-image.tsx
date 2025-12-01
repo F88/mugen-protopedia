@@ -19,8 +19,9 @@ export default async function Image({
   try {
     rawTitle = decodeURIComponent(params.title);
     ids = decodeURIComponent(params.ids);
-  } catch {
-    // Ignore decoding errors
+  } catch (e) {
+    // It's better to log decoding errors for debugging purposes.
+    console.error('Failed to decode playlist params', { error: e });
   }
 
   const count = ids.split(',').filter(Boolean).length;
