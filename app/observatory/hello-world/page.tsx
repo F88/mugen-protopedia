@@ -12,7 +12,7 @@ import { APP_TITLE } from '@/lib/config/app-constants';
 
 import { getLatestAnalysis } from '@/app/actions/analysis';
 
-import { ObservatoryHeader } from '@/components/observatory/observatory-header';
+import { ObservatoryHeader } from '../components/observatory-header';
 
 import { IconGlobe } from '@/app/observatory/shared/icons';
 

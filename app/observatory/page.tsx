@@ -20,8 +20,8 @@ import {
 import { ObservatoryBackground } from '@/app/observatory/background';
 import { observatoryTheme } from '@/app/observatory/theme';
 
-import { ObservatoryCard } from '@/components/observatory/observatory-card';
-import { ObservatoryHeader } from '@/components/observatory/observatory-header';
+import { ObservatoryCard } from './components/observatory-card';
+import { ObservatoryHeader } from './components/observatory-header';
 
 export const metadata: Metadata = {
   title: `ProtoPedia Observatory | ${APP_TITLE}`,

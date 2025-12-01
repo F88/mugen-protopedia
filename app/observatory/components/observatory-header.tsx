@@ -1,13 +1,8 @@
 import Link from 'next/link';
-import { Audiowide } from 'next/font/google';
 
 import { MugenProtoPediaHomeButton } from '@/components/mugen-pp-top-button';
 import { ThemeToggle } from '@/components/theme-toggle';
-
-const audiowideFont = Audiowide({
-  weight: '400',
-  subsets: ['latin'],
-});
+import { audiowideFont } from '@/app/observatory/shared/fonts';
 
 export type ObservatoryHeaderColorScheme =
   | 'blue'
