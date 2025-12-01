@@ -14,15 +14,25 @@ export { size, contentType };
 export const alt =
   'Hello World - ProtoPedia Observatory | The ProtoPedia Universe';
 
+async function loadLogo() {
+  const logoData = await fetch(
+    new URL('../../../assets/logos/960x240-black.png', import.meta.url),
+  ).then((res) => res.arrayBuffer());
+  return `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
+}
+
 export default async function Image() {
+  const logo = await loadLogo();
+
   return await generateObservatoryOgImage({
     title: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <span>🎉</span> Hello World
       </div>
     ),
-    subtitle: "The Latest Prototypes' Debut",
+    subtitle: 'ProtoPedia Observatory',
     font: helloWorldTheme.ogImage.font as ObservatoryOgOptions['font'],
     theme: helloWorldTheme.ogImage.theme,
+    logo,
   });
 }

@@ -1,5 +1,14 @@
+/**
+ * @fileoverview Open Graph Image generator for Observatory.
+ *
+ * Note on Inline Styles:
+ * This file uses inline styles (style objects) extensively because next/og (Satori)
+ * does not support external CSS files or standard CSS modules.
+ * Styles must be provided as inline style objects to be correctly rendered into an image.
+ * Linter warnings regarding "CSS inline styles" should be ignored in this context.
+ */
 import { ImageResponse } from 'next/og';
-import type { CSSProperties, ReactNode } from 'react';
+import React, { type ReactNode, type CSSProperties } from 'react';
 
 export interface ObservatoryOgTheme {
   background: string;
@@ -17,6 +26,7 @@ export interface ObservatoryOgOptions {
   subtitle: string;
   theme: ObservatoryOgTheme;
   font?: 'Audiowide' | 'Cinzel' | 'Electrolize' | 'Marcellus' | 'Rye' | 'VT323';
+  logo?: string;
 }
 
 export const size = {
@@ -26,23 +36,11 @@ export const size = {
 
 export const contentType = 'image/png';
 
-// Font loading helper
-async function loadGoogleFont(fontFamily: string) {
-  // Construct Google Fonts URL
-  // Note: We request the font file directly if possible, or parse CSS
-  // For simplicity and reliability in Edge, we'll use a known CDN or fetch logic
-  // Here we use a simple fetch to Google Fonts CSS API and extract the woff2/ttf url
-  // However, parsing CSS in Edge can be tricky.
-  // A more robust way for OGP is to fetch the font file directly from a stable URL if known,
-  // or use the standard Next.js approach.
+// --- Helpers ---
 
-  // Since we want to support multiple fonts dynamically, let's try to fetch the CSS and parse the src.
+async function loadGoogleFont(fontFamily: string) {
   const cssUrl = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@400;700&display=swap`;
   const css = await fetch(cssUrl).then((res) => res.text());
-
-  // Extract the font URL (ttf or woff2)
-  // Google Fonts CSS usually returns woff2 for modern browsers, but ImageResponse might prefer ttf/otf.
-  // We can try to force ttf by user agent if needed, but let's try standard first.
   const resource = css.match(
     /src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/,
   );
@@ -53,157 +51,228 @@ async function loadGoogleFont(fontFamily: string) {
   }
 
   const fontUrl = resource[1];
-  const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer());
-  return fontData;
+  return await fetch(fontUrl).then((res) => res.arrayBuffer());
 }
 
-// Common styles
-const containerStyle: CSSProperties = {
-  height: '100%',
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  position: 'relative',
-  overflow: 'hidden',
+async function loadLogo() {
+  const logoData = await fetch(
+    new URL('../../../assets/logos/logo-2-d.png', import.meta.url),
+  ).then((res) => res.arrayBuffer());
+  return `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
+}
+
+// --- Components ---
+
+// Simple Linear Congruential Generator for deterministic randomness
+class Random {
+  private seed: number;
+  constructor(seed: number) {
+    this.seed = seed;
+  }
+  next() {
+    this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;
+    return this.seed / 4294967296;
+  }
+}
+
+const Stars = () => {
+  const rng = new Random(12345); // Fixed seed for consistent output
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 1200,
+        height: 630,
+      }}
+    >
+      {Array.from({ length: 80 }).map((_, i) => {
+        let leftVal = rng.next() * 100;
+        const topVal = rng.next() * 100;
+
+        // Avoid placing stars in the center area where text is displayed
+        if (leftVal > 30 && leftVal < 70 && topVal > 30 && topVal < 70) {
+          leftVal = (leftVal + 50) % 100;
+        }
+
+        const left = `${leftVal}%`;
+        const top = `${topVal}%`;
+        const size = rng.next() * 3 + 2; // 2px to 5px
+        const opacity = rng.next() * 0.7 + 0.3; // 0.3 to 1.0
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left,
+              top,
+              width: size,
+              height: size,
+              borderRadius: '50%',
+              backgroundColor: 'white',
+              opacity,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
 };
 
-const cardBaseStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '40px 80px',
-  borderRadius: '24px',
-  zIndex: 10,
-  backdropFilter: 'blur(8px)',
-};
+const BackgroundGlows = ({ theme }: { theme: ObservatoryOgTheme }) => (
+  <>
+    <div
+      style={{
+        position: 'absolute',
+        top: '-20%',
+        left: '-10%',
+        width: '60%',
+        height: '60%',
+        background: theme.glowTop,
+        filter: 'blur(40px)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '-20%',
+        right: '-10%',
+        width: '60%',
+        height: '60%',
+        background: theme.glowBottom,
+        filter: 'blur(40px)',
+      }}
+    />
+  </>
+);
 
-const titleBaseStyle: CSSProperties = {
-  fontSize: 72,
-  fontWeight: 900,
-  marginBottom: 16,
-  letterSpacing: '-0.03em',
-  textAlign: 'center',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '24px',
-  textShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
-  backgroundClip: 'text',
-  color: 'transparent',
-};
+const ContentCard = ({
+  title,
+  subtitle,
+  theme,
+}: {
+  title: string | ReactNode;
+  subtitle: string;
+  theme: ObservatoryOgTheme;
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      // width: 'calc(100% - 40px)',
+      padding: '40px 80px',
+      borderRadius: '24px',
+      // zIndex: 10,
+      backdropFilter: 'blur(8px)',
+      backgroundColor: theme.cardBackground,
+      border: theme.cardBorder,
+      boxShadow: theme.cardShadow,
+    }}
+  >
+    <div
+      style={{
+        fontSize: 72,
+        fontWeight: 900,
+        marginBottom: 16,
+        letterSpacing: '-0.03em',
+        textAlign: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+        textShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
+        backgroundClip: 'text',
+        color: 'transparent',
+        backgroundImage: theme.titleGradient,
+      }}
+    >
+      {title}
+    </div>
+    <div
+      style={{
+        fontSize: 32,
+        textAlign: 'center',
+        fontWeight: 500,
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        color: theme.subtitleColor,
+      }}
+    >
+      {subtitle}
+    </div>
+  </div>
+);
 
-const subtitleBaseStyle: CSSProperties = {
-  fontSize: 32,
-  textAlign: 'center',
-  fontWeight: 500,
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase',
-};
+const Footer = ({ logo }: { logo: string }) => (
+  <div
+    style={{
+      position: 'absolute',
+      bottom: 20,
+      // width: '50%',
+      // left: '25%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 16,
+      // zIndex: 10,
+      // backgroundColor: '#888' /* temporary bg color to make logo visible */,
+      padding: '12px 24px',
+      borderRadius: '16px',
+    }}
+  >
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={logo} height="120" alt="" />
+  </div>
+);
 
-const footerStyle: CSSProperties = {
-  position: 'absolute',
-  bottom: 40,
-  fontSize: 20,
-  color: '#94a3b8', // slate-400
-  letterSpacing: '0.1em',
-  zIndex: 10,
-};
+// --- Main Generator ---
 
 export async function generateObservatoryOgImage(
   options: ObservatoryOgOptions,
 ) {
-  const { title, subtitle, theme, font = 'Audiowide' } = options;
+  const {
+    title,
+    subtitle,
+    theme,
+    font = 'Audiowide',
+    logo: customLogo,
+  } = options;
 
-  // Load font
-  const fontData = await loadGoogleFont(font);
+  const [fontData, logo] = await Promise.all([
+    loadGoogleFont(font),
+    customLogo ? Promise.resolve(customLogo) : loadLogo(),
+  ]);
 
-  // Deterministic stars
-  const stars = Array.from({ length: 40 }).map((_, i) => {
-    const left = `${(i * 17) % 100}%`;
-    const top = `${(i * 23) % 100}%`;
-    const size = (i % 3) + 2;
-    const opacity = ((i % 5) + 3) / 10;
-    return (
-      <div
-        key={i}
-        style={{
-          position: 'absolute',
-          left,
-          top,
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          backgroundColor: 'white',
-          opacity,
-        }}
-      />
-    );
-  });
+  const containerStyle: CSSProperties = {
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    background: theme.background,
+    fontFamily: fontData ? `"${font}"` : 'sans-serif',
+    paddingBottom: '120px',
+    paddingLeft: '40px',
+    paddingRight: '40px',
+  };
 
+  // Note: We use inline styles here because next/og requires them for image generation.
+  // External CSS is not supported.
   return new ImageResponse(
     (
-      <div
-        style={{
-          ...containerStyle,
-          backgroundColor: theme.background,
-          backgroundImage: theme.background,
-          fontFamily: fontData ? `"${font}"` : 'sans-serif',
-        }}
-      >
-        {/* Background Glows */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '-20%',
-            left: '-10%',
-            width: '60%',
-            height: '60%',
-            background: theme.glowTop,
-            filter: 'blur(40px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-20%',
-            right: '-10%',
-            width: '60%',
-            height: '60%',
-            background: theme.glowBottom,
-            filter: 'blur(40px)',
-          }}
-        />
-
-        {stars}
-
-        <div
-          style={{
-            ...cardBaseStyle,
-            backgroundColor: theme.cardBackground,
-            border: theme.cardBorder,
-            boxShadow: theme.cardShadow,
-          }}
-        >
-          <div
-            style={{
-              ...titleBaseStyle,
-              backgroundImage: theme.titleGradient,
-            }}
-          >
-            {title}
-          </div>
-          <div
-            style={{
-              ...subtitleBaseStyle,
-              color: theme.subtitleColor,
-            }}
-          >
-            {subtitle}
-          </div>
-        </div>
-        <div style={footerStyle}>mugen-pp.vercel.app</div>
+      <div style={containerStyle}>
+        <BackgroundGlows theme={theme} />
+        <Stars />
+        <Footer logo={logo} />
+        <ContentCard title={title} subtitle={subtitle} theme={theme} />
       </div>
     ),
     {

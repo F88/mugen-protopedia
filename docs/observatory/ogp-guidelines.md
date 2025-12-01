@@ -21,10 +21,10 @@ To create an OGP image for a new Observatory page, create an `opengraph-image.ts
 
 ```tsx
 import {
-  generateObservatoryOgImage,
-  size,
-  contentType,
-  type ObservatoryOgOptions,
+    generateObservatoryOgImage,
+    size,
+    contentType,
+    type ObservatoryOgOptions,
 } from '../shared/og-image-generator'; // Adjust path as needed
 import { pageTheme } from './theme';
 
@@ -33,13 +33,13 @@ export { size, contentType };
 export const alt = 'Page Title - ProtoPedia Observatory';
 
 export default async function Image() {
-  return generateObservatoryOgImage({
-    title: 'Page Title',
-    subtitle: 'Page Subtitle',
-    // Use configuration from theme.ts
-    font: pageTheme.ogImage.font as ObservatoryOgOptions['font'],
-    theme: pageTheme.ogImage.theme,
-  });
+    return generateObservatoryOgImage({
+        title: 'Page Title',
+        subtitle: 'Page Subtitle',
+        // Use configuration from theme.ts
+        font: pageTheme.ogImage.font as ObservatoryOgOptions['font'],
+        theme: pageTheme.ogImage.theme,
+    });
 }
 ```
 

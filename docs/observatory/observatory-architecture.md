@@ -78,8 +78,12 @@ import type { ObservatoryThemeConfig } from '../shared/theme.types';
 
 export const pageTheme = {
     colors: {
-        light: { /* ... */ },
-        dark: { /* ... */ },
+        light: {
+            /* ... */
+        },
+        dark: {
+            /* ... */
+        },
     },
     typography: {
         fontFamily: 'FontName',
@@ -87,7 +91,9 @@ export const pageTheme = {
     // OGP Configuration (Required)
     ogImage: {
         font: 'FontName',
-        theme: { /* ... */ }
+        theme: {
+            /* ... */
+        },
     },
     // Page-specific sections (Preserved by 'satisfies')
     sections: {

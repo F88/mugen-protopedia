@@ -57,8 +57,9 @@ export const observatoryTheme = {
   ogImage: {
     font: 'Audiowide',
     theme: {
-      background: 'linear-gradient(to bottom right, #020617, #172554, #1e1b4b)', // slate-950 -> blue-950 -> indigo-950
+      background: '#000',
       cardBackground: 'rgba(2, 6, 23, 0.7)',
+      // cardBackground: 'rgba(0,0,0,0)',
       cardBorder: '1px solid rgba(148, 163, 184, 0.2)',
       cardShadow: '0 0 40px rgba(56, 189, 248, 0.1)',
       titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
