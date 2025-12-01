@@ -15,13 +15,14 @@ export default async function Image({
 }: {
   params: { title: string; ids: string };
 }) {
-  const { title: rawTitleInit, ids: idsInit } = params;
-  let rawTitle = rawTitleInit;
-  let ids = idsInit;
+  let rawTitle: string;
+  let ids: string;
   try {
-    rawTitle = decodeURIComponent(rawTitleInit);
-    ids = decodeURIComponent(idsInit);
+    rawTitle = decodeURIComponent(params.title);
+    ids = decodeURIComponent(params.ids);
   } catch (e) {
+    rawTitle = params.title;
+    ids = params.ids;
     // It's better to log decoding errors for debugging purposes.
     logger.error({ error: e }, 'Failed to decode playlist params');
   }
