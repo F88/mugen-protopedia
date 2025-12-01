@@ -10,7 +10,7 @@ import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
 import { computeDocumentTitle } from '@/lib/utils/document-title';
 import {
-  buildPlaylistUrl,
+  buildPlaylistUrlWithPathParams,
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
 } from '@/lib/utils/playlist-builder';
@@ -62,6 +62,7 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   const [playlistTitleHighlighted, setPlaylistTitleHighlighted] =
     useState(false);
   const [playlistUrlHighlighted, setPlaylistUrlHighlighted] = useState(false);
+  const [shouldAutoplay, setShouldAutoplay] = useState(true);
 
   const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
     ['scrapePageHtml'],
@@ -144,8 +145,8 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     if (!canGeneratePlaylistUrl) {
       return '';
     }
-    return buildPlaylistUrl(effectiveIds, title);
-  }, [canGeneratePlaylistUrl, effectiveIds, title]);
+    return buildPlaylistUrlWithPathParams(effectiveIds, title, shouldAutoplay);
+  }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay]);
 
   useEffect(() => {
     if (!playlistUrl) return;
@@ -250,6 +251,8 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         copyStatus={copyStatus}
         hasInputError={hasInputError}
         onCopy={handleCopy}
+        shouldAutoplay={shouldAutoplay}
+        setShouldAutoplay={setShouldAutoplay}
       />
       <PlaylistPreviewCard effectiveIds={effectiveIds} />
     </div>

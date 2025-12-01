@@ -2,6 +2,8 @@ import React from 'react';
 
 import { StatusCard, type CardState } from '@/components/status-card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 // import { getIndicatorSymbol } from '@/components/playlist/editor/playlist-editor-utils';
 
@@ -32,6 +34,8 @@ export type PlaylistOutputCardProps = {
   onCopy: () => void;
   copyStatus: 'idle' | 'ok' | 'fail';
   hasInputError: boolean;
+  shouldAutoplay: boolean;
+  setShouldAutoplay: (value: boolean) => void;
 };
 
 export function PlaylistOutputCard({
@@ -43,6 +47,8 @@ export function PlaylistOutputCard({
   canGeneratePlaylistUrl,
   hasInputError,
   onCopy,
+  shouldAutoplay,
+  setShouldAutoplay,
 }: PlaylistOutputCardProps) {
   const hasIds = ids.idsText.trim().length > 0 && !ids.idsError;
   const hasTitle = title.title.trim().length > 0 && !title.titleError;
@@ -62,6 +68,7 @@ export function PlaylistOutputCard({
       copyStatus,
       canGeneratePlaylistUrl,
       hasInputError,
+      shouldAutoplay,
     },
     derived: {
       effectiveIdsLength: ids.effectiveIds.length,
@@ -148,6 +155,21 @@ Title and IDs can be edited from the other cards above.`}
               >
                 {playlistUrl.url}
               </code>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="autoplay"
+                checked={shouldAutoplay}
+                onCheckedChange={(checked) =>
+                  setShouldAutoplay(checked === true)
+                }
+              />
+              <Label
+                htmlFor="autoplay"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Autoplay
+              </Label>
             </div>
             <div className="flex gap-3">
               <Button

@@ -11,7 +11,9 @@ import {
   extractPageTitle,
   sortLinesNumeric,
   deduplicateIdsOnly,
+  buildPlaylistUrlWithPathParams,
 } from '@/lib/utils/playlist-builder';
+import { APP_URL } from '@/lib/config/app-constants';
 
 describe('playlist-builder ID utilities', () => {
   describe('isPrototypeUrl', () => {
@@ -364,6 +366,14 @@ describe('playlist-builder ID utilities', () => {
       const exceedingUrl = new URL(exceedingResult);
       expect(exceedingUrl.searchParams.has('title')).toBe(false);
     });
+
+    it('includes autoplay parameter when autoplay is true', () => {
+      const result = buildPlaylistUrl([1], 'autoplay test', true);
+      const url = new URL(result);
+      expect(url.searchParams.get('id')).toBe('1');
+      expect(url.searchParams.get('title')).toBe('autoplay test');
+      expect(url.searchParams.has('autoplay')).toBe(true);
+    });
   });
 
   describe('extractPageTitle', () => {
@@ -567,6 +577,57 @@ describe('playlist-builder ID utilities', () => {
         '',
         '',
       ]);
+    });
+  });
+
+  describe('buildPlaylistUrlWithPathParams', () => {
+    it('returns path-based URL when both title and IDs are present', () => {
+      const ids = [1, 2, 3];
+      const title = 'My Playlist';
+      const url = buildPlaylistUrlWithPathParams(ids, title);
+      expect(url).toBe(`${APP_URL}/playlist/My%20Playlist/1%2C2%2C3`);
+    });
+
+    it('returns path-based URL with encoded title', () => {
+      const ids = [10];
+      const title = 'Title/With/Slashes';
+      const url = buildPlaylistUrlWithPathParams(ids, title);
+      expect(url).toBe(`${APP_URL}/playlist/Title%2FWith%2FSlashes/10`);
+    });
+
+    it('falls back to query params when title is missing', () => {
+      const ids = [1, 2];
+      const title = '';
+      const url = buildPlaylistUrlWithPathParams(ids, title);
+      expect(url).toBe(`${APP_URL}/?id=1%2C2`);
+    });
+
+    it('falls back to query params (empty string) when IDs are missing', () => {
+      const ids: number[] = [];
+      const title = 'Title Only';
+      const url = buildPlaylistUrlWithPathParams(ids, title);
+      expect(url).toBe(`${APP_URL}/?title=Title+Only`);
+    });
+
+    it('returns empty string when both are missing', () => {
+      const url = buildPlaylistUrlWithPathParams([], '');
+      expect(url).toBe('');
+    });
+
+    it('appends autoplay query param when autoplay is true (path-based)', () => {
+      const ids = [1, 2];
+      const title = 'Autoplay Playlist';
+      const url = buildPlaylistUrlWithPathParams(ids, title, true);
+      expect(url).toBe(
+        `${APP_URL}/playlist/Autoplay%20Playlist/1%2C2?autoplay=true`,
+      );
+    });
+
+    it('appends autoplay query param when autoplay is true (fallback)', () => {
+      const ids = [1, 2];
+      const title = ''; // triggers fallback
+      const url = buildPlaylistUrlWithPathParams(ids, title, true);
+      expect(url).toBe(`${APP_URL}/?id=1%2C2&autoplay=true`);
     });
   });
 });

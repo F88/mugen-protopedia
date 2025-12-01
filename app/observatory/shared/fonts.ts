@@ -11,6 +11,7 @@ import {
   Marcellus,
   Rye,
   VT323,
+  M_PLUS_1_Code,
 } from 'next/font/google';
 
 // Font definitions - Next.js requires individual const declarations
@@ -26,6 +27,10 @@ export const electrolizeFont = Electrolize({
 });
 export const vt323Font = VT323({ weight: '400', subsets: ['latin'] });
 export const ryeFont = Rye({ weight: '400', subsets: ['latin'] });
+export const mPlus1CodeFont = M_PLUS_1_Code({
+  weight: '400',
+  subsets: ['latin'],
+});
 
 // Font map for theme-based access
 export const observatoryFonts = {
@@ -35,6 +40,7 @@ export const observatoryFonts = {
   Electrolize: electrolizeFont,
   VT323: vt323Font,
   Rye: ryeFont,
+  M_PLUS_1_Code: mPlus1CodeFont,
 } as const;
 
 export type ObservatoryFontName = keyof typeof observatoryFonts;
