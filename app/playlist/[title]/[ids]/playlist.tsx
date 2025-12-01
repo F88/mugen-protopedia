@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
@@ -22,12 +22,14 @@ export function PlayList({
 }) {
   const router = useRouter();
 
-  // extraParams -> URLSearchParams
-  const params = new URLSearchParams(extraParams);
+  const destination = useMemo(() => {
+    // extraParams -> URLSearchParams
+    const params = new URLSearchParams(extraParams);
 
-  params.set('title', title);
-  params.set('id', ids.join(','));
-  const destination = `/?${params.toString()}`;
+    params.set('title', title);
+    params.set('id', ids.join(','));
+    return `/?${params.toString()}`;
+  }, [extraParams, title, ids]);
   // logger.debug(
   // { title, ids, destination },
   // 'PlaylistPage: redirecting to query-parameter-based URL',
