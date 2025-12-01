@@ -65,9 +65,9 @@ export const helloWorldTheme = {
 
   // Open Graph Image Configuration
   ogImage: {
-    font: 'Audiowide', // Use Audiowide for OGP to maintain Observatory brand consistency, even if page uses Marcellus
+    font: 'Marcellus',
     theme: {
-      background: 'linear-gradient(to bottom right, #020617, #0c4a6e, #0f172a)', // slate-950 -> sky-900 -> slate-900
+      background: '#000',
       cardBackground: 'rgba(2, 6, 23, 0.7)',
       cardBorder: '1px solid rgba(56, 189, 248, 0.3)',
       cardShadow: '0 0 40px rgba(56, 189, 248, 0.15)',

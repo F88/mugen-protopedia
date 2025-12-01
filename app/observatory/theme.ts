@@ -63,7 +63,7 @@ export const observatoryTheme = {
       cardBorder: '1px solid rgba(148, 163, 184, 0.2)',
       cardShadow: '0 0 40px rgba(56, 189, 248, 0.1)',
       titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
-      subtitleColor: '#cbd5e1',
+      subtitleColor: '#38bdf8', // sky-400
       glowTop:
         'radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%)',
       glowBottom:
