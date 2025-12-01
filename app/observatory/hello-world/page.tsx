@@ -33,7 +33,6 @@ import {
 import { MaternityHospitalSection } from './components/maternity-hospital-section';
 import { NewbornsSection } from './components/newborns-section';
 import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section';
-import { StarAlignmentSection } from './components/star-alignment-section';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { StarAlignmentSection2 } from './components/star-alignment-section-2';
 
