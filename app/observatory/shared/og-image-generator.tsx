@@ -76,12 +76,16 @@ const Stars = () => {
       }}
     >
       {Array.from({ length: 80 }).map((_, i) => {
+        // eslint-disable-next-line react-hooks/purity
         const leftVal = Math.random() * 100;
+        // eslint-disable-next-line react-hooks/purity
         const topVal = Math.random() * 100;
 
         const left = `${leftVal}%`;
         const top = `${topVal}%`;
+        // eslint-disable-next-line react-hooks/purity
         const size = Math.random() * 3 + 2; // 2px to 5px
+        // eslint-disable-next-line react-hooks/purity
         const opacity = Math.random() * 0.7 + 0.3; // 0.3 to 1.0
 
         return (
