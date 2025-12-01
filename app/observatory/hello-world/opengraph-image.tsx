@@ -1,46 +1,37 @@
 /**
  * @fileoverview Open Graph Image generation for the Hello World page.
- *
- * Note:
- * This file uses inline styles (imported from .styles.ts) because Next.js `ImageResponse`
- * requires style objects and does not support standard CSS modules or global CSS.
- * Lint errors regarding "inline styles" are expected and valid in this context.
  */
-import { ImageResponse } from 'next/og';
 import {
-  cardStyle,
-  containerStyle,
-  footerStyle,
-  subtitleStyle,
-  titleStyle,
-} from './opengraph-image.styles';
+  generateObservatoryOgImage,
+  size,
+  contentType,
+} from '../shared/og-image-generator';
+import { helloWorldTheme } from './theme';
 
 export const runtime = 'edge';
-
+export { size, contentType };
 export const alt =
   'Hello World - ProtoPedia Observatory | The ProtoPedia Universe';
-export const size = {
-  width: 1200,
-  height: 630,
-};
 
-export const contentType = 'image/png';
+async function loadLogo() {
+  const logoData = await fetch(
+    new URL('../../../assets/logos/960x240-black.png', import.meta.url),
+  ).then((res) => res.arrayBuffer());
+  return `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
+}
 
 export default async function Image() {
-  return new ImageResponse(
-    (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <div style={titleStyle}>
-            <span>🎉</span> Hello World
-          </div>
-          <div style={subtitleStyle}>The Latest Prototypes&apos; Debut</div>
-        </div>
-        <div style={footerStyle}>mugen-pp.vercel.app</div>
+  const logo = await loadLogo();
+
+  return await generateObservatoryOgImage({
+    title: (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <span>🎉</span> Hello World
       </div>
     ),
-    {
-      ...size,
-    },
-  );
+    subtitle: 'ProtoPedia Observatory',
+    font: helloWorldTheme.ogImage.font,
+    theme: helloWorldTheme.ogImage.theme,
+    logo,
+  });
 }

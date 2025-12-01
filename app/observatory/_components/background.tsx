@@ -1,6 +1,6 @@
 'use client';
 
-import { UniverseBackgroundMainDark } from './shared/universe-background-main-dark';
+import { UniverseBackgroundMainDark } from '../shared/universe-background-main-dark';
 
 export function ObservatoryBackground() {
   return (

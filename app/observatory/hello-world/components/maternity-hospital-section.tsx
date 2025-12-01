@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-import { Bar } from '@/components/observatory/bar';
+import { Bar } from '../../components/bar';
 
 import { IconGarage } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';

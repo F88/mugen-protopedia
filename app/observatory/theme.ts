@@ -1,4 +1,12 @@
 /**
+ * @fileoverview Observatory Top Page Theme Configuration
+ *
+ * For more details on the theme architecture, please refer to:
+ * docs/observatory/observatory-architecture.md
+ */
+import type { ObservatoryThemeConfig } from './shared/theme.types';
+
+/**
  * Observatory Top Page Theme Configuration
  *
  * Theme: "Universe", "Expanding Ideas", "Cosmic Journey"
@@ -43,6 +51,24 @@ export const observatoryTheme = {
   // Typography
   typography: {
     fontFamily: 'Audiowide', // Futuristic, tech-inspired font
+  },
+
+  // Open Graph Image Configuration
+  ogImage: {
+    font: 'Audiowide',
+    theme: {
+      background: '#000',
+      cardBackground: 'rgba(2, 6, 23, 0.7)',
+      // cardBackground: 'rgba(0,0,0,0)',
+      cardBorder: '1px solid rgba(148, 163, 184, 0.2)',
+      cardShadow: '0 0 40px rgba(56, 189, 248, 0.1)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
+      subtitleColor: '#38bdf8', // sky-400
+      glowTop:
+        'radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%)',
+      glowBottom:
+        'radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%)',
+    },
   },
 
   // Card configurations (for ObservatoryCard component)
@@ -154,6 +180,6 @@ export const observatoryTheme = {
     shootingStarInterval: 3000, // ms
     starTwinkleDuration: 2, // seconds
   },
-} as const;
+} as const satisfies ObservatoryThemeConfig;
 
 export type ObservatoryTheme = typeof observatoryTheme;

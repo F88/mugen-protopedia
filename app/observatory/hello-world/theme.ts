@@ -1,4 +1,12 @@
 /**
+ * @fileoverview Hello World Theme Configuration
+ *
+ * For more details on the theme architecture, please refer to:
+ * docs/observatory/observatory-architecture.md
+ */
+import type { ObservatoryThemeConfig } from '../shared/theme.types';
+
+/**
  * Hello World Theme Configuration
  *
  * Theme: "Beginning", "Birth of Light", "Vivid Moment"
@@ -53,6 +61,23 @@ export const helloWorldTheme = {
   // Typography
   typography: {
     fontFamily: 'Marcellus', // Classical, divine font
+  },
+
+  // Open Graph Image Configuration
+  ogImage: {
+    font: 'Marcellus',
+    theme: {
+      background: '#000',
+      cardBackground: 'rgba(20, 10, 15, 0.7)',
+      cardBorder: '1px solid rgba(236, 72, 153, 0.3)',
+      cardShadow: '0 0 40px rgba(236, 72, 153, 0.15)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #fbcfe8)',
+      subtitleColor: '#fbbf24',
+      glowTop:
+        'radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent 70%)',
+      glowBottom:
+        'radial-gradient(circle, rgba(251, 146, 60, 0.15), transparent 70%)',
+    },
   },
 
   // Section themes mapping
@@ -129,7 +154,7 @@ export const helloWorldTheme = {
     fadeInDuration: 0.6,
     sectionFadeIn: 'duration-700',
   },
-} as const;
+} as const satisfies ObservatoryThemeConfig;
 
 export type HelloWorldTheme = typeof helloWorldTheme;
 export type HelloWorldSectionKey = keyof typeof helloWorldTheme.sections;

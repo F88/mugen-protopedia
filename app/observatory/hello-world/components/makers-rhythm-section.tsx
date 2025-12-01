@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ActivityHeatmap } from '@/components/analysis/activity-heatmap';
-import { Bar } from '@/components/observatory/bar';
+import { Bar } from '../../components/bar';
 
 import { clampPercent } from '@/lib/utils/math';
 import { IconClock } from '../../shared/icons';

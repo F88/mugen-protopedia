@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
-import { Bar } from '@/components/observatory/bar';
+import { Bar } from '../../components/bar';
 
 import { IconHeart } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';

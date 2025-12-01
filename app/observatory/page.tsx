@@ -17,11 +17,11 @@ import {
   audiowideFont,
   observatoryFonts,
 } from '@/app/observatory/shared/fonts';
-import { ObservatoryBackground } from '@/app/observatory/background';
+import { ObservatoryBackground } from './_components/background';
 import { observatoryTheme } from '@/app/observatory/theme';
 
-import { ObservatoryCard } from '@/components/observatory/observatory-card';
-import { ObservatoryHeader } from '@/components/observatory/observatory-header';
+import { ObservatoryCard } from './_components/observatory-card';
+import { ObservatoryHeader } from './components/observatory-header';
 
 export const metadata: Metadata = {
   title: `ProtoPedia Observatory | ${APP_TITLE}`,
