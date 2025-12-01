@@ -40,14 +40,8 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
   // params are already decoded by Next.js, so we use them as is.
   // However, we try to decode again safely to handle cases where characters might be double-encoded
   // or if specific encoding handling is needed, while catching potential URIErrors.
-  let decodedTitle = title;
-  let decodedIds = ids;
-  try {
-    decodedTitle = decodeURIComponent(title);
-    decodedIds = decodeURIComponent(ids);
-  } catch {
-    // Ignore decoding errors and use original values
-  }
+  const decodedTitle = title;
+  const decodedIds = ids;
 
   const effectiveIds = decodedIds
     .split(',')
