@@ -21,11 +21,19 @@ export interface ObservatoryOgTheme {
   glowBottom: string;
 }
 
+export type ObservatoryFont =
+  | 'Audiowide'
+  | 'Cinzel'
+  | 'Electrolize'
+  | 'Marcellus'
+  | 'Rye'
+  | 'VT323';
+
 export interface ObservatoryOgOptions {
   title: string | ReactNode;
   subtitle: string;
   theme: ObservatoryOgTheme;
-  font?: 'Audiowide' | 'Cinzel' | 'Electrolize' | 'Marcellus' | 'Rye' | 'VT323';
+  font?: ObservatoryFont;
   logo?: string;
 }
 

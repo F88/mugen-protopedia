@@ -8,7 +8,7 @@
  * For more details on the theme architecture, please refer to:
  * docs/observatory/observatory-architecture.md
  */
-import type { ObservatoryOgTheme } from './og-image-generator';
+import type { ObservatoryFont, ObservatoryOgTheme } from './og-image-generator';
 
 export interface ThemeColorPalette {
   primary: string;
@@ -35,7 +35,7 @@ export interface ThemeTypography {
 }
 
 export interface ThemeOgImage {
-  font: string;
+  font: ObservatoryFont;
   theme: ObservatoryOgTheme;
 }
 
