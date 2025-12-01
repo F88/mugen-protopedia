@@ -7,27 +7,7 @@ import { truncateString } from '@/lib/utils';
 
 export const runtime = 'edge';
 export { size, contentType };
-
-export async function generateImageMetadata({
-  params,
-}: {
-  params: { title: string; ids: string };
-}) {
-  const rawTitle = decodeURIComponent(params.title);
-  const ids = decodeURIComponent(params.ids);
-  const count = ids.split(',').filter(Boolean).length;
-
-  const title = truncateString(rawTitle, 100);
-  const displayTitle = count > 0 ? `${title} (${count})` : title;
-
-  return [
-    {
-      alt: `${displayTitle} - Playlist Mode | 無限ProtoPedia`,
-      size,
-      contentType,
-    },
-  ];
-}
+export const alt = 'Playlist Mode | 無限ProtoPedia';
 
 export default async function Image({
   params,
