@@ -1,46 +1,35 @@
 /**
  * @fileoverview Open Graph Image generation for the Hello World page.
- *
- * Note:
- * This file uses inline styles (imported from .styles.ts) because Next.js `ImageResponse`
- * requires style objects and does not support standard CSS modules or global CSS.
- * Lint errors regarding "inline styles" are expected and valid in this context.
  */
-import { ImageResponse } from 'next/og';
 import {
-  cardStyle,
-  containerStyle,
-  footerStyle,
-  subtitleStyle,
-  titleStyle,
-} from './opengraph-image.styles';
+  generateObservatoryOgImage,
+  size,
+  contentType,
+} from '../shared/og-image-generator';
 
 export const runtime = 'edge';
-
-export const alt =
-  'Hello World - ProtoPedia Observatory | The ProtoPedia Universe';
-export const size = {
-  width: 1200,
-  height: 630,
-};
-
-export const contentType = 'image/png';
+export { size, contentType };
+export const alt = 'Hello World - ProtoPedia Observatory | The ProtoPedia Universe';
 
 export default async function Image() {
-  return new ImageResponse(
-    (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <div style={titleStyle}>
-            <span>🎉</span> Hello World
-          </div>
-          <div style={subtitleStyle}>The Latest Prototypes&apos; Debut</div>
-        </div>
-        <div style={footerStyle}>mugen-pp.vercel.app</div>
+  return generateObservatoryOgImage({
+    title: (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <span>🎉</span> Hello World
       </div>
     ),
-    {
-      ...size,
+    subtitle: "The Latest Prototypes' Debut",
+    theme: {
+      background: 'linear-gradient(to bottom right, #020617, #0c4a6e, #0f172a)', // slate-950 -> sky-900 -> slate-900
+      cardBackground: 'rgba(2, 6, 23, 0.7)',
+      cardBorder: '1px solid rgba(56, 189, 248, 0.3)',
+      cardShadow: '0 0 40px rgba(56, 189, 248, 0.15)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
+      subtitleColor: '#38bdf8', // sky-400
+      glowTop:
+        'radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%)',
+      glowBottom:
+        'radial-gradient(circle, rgba(14, 165, 233, 0.15), transparent 70%)',
     },
-  );
+  });
 }
