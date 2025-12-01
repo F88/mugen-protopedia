@@ -20,17 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // ignore
   }
 
-  const baseSuffix = ` | Playlist | ${APP_TITLE}`;
+  const pageTitle = `${title} | Playlist | ${APP_TITLE}`;
+  const pageDescription = `Playlist: ${title}`;
+
   return {
-    title: `${title}${baseSuffix}`,
-    description: `Playlist: ${title}`,
+    title: pageTitle,
+    description: pageDescription,
     openGraph: {
-      title: `${title}${baseSuffix}`,
-      description: `Playlist: ${title}`,
+      title: pageTitle,
+      description: pageDescription,
     },
     twitter: {
-      title: `${title}${baseSuffix}`,
-      description: `Playlist: ${title}`,
+      title: pageTitle,
+      description: pageDescription,
     },
   };
 }
