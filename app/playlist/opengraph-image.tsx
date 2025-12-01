@@ -2,7 +2,6 @@ import {
   generateObservatoryOgImage,
   size,
   contentType,
-  type ObservatoryOgOptions,
 } from '../observatory/shared/og-image-generator';
 
 export const runtime = 'edge';
@@ -12,7 +11,6 @@ export const alt = 'Playlist Mode - 無限ProtoPedia';
 export default async function Image() {
   return await generateObservatoryOgImage({
     title: (
-      // eslint-disable-next-line react-dom/no-unsafe-target-blank
       <div
         style={{
           display: 'flex',
