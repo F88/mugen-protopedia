@@ -5,16 +5,25 @@ import {
 } from '@/app/observatory/shared/og-image-generator';
 import { truncateString } from '@/lib/utils';
 import { logger } from '@/lib/logger.client';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
-export const runtime = 'edge';
 export { size, contentType };
 export const alt = 'Playlist Mode | 無限ProtoPedia';
+
+async function loadLogo() {
+  const logoData = await readFile(
+    join(process.cwd(), 'assets/logos/960x240-black.png'),
+  );
+  return `data:image/png;base64,${logoData.toString('base64')}`;
+}
 
 export default async function Image({
   params,
 }: {
   params: { title: string; ids: string };
 }) {
+  const logo = await loadLogo();
   let rawTitle: string;
   let ids: string;
   try {
@@ -51,5 +60,6 @@ export default async function Image({
       glowBottom:
         'radial-gradient(circle, rgba(34, 197, 94, 0.15), transparent 70%)',
     },
+    logo,
   });
 }
