@@ -12,9 +12,10 @@ export { size, contentType };
 export const alt = 'ProtoPedia Observatory';
 
 export default async function Image() {
-  return generateObservatoryOgImage({
+  return await generateObservatoryOgImage({
     title: 'ProtoPedia Observatory',
     subtitle: 'The ProtoPedia Universe',
+    font: 'Audiowide',
     theme: {
       background: 'linear-gradient(to bottom right, #020617, #172554, #1e1b4b)', // slate-950 -> blue-950 -> indigo-950
       cardBackground: 'rgba(2, 6, 23, 0.7)',

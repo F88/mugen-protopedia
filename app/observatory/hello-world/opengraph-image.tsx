@@ -12,13 +12,14 @@ export { size, contentType };
 export const alt = 'Hello World - ProtoPedia Observatory | The ProtoPedia Universe';
 
 export default async function Image() {
-  return generateObservatoryOgImage({
+  return await generateObservatoryOgImage({
     title: (
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <span>🎉</span> Hello World
       </div>
     ),
     subtitle: "The Latest Prototypes' Debut",
+    font: 'Audiowide',
     theme: {
       background: 'linear-gradient(to bottom right, #020617, #0c4a6e, #0f172a)', // slate-950 -> sky-900 -> slate-900
       cardBackground: 'rgba(2, 6, 23, 0.7)',

@@ -16,6 +16,7 @@ export interface ObservatoryOgOptions {
   title: string | ReactNode;
   subtitle: string;
   theme: ObservatoryOgTheme;
+  font?: 'Audiowide' | 'Cinzel' | 'Electrolize' | 'Marcellus' | 'Rye' | 'VT323';
 }
 
 export const size = {
@@ -24,6 +25,37 @@ export const size = {
 };
 
 export const contentType = 'image/png';
+
+// Font loading helper
+async function loadGoogleFont(fontFamily: string) {
+  // Construct Google Fonts URL
+  // Note: We request the font file directly if possible, or parse CSS
+  // For simplicity and reliability in Edge, we'll use a known CDN or fetch logic
+  // Here we use a simple fetch to Google Fonts CSS API and extract the woff2/ttf url
+  // However, parsing CSS in Edge can be tricky.
+  // A more robust way for OGP is to fetch the font file directly from a stable URL if known,
+  // or use the standard Next.js approach.
+
+  // Since we want to support multiple fonts dynamically, let's try to fetch the CSS and parse the src.
+  const cssUrl = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@400;700&display=swap`;
+  const css = await fetch(cssUrl).then((res) => res.text());
+
+  // Extract the font URL (ttf or woff2)
+  // Google Fonts CSS usually returns woff2 for modern browsers, but ImageResponse might prefer ttf/otf.
+  // We can try to force ttf by user agent if needed, but let's try standard first.
+  const resource = css.match(
+    /src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/,
+  );
+
+  if (!resource) {
+    console.warn(`Failed to parse font URL for ${fontFamily}`);
+    return null;
+  }
+
+  const fontUrl = resource[1];
+  const fontData = await fetch(fontUrl).then((res) => res.arrayBuffer());
+  return fontData;
+}
 
 // Common styles
 const containerStyle: CSSProperties = {
@@ -79,8 +111,13 @@ const footerStyle: CSSProperties = {
   zIndex: 10,
 };
 
-export function generateObservatoryOgImage(options: ObservatoryOgOptions) {
-  const { title, subtitle, theme } = options;
+export async function generateObservatoryOgImage(
+  options: ObservatoryOgOptions,
+) {
+  const { title, subtitle, theme, font = 'Audiowide' } = options;
+
+  // Load font
+  const fontData = await loadGoogleFont(font);
 
   // Deterministic stars
   const stars = Array.from({ length: 40 }).map((_, i) => {
@@ -110,7 +147,9 @@ export function generateObservatoryOgImage(options: ObservatoryOgOptions) {
       <div
         style={{
           ...containerStyle,
-          background: theme.background,
+          backgroundColor: theme.background,
+          backgroundImage: theme.background,
+          fontFamily: fontData ? `"${font}"` : 'sans-serif',
         }}
       >
         {/* Background Glows */}
@@ -169,6 +208,16 @@ export function generateObservatoryOgImage(options: ObservatoryOgOptions) {
     ),
     {
       ...size,
+      fonts: fontData
+        ? [
+            {
+              name: font,
+              data: fontData,
+              style: 'normal',
+              weight: 400,
+            },
+          ]
+        : undefined,
     },
   );
 }
