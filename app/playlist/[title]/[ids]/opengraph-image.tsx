@@ -12,9 +12,9 @@ export const alt = 'Playlist Mode | 無限ProtoPedia';
 export default async function Image({
   params,
 }: {
-  params: Promise<{ title: string; ids: string }>;
+  params: { title: string; ids: string };
 }) {
-  const { title: rawTitleInit, ids: idsInit } = await params;
+  const { title: rawTitleInit, ids: idsInit } = params;
   let rawTitle = rawTitleInit;
   let ids = idsInit;
   try {
