@@ -5,7 +5,6 @@ import {
   generateObservatoryOgImage,
   size,
   contentType,
-  type ObservatoryOgOptions,
 } from '../shared/og-image-generator';
 import { helloWorldTheme } from './theme';
 
