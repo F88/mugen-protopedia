@@ -124,19 +124,9 @@ describe('generateObservatoryOgImage', () => {
       logo: customLogo,
     });
 
-    // Verify that fetch was NOT called for the logo (only for font)
-    // Since we mock fetch, we can check the calls.
-    // The font fetch is called with a specific URL pattern.
-    // The logo fetch is called with a blob: or file: URL usually, or we can check call count.
-    // In beforeEach, we set up 2 mockResolvedValueOnce.
-    // If we provide custom logo, only the first one (font) should be consumed.
-
-    // However, loadGoogleFont makes 2 fetches (CSS and Font file).
-    // So normally there are 3 fetches total (CSS, Font, Logo).
-    // If custom logo is provided, there should be 2 fetches.
-
-    // Let's check that fetch was called with the font URL but NOT with the logo URL pattern if possible,
-    // or just rely on the fact that it runs successfully.
+    // Font loading makes 2 fetch calls. The custom logo is passed directly,
+    // so the default logo fetch should be skipped.
+    expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(ImageResponse).toHaveBeenCalled();
   });
 });
