@@ -240,8 +240,16 @@ export function deduplicateIdsPreserveOrder(ids: number[]): number[] {
  *   trimming; callers are responsible for any additional
  *   normalization.
  * - When neither IDs nor title are valid, returns an empty string.
+ *
+ * @param ids - List of numeric prototype IDs.
+ * @param title - Optional title for the playlist.
+ * @param autoplay - Whether to enable autoplay (adds 'autoplay' query param). Defaults to false.
  */
-export function buildPlaylistUrl(ids: number[], title: string): string {
+export function buildPlaylistUrl(
+  ids: number[],
+  title: string,
+  autoplay: boolean = false,
+): string {
   // Guard early: when neither IDs nor title are even candidates,
   // there is no meaningful playlist URL to build.
   if ((!ids || ids.length === 0) && (!title || title.length === 0)) {
@@ -265,6 +273,10 @@ export function buildPlaylistUrl(ids: number[], title: string): string {
   const titleGraphemes = splitGraphemes(title);
   if (titleGraphemes.length > 0 && titleGraphemes.length <= 300) {
     params.set('title', title);
+  }
+
+  if (autoplay) {
+    params.set('autoplay', 'true');
   }
 
   const query = params.toString();
@@ -295,10 +307,15 @@ export function buildPlaylistUrl(ids: number[], title: string): string {
  * - Format: /playlist/<title>/<ids>
  * - Requires both a non-empty title and at least one ID.
  * - Falls back to `buildPlaylistUrl` (query params) if requirements are not met.
+ *
+ * @param ids - List of numeric prototype IDs.
+ * @param title - Title for the playlist.
+ * @param autoplay - Whether to enable autoplay (adds 'autoplay' query param). Defaults to false.
  */
 export function buildPlaylistUrlWithPathParams(
   ids: number[],
   title: string,
+  autoplay: boolean = false,
 ): string {
   // Basic validation: only keep non-negative integers as IDs.
   const safeIds = ids.filter((id) => Number.isInteger(id) && id >= 0);
@@ -311,16 +328,19 @@ export function buildPlaylistUrlWithPathParams(
     const encodedTitle = encodeURIComponent(title);
     // Encode the comma-separated IDs to ensure safe path segment (e.g. 1,2 -> 1%2C2)
     const encodedIds = encodeURIComponent(safeIds.join(','));
-    const url = `${APP_URL}/playlist/${encodedTitle}/${encodedIds}`;
+    let url = `${APP_URL}/playlist/${encodedTitle}/${encodedIds}`;
+    if (autoplay) {
+      url += '?autoplay=true';
+    }
     logger.debug(
-      { ids: safeIds, title, url },
+      { ids: safeIds, title, url, autoplay },
       'buildPlaylistUrlWithPathParams: built path-based playlist URL',
     );
     return url;
   }
 
   // Fallback to standard query param builder if conditions for path-based URL aren't met
-  return buildPlaylistUrl(ids, title);
+  return buildPlaylistUrl(ids, title, autoplay);
 }
 
 /**
