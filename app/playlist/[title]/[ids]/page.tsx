@@ -31,13 +31,25 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
     }
   });
 
-  logger.debug({ incomingSearchParams }, 'PlaylistPage: received search parameters');
+  logger.debug(
+    { incomingSearchParams },
+    'PlaylistPage: received search parameters',
+  );
 
   // params are already decoded by Next.js, so we use them as is.
-  // URLSearchParams will handle encoding for the query string.
-  // Overwrite title and id with values from path params
-  destinationParams.set('title', decodeURIComponent(title));
-  destinationParams.set('id', decodeURIComponent(ids));
+  // However, we try to decode again safely to handle cases where characters might be double-encoded
+  // or if specific encoding handling is needed, while catching potential URIErrors.
+  let decodedTitle = title;
+  let decodedIds = ids;
+  try {
+    decodedTitle = decodeURIComponent(title);
+    decodedIds = decodeURIComponent(ids);
+  } catch {
+    // Ignore decoding errors and use original values
+  }
+
+  destinationParams.set('title', decodedTitle);
+  destinationParams.set('id', decodedIds);
 
   const destination = `/?${destinationParams.toString()}`;
 
