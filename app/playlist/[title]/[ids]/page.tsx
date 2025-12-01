@@ -7,7 +7,14 @@ type Props = {
   }>;
 };
 
-export default async function PlaylistRedirectPage({ params }: Props) {
+/**
+ * Playlist page component.
+ *
+ * Handles redirection from path-based playlist URLs to
+ * query-parameter-based URLs.
+ *
+ */
+export default async function PlaylistPage({ params }: Props) {
   const { title, ids } = await params;
 
   const searchParams = new URLSearchParams();
