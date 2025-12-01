@@ -290,6 +290,39 @@ export function buildPlaylistUrl(ids: number[], title: string): string {
 }
 
 /**
+ * Builds a playlist URL using path parameters for OGP support.
+ *
+ * - Format: /playlist/<title>/<ids>
+ * - Requires both a non-empty title and at least one ID.
+ * - Falls back to `buildPlaylistUrl` (query params) if requirements are not met.
+ */
+export function buildPlaylistUrlWithPathParams(
+  ids: number[],
+  title: string,
+): string {
+  // Basic validation: only keep non-negative integers as IDs.
+  const safeIds = ids.filter((id) => Number.isInteger(id) && id >= 0);
+
+  const titleGraphemes = splitGraphemes(title);
+  const hasTitle = titleGraphemes.length > 0 && titleGraphemes.length <= 300;
+  const hasIds = safeIds.length > 0;
+
+  if (hasTitle && hasIds) {
+    const encodedTitle = encodeURIComponent(title);
+    const joinedIds = safeIds.join(',');
+    const url = `${APP_URL}/playlist/${encodedTitle}/${joinedIds}`;
+    logger.debug(
+      { ids: safeIds, title, url },
+      'buildPlaylistUrlWithPathParams: built path-based playlist URL',
+    );
+    return url;
+  }
+
+  // Fallback to standard query param builder if conditions for path-based URL aren't met
+  return buildPlaylistUrl(ids, title);
+}
+
+/**
  * Extracts the page title from an HTML string.
  *
  * - Finds the first `<title>` tag in the HTML.

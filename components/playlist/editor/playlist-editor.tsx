@@ -11,6 +11,7 @@ import type { DirectLaunchParams } from '@/schemas/direct-launch';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
 import {
   buildPlaylistUrl,
+  buildPlaylistUrlWithPathParams,
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
 } from '@/lib/utils/playlist-builder';
@@ -144,7 +145,7 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     if (!canGeneratePlaylistUrl) {
       return '';
     }
-    return buildPlaylistUrl(effectiveIds, title);
+    return buildPlaylistUrlWithPathParams(effectiveIds, title);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
   useEffect(() => {
