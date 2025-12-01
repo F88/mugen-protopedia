@@ -68,15 +68,15 @@ export const helloWorldTheme = {
     font: 'Marcellus',
     theme: {
       background: '#000',
-      cardBackground: 'rgba(2, 6, 23, 0.7)',
-      cardBorder: '1px solid rgba(56, 189, 248, 0.3)',
-      cardShadow: '0 0 40px rgba(56, 189, 248, 0.15)',
-      titleGradient: 'linear-gradient(to bottom right, #ffffff, #94a3b8)',
-      subtitleColor: '#38bdf8', // sky-400
+      cardBackground: 'rgba(20, 10, 15, 0.7)',
+      cardBorder: '1px solid rgba(236, 72, 153, 0.3)',
+      cardShadow: '0 0 40px rgba(236, 72, 153, 0.15)',
+      titleGradient: 'linear-gradient(to bottom right, #ffffff, #fbcfe8)',
+      subtitleColor: '#fbbf24',
       glowTop:
-        'radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 70%)',
+        'radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent 70%)',
       glowBottom:
-        'radial-gradient(circle, rgba(14, 165, 233, 0.15), transparent 70%)',
+        'radial-gradient(circle, rgba(251, 146, 60, 0.15), transparent 70%)',
     },
   },
 
