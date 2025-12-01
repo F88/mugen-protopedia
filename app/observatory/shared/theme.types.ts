@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Observatory Theme Type Definitions
+ *
+ * This file defines the shared type definitions for the Observatory theme system.
+ * It ensures consistency across different Observatory pages while allowing for
+ * page-specific customizations.
+ *
+ * For more details on the theme architecture, please refer to:
+ * docs/observatory/observatory-architecture.md
+ */
 import type { ObservatoryOgTheme } from './og-image-generator';
 
 export interface ThemeColorPalette {

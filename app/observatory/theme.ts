@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Observatory Top Page Theme Configuration
+ *
+ * For more details on the theme architecture, please refer to:
+ * docs/observatory/observatory-architecture.md
+ */
 import type { ObservatoryThemeConfig } from './shared/theme.types';
 
 /**
