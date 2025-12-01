@@ -27,6 +27,16 @@ export const metadata: Metadata = {
   title: `ProtoPedia Observatory | ${APP_TITLE}`,
   description:
     'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+  openGraph: {
+    title: `ProtoPedia Observatory | ${APP_TITLE}`,
+    description:
+      'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+  },
+  twitter: {
+    title: `ProtoPedia Observatory | ${APP_TITLE}`,
+    description:
+      'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+  },
 };
 
 /**

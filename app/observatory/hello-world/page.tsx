@@ -40,6 +40,16 @@ export const metadata: Metadata = {
   title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
   description:
     'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+  openGraph: {
+    title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
+    description:
+      'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+  },
+  twitter: {
+    title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
+    description:
+      'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+  },
 };
 
 export const dynamic = 'force-dynamic';
