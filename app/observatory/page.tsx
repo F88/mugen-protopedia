@@ -23,19 +23,22 @@ import { observatoryTheme } from '@/app/observatory/theme';
 import { ObservatoryCard } from './_components/observatory-card';
 import { ObservatoryHeader } from './components/observatory-header';
 
+
+const pageTitle = `ProtoPedia Observatory | ${APP_TITLE}`;
+const pageDescription =
+  'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.';
+
 export const metadata: Metadata = {
-  title: `ProtoPedia Observatory | ${APP_TITLE}`,
-  description:
-    'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+  title: pageTitle,
+  description: pageDescription,
   openGraph: {
-    title: `ProtoPedia Observatory | ${APP_TITLE}`,
-    description:
-      'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+    title: pageTitle,
+    description: pageDescription,
   },
   twitter: {
-    title: `ProtoPedia Observatory | ${APP_TITLE}`,
-    description:
-      'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.',
+    card: 'summary_large_image',
+    title: pageTitle,
+    description: pageDescription,
   },
 };
 

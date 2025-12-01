@@ -36,19 +36,23 @@ import { PowerOfDeadlinesSection } from './components/power-of-deadlines-section
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 import { StarAlignmentSection2 } from './components/star-alignment-section-2';
 
+
+
+const pageTitle = `Hello World - ProtoPedia Observatory | ${APP_TITLE}`;
+const pageDescription =
+  'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.';
+
 export const metadata: Metadata = {
-  title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
-  description:
-    'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+  title: pageTitle,
+  description: pageDescription,
   openGraph: {
-    title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
-    description:
-      'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+    title: pageTitle,
+    description: pageDescription,
   },
   twitter: {
-    title: `Hello World - ProtoPedia Observatory | ${APP_TITLE}`,
-    description:
-      'Greetings, Universe! Here we celebrate the ignition of new ideas. Witness the latest prototypes that have just materialized into our world.',
+    card: 'summary_large_image',
+    title: pageTitle,
+    description: pageDescription,
   },
 };
 
