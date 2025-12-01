@@ -17,8 +17,19 @@ type Props = {
  *
  */
 export default async function PlaylistPage({ params, searchParams }: Props) {
-  const { title, ids } = await params;
+  const { title: rawTitle, ids: rawIds } = await params;
   const incomingSearchParams = await searchParams;
+
+  let title = rawTitle;
+  let ids = rawIds;
+
+  try {
+    title = decodeURIComponent(rawTitle);
+    ids = decodeURIComponent(rawIds);
+  } catch (e) {
+    // If decoding fails, use raw values
+    console.error('Failed to decode params', e);
+  }
 
   const destinationParams = new URLSearchParams();
 
