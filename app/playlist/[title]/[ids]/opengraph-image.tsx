@@ -12,13 +12,14 @@ export const alt = 'Playlist Mode | 無限ProtoPedia';
 export default async function Image({
   params,
 }: {
-  params: { title: string; ids: string };
+  params: Promise<{ title: string; ids: string }>;
 }) {
-  let rawTitle = params.title;
-  let ids = params.ids;
+  const { title: rawTitleInit, ids: idsInit } = await params;
+  let rawTitle = rawTitleInit;
+  let ids = idsInit;
   try {
-    rawTitle = decodeURIComponent(params.title);
-    ids = decodeURIComponent(params.ids);
+    rawTitle = decodeURIComponent(rawTitleInit);
+    ids = decodeURIComponent(idsInit);
   } catch (e) {
     // It's better to log decoding errors for debugging purposes.
     console.error('Failed to decode playlist params', { error: e });
