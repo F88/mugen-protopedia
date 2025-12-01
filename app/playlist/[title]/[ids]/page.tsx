@@ -58,6 +58,10 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
     'PlaylistPage: redirecting to query-parameter-based URL',
   );
 
+  const shouldAutoplay = destinationParams.has('autoplay');
+
   // return <>{destination}</>;
-  return <ClientRedirect destination={destination} />;
+  return (
+    <ClientRedirect destination={destination} shouldAutoplay={shouldAutoplay} />
+  );
 }

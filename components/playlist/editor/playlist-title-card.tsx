@@ -102,6 +102,9 @@ You can change it any time before using the playlist.`}
         {titleError && (
           <p className="text-xs text-red-600 dark:text-red-400">{titleError}</p>
         )}
+        <p className="text-xs text-muted-foreground">
+          Characters: {title.length.toLocaleString()} / 300
+        </p>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"

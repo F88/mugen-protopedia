@@ -43,4 +43,20 @@ describe('buildPlaylistUrlWithPathParams', () => {
     const url = buildPlaylistUrlWithPathParams([], '');
     expect(url).toBe('');
   });
+
+  it('appends autoplay query param when autoplay is true (path-based)', () => {
+    const ids = [1, 2];
+    const title = 'Autoplay Playlist';
+    const url = buildPlaylistUrlWithPathParams(ids, title, true);
+    expect(url).toBe(
+      `${APP_URL}/playlist/Autoplay%20Playlist/1%2C2?autoplay=true`,
+    );
+  });
+
+  it('appends autoplay query param when autoplay is true (fallback)', () => {
+    const ids = [1, 2];
+    const title = ''; // triggers fallback
+    const url = buildPlaylistUrlWithPathParams(ids, title, true);
+    expect(url).toBe(`${APP_URL}/?id=1%2C2&autoplay=true`);
+  });
 });

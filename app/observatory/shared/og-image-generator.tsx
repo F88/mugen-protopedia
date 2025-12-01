@@ -27,7 +27,8 @@ export type ObservatoryFont =
   | 'Electrolize'
   | 'Marcellus'
   | 'Rye'
-  | 'VT323';
+  | 'VT323'
+  | 'M_PLUS_1_Code';
 
 export interface ObservatoryOgOptions {
   title: string | ReactNode;
@@ -47,7 +48,8 @@ export const contentType = 'image/png';
 // --- Helpers ---
 
 async function loadGoogleFont(fontFamily: string) {
-  const cssUrl = `https://fonts.googleapis.com/css2?family=${fontFamily}:wght@400;700&display=swap`;
+  const family = fontFamily.replace(/ /g, '+').replace(/_/g, '+');
+  const cssUrl = `https://fonts.googleapis.com/css2?family=${family}:wght@400;700&display=swap`;
   const css = await fetch(cssUrl).then((res) => res.text());
   const resource = css.match(
     /src: url\((.+?)\) format\('(opentype|truetype|woff2)'\)/,
@@ -64,7 +66,7 @@ async function loadGoogleFont(fontFamily: string) {
 
 async function loadLogo() {
   const logoData = await fetch(
-    new URL('../../../assets/logos/logo-2-d.png', import.meta.url),
+    new URL('../../../assets/logos/960x240-black.png', import.meta.url),
   ).then((res) => res.arrayBuffer());
   return `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
 }
@@ -168,8 +170,8 @@ const ContentCard = ({
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      // width: 'calc(100% - 40px)',
-      padding: '40px 80px',
+      maxWidth: '90%',
+      padding: '40px 40px',
       borderRadius: '24px',
       // zIndex: 10,
       backdropFilter: 'blur(8px)',
@@ -186,6 +188,8 @@ const ContentCard = ({
         letterSpacing: '-0.03em',
         textAlign: 'center',
         display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
         alignItems: 'center',
         gap: '24px',
         textShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
@@ -263,8 +267,8 @@ export async function generateObservatoryOgImage(
     background: theme.background,
     fontFamily: fontData ? `"${font}"` : 'sans-serif',
     paddingBottom: '120px',
-    paddingLeft: '40px',
-    paddingRight: '40px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
   };
 
   // Note: We use inline styles here because next/og requires them for image generation.

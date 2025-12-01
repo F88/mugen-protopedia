@@ -24,22 +24,18 @@ export default async function Image({
   }
 
   const count = ids.split(',').filter(Boolean).length;
-  const title = truncateString(rawTitle, 100);
+  const title = truncateString(rawTitle, 40);
   const displayTitle = count > 0 ? `${title} (${count})` : title;
+
+  console.debug('Raw title:', rawTitle);
+  console.debug('Display title:', displayTitle);
+
   return await generateObservatoryOgImage({
-    title: (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '24px',
-        }}
-      >
-        <span>▶️</span> {displayTitle}
-      </div>
-    ),
-    subtitle: 'Continuous Playback',
-    font: 'Audiowide',
+    title: displayTitle,
+    subtitle: 'Playlist',
+    // font: 'Audiowide',
+    // font: 'Electrolize',
+    font: 'M_PLUS_1_Code',
     theme: {
       background: '#000',
       cardBackground: 'rgba(10, 10, 10, 0.8)',
