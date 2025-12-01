@@ -309,8 +309,9 @@ export function buildPlaylistUrlWithPathParams(
 
   if (hasTitle && hasIds) {
     const encodedTitle = encodeURIComponent(title);
-    const joinedIds = safeIds.join(',');
-    const url = `${APP_URL}/playlist/${encodedTitle}/${joinedIds}`;
+    // Encode the comma-separated IDs to ensure safe path segment (e.g. 1,2 -> 1%2C2)
+    const encodedIds = encodeURIComponent(safeIds.join(','));
+    const url = `${APP_URL}/playlist/${encodedTitle}/${encodedIds}`;
     logger.debug(
       { ids: safeIds, title, url },
       'buildPlaylistUrlWithPathParams: built path-based playlist URL',

@@ -7,7 +7,7 @@ describe('buildPlaylistUrlWithPathParams', () => {
     const ids = [1, 2, 3];
     const title = 'My Playlist';
     const url = buildPlaylistUrlWithPathParams(ids, title);
-    expect(url).toBe(`${APP_URL}/playlist/My%20Playlist/1,2,3`);
+    expect(url).toBe(`${APP_URL}/playlist/My%20Playlist/1%2C2%2C3`);
   });
 
   it('returns path-based URL with encoded title', () => {
