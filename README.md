@@ -97,6 +97,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-12-01
+
+- ️📋 プレイリスト プレビュー
+
 ### 2025-11-28
 
 - 🔭 ProtoPedia Observatory (beta) を追加
