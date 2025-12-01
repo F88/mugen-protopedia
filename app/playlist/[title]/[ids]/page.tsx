@@ -37,13 +37,7 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
   // 'PlaylistPage: received search parameters',
   // );
 
-  // params are already decoded by Next.js, so we use them as is.
-  // However, we try to decode again safely to handle cases where characters might be double-encoded
-  // or if specific encoding handling is needed, while catching potential URIErrors.
-  const decodedTitle = title;
-  const decodedIds = ids;
-
-  const effectiveIds = decodedIds
+  const effectiveIds = ids
     .split(',')
     .map((id) => parseInt(id, 10))
     .filter((id) => !Number.isNaN(id));
@@ -52,7 +46,7 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
 
   return (
     <Playlist
-      title={decodedTitle}
+      title={title}
       ids={effectiveIds}
       extraParams={extraParams}
       shouldAutoplay={shouldAutoplay}
