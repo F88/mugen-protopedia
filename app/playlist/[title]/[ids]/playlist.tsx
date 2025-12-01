@@ -7,7 +7,7 @@ import { Play } from 'lucide-react';
 import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
 // import { logger } from '@/lib/logger.client';
 
-export function PlayList({
+export function Playlist({
   title,
   ids,
   extraParams,

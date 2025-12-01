@@ -1,5 +1,5 @@
 // import { logger } from '@/lib/logger.client';
-import { PlayList } from './playlist';
+import { Playlist } from './playlist';
 
 type Props = {
   params: Promise<{
@@ -57,7 +57,7 @@ export default async function PlaylistPage({ params, searchParams }: Props) {
   const shouldAutoplay = destinationParams.has('autoplay');
 
   return (
-    <PlayList
+    <Playlist
       title={decodedTitle}
       ids={effectiveIds}
       extraParams={extraParams}
