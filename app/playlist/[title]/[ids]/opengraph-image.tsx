@@ -4,6 +4,7 @@ import {
   contentType,
 } from '@/app/observatory/shared/og-image-generator';
 import { truncateString } from '@/lib/utils';
+import { logger } from '@/lib/logger.client';
 
 export const runtime = 'edge';
 export { size, contentType };
@@ -22,15 +23,14 @@ export default async function Image({
     ids = decodeURIComponent(idsInit);
   } catch (e) {
     // It's better to log decoding errors for debugging purposes.
-    console.error('Failed to decode playlist params', { error: e });
+    logger.error({ error: e }, 'Failed to decode playlist params');
   }
 
   const count = ids.split(',').filter(Boolean).length;
   const title = truncateString(rawTitle, 40);
   const displayTitle = count > 0 ? `${title} (${count})` : title;
 
-  console.debug('Raw title:', rawTitle);
-  console.debug('Display title:', displayTitle);
+  logger.debug({ rawTitle, displayTitle }, 'Playlist OGP image generation');
 
   return await generateObservatoryOgImage({
     title: displayTitle,
