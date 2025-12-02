@@ -14,7 +14,7 @@ describe('Snapshot Integration Test (NoStore)', () => {
     expect(response.results).toBeDefined();
     expect(response.results?.length).toBeGreaterThan(0);
 
-    // Verify the content matches the snapshot (mocks/snapshots/prototypes.json)
+    // Verify the content matches the snapshot (mocks/snapshots/test/prototypes.json)
     const firstPrototype = response.results![0];
     logger.debug(
       { firstPrototype },

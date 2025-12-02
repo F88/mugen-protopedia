@@ -17,7 +17,7 @@ describe('fetchPrototypesViaNoStoreClient Integration Test', () => {
     expect(result.data).toBeDefined();
     expect(result.data.length).toBeGreaterThan(0);
 
-    // Verify content matches snapshot (mocks/snapshots/prototypes.json)
+    // Verify content matches snapshot (mocks/snapshots/test/prototypes.json)
     const firstPrototype = result.data[0];
     logger.debug({ firstPrototype }, 'First prototype from action (no-store):');
 

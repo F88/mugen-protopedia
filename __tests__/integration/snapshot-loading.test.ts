@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger.server';
 describe('Snapshot Integration Test', () => {
   it('should load prototypes from the snapshot via MSW', async () => {
     // Fetch prototypes using the client
-    // This request should be intercepted by MSW and return data from mocks/snapshots/prototypes.json
+    // This request should be intercepted by MSW and return data from mocks/snapshots/test/prototypes.json
     const response = await protopediaForceCacheClient.listPrototypes({
       limit: 10,
     });
