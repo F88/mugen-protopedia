@@ -1,0 +1,43 @@
+{
+  "results": [
+    {
+      "id": 1001,
+      "prototypeNm": "Test Prototype 1",
+      "tags": "tag1|tag2",
+      "teamNm": "Test Team",
+      "users": "user1|user2",
+      "summary": "This is a test prototype summary.",
+      "status": 1,
+      "releaseFlg": 1,
+      "createDate": "2023-01-01 10:00:00",
+      "updateDate": "2023-01-02 10:00:00",
+      "releaseDate": "2023-01-03 10:00:00",
+      "revision": 1,
+      "viewCount": 100,
+      "goodCount": 10,
+      "commentCount": 5,
+      "mainImageUrl": "https://example.com/image.jpg",
+      "youTubeUrl": "https://youtube.com/watch?v=test",
+      "developmentPageUrl": "https://example.com/dev",
+      "storyPageUrl": "https://example.com/story"
+    },
+    {
+      "id": 1002,
+      "prototypeNm": "Test Prototype 2",
+      "tags": "tag3|tag4",
+      "teamNm": "Test Team 2",
+      "users": "user3",
+      "summary": "Another test prototype.",
+      "status": 1,
+      "releaseFlg": 1,
+      "createDate": "2023-02-01 10:00:00",
+      "updateDate": "2023-02-02 10:00:00",
+      "releaseDate": "2023-02-03 10:00:00",
+      "revision": 1,
+      "viewCount": 200,
+      "goodCount": 20,
+      "commentCount": 10,
+      "mainImageUrl": "https://example.com/image2.jpg"
+    }
+  ]
+}

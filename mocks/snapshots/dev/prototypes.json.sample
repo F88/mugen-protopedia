@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "id": 9001,
+      "prototypeNm": "Dev Prototype 1",
+      "tags": "dev|mock",
+      "teamNm": "Dev Team",
+      "users": "dev-user",
+      "summary": "This is a development snapshot prototype.",
+      "status": 1,
+      "releaseFlg": 1,
+      "createDate": "2024-01-01 10:00:00",
+      "updateDate": "2024-01-02 10:00:00",
+      "releaseDate": "2024-01-03 10:00:00",
+      "revision": 1,
+      "viewCount": 999,
+      "goodCount": 99,
+      "commentCount": 9,
+      "mainImageUrl": "https://example.com/dev-image.jpg"
+    },
+    {
+      "id": 9002,
+      "prototypeNm": "Dev Prototype 2",
+      "tags": "dev|example",
+      "teamNm": "Example Team",
+      "users": "example-user",
+      "summary": "Another development snapshot prototype.",
+      "status": 1,
+      "releaseFlg": 1,
+      "createDate": "2024-02-01 10:00:00",
+      "updateDate": "2024-02-02 10:00:00",
+      "releaseDate": "2024-02-03 10:00:00",
+      "revision": 1,
+      "viewCount": 888,
+      "goodCount": 88,
+      "commentCount": 8,
+      "mainImageUrl": "https://example.com/dev-image2.jpg"
+    }
+  ]
+}

@@ -135,6 +135,11 @@ See [Logging Policy](./logging.md) for details on logging configuration.
 - Unit tests: Vitest (`__tests__/*`)
 - E2E tests: Playwright
 - Mocking: MSW (`mocks/server.ts`, `mocks/handlers.ts`)
+    - Snapshots are located in `mocks/snapshots/`.
+    - `test/` directory is used for tests (`NODE_ENV=test`).
+    - `dev/` directory is used for development.
+    - `mocks/snapshots/dev/prototypes.json` is git-ignored to allow using large real-world datasets locally.
+    - To customize dev data, copy `mocks/snapshots/dev/prototypes.json.sample` to `mocks/snapshots/dev/prototypes.json` and edit it.
 - Visual docs: Storybook (with a11y/docs add-ons)
 
 Recommended loop:

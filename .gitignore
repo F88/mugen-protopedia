@@ -112,6 +112,7 @@ storybook-static
 
 # Development
 tools/sample-data/
+mocks/snapshots/dev/prototypes.json
 .coverage
 coverage/
 .vercel
