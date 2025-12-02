@@ -30,42 +30,42 @@ export function EvolutionSpanSection({
     {
       label: 'No Updates',
       count: distribution.noUpdates,
-      color: 'bg-slate-300 dark:bg-slate-600',
+      baseColor: 'slate',
     },
     {
       label: 'Same Day',
       count: distribution.sameDayUpdate,
-      color: 'bg-slate-400 dark:bg-slate-500',
+      baseColor: 'slate',
     },
     {
       label: '3 Days',
       count: distribution.within3Days,
-      color: 'bg-teal-200 dark:bg-teal-900',
+      baseColor: 'teal',
     },
     {
       label: '7 Days',
       count: distribution.within7Days,
-      color: 'bg-teal-300 dark:bg-teal-800',
+      baseColor: 'teal',
     },
     {
       label: '14 Days',
       count: distribution.within14Days,
-      color: 'bg-teal-400 dark:bg-teal-700',
+      baseColor: 'teal',
     },
     {
       label: '30 Days',
       count: distribution.within30Days,
-      color: 'bg-teal-500 dark:bg-teal-600',
+      baseColor: 'teal',
     },
     {
       label: '90 Days',
       count: distribution.within90Days,
-      color: 'bg-teal-600 dark:bg-teal-500',
+      baseColor: 'teal',
     },
     {
       label: '90+ Days',
       count: distribution.over90Days,
-      color: 'bg-teal-700 dark:bg-teal-400',
+      baseColor: 'teal',
     },
   ];
 
@@ -75,10 +75,15 @@ export function EvolutionSpanSection({
     percentage: totalCount > 0 ? (item.count / totalCount) * 100 : 0,
   }));
 
-  // Find max percentage for bar scaling
+  // Find max percentage for bar scaling and opacity calculation
   const maxPercentage = Math.max(
     ...dataWithPercentage.map((d) => d.percentage),
   );
+
+  const getOpacity = (percentage: number) => {
+    // Calculate opacity based on percentage relative to max (min 0.3, max 1.0)
+    return 0.3 + (percentage / maxPercentage) * 0.7;
+  };
 
   return (
     <ObservatorySection
@@ -134,10 +139,15 @@ export function EvolutionSpanSection({
             </div>
             <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
-                className={`h-full ${item.color} rounded-full transition-all duration-1000 ease-out relative`}
+                className={`h-full rounded-full transition-all duration-1000 ease-out relative ${
+                  item.baseColor === 'slate'
+                    ? 'bg-slate-500 dark:bg-slate-400'
+                    : 'bg-teal-500 dark:bg-teal-400'
+                }`}
                 style={{
                   width: `${(item.percentage / maxPercentage) * 100}%`,
                   minWidth: item.percentage > 0 ? '4px' : '0',
+                  opacity: getOpacity(item.percentage),
                 }}
               />
             </div>
