@@ -24,38 +24,61 @@ export function EvolutionSpanSection({
 }: EvolutionSpanSectionProps) {
   const { distribution } = evolutionSpan;
 
+  const totalCount = Object.values(distribution).reduce((a, b) => a + b, 0);
+
   const data = [
     {
       label: 'No Updates',
       count: distribution.noUpdates,
-      color: 'bg-gray-300',
+      color: 'bg-slate-300 dark:bg-slate-600',
     },
     {
       label: 'Same Day',
       count: distribution.sameDayUpdate,
-      color: 'bg-gray-400',
+      color: 'bg-slate-400 dark:bg-slate-500',
     },
-    { label: '3 Days', count: distribution.within3Days, color: 'bg-teal-300' },
-    { label: '7 Days', count: distribution.within7Days, color: 'bg-teal-400' },
+    {
+      label: '3 Days',
+      count: distribution.within3Days,
+      color: 'bg-teal-200 dark:bg-teal-900',
+    },
+    {
+      label: '7 Days',
+      count: distribution.within7Days,
+      color: 'bg-teal-300 dark:bg-teal-800',
+    },
     {
       label: '14 Days',
       count: distribution.within14Days,
-      color: 'bg-teal-500',
+      color: 'bg-teal-400 dark:bg-teal-700',
     },
     {
       label: '30 Days',
       count: distribution.within30Days,
-      color: 'bg-teal-600',
+      color: 'bg-teal-500 dark:bg-teal-600',
     },
     {
       label: '90 Days',
       count: distribution.within90Days,
-      color: 'bg-teal-700',
+      color: 'bg-teal-600 dark:bg-teal-500',
     },
-    { label: '90+ Days', count: distribution.over90Days, color: 'bg-teal-800' },
+    {
+      label: '90+ Days',
+      count: distribution.over90Days,
+      color: 'bg-teal-700 dark:bg-teal-400',
+    },
   ];
 
-  const maxCount = Math.max(...data.map((d) => d.count));
+  // Calculate percentages
+  const dataWithPercentage = data.map((item) => ({
+    ...item,
+    percentage: totalCount > 0 ? (item.count / totalCount) * 100 : 0,
+  }));
+
+  // Find max percentage for bar scaling
+  const maxPercentage = Math.max(
+    ...dataWithPercentage.map((d) => d.percentage),
+  );
 
   return (
     <ObservatorySection
@@ -93,21 +116,29 @@ export function EvolutionSpanSection({
       }}
       delay={helloWorldTheme.sections.evolutionSpan.delay}
     >
-      <div className="space-y-4">
-        {data.map((item) => (
-          <div key={item.label} className="relative">
-            <div className="flex justify-between text-xs sm:text-sm mb-1">
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                {item.label}
-              </span>
-              <span className="text-gray-500 dark:text-gray-400">
+      <div className="space-y-5">
+        {dataWithPercentage.map((item) => (
+          <div key={item.label} className="relative group">
+            <div className="flex items-end justify-between text-sm mb-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-700 dark:text-gray-200 w-24 shrink-0">
+                  {item.label}
+                </span>
+                <span className="text-lg font-bold text-gray-900 dark:text-white tabular-nums">
+                  {item.percentage.toFixed(1)}%
+                </span>
+              </div>
+              <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums">
                 {item.count.toLocaleString()}
               </span>
             </div>
-            <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
-                className={`h-full ${item.color} rounded-full transition-all duration-1000 ease-out`}
-                style={{ width: `${(item.count / maxCount) * 100}%` }}
+                className={`h-full ${item.color} rounded-full transition-all duration-1000 ease-out relative`}
+                style={{
+                  width: `${(item.percentage / maxPercentage) * 100}%`,
+                  minWidth: item.percentage > 0 ? '4px' : '0',
+                }}
               />
             </div>
           </div>
