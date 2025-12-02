@@ -486,7 +486,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
         if (diffDays === 0) {
           // Same calendar day, but different timestamp
           evolutionSpanCounts.sameDayUpdate++;
-        } else if (diffDays <= 3) {
+        } else if (diffDays > 0 && diffDays <= 3) {
           evolutionSpanCounts.within3Days++;
         } else if (diffDays <= 7) {
           evolutionSpanCounts.within7Days++;

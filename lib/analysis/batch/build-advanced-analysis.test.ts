@@ -170,5 +170,19 @@ describe('buildAdvancedAnalysis', () => {
       5,
     );
     expect(result.longTermEvolution.maintenanceRatio).toBeCloseTo(0.75, 5);
+
+    expect(result.evolutionSpan.distribution).toEqual({
+      noUpdates: 1,
+      sameDayUpdate: 0,
+      within3Days: 1,
+      within7Days: 1,
+      within14Days: 1,
+      within30Days: 0,
+      within90Days: 0,
+      within180Days: 0,
+      within1Year: 0,
+      within3Years: 0,
+      over3Years: 0,
+    });
   });
 });
