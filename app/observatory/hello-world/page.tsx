@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 };
 
 // Time-based Revalidation
-export const revalidate = 3600 // revalidate at most every hour
+export const revalidate = 60 * 5 // revalidate at most every 5 minutes
 
 export default async function HelloWorldPage() {
   // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
