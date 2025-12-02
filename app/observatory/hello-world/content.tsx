@@ -201,8 +201,8 @@ async function HelloWorldDashboard() {
 
       {/* Term based */}
       <LaborOfLoveSection laborOfLove={laborOfLove} />
-      <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
       <EvolutionSpanSection evolutionSpan={evolutionSpan} />
+      <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
 
       {/* Tag based   */}
       <EarlyAdoptersSection adopters={earlyAdopters} />

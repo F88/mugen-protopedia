@@ -116,7 +116,8 @@ export type AdvancedAnalysis = {
    */
   evolutionSpan: {
     distribution: {
-      singleDay: number;
+      noUpdates: number;
+      sameDayUpdate: number;
       within3Days: number;
       within7Days: number;
       within14Days: number;
@@ -244,7 +245,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   let prototypesWithMaintenance = 0;
 
   const evolutionSpanCounts = {
-    singleDay: 0,
+    noUpdates: 0,
+    sameDayUpdate: 0,
     within3Days: 0,
     within7Days: 0,
     within14Days: 0,
@@ -462,7 +464,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
         if (diffDays < 1) {
           // Less than 24 hours or same timestamp
-          evolutionSpanCounts.singleDay++;
+          evolutionSpanCounts.sameDayUpdate++;
         } else if (diffDays <= 3) {
           evolutionSpanCounts.within3Days++;
         } else if (diffDays <= 7) {
@@ -477,12 +479,12 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
           evolutionSpanCounts.over90Days++;
         }
       } else {
-        // If update is before release, treat as single day
-        evolutionSpanCounts.singleDay++;
+        // If update is before release, treat as same day update (data anomaly)
+        evolutionSpanCounts.sameDayUpdate++;
       }
     } else {
-      // No update date -> Single Day
-      evolutionSpanCounts.singleDay++;
+      // No update date -> No Updates
+      evolutionSpanCounts.noUpdates++;
     }
   }
 

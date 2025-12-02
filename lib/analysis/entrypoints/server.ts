@@ -115,7 +115,8 @@ function buildEmptyServerAnalysis(
     },
     evolutionSpan: {
       distribution: {
-        singleDay: 0,
+        noUpdates: 0,
+        sameDayUpdate: 0,
         within3Days: 0,
         within7Days: 0,
         within14Days: 0,

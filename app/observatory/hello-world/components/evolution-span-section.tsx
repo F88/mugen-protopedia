@@ -7,7 +7,8 @@ import { ObservatorySection } from './observatory-section';
 type EvolutionSpanSectionProps = {
   evolutionSpan: {
     distribution: {
-      singleDay: number;
+      noUpdates: number;
+      sameDayUpdate: number;
       within3Days: number;
       within7Days: number;
       within14Days: number;
@@ -25,8 +26,13 @@ export function EvolutionSpanSection({
 
   const data = [
     {
-      label: 'Single Day',
-      count: distribution.singleDay,
+      label: 'No Updates',
+      count: distribution.noUpdates,
+      color: 'bg-gray-300',
+    },
+    {
+      label: 'Same Day',
+      count: distribution.sameDayUpdate,
       color: 'bg-gray-400',
     },
     { label: '3 Days', count: distribution.within3Days, color: 'bg-teal-300' },

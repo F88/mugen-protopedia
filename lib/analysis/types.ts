@@ -314,7 +314,8 @@ export type ServerPrototypeAnalysis = {
   evolutionSpan: {
     /** Distribution of active duration (releaseDate to updateDate) */
     distribution: {
-      singleDay: number;
+      noUpdates: number;
+      sameDayUpdate: number;
       within3Days: number;
       within7Days: number;
       within14Days: number;
