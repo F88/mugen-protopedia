@@ -13,6 +13,7 @@ import { GatewayDrugSection } from './components/gateway-drug-section';
 import { HolyDaySection } from './components/holy-day-section';
 import { LaborOfLoveSection } from './components/labor-of-love-section';
 import { LongTermEvolutionSection } from './components/long-term-evolution-section';
+import { EvolutionSpanSection } from './components/evolution-span-section';
 import {
   AfterglowRhythmSection,
   BirthPulseSection,
@@ -64,6 +65,7 @@ async function HelloWorldDashboard() {
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
   } = analysis;
 
   // Determine "Now" and "24 Hours Ago" for filtering newborns
@@ -200,6 +202,7 @@ async function HelloWorldDashboard() {
       {/* Term based */}
       <LaborOfLoveSection laborOfLove={laborOfLove} />
       <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
+      <EvolutionSpanSection evolutionSpan={evolutionSpan} />
 
       {/* Tag based   */}
       <EarlyAdoptersSection adopters={earlyAdopters} />

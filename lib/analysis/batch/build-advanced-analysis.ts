@@ -111,6 +111,20 @@ export type AdvancedAnalysis = {
     averageMaintenanceDays: number;
     maintenanceRatio: number;
   };
+  /**
+   * Evolution Span analysis (Distribution of active duration).
+   */
+  evolutionSpan: {
+    distribution: {
+      singleDay: number;
+      within3Days: number;
+      within7Days: number;
+      within14Days: number;
+      within30Days: number;
+      within90Days: number;
+      over90Days: number;
+    };
+  };
 };
 
 /**
@@ -229,6 +243,16 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   let totalMaintenanceDays = 0;
   let prototypesWithMaintenance = 0;
 
+  const evolutionSpanCounts = {
+    singleDay: 0,
+    within3Days: 0,
+    within7Days: 0,
+    within14Days: 0,
+    within30Days: 0,
+    within90Days: 0,
+    over90Days: 0,
+  };
+
   function collect(context: PrototypeLifecycleContext) {
     const { prototype, release } = context;
 
@@ -242,6 +266,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     collectWeekendWarrior(release);
     collectHolyDay(release);
     collectMaintenance(context);
+    collectEvolutionSpan(context);
   }
 
   function collectFirstPenguin(
@@ -423,6 +448,44 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     });
   }
 
+  function collectEvolutionSpan(context: PrototypeLifecycleContext) {
+    const { release, update } = context;
+
+    if (update) {
+      const updateMs = update.timestampMs;
+      const releaseMs = release.timestampMs;
+
+      // Ensure update is not before release (sanity check)
+      if (updateMs >= releaseMs) {
+        const diffMs = updateMs - releaseMs;
+        const diffDays = diffMs / (24 * 60 * 60 * 1000);
+
+        if (diffDays < 1) {
+          // Less than 24 hours or same timestamp
+          evolutionSpanCounts.singleDay++;
+        } else if (diffDays <= 3) {
+          evolutionSpanCounts.within3Days++;
+        } else if (diffDays <= 7) {
+          evolutionSpanCounts.within7Days++;
+        } else if (diffDays <= 14) {
+          evolutionSpanCounts.within14Days++;
+        } else if (diffDays <= 30) {
+          evolutionSpanCounts.within30Days++;
+        } else if (diffDays <= 90) {
+          evolutionSpanCounts.within90Days++;
+        } else {
+          evolutionSpanCounts.over90Days++;
+        }
+      } else {
+        // If update is before release, treat as single day
+        evolutionSpanCounts.singleDay++;
+      }
+    } else {
+      // No update date -> Single Day
+      evolutionSpanCounts.singleDay++;
+    }
+  }
+
   function finalize({
     totalPrototypes,
   }: {
@@ -439,6 +502,9 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       weekendWarrior: finalizeWeekendWarrior(),
       holyDay: finalizeHolyDay(),
       longTermEvolution: finalizeLongTermEvolution(totalPrototypes),
+      evolutionSpan: {
+        distribution: evolutionSpanCounts,
+      },
     };
   }
 

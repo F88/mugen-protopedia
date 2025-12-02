@@ -310,6 +310,20 @@ export type ServerPrototypeAnalysis = {
     maintenanceRatio: number;
   };
 
+  /** Evolution Span analysis (Distribution of active duration) */
+  evolutionSpan: {
+    /** Distribution of active duration (releaseDate to updateDate) */
+    distribution: {
+      singleDay: number;
+      within3Days: number;
+      within7Days: number;
+      within14Days: number;
+      within30Days: number;
+      within90Days: number;
+      over90Days: number;
+    };
+  };
+
   /** Debug metrics for analysis performance */
   _debugMetrics?: Record<string, number>;
 };

@@ -146,6 +146,10 @@ export const helloWorldTheme = {
       theme: 'emerald' as const,
       delay: 'delay-[1300ms]',
     },
+    evolutionSpan: {
+      theme: 'teal' as const,
+      delay: 'delay-[1400ms]',
+    },
   },
 
   // Animation durations (in seconds)
