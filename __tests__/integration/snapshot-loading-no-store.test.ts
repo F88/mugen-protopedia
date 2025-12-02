@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger.server';
 describe('Snapshot Integration Test (NoStore)', () => {
   it('should load prototypes from the snapshot via MSW using no-store client', async () => {
     // Fetch prototypes using the no-store client
-    // This request should also be intercepted by MSW and return data from mocks/snapshots/prototypes.json
+    // This request should also be intercepted by MSW and return data from mocks/snapshots/test/prototypes.json
     const response = await protopediaNoStoreClient.listPrototypes({
       limit: 10,
     });
