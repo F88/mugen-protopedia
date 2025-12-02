@@ -15,7 +15,8 @@
  *
  * Both clients share the same environment-driven configuration:
  * - `PROTOPEDIA_API_V2_TOKEN` for authentication (optional).
- * - `PROTOPEDIA_API_V2_BASE_URL` for overriding the upstream base URL.  * - `PROTOPEDIA_API_V2_LOG_LEVEL` to control SDK log verbosity.
+ * - `PROTOPEDIA_API_V2_BASE_URL` for overriding the upstream base URL.
+ * - `PROTOPEDIA_API_V2_LOG_LEVEL` to control SDK log verbosity.
  */
 import { createProtoPediaClient } from 'protopedia-api-v2-client';
 import { logger as baseLogger } from '@/lib/logger.server';
