@@ -61,7 +61,7 @@ export function PowerOfDeadlinesSection({
                   className={`w-full rounded-t-sm transition-all duration-500 ${
                     day.isCenter
                       ? 'bg-fuchsia-500 dark:bg-fuchsia-500'
-                      : 'bg-fuchsia-200 dark:bg-fuchsia-900/30'
+                      : 'bg-fuchsia-300 dark:bg-fuchsia-700/60'
                   }`}
                   style={{ height: `${height}%` }}
                 />
