@@ -23,7 +23,6 @@ import { observatoryTheme } from '@/app/observatory/theme';
 import { ObservatoryCard } from './_components/observatory-card';
 import { ObservatoryHeader } from './components/observatory-header';
 
-
 const pageTitle = `ProtoPedia Observatory | ${APP_TITLE}`;
 const pageDescription =
   'Journey through the expanding universe of ideas. Fuel your curiosity with the stories behind the weird, the wonderful, and the revolutionary.';
