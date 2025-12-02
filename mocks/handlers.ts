@@ -24,7 +24,8 @@ import { loadSnapshot } from './snapshot-utils';
  * @see mocks/server.ts
  */
 const listPrototypesHandler = http.get(
-  /https:\/\/api\.local\.test\/v2\/api\/prototype\/list.*/,
+  // Match the path regardless of the base URL (works for both test and dev environments)
+  '*/v2/api/prototype/list',
   () => {
     const snapshot = loadSnapshot('prototypes.json');
     if (snapshot) {
