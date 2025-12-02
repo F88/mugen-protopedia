@@ -15,3 +15,5 @@ export const IconGarage = () => <span aria-hidden="true">🎸</span>;
 export const IconDeadline = () => <span aria-hidden="true">💣</span>;
 export const IconWarrior = () => <span aria-hidden="true">⚔️</span>;
 export const IconHoly = () => <span aria-hidden="true">🙌</span>;
+export const IconTree = () => <span aria-hidden="true">🌳</span>;
+export const IconHourglass = () => <span aria-hidden="true">⏳</span>;

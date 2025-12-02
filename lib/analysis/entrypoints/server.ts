@@ -36,6 +36,7 @@ type AnalysisPipelineResult = Pick<
   | 'topTags'
   | 'topTeams'
   | 'topMaterials'
+  | 'yearlyTopMaterials'
   | 'anniversaryCandidates'
   | 'createTimeDistribution'
   | 'createDateDistribution'
@@ -54,6 +55,7 @@ type AnalysisPipelineResult = Pick<
   | 'weekendWarrior'
   | 'holyDay'
   | 'longTermEvolution'
+  | 'evolutionSpan'
 > & {
   materialCounts: Record<string, number>;
   metrics: Record<string, number>;
@@ -79,6 +81,7 @@ function buildEmptyServerAnalysis(
     prototypesWithAwards: 0,
     topTags: [],
     topMaterials: [],
+    yearlyTopMaterials: {},
     averageAgeInDays: 0,
     topTeams: [],
     analyzedAt: new Date().toISOString(),
@@ -111,6 +114,21 @@ function buildEmptyServerAnalysis(
       longestMaintenance: [],
       averageMaintenanceDays: 0,
       maintenanceRatio: 0,
+    },
+    evolutionSpan: {
+      distribution: {
+        noUpdates: 0,
+        sameDayUpdate: 0,
+        within3Days: 0,
+        within7Days: 0,
+        within14Days: 0,
+        within30Days: 0,
+        within90Days: 0,
+        within180Days: 0,
+        within1Year: 0,
+        within3Years: 0,
+        over3Years: 0,
+      },
     },
     _debugMetrics: {},
   };
@@ -146,9 +164,10 @@ function runAnalysisPipelines(
   metrics.topTeams = performance.now() - stepStartTeams;
 
   const stepStartMaterials = performance.now();
-  const { topMaterials, materialCounts } = buildMaterialAnalytics(prototypes, {
-    logger,
-  });
+  const { topMaterials, materialCounts, yearlyTopMaterials } =
+    buildMaterialAnalytics(prototypes, {
+      logger,
+    });
   metrics.topMaterials = performance.now() - stepStartMaterials;
 
   const stepStartAnniversaries = performance.now();
@@ -203,6 +222,7 @@ function runAnalysisPipelines(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
   } = buildAdvancedAnalysis(prototypes, topTags, { logger });
   metrics.advancedAnalysis = performance.now() - stepStartAdvanced;
 
@@ -213,6 +233,7 @@ function runAnalysisPipelines(
     topTags,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     anniversaryCandidates,
     createTimeDistribution,
     createDateDistribution,
@@ -231,6 +252,7 @@ function runAnalysisPipelines(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     tagCounts,
     teamCounts,
     materialCounts,
@@ -401,6 +423,7 @@ export function analyzePrototypesForServer(
     topTags,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     anniversaryCandidates,
     createTimeDistribution,
     createDateDistribution,
@@ -419,6 +442,7 @@ export function analyzePrototypesForServer(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     tagCounts,
     teamCounts,
     materialCounts,
@@ -472,6 +496,7 @@ export function analyzePrototypesForServer(
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
     createTimeDistribution,
@@ -491,6 +516,7 @@ export function analyzePrototypesForServer(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

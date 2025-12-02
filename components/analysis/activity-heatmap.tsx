@@ -1,26 +1,63 @@
 import { cn } from '@/lib/utils';
 
+type ColorScheme = 'green' | 'orange' | 'purple';
+
 type ActivityHeatmapProps = {
   heatmap: number[][];
   className?: string;
+  colorScheme?: ColorScheme;
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-export function ActivityHeatmap({ heatmap, className }: ActivityHeatmapProps) {
+const COLOR_MAP: Record<
+  ColorScheme,
+  {
+    level1: string;
+    level2: string;
+    level3: string;
+    level4: string;
+  }
+> = {
+  green: {
+    level1: 'bg-green-200 dark:bg-green-900/40',
+    level2: 'bg-green-300 dark:bg-green-800/60',
+    level3: 'bg-green-400 dark:bg-green-700/80',
+    level4: 'bg-green-500 dark:bg-green-600',
+  },
+  orange: {
+    level1: 'bg-orange-200 dark:bg-orange-900/40',
+    level2: 'bg-orange-300 dark:bg-orange-800/60',
+    level3: 'bg-orange-400 dark:bg-orange-700/80',
+    level4: 'bg-orange-500 dark:bg-orange-600',
+  },
+  purple: {
+    level1: 'bg-purple-200 dark:bg-purple-900/40',
+    level2: 'bg-purple-300 dark:bg-purple-800/60',
+    level3: 'bg-purple-400 dark:bg-purple-700/80',
+    level4: 'bg-purple-500 dark:bg-purple-600',
+  },
+};
+
+export function ActivityHeatmap({
+  heatmap,
+  className,
+  colorScheme = 'green',
+}: ActivityHeatmapProps) {
   // Find max value for scaling colors
   const maxCount = Math.max(...heatmap.flat());
+  const colors = COLOR_MAP[colorScheme];
 
   const getColorClass = (count: number) => {
     if (count === 0) return 'bg-gray-100 dark:bg-gray-800';
     if (maxCount === 0) return 'bg-gray-100 dark:bg-gray-800';
 
     const ratio = count / maxCount;
-    if (ratio < 0.25) return 'bg-green-200 dark:bg-green-900/40';
-    if (ratio < 0.5) return 'bg-green-300 dark:bg-green-800/60';
-    if (ratio < 0.75) return 'bg-green-400 dark:bg-green-700/80';
-    return 'bg-green-500 dark:bg-green-600';
+    if (ratio < 0.25) return colors.level1;
+    if (ratio < 0.5) return colors.level2;
+    if (ratio < 0.75) return colors.level3;
+    return colors.level4;
   };
 
   return (
@@ -71,10 +108,10 @@ export function ActivityHeatmap({ heatmap, className }: ActivityHeatmapProps) {
           <span>Less</span>
           <div className="flex gap-1">
             <div className="h-3 w-3 rounded-sm bg-gray-100 dark:bg-gray-800" />
-            <div className="h-3 w-3 rounded-sm bg-green-200 dark:bg-green-900/40" />
-            <div className="h-3 w-3 rounded-sm bg-green-300 dark:bg-green-800/60" />
-            <div className="h-3 w-3 rounded-sm bg-green-400 dark:bg-green-700/80" />
-            <div className="h-3 w-3 rounded-sm bg-green-500 dark:bg-green-600" />
+            <div className={cn('h-3 w-3 rounded-sm', colors.level1)} />
+            <div className={cn('h-3 w-3 rounded-sm', colors.level2)} />
+            <div className={cn('h-3 w-3 rounded-sm', colors.level3)} />
+            <div className={cn('h-3 w-3 rounded-sm', colors.level4)} />
           </div>
           <span>More</span>
         </div>

@@ -5,17 +5,19 @@ import {
 } from '@/.storybook/prototypes.fixture';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
-  buildAnniversaries,
-  buildAnniversarySlice,
   buildTagAnalytics,
   buildCoreSummaries,
   buildUserTeamAnalytics,
   buildMaterialAnalytics,
   buildTimeDistributions,
   buildDateBasedPrototypeInsights,
-  calculateCreationStreak,
   buildAdvancedAnalysis,
-} from '@/lib/analysis';
+} from '@/lib/analysis/batch';
+import { calculateCreationStreak } from '@/lib/analysis/core';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/analysis/shared/anniversaries';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
@@ -35,7 +37,8 @@ function analyzePrototypes(
   } = buildCoreSummaries(prototypes, { referenceDate });
   const { topTags } = buildTagAnalytics(prototypes);
   const { teams } = buildUserTeamAnalytics(prototypes);
-  const { topMaterials } = buildMaterialAnalytics(prototypes);
+  const { topMaterials, yearlyTopMaterials } =
+    buildMaterialAnalytics(prototypes);
   const {
     releaseTimeDistribution,
     releaseDateDistribution,
@@ -83,6 +86,7 @@ function analyzePrototypes(
       prototypesWithAwards,
       topTags,
       topMaterials,
+      yearlyTopMaterials,
       averageAgeInDays,
       topTeams: teams.topTeams,
       analyzedAt: referenceDate.toISOString(),
@@ -105,6 +109,7 @@ function analyzePrototypes(
     prototypesWithAwards,
     topTags,
     topMaterials,
+    yearlyTopMaterials,
     averageAgeInDays,
     topTeams: teams.topTeams,
     analyzedAt: referenceDate.toISOString(),
@@ -642,6 +647,21 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       averageMaintenanceDays: 0,
       maintenanceRatio: 0,
     },
+    evolutionSpan: {
+      distribution: {
+        noUpdates: 0,
+        sameDayUpdate: 0,
+        within3Days: 0,
+        within7Days: 0,
+        within14Days: 0,
+        within30Days: 0,
+        within90Days: 0,
+        within180Days: 0,
+        within1Year: 0,
+        within3Years: 0,
+        over3Years: 0,
+      },
+    },
   };
 
   return {
@@ -665,6 +685,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       { count: 10 },
     ),
     topMaterials,
+    yearlyTopMaterials: {},
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
     topTeams: teams
       .slice(0, 6)

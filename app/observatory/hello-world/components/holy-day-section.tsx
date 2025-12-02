@@ -11,6 +11,36 @@ type HolyDaySectionProps = {
 export function HolyDaySection({ holyDay }: HolyDaySectionProps) {
   const { topDays } = holyDay;
 
+  const MONTH_NAMES = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const SHORT_MONTH_NAMES = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
   return (
     <ObservatorySection
       theme={helloWorldTheme.sections.holyDay.theme}
@@ -44,22 +74,9 @@ export function HolyDaySection({ holyDay }: HolyDaySectionProps) {
       }}
       delay="delay-800"
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Top 3 */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
         {topDays.slice(0, 3).map((day, index) => {
-          const MONTH_NAMES = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-          ];
           const [month, date] = day.date.split('-');
           const monthName = MONTH_NAMES[parseInt(month) - 1];
 
@@ -77,6 +94,31 @@ export function HolyDaySection({ holyDay }: HolyDaySectionProps) {
               </div>
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
                 {day.count} Total Releases
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Rank 4-10 */}
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+        {topDays.slice(3, 10).map((day, index) => {
+          const [month, date] = day.date.split('-');
+          const monthName = SHORT_MONTH_NAMES[parseInt(month) - 1];
+
+          return (
+            <div
+              key={day.date}
+              className="bg-white/40 dark:bg-black/10 rounded-lg p-3 border border-amber-50 dark:border-amber-800/20 flex flex-col items-center text-center"
+            >
+              <div className="text-[10px] font-bold text-amber-500/80 dark:text-amber-400/80 uppercase tracking-wider mb-1">
+                #{index + 4}
+              </div>
+              <div className="text-sm font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                {monthName} {date}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-500">
+                {day.count}
               </div>
             </div>
           );

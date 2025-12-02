@@ -123,6 +123,11 @@ export type ServerPrototypeAnalysis = {
   topTags: Array<{ tag: string; count: number }>;
   /** Most frequently used materials/tools (top 10) */
   topMaterials: Array<{ material: string; count: number }>;
+  /** Most frequently used materials/tools by year (top 10 per year) */
+  yearlyTopMaterials: Record<
+    number,
+    Array<{ material: string; count: number }>
+  >;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
   /** Teams with most prototypes */
@@ -308,6 +313,24 @@ export type ServerPrototypeAnalysis = {
     averageMaintenanceDays: number;
     /** Percentage of prototypes still being maintained (updated after release) */
     maintenanceRatio: number;
+  };
+
+  /** Evolution Span analysis (Distribution of active duration) */
+  evolutionSpan: {
+    /** Distribution of active duration (releaseDate to updateDate) */
+    distribution: {
+      noUpdates: number;
+      sameDayUpdate: number;
+      within3Days: number;
+      within7Days: number;
+      within14Days: number;
+      within30Days: number;
+      within90Days: number;
+      within180Days: number;
+      within1Year: number;
+      within3Years: number;
+      over3Years: number;
+    };
   };
 
   /** Debug metrics for analysis performance */

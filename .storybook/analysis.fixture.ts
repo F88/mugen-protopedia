@@ -1,6 +1,9 @@
 import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
-import { buildAnniversaries, buildAnniversarySlice } from '@/lib/analysis';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/analysis/shared/anniversaries';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
   anniversaryMinimalPrototype,

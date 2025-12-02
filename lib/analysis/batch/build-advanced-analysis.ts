@@ -111,6 +111,24 @@ export type AdvancedAnalysis = {
     averageMaintenanceDays: number;
     maintenanceRatio: number;
   };
+  /**
+   * Evolution Span analysis (Distribution of active duration).
+   */
+  evolutionSpan: {
+    distribution: {
+      noUpdates: number;
+      sameDayUpdate: number;
+      within3Days: number;
+      within7Days: number;
+      within14Days: number;
+      within30Days: number;
+      within90Days: number;
+      within180Days: number;
+      within1Year: number;
+      within3Years: number;
+      over3Years: number;
+    };
+  };
 };
 
 /**
@@ -229,6 +247,20 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   let totalMaintenanceDays = 0;
   let prototypesWithMaintenance = 0;
 
+  const evolutionSpanCounts = {
+    noUpdates: 0,
+    sameDayUpdate: 0,
+    within3Days: 0,
+    within7Days: 0,
+    within14Days: 0,
+    within30Days: 0,
+    within90Days: 0,
+    within180Days: 0,
+    within1Year: 0,
+    within3Years: 0,
+    over3Years: 0,
+  };
+
   function collect(context: PrototypeLifecycleContext) {
     const { prototype, release } = context;
 
@@ -242,6 +274,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     collectWeekendWarrior(release);
     collectHolyDay(release);
     collectMaintenance(context);
+    collectEvolutionSpan(context);
   }
 
   function collectFirstPenguin(
@@ -423,6 +456,65 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     });
   }
 
+  const parseDateToUtc = (yyyymmdd: string) => {
+    const [y, m, d] = yyyymmdd.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  };
+
+  function collectEvolutionSpan(context: PrototypeLifecycleContext) {
+    const { release, update } = context;
+
+    if (update) {
+      const updateMs = update.timestampMs;
+      const releaseMs = release.timestampMs;
+
+      // If update timestamp is exactly same as release timestamp, treat as No Updates
+      if (updateMs === releaseMs) {
+        evolutionSpanCounts.noUpdates++;
+        return;
+      }
+
+      // Calculate date difference in JST (calendar days)
+      const releaseDateVal = parseDateToUtc(release.yyyymmdd);
+      const updateDateVal = parseDateToUtc(update.yyyymmdd);
+
+      // Ensure update is not before release (sanity check)
+      if (updateDateVal >= releaseDateVal) {
+        const diffDays =
+          (updateDateVal - releaseDateVal) / (24 * 60 * 60 * 1000);
+
+        if (diffDays === 0) {
+          // Same calendar day, but different timestamp
+          evolutionSpanCounts.sameDayUpdate++;
+        } else if (diffDays > 0 && diffDays <= 3) {
+          evolutionSpanCounts.within3Days++;
+        } else if (diffDays <= 7) {
+          evolutionSpanCounts.within7Days++;
+        } else if (diffDays <= 14) {
+          evolutionSpanCounts.within14Days++;
+        } else if (diffDays <= 30) {
+          evolutionSpanCounts.within30Days++;
+        } else if (diffDays <= 90) {
+          evolutionSpanCounts.within90Days++;
+        } else if (diffDays <= 180) {
+          evolutionSpanCounts.within180Days++;
+        } else if (diffDays <= 365) {
+          evolutionSpanCounts.within1Year++;
+        } else if (diffDays <= 365 * 3) {
+          evolutionSpanCounts.within3Years++;
+        } else {
+          evolutionSpanCounts.over3Years++;
+        }
+      } else {
+        // If update is before release, treat as No Updates (likely data anomaly or pre-release edit)
+        evolutionSpanCounts.noUpdates++;
+      }
+    } else {
+      // No update date -> No Updates
+      evolutionSpanCounts.noUpdates++;
+    }
+  }
+
   function finalize({
     totalPrototypes,
   }: {
@@ -439,6 +531,9 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       weekendWarrior: finalizeWeekendWarrior(),
       holyDay: finalizeHolyDay(),
       longTermEvolution: finalizeLongTermEvolution(totalPrototypes),
+      evolutionSpan: {
+        distribution: evolutionSpanCounts,
+      },
     };
   }
 

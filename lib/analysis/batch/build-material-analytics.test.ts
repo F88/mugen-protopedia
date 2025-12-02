@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import { buildMaterialAnalytics } from './build-material-analytics';
 
-const createPrototype = (materials: string[] = []): NormalizedPrototype => ({
+const createPrototype = (
+  materials: string[] = [],
+  releaseDate: string = new Date().toISOString(),
+): NormalizedPrototype => ({
   id: Math.random(),
   prototypeNm: 'Proto',
   tags: [],
@@ -13,10 +16,10 @@ const createPrototype = (materials: string[] = []): NormalizedPrototype => ({
   status: 1,
   releaseFlg: 1,
   createId: 1,
-  createDate: new Date().toISOString(),
+  createDate: releaseDate,
   updateId: 1,
-  updateDate: new Date().toISOString(),
-  releaseDate: new Date().toISOString(),
+  updateDate: releaseDate,
+  releaseDate: releaseDate,
   revision: 1,
   awards: [],
   freeComment: '',
@@ -50,5 +53,25 @@ describe('buildMaterialAnalytics', () => {
 
     expect(analytics.materialCounts).toEqual({ A: 2, B: 1, C: 1 });
     expect(analytics.topMaterials[0]).toEqual({ material: 'A', count: 2 });
+  });
+
+  it('aggregates yearly top materials', () => {
+    const prototypes = [
+      createPrototype(['A', 'B'], '2023-01-01T00:00:00Z'),
+      createPrototype(['A', 'C'], '2023-06-01T00:00:00Z'),
+      createPrototype(['B', 'C'], '2024-01-01T00:00:00Z'),
+    ];
+
+    const analytics = buildMaterialAnalytics(prototypes);
+
+    expect(analytics.yearlyTopMaterials[2023]).toEqual([
+      { material: 'A', count: 2 },
+      { material: 'B', count: 1 },
+      { material: 'C', count: 1 },
+    ]);
+    expect(analytics.yearlyTopMaterials[2024]).toEqual([
+      { material: 'B', count: 1 },
+      { material: 'C', count: 1 },
+    ]);
   });
 });
