@@ -54,7 +54,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+// Time-based Revalidation
+export const revalidate = 3600 // revalidate at most every hour
 
 export default async function HelloWorldPage() {
   // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
