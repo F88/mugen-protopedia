@@ -276,14 +276,12 @@ export async function generateObservatoryOgImage(
   // Note: We use inline styles here because next/og requires them for image generation.
   // External CSS is not supported.
   return new ImageResponse(
-    (
-      <div style={containerStyle}>
-        <BackgroundGlows theme={theme} />
-        <Stars />
-        <Footer logo={logo} />
-        <ContentCard title={title} subtitle={subtitle} theme={theme} />
-      </div>
-    ),
+    <div style={containerStyle}>
+      <BackgroundGlows theme={theme} />
+      <Stars />
+      <Footer logo={logo} />
+      <ContentCard title={title} subtitle={subtitle} theme={theme} />
+    </div>,
     {
       ...size,
       fonts: fontData

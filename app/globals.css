@@ -150,7 +150,7 @@ body {
     conic-gradient(
         from var(--shine-angle, 0deg),
         /* multicolor holographic palette for higher contrast */
-          hsl(200 95% 60% / var(--legendary-alpha)),
+        hsl(200 95% 60% / var(--legendary-alpha)),
         /* cyan */ hsl(280 100% 70% / var(--legendary-alpha)),
         /* violet */ hsl(330 95% 65% / var(--legendary-alpha)),
         /* pink */ hsl(140 90% 60% / var(--legendary-alpha)),
