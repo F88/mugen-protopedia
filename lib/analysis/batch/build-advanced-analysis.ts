@@ -457,13 +457,19 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       const updateMs = update.timestampMs;
       const releaseMs = release.timestampMs;
 
+      // If update timestamp is exactly same as release timestamp, treat as No Updates
+      if (updateMs === releaseMs) {
+        evolutionSpanCounts.noUpdates++;
+        return;
+      }
+
       // Ensure update is not before release (sanity check)
-      if (updateMs >= releaseMs) {
+      if (updateMs > releaseMs) {
         const diffMs = updateMs - releaseMs;
         const diffDays = diffMs / (24 * 60 * 60 * 1000);
 
         if (diffDays < 1) {
-          // Less than 24 hours or same timestamp
+          // Less than 24 hours but not exactly same
           evolutionSpanCounts.sameDayUpdate++;
         } else if (diffDays <= 3) {
           evolutionSpanCounts.within3Days++;
@@ -479,8 +485,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
           evolutionSpanCounts.over90Days++;
         }
       } else {
-        // If update is before release, treat as same day update (data anomaly)
-        evolutionSpanCounts.sameDayUpdate++;
+        // If update is before release, treat as No Updates (likely data anomaly or pre-release edit)
+        evolutionSpanCounts.noUpdates++;
       }
     } else {
       // No update date -> No Updates
