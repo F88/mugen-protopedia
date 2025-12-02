@@ -62,7 +62,10 @@ export function PlaylistPreviewCard({
           <TableHeader>
             <TableRow>
               <TableHead className="w-12 text-center">#</TableHead>
-              <TableHead>Prototype ID</TableHead>
+              <TableHead>
+                <span className="sm:hidden">ID</span>
+                <span className="hidden sm:inline">Prototype ID</span>
+              </TableHead>
               <TableHead>Prototype name</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,8 +75,10 @@ export function PlaylistPreviewCard({
                 <TableCell className="text-center text-xs text-muted-foreground">
                   {index + 1}
                 </TableCell>
-                <TableCell className="font-mono text-xs">{id}</TableCell>
-                <TableCell className="text-xs text-muted-foreground">
+                <TableCell className="font-mono text-xs text-right">
+                  {id}
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground break-all whitespace-normal">
                   {namesById[id] ?? 'unknown (cache not available)'}
                 </TableCell>
               </TableRow>
