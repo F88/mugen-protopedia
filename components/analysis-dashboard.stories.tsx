@@ -107,6 +107,7 @@ function analyzePrototypes(
     prototypesWithAwards,
     topTags,
     topMaterials,
+    yearlyTopMaterials,
     averageAgeInDays,
     topTeams: teams.topTeams,
     analyzedAt: referenceDate.toISOString(),
@@ -644,6 +645,21 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       averageMaintenanceDays: 0,
       maintenanceRatio: 0,
     },
+    evolutionSpan: {
+      distribution: {
+        noUpdates: 0,
+        sameDayUpdate: 0,
+        within3Days: 0,
+        within7Days: 0,
+        within14Days: 0,
+        within30Days: 0,
+        within90Days: 0,
+        within180Days: 0,
+        within1Year: 0,
+        within3Years: 0,
+        over3Years: 0,
+      },
+    },
   };
 
   return {
@@ -667,6 +683,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       { count: 10 },
     ),
     topMaterials,
+    yearlyTopMaterials: {},
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
     topTeams: teams
       .slice(0, 6)
