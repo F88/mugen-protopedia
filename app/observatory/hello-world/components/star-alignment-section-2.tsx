@@ -67,7 +67,7 @@ export function StarAlignmentSection2({
               y2="20"
               stroke="currentColor"
               strokeWidth="0.5"
-              className="text-slate-600"
+              className="text-slate-400"
             />
             <line
               x1="50"
@@ -76,7 +76,7 @@ export function StarAlignmentSection2({
               y2="60"
               stroke="currentColor"
               strokeWidth="0.5"
-              className="text-slate-600"
+              className="text-slate-400"
             />
             <line
               x1="80"
@@ -85,26 +85,26 @@ export function StarAlignmentSection2({
               y2="80"
               stroke="currentColor"
               strokeWidth="0.5"
-              className="text-slate-600"
+              className="text-slate-400"
             />
             {/* Stars with pulsing animation */}
             <circle
               cx="20"
               cy="80"
               r="2"
-              className="fill-yellow-100 animate-pulse"
+              className="fill-yellow-200 animate-pulse"
             />
             <circle
               cx="50"
               cy="20"
               r="3"
-              className="fill-yellow-200 animate-pulse [animation-delay:100ms]"
+              className="fill-yellow-300 animate-pulse [animation-delay:100ms]"
             />
             <circle
               cx="80"
               cy="60"
               r="2"
-              className="fill-yellow-100 animate-pulse [animation-delay:200ms]"
+              className="fill-yellow-200 animate-pulse [animation-delay:200ms]"
             />
           </svg>
         </div>
