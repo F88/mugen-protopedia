@@ -211,7 +211,7 @@ export function ObservatorySection({
     >
       <div
         className={cn(
-          'relative overflow-hidden rounded-3xl p-8 border',
+          'relative overflow-hidden rounded-3xl p-4 md:p-8 border',
           styles.container,
           styles.border,
           className,
