@@ -123,7 +123,10 @@ export type AdvancedAnalysis = {
       within14Days: number;
       within30Days: number;
       within90Days: number;
-      over90Days: number;
+      within180Days: number;
+      within1Year: number;
+      within3Years: number;
+      over3Years: number;
     };
   };
 };
@@ -252,7 +255,10 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     within14Days: 0,
     within30Days: 0,
     within90Days: 0,
-    over90Days: 0,
+    within180Days: 0,
+    within1Year: 0,
+    within3Years: 0,
+    over3Years: 0,
   };
 
   function collect(context: PrototypeLifecycleContext) {
@@ -490,8 +496,14 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
           evolutionSpanCounts.within30Days++;
         } else if (diffDays <= 90) {
           evolutionSpanCounts.within90Days++;
+        } else if (diffDays <= 180) {
+          evolutionSpanCounts.within180Days++;
+        } else if (diffDays <= 365) {
+          evolutionSpanCounts.within1Year++;
+        } else if (diffDays <= 365 * 3) {
+          evolutionSpanCounts.within3Years++;
         } else {
-          evolutionSpanCounts.over90Days++;
+          evolutionSpanCounts.over3Years++;
         }
       } else {
         // If update is before release, treat as No Updates (likely data anomaly or pre-release edit)

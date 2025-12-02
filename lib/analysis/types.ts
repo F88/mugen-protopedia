@@ -321,7 +321,10 @@ export type ServerPrototypeAnalysis = {
       within14Days: number;
       within30Days: number;
       within90Days: number;
-      over90Days: number;
+      within180Days: number;
+      within1Year: number;
+      within3Years: number;
+      over3Years: number;
     };
   };
 

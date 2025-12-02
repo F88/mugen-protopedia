@@ -14,7 +14,10 @@ type EvolutionSpanSectionProps = {
       within14Days: number;
       within30Days: number;
       within90Days: number;
-      over90Days: number;
+      within180Days: number;
+      within1Year: number;
+      within3Years: number;
+      over3Years: number;
     };
   };
 };
@@ -63,8 +66,23 @@ export function EvolutionSpanSection({
       baseColor: 'teal',
     },
     {
-      label: '90+ Days',
-      count: distribution.over90Days,
+      label: '180 Days',
+      count: distribution.within180Days,
+      baseColor: 'teal',
+    },
+    {
+      label: '1 Year',
+      count: distribution.within1Year,
+      baseColor: 'teal',
+    },
+    {
+      label: '3 Years',
+      count: distribution.within3Years,
+      baseColor: 'teal',
+    },
+    {
+      label: '3+ Years',
+      count: distribution.over3Years,
       baseColor: 'teal',
     },
   ];
