@@ -99,8 +99,8 @@ export function EvolutionSpanSection({
   );
 
   const getOpacity = (percentage: number) => {
-    // Calculate opacity based on percentage relative to max (min 0.3, max 1.0)
     if (maxPercentage === 0) return 0.3;
+    // Calculate opacity based on percentage relative to max (min 0.3, max 1.0)
     return 0.3 + (percentage / maxPercentage) * 0.7;
   };
 

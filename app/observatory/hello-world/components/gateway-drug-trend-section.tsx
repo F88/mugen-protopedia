@@ -71,11 +71,9 @@ export function GatewayDrugTrendSection({
     return dataPoint;
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleLegendMouseEnter = (o: any) => {
-    const { dataKey } = o;
-    if (typeof dataKey === 'string') {
-      setHoveredMaterial(dataKey);
+  const handleLegendMouseEnter = (o: { dataKey?: unknown }) => {
+    if (typeof o.dataKey === 'string') {
+      setHoveredMaterial(o.dataKey);
     }
   };
 
