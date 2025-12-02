@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 // Time-based Revalidation
-export const revalidate = 60 * 5; // revalidate at most every 5 minutes
+export const revalidate = 300; // revalidate at most every 5 minutes
 
 export default function HelloWorldPage() {
   return (
