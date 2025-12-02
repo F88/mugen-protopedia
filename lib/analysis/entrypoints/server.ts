@@ -54,6 +54,7 @@ type AnalysisPipelineResult = Pick<
   | 'weekendWarrior'
   | 'holyDay'
   | 'longTermEvolution'
+  | 'evolutionSpan'
 > & {
   materialCounts: Record<string, number>;
   metrics: Record<string, number>;
@@ -111,6 +112,17 @@ function buildEmptyServerAnalysis(
       longestMaintenance: [],
       averageMaintenanceDays: 0,
       maintenanceRatio: 0,
+    },
+    evolutionSpan: {
+      distribution: {
+        singleDay: 0,
+        within3Days: 0,
+        within7Days: 0,
+        within14Days: 0,
+        within30Days: 0,
+        within90Days: 0,
+        over90Days: 0,
+      },
     },
     _debugMetrics: {},
   };
@@ -203,6 +215,7 @@ function runAnalysisPipelines(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
   } = buildAdvancedAnalysis(prototypes, topTags, { logger });
   metrics.advancedAnalysis = performance.now() - stepStartAdvanced;
 
@@ -231,6 +244,7 @@ function runAnalysisPipelines(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     tagCounts,
     teamCounts,
     materialCounts,
@@ -419,6 +433,7 @@ export function analyzePrototypesForServer(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     tagCounts,
     teamCounts,
     materialCounts,
@@ -491,6 +506,7 @@ export function analyzePrototypesForServer(
     weekendWarrior,
     holyDay,
     longTermEvolution,
+    evolutionSpan,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }
