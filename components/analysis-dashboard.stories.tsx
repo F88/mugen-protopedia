@@ -5,17 +5,19 @@ import {
 } from '@/.storybook/prototypes.fixture';
 import type { NormalizedPrototype } from '@/lib/api/prototypes';
 import {
-  buildAnniversaries,
-  buildAnniversarySlice,
   buildTagAnalytics,
   buildCoreSummaries,
   buildUserTeamAnalytics,
   buildMaterialAnalytics,
   buildTimeDistributions,
   buildDateBasedPrototypeInsights,
-  calculateCreationStreak,
   buildAdvancedAnalysis,
-} from '@/lib/analysis';
+} from '@/lib/analysis/batch';
+import { calculateCreationStreak } from '@/lib/analysis/core';
+import {
+  buildAnniversaries,
+  buildAnniversarySlice,
+} from '@/lib/analysis/shared/anniversaries';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
