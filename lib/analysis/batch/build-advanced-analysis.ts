@@ -456,6 +456,11 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     });
   }
 
+  const parseDateToUtc = (yyyymmdd: string) => {
+    const [y, m, d] = yyyymmdd.split('-').map(Number);
+    return Date.UTC(y, m - 1, d);
+  };
+
   function collectEvolutionSpan(context: PrototypeLifecycleContext) {
     const { release, update } = context;
 
@@ -470,13 +475,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       }
 
       // Calculate date difference in JST (calendar days)
-      const parseDate = (str: string) => {
-        const [y, m, d] = str.split('-').map(Number);
-        return Date.UTC(y, m - 1, d);
-      };
-
-      const releaseDateVal = parseDate(release.yyyymmdd);
-      const updateDateVal = parseDate(update.yyyymmdd);
+      const releaseDateVal = parseDateToUtc(release.yyyymmdd);
+      const updateDateVal = parseDateToUtc(update.yyyymmdd);
 
       // Ensure update is not before release (sanity check)
       if (updateDateVal >= releaseDateVal) {
