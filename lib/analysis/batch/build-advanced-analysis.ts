@@ -463,13 +463,22 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
         return;
       }
 
-      // Ensure update is not before release (sanity check)
-      if (updateMs > releaseMs) {
-        const diffMs = updateMs - releaseMs;
-        const diffDays = diffMs / (24 * 60 * 60 * 1000);
+      // Calculate date difference in JST (calendar days)
+      const parseDate = (str: string) => {
+        const [y, m, d] = str.split('-').map(Number);
+        return Date.UTC(y, m - 1, d);
+      };
 
-        if (diffDays < 1) {
-          // Less than 24 hours but not exactly same
+      const releaseDateVal = parseDate(release.yyyymmdd);
+      const updateDateVal = parseDate(update.yyyymmdd);
+
+      // Ensure update is not before release (sanity check)
+      if (updateDateVal >= releaseDateVal) {
+        const diffDays =
+          (updateDateVal - releaseDateVal) / (24 * 60 * 60 * 1000);
+
+        if (diffDays === 0) {
+          // Same calendar day, but different timestamp
           evolutionSpanCounts.sameDayUpdate++;
         } else if (diffDays <= 3) {
           evolutionSpanCounts.within3Days++;
