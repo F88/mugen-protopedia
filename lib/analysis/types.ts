@@ -123,6 +123,11 @@ export type ServerPrototypeAnalysis = {
   topTags: Array<{ tag: string; count: number }>;
   /** Most frequently used materials/tools (top 10) */
   topMaterials: Array<{ material: string; count: number }>;
+  /** Most frequently used materials/tools by year (top 10 per year) */
+  yearlyTopMaterials: Record<
+    number,
+    Array<{ material: string; count: number }>
+  >;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
   /** Teams with most prototypes */

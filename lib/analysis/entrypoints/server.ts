@@ -36,6 +36,7 @@ type AnalysisPipelineResult = Pick<
   | 'topTags'
   | 'topTeams'
   | 'topMaterials'
+  | 'yearlyTopMaterials'
   | 'anniversaryCandidates'
   | 'createTimeDistribution'
   | 'createDateDistribution'
@@ -80,6 +81,7 @@ function buildEmptyServerAnalysis(
     prototypesWithAwards: 0,
     topTags: [],
     topMaterials: [],
+    yearlyTopMaterials: {},
     averageAgeInDays: 0,
     topTeams: [],
     analyzedAt: new Date().toISOString(),
@@ -162,9 +164,10 @@ function runAnalysisPipelines(
   metrics.topTeams = performance.now() - stepStartTeams;
 
   const stepStartMaterials = performance.now();
-  const { topMaterials, materialCounts } = buildMaterialAnalytics(prototypes, {
-    logger,
-  });
+  const { topMaterials, materialCounts, yearlyTopMaterials } =
+    buildMaterialAnalytics(prototypes, {
+      logger,
+    });
   metrics.topMaterials = performance.now() - stepStartMaterials;
 
   const stepStartAnniversaries = performance.now();
@@ -230,6 +233,7 @@ function runAnalysisPipelines(
     topTags,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     anniversaryCandidates,
     createTimeDistribution,
     createDateDistribution,
@@ -419,6 +423,7 @@ export function analyzePrototypesForServer(
     topTags,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     anniversaryCandidates,
     createTimeDistribution,
     createDateDistribution,
@@ -491,6 +496,7 @@ export function analyzePrototypesForServer(
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     topTeams,
     topMaterials,
+    yearlyTopMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
     createTimeDistribution,

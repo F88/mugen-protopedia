@@ -10,6 +10,7 @@ import { EarlyAdoptersSection } from './components/early-adopters-section';
 import { EternalFlameSection } from './components/eternal-flame-section';
 import { FirstPenguinSection } from './components/first-penguin-section';
 import { GatewayDrugSection } from './components/gateway-drug-section';
+import { GatewayDrugTrendSection } from './components/gateway-drug-trend-section';
 import { HolyDaySection } from './components/holy-day-section';
 import { LaborOfLoveSection } from './components/labor-of-love-section';
 import { LongTermEvolutionSection } from './components/long-term-evolution-section';
@@ -59,6 +60,7 @@ async function HelloWorldDashboard() {
     starAlignments,
     anniversaryEffect,
     topMaterials,
+    yearlyTopMaterials,
     laborOfLove,
     maternityHospital,
     powerOfDeadlines,
@@ -204,11 +206,15 @@ async function HelloWorldDashboard() {
       <EvolutionSpanSection evolutionSpan={evolutionSpan} />
       <LongTermEvolutionSection longTermEvolution={longTermEvolution} />
 
-      {/* Tag based   */}
-      <EarlyAdoptersSection adopters={earlyAdopters} />
-
       {/* Material based   */}
       <GatewayDrugSection topMaterials={topMaterials} />
+      <GatewayDrugTrendSection
+        topMaterials={topMaterials}
+        yearlyTopMaterials={yearlyTopMaterials}
+      />
+
+      {/* Tag based   */}
+      <EarlyAdoptersSection adopters={earlyAdopters} />
     </>
   );
 }

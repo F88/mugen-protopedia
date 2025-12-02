@@ -35,7 +35,8 @@ function analyzePrototypes(
   } = buildCoreSummaries(prototypes, { referenceDate });
   const { topTags } = buildTagAnalytics(prototypes);
   const { teams } = buildUserTeamAnalytics(prototypes);
-  const { topMaterials } = buildMaterialAnalytics(prototypes);
+  const { topMaterials, yearlyTopMaterials } =
+    buildMaterialAnalytics(prototypes);
   const {
     releaseTimeDistribution,
     releaseDateDistribution,
@@ -83,6 +84,7 @@ function analyzePrototypes(
       prototypesWithAwards,
       topTags,
       topMaterials,
+      yearlyTopMaterials,
       averageAgeInDays,
       topTeams: teams.topTeams,
       analyzedAt: referenceDate.toISOString(),
