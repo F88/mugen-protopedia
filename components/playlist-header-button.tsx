@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 export function PlaylistHeaderButton() {
   const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams.toString());
+  const params = new URLSearchParams(searchParams?.toString() ?? '');
 
   const queryString = params.toString();
   const href =
