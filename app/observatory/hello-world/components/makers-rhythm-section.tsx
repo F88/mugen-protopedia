@@ -406,7 +406,7 @@ export function BirthPulseSection({
           containerClassName:
             'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30',
           barClassName:
-            'w-full bg-indigo-400 dark:bg-indigo-500 rounded-t-sm transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400',
+            'w-full bg-amber-400 dark:bg-amber-500 rounded-t-sm transition-all duration-500 group-hover:bg-amber-500 dark:group-hover:bg-amber-400',
           title: 'Daily Cycle (JST)',
           footerLabels: ['00:00', '06:00', '12:00', '18:00', '23:00'],
         })}
@@ -427,7 +427,7 @@ export function BirthPulseSection({
           containerClassName:
             'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30',
           barClassName:
-            'w-full bg-pink-400 dark:bg-pink-500 rounded-t-md transition-all duration-500 group-hover:bg-pink-500 dark:group-hover:bg-pink-400',
+            'w-full bg-rose-400 dark:bg-rose-500 rounded-t-md transition-all duration-500 group-hover:bg-rose-500 dark:group-hover:bg-rose-400',
           months,
           title: 'Monthly Pulse (Birth Season)',
           unitLabel: 'releases',
@@ -439,7 +439,10 @@ export function BirthPulseSection({
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
             Weekly Release Activity (JST)
           </h3>
-          <ActivityHeatmap heatmap={releaseTimeDistribution.heatmap} />
+          <ActivityHeatmap
+            heatmap={releaseTimeDistribution.heatmap}
+            colorScheme="orange"
+          />
         </div>
       )}
     </ObservatorySection>
@@ -565,38 +568,34 @@ export function AfterglowRhythmSection({
       </div>
 
       {weeklyPeaks.length > 0 && (
-        <div className="mb-8 bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
-            <span className="text-lg">☀️</span>
-            Golden Hour by Day (Updates)
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            {days.map((day, index) => {
-              const dayData = weeklyPeaks.find((p) => p.dayIndex === index);
-              if (!dayData) return null;
-
-              const Icon = getPeakTimeIcon(dayData.peakHour);
-
-              return (
-                <div
-                  key={day}
-                  className="flex flex-col items-center p-3 rounded-xl bg-white/40 dark:bg-white/5 border border-purple-50 dark:border-purple-900/20"
+        <div className="mb-8">
+          <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+            <span>Golden Hour by Day</span>
+            <span className="text-xs font-normal normal-case text-gray-400 border border-gray-200 dark:border-gray-700 px-2 py-0.5 rounded-full">
+              Most active hour
+            </span>
+          </h4>
+          <div className="grid grid-cols-7 gap-2">
+            {weeklyPeaks.map((peak, index) => (
+              <div
+                key={index}
+                className="bg-white/40 dark:bg-white/5 rounded-lg p-2 border border-purple-100 dark:border-purple-800/30 flex flex-col items-center text-center"
+              >
+                <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 mb-1">
+                  {days[index].slice(0, 3)}
+                </span>
+                <span
+                  className="text-xl mb-1"
+                  role="img"
+                  aria-label="time icon"
                 >
-                  <span className="text-xs font-medium text-gray-400 mb-2">
-                    {day}
-                  </span>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xl">{Icon}</span>
-                    <span className="text-lg font-bold text-gray-700 dark:text-gray-200">
-                      {dayData.peakHour}:00
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {dayData.count} updates
-                  </span>
-                </div>
-              );
-            })}
+                  {getPeakTimeIcon(peak.peakHour)}
+                </span>
+                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                  {peak.peakHour >= 0 ? `${peak.peakHour}:00` : '-'}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -629,7 +628,7 @@ export function AfterglowRhythmSection({
           containerClassName:
             'bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800/30',
           barClassName:
-            'w-full bg-pink-400 dark:bg-pink-500 rounded-t-md transition-all duration-500 group-hover:bg-pink-500 dark:group-hover:bg-pink-400',
+            'w-full bg-cyan-400 dark:bg-cyan-500 rounded-t-md transition-all duration-500 group-hover:bg-cyan-500 dark:group-hover:bg-cyan-400',
           months,
           title: 'Monthly Rhythm',
           unitLabel: 'updates',
@@ -641,7 +640,10 @@ export function AfterglowRhythmSection({
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
             Weekly Update Activity (JST)
           </h3>
-          <ActivityHeatmap heatmap={updateTimeDistribution.heatmap} />
+          <ActivityHeatmap
+            heatmap={updateTimeDistribution.heatmap}
+            colorScheme="purple"
+          />
         </div>
       )}
     </ObservatorySection>
