@@ -39,6 +39,8 @@ const listPrototypesHandler = http.get(
     const snapshot = loadSnapshot('prototypes.json');
     if (snapshot && Array.isArray(snapshot.results)) {
       // Apply pagination
+
+      // console.debug('hoge', snapshot.results.length, limit, offset);
       const slicedResults = snapshot.results.slice(offset, offset + limit);
       return HttpResponse.json({
         ...snapshot,

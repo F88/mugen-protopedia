@@ -12,7 +12,10 @@ export function loadSnapshot(filename: string) {
   const path = join(__dirname, 'snapshots', subDir, filename);
   try {
     const content = readFileSync(path, 'utf-8');
-    return JSON.parse(content);
+    console.log(`Loaded snapshot: ${filename} from ${subDir}`);
+    const json = JSON.parse(content);
+    console.log(`size of snapshot: ${JSON.stringify(json).length} bytes`);
+    return json;
   } catch (error) {
     console.warn(`Snapshot not found: ${filename}`, error);
     return null;
