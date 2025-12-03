@@ -475,7 +475,13 @@ export function MugenProtoPedia() {
     if (playModeState.type === 'playlist') {
       router.replace('/', { scroll: false });
     }
-  };, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
+  }, [
+    //
+    clearSlots,
+    isPlaylistPlaying,
+    playModeState.type,
+    router,
+  ]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
