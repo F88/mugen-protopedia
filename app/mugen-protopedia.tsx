@@ -213,9 +213,7 @@ export function MugenProtoPedia() {
 
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
     onBufferChange: setSequenceBuffer,
-    // While the command window is hidden, suppress special key sequence
-    // tracking so that only normal keyboard shortcuts are active.
-    // disabled: !showCLI,
+    // Always enabled to allow CLI toggle via key sequence
     disabled: false,
   });
 
