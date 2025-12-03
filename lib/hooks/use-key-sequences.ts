@@ -106,7 +106,7 @@ export const useKeySequences = ({
         }
 
         if (matched) {
-          logger.info('[useKeySequences] sequence matched', {
+          logger.debug('[useKeySequences] sequence matched', {
             name: sequence.name,
             keys: sequence.keys,
           });

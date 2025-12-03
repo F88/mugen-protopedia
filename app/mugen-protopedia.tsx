@@ -25,14 +25,16 @@ import type {
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
+import { useSpecialKeySequences } from '@/lib/hooks/use-special-key-sequences';
 import { logger } from '@/lib/logger.client';
-import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
@@ -40,6 +42,7 @@ import { useDirectLaunch } from '@/hooks/use-direct-launch';
 
 // components
 import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { CommandWindow } from '@/components/command-window';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
@@ -48,9 +51,6 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
-import { CommandWindow } from '@/components/command-window';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
-import { useSpecialKeySequences } from '@/lib/hooks/use-special-key-sequences';
 
 /**
  * Simulated delay ranges for different play modes.

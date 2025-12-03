@@ -1,19 +1,24 @@
+'use client';
+
 import { useMemo } from 'react';
 import { useKeySequences } from '@/lib/hooks/use-key-sequences';
+import { logger } from '../logger.client';
 
 type UseSpecialKeySequencesOptions = {
   onBufferChange?: (buffer: string[]) => void;
   disabled?: boolean;
+  onMatch?: (sequenceName: string) => void;
 };
 
 export function useSpecialKeySequences({
   onBufferChange,
   disabled = false,
+  onMatch,
 }: UseSpecialKeySequencesOptions = {}) {
   const sequences = useMemo(
     () => [
       {
-        name: 'konami',
+        name: '573',
         keys: [
           'ArrowUp',
           'ArrowUp',
@@ -27,18 +32,20 @@ export function useSpecialKeySequences({
           'a',
         ],
         onMatch: () => {
-          console.info('Konami code detected!');
+          logger.info('[useSpecialKeySequences] 573 command detected');
+          onMatch?.('573');
         },
       },
       {
-        name: 'accelerate-mode-ksk',
+        name: 'ksk',
         keys: ['k', 's', 'k'],
         onMatch: () => {
-          console.info('Acceleration mode (KSK) requested');
+          logger.info('[useSpecialKeySequences] ksk switch pushed');
+          onMatch?.('ksk');
         },
       },
     ],
-    [],
+    [onMatch],
   );
 
   return useKeySequences({
