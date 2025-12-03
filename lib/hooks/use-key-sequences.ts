@@ -60,6 +60,11 @@ export const useKeySequences = ({
     );
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      logger.debug('[useKeySequences] keydown', {
+        key: event.key,
+        buffer: bufferRef.current.join(','),
+      });
+
       if (isTextInputLike(event.target)) {
         return;
       }

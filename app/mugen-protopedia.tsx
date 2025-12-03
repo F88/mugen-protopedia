@@ -226,10 +226,21 @@ export function MugenProtoPedia() {
         `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
       );
       setMatchedCommand(match);
+      setShowCLI(true);
+
       // Reset matched state after animation
       setTimeout(() => {
         setMatchedCommand(null);
-      }, 1000);
+        // If the CLI was opened automatically by a command match,
+        // we might want to close it automatically too?
+        // For now, let's keep it open or let the user decide.
+        // Actually, if it was closed before, it feels better to close it back
+        // if the user didn't interact with it.
+        // But implementing "close if it was closed" requires tracking previous state
+        // which is tricky inside this callback.
+        // Let's just auto-close it for now as it's a "notification" style event.
+        setShowCLI(false);
+      }, 2000);
     },
   });
 
