@@ -87,9 +87,7 @@ export const useKeyboardShortcuts = ({
         key === 'ArrowLeft'
       ) {
         e.preventDefault();
-        const action = 'scroll-prev';
-        const allowed = canTrigger(action);
-        if (allowed) {
+        if (canTrigger('scroll-prev')) {
           onScrollPrev();
         }
       } else if (key === 'r' || key === 'R') {
