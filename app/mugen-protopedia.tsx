@@ -58,7 +58,7 @@ import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 /**
  * Simulated delay ranges for different play modes.
  */
-const SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
+const DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
   // normal: { min: 500, max: 2_000 },
   normal: { min: 500, max: 3_000 },
   // playlist: { min: 0, max: 0 },
@@ -129,6 +129,8 @@ export function MugenProtoPedia() {
   const [playModeState, setPlayModeState] = useState<PlayModeState>(() =>
     resolvePlayMode({ directLaunchResult }),
   );
+  const [simulatedDelayRangeByMode, setSimulatedDelayRangeByMode] =
+    useState<SimulatedDelayRangeByMode>(DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE);
 
   // Sync play mode based on the latest direct launch parameters
   useEffect(() => {
@@ -164,8 +166,7 @@ export function MugenProtoPedia() {
 
   const isPlaylistMode = playModeState.type === 'playlist';
 
-  const simulateDelayRangeMs =
-    SIMULATED_DELAY_RANGE_BY_MODE[playModeState.type];
+  const simulateDelayRangeMs = simulatedDelayRangeByMode[playModeState.type];
 
   // Slot & concurrency management
   const {
@@ -224,6 +225,10 @@ export function MugenProtoPedia() {
       );
       setMatchedCommand(match);
       setShowCLI(true);
+
+      if (match.name === 'ksk') {
+        setPlayModeState({ type: 'unleashed' });
+      }
 
       // Reset matched state after animation
       setTimeout(() => {
@@ -436,10 +441,23 @@ export function MugenProtoPedia() {
 
     clearSlots();
 
+    // Reset play mode to default (based on URL/direct launch)
+    const defaultPlayMode = resolvePlayMode({ directLaunchResult });
+    setPlayModeState(defaultPlayMode);
+
+    // Reset simulated delay
+    setSimulatedDelayRangeByMode(DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE);
+
     if (playModeState.type === 'playlist') {
       router.replace('/', { scroll: false });
     }
-  }, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
+  }, [
+    clearSlots,
+    isPlaylistPlaying,
+    playModeState.type,
+    router,
+    directLaunchResult,
+  ]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
