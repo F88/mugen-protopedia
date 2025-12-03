@@ -39,9 +39,6 @@ export const useKeySequences = ({
   const maxBufferLength = 10;
 
   const resetBuffer = useCallback(() => {
-    logger.debug('[useKeySequences] resetBuffer called', {
-      previous: bufferRef.current.join(','),
-    });
     bufferRef.current = [];
     if (onBufferChange) {
       onBufferChange([]);
@@ -63,10 +60,6 @@ export const useKeySequences = ({
     );
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      logger.debug('[useKeySequences] raw keydown', {
-        key: event.key,
-        targetTag: (event.target as HTMLElement | null)?.tagName,
-      });
       if (isTextInputLike(event.target)) {
         return;
       }
@@ -85,13 +78,16 @@ export const useKeySequences = ({
       }
 
       if (onBufferChange) {
-        onBufferChange([...buffer]);
+        // Defer state updates to avoid interrupting other event listeners
+        // that might be registered on the same element (window).
+        // If we trigger a re-render synchronously, other listeners might be removed
+        // before they have a chance to run.
+        setTimeout(() => {
+          // Use the current ref value to ensure we don't overwrite a reset
+          // that might have happened synchronously in another listener.
+          onBufferChange([...bufferRef.current]);
+        }, 0);
       }
-
-      logger.debug('[useKeySequences] keydown', {
-        key,
-        buffer: buffer.join(','),
-      });
 
       // Check sequences from longest to shortest for a deterministic match
       for (const sequence of sequences) {
