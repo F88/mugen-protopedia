@@ -1,5 +1,6 @@
 'use client';
 
+import type { SpecialSequenceMatch } from '@/lib/hooks/use-special-key-sequences';
 import { logger } from '@/lib/logger.client';
 import type { ReactNode } from 'react';
 
@@ -14,7 +15,7 @@ type CommandWindowProps = {
   title?: string;
   description?: ReactNode;
   buffer?: string[];
-  matchedCommand?: string | null;
+  matchedCommand?: SpecialSequenceMatch | null;
 };
 
 export function CommandWindow({
@@ -56,12 +57,28 @@ export function CommandWindow({
         {/* <div className="px-5 py-4 text-lg leading-relaxed text-slate-100"> */}
         {/* {description} */}
         {/* </div> */}
-        {buffer && buffer.length > 0 && (
-          <div className="w-full px-4 py-4 text-2xl text-slate-900 dark:text-slate-50 flex justify-center flex-wrap gap-3">
-            {buffer.map((key, index) => (
-              <Kbd key={`${key}-${index}`}>{renderKey(key)}</Kbd>
-            ))}
+        {matchedCommand ? (
+          <div className="w-full px-4 py-4 flex flex-col items-center justify-center gap-4">
+            {/* Matched Keys */}
+            <div className="flex justify-center flex-wrap gap-3 opacity-80 scale-90">
+              {matchedCommand.keys.map((key, index) => (
+                <Kbd key={`${key}-${index}`}>{renderKey(key)}</Kbd>
+              ))}
+            </div>
+            {/* Message */}
+            <div className="text-3xl font-bold text-center text-cyan-700 dark:text-cyan-100 tracking-widest uppercase drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] animate-pulse">
+              {matchedCommand.message}
+            </div>
           </div>
+        ) : (
+          buffer &&
+          buffer.length > 0 && (
+            <div className="w-full px-4 py-4 text-2xl text-slate-900 dark:text-slate-50 flex justify-center flex-wrap gap-3">
+              {buffer.map((key, index) => (
+                <Kbd key={`${key}-${index}`}>{renderKey(key)}</Kbd>
+              ))}
+            </div>
+          )
         )}
       </div>
     </div>

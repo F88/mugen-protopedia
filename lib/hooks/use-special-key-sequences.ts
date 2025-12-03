@@ -4,10 +4,56 @@ import { useMemo } from 'react';
 import { useKeySequences } from '@/lib/hooks/use-key-sequences';
 import { logger } from '../logger.client';
 
+export type SpecialSequenceMatch = {
+  name: string;
+  keys: string[];
+  message: string;
+};
+
+type SpecialSequenceDefinition = {
+  name: string;
+  keys: string[];
+  message: string;
+};
+
+/**
+ * 573
+ */
+const konamiCommand = {
+  name: '573',
+  keys: [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ],
+  message: 'OPTION',
+} satisfies SpecialSequenceDefinition;
+
+/**
+ * KSK
+ */
+const kskCommand = {
+  name: 'ksk',
+  keys: ['k', 's', 'k'],
+  message: 'あ あとは 勇気だけだ！',
+} satisfies SpecialSequenceDefinition;
+
+const SPECIAL_SEQUENCES: SpecialSequenceDefinition[] = [
+  konamiCommand,
+  kskCommand,
+];
+
 type UseSpecialKeySequencesOptions = {
   onBufferChange?: (buffer: string[]) => void;
   disabled?: boolean;
-  onMatch?: (sequenceName: string) => void;
+  onMatch?: (match: SpecialSequenceMatch) => void;
 };
 
 export function useSpecialKeySequences({
@@ -16,35 +62,21 @@ export function useSpecialKeySequences({
   onMatch,
 }: UseSpecialKeySequencesOptions = {}) {
   const sequences = useMemo(
-    () => [
-      {
-        name: '573',
-        keys: [
-          'ArrowUp',
-          'ArrowUp',
-          'ArrowDown',
-          'ArrowDown',
-          'ArrowLeft',
-          'ArrowRight',
-          'ArrowLeft',
-          'ArrowRight',
-          'b',
-          'a',
-        ],
+    () =>
+      SPECIAL_SEQUENCES.map((seq) => ({
+        name: seq.name,
+        keys: seq.keys,
         onMatch: () => {
-          logger.info('[useSpecialKeySequences] 573 command detected');
-          onMatch?.('573');
+          logger.info(
+            `[useSpecialKeySequences] ${seq.name} command detected: ${seq.message}`,
+          );
+          onMatch?.({
+            name: seq.name,
+            keys: seq.keys,
+            message: seq.message,
+          });
         },
-      },
-      {
-        name: 'ksk',
-        keys: ['k', 's', 'k'],
-        onMatch: () => {
-          logger.info('[useSpecialKeySequences] ksk switch pushed');
-          onMatch?.('ksk');
-        },
-      },
-    ],
+      })),
     [onMatch],
   );
 

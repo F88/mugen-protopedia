@@ -31,7 +31,10 @@ import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
-import { useSpecialKeySequences } from '@/lib/hooks/use-special-key-sequences';
+import {
+  type SpecialSequenceMatch,
+  useSpecialKeySequences,
+} from '@/lib/hooks/use-special-key-sequences';
 import { logger } from '@/lib/logger.client';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
@@ -211,17 +214,18 @@ export function MugenProtoPedia() {
     // error: randomPrototypeError,
   } = useRandomPrototype();
 
-  const [matchedCommand, setMatchedCommand] = useState<string | null>(null);
+  const [matchedCommand, setMatchedCommand] =
+    useState<SpecialSequenceMatch | null>(null);
 
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
     onBufferChange: setSequenceBuffer,
     // Always enabled to allow CLI toggle via key sequence
     disabled: false,
-    onMatch: (sequenceName) => {
+    onMatch: (match) => {
       logger.info(
-        `[MugenProtoPedia] Special key sequence matched: ${sequenceName}`,
+        `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
       );
-      setMatchedCommand(sequenceName);
+      setMatchedCommand(match);
       // Reset matched state after animation
       setTimeout(() => {
         setMatchedCommand(null);
