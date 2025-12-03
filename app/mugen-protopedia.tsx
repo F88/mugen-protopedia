@@ -843,7 +843,7 @@ export function MugenProtoPedia() {
             onScrollPrev={() => scrollToPrototype('prev')}
             onOpenPrototype={openCurrentPrototypeInProtoPedia}
             onToggleCLI={handleToggleCLI}
-            // shortcutsDisabled={showCLI}
+            shortcutsDisabled={showCLI}
             maxPrototypeId={maxPrototypeId}
           />
         </div>
