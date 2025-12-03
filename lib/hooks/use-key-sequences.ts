@@ -137,7 +137,7 @@ export const useKeySequences = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  };, [sequences, onBufferChange, disabled]);
+  }, [sequences, onBufferChange, disabled]);
 
   return { resetBuffer };
 };

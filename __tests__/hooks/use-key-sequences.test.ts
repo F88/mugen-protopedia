@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   useKeySequences,
@@ -155,5 +155,70 @@ describe('useKeySequences', () => {
     expect(onMatch).not.toHaveBeenCalled();
 
     document.body.removeChild(input);
+  });
+
+  it('calls onBufferChange with updated buffer', async () => {
+    const onBufferChange = vi.fn();
+    const onMatch = vi.fn();
+
+    renderHook(() =>
+      useKeySequences({
+        sequences: [createKonamiSequence(onMatch)],
+        onBufferChange,
+      }),
+    );
+
+    act(() => {
+      triggerKeyDown('ArrowUp');
+    });
+
+    // onBufferChange is deferred with setTimeout(..., 0)
+    await waitFor(() => {
+      expect(onBufferChange).toHaveBeenCalledWith(['ArrowUp']);
+    });
+
+    act(() => {
+      triggerKeyDown('ArrowDown');
+    });
+
+    await waitFor(() => {
+      expect(onBufferChange).toHaveBeenCalledWith(['ArrowUp', 'ArrowDown']);
+    });
+  });
+
+  it('resets buffer after match', async () => {
+    const onBufferChange = vi.fn();
+    const onMatch = vi.fn();
+
+    renderHook(() =>
+      useKeySequences({
+        sequences: [createKonamiSequence(onMatch)],
+        onBufferChange,
+      }),
+    );
+
+    act(() => {
+      const konamiKeys = [
+        'ArrowUp',
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowLeft',
+        'ArrowRight',
+        'b',
+        'a',
+      ];
+      konamiKeys.forEach((key) => triggerKeyDown(key));
+    });
+
+    expect(onMatch).toHaveBeenCalledTimes(1);
+
+    // The buffer should be reset to empty array after match
+    // Note: onBufferChange might be called multiple times, but the last call should be []
+    await waitFor(() => {
+      expect(onBufferChange).toHaveBeenLastCalledWith([]);
+    });
   });
 });
