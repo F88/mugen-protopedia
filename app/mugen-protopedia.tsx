@@ -67,7 +67,13 @@ const DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
   // playlist: { min: 500, max: 5_000 },
   // playlist: { min: 3_000, max: 5_000 },
   unleashed: { min: 0, max: 0 },
-  joe: { min: 300, max: 300 },
+} as const;
+
+const DELAY_LEVELS: Record<string, { min: number; max: number }> = {
+  NORMAL: { min: 500, max: 3_000 },
+  FAST: { min: 500, max: 2_000 },
+  FASTER: { min: 500, max: 1_000 },
+  FASTEST: { min: 300, max: 300 },
 } as const;
 
 /**
@@ -228,6 +234,26 @@ export function MugenProtoPedia() {
 
       if (match.name === 'ksk') {
         setPlayModeState({ type: 'unleashed' });
+      } else if (match.name === '573') {
+        setSimulatedDelayRangeByMode((prev) => {
+          const current = prev[playModeState.type];
+          let nextDelay = DELAY_LEVELS.NORMAL;
+
+          if (current.max <= DELAY_LEVELS.FASTEST.max) {
+            nextDelay = DELAY_LEVELS.FASTEST;
+          } else if (current.max <= DELAY_LEVELS.FASTER.max) {
+            nextDelay = DELAY_LEVELS.FASTEST;
+          } else if (current.max <= DELAY_LEVELS.FAST.max) {
+            nextDelay = DELAY_LEVELS.FASTER;
+          } else {
+            nextDelay = DELAY_LEVELS.FAST;
+          }
+
+          return {
+            ...prev,
+            [playModeState.type]: nextDelay,
+          };
+        });
       }
 
       // Reset matched state after animation
@@ -236,7 +262,7 @@ export function MugenProtoPedia() {
         setShowCLI(false);
       }, 2000);
     },
-    [],
+    [playModeState.type],
   );
 
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
@@ -441,23 +467,15 @@ export function MugenProtoPedia() {
 
     clearSlots();
 
-    // Reset play mode to default (based on URL/direct launch)
-    const defaultPlayMode = resolvePlayMode({ directLaunchResult });
-    setPlayModeState(defaultPlayMode);
-
+    // const defaultPlayMode = resolvePlayMode({ directLaunchResult });
+    setPlayModeState({ type: 'normal' });
     // Reset simulated delay
     setSimulatedDelayRangeByMode(DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE);
 
     if (playModeState.type === 'playlist') {
       router.replace('/', { scroll: false });
     }
-  }, [
-    clearSlots,
-    isPlaylistPlaying,
-    playModeState.type,
-    router,
-    directLaunchResult,
-  ]);
+  };, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
@@ -778,7 +796,18 @@ export function MugenProtoPedia() {
     handleGetPrototypeByIdInPlaylistMode,
   ]);
 
-  const showPlayMode = process.env.NODE_ENV === 'development';
+  // const showPlayMode = process.env.NODE_ENV === 'development';
+  const showPlayMode = true;
+
+  const currentDelayRange = simulatedDelayRangeByMode[playModeState.type];
+  let currentDelayLevel = 'NORMAL';
+  if (currentDelayRange.max <= DELAY_LEVELS.FASTEST.max) {
+    currentDelayLevel = 'FASTEST';
+  } else if (currentDelayRange.max <= DELAY_LEVELS.FASTER.max) {
+    currentDelayLevel = 'FASTER';
+  } else if (currentDelayRange.max <= DELAY_LEVELS.FAST.max) {
+    currentDelayLevel = 'FAST';
+  }
 
   /**
    * Main application layout
@@ -795,6 +824,7 @@ export function MugenProtoPedia() {
         }}
         playMode={playModeState.type}
         showPlayMode={showPlayMode}
+        delayLevel={currentDelayLevel}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
