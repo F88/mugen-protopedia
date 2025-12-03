@@ -217,11 +217,8 @@ export function MugenProtoPedia() {
   const [matchedCommand, setMatchedCommand] =
     useState<SpecialSequenceMatch | null>(null);
 
-  const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
-    onBufferChange: setSequenceBuffer,
-    // Always enabled to allow CLI toggle via key sequence
-    disabled: false,
-    onMatch: (match) => {
+  const handleSpecialSequenceMatch = useCallback(
+    (match: SpecialSequenceMatch) => {
       logger.info(
         `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
       );
@@ -231,17 +228,17 @@ export function MugenProtoPedia() {
       // Reset matched state after animation
       setTimeout(() => {
         setMatchedCommand(null);
-        // If the CLI was opened automatically by a command match,
-        // we might want to close it automatically too?
-        // For now, let's keep it open or let the user decide.
-        // Actually, if it was closed before, it feels better to close it back
-        // if the user didn't interact with it.
-        // But implementing "close if it was closed" requires tracking previous state
-        // which is tricky inside this callback.
-        // Let's just auto-close it for now as it's a "notification" style event.
         setShowCLI(false);
       }, 2000);
     },
+    [],
+  );
+
+  const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
+    onBufferChange: setSequenceBuffer,
+    // Always enabled to allow CLI toggle via key sequence
+    disabled: false,
+    onMatch: handleSpecialSequenceMatch,
   });
 
   /**
