@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useKeySequences } from '@/lib/hooks/use-key-sequences';
 
 type UseSpecialKeySequencesOptions = {
@@ -9,8 +10,8 @@ export function useSpecialKeySequences({
   onBufferChange,
   disabled = false,
 }: UseSpecialKeySequencesOptions = {}) {
-  return useKeySequences({
-    sequences: [
+  const sequences = useMemo(
+    () => [
       {
         name: 'konami',
         keys: [
@@ -37,6 +38,11 @@ export function useSpecialKeySequences({
         },
       },
     ],
+    [],
+  );
+
+  return useKeySequences({
+    sequences,
     onBufferChange,
     disabled,
   });
