@@ -50,7 +50,7 @@ export const useKeyboardShortcuts = ({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const key = e.key;
 
-      if (key === 'Enter') {
+      if (key === 'Enter' || key === 'f' || key === 'F') {
         e.preventDefault();
         if (canTrigger('random')) {
           onGetRandomPrototype();
@@ -59,7 +59,9 @@ export const useKeyboardShortcuts = ({
         key === 'j' ||
         key === 'J' ||
         key === 'ArrowDown' ||
-        key === 'ArrowRight'
+        key === 'ArrowRight' ||
+        key === 'd' ||
+        key === 'D'
       ) {
         e.preventDefault();
         if (canTrigger('scroll-next')) {
@@ -69,7 +71,9 @@ export const useKeyboardShortcuts = ({
         key === 'k' ||
         key === 'K' ||
         key === 'ArrowUp' ||
-        key === 'ArrowLeft'
+        key === 'ArrowLeft' ||
+        key === 'a' ||
+        key === 'A'
       ) {
         e.preventDefault();
         if (canTrigger('scroll-prev')) {
@@ -80,7 +84,7 @@ export const useKeyboardShortcuts = ({
         if (canTrigger('clear')) {
           onClear();
         }
-      } else if (key === 'o' || key === 'O') {
+      } else if (key === 'o' || key === 'O' || key === 'e' || key === 'E') {
         e.preventDefault();
         if (canTrigger('open')) {
           onOpenPrototype();
