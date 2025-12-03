@@ -84,18 +84,15 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
     - HLプレゼン観覧モード (どよめきや拍手喝采、ガヤの効果を演出)
     - フィーバーモード (特定の条件で発動、演出が派手に、カードが瞬時に表示される、忙しい人向け)
 
-### 中 (Medium)
-
-- 分析ダッシュボードを高度化 (キャッシュヒット率 / レイテンシ時系列 / サイズ分布)
-- KBショートカットの強化
-    - `?` ヘルプ
-    - `e` でアーカイブ
-
-### 低 (Low)
-
-- オフラインスナップショットエクスポート (デモ用)
-
 ## Changelog
+
+### 2025-12-03
+
+- 🎮 Added PC gamer-friendly keyboard shortcuts (A/D/F/E).
+
+### 2025-12-02
+
+- 🔭 Refined Hello World.
 
 ### 2025-12-01
 
