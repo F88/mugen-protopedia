@@ -2,12 +2,15 @@
 
 import { useEffect, useRef } from 'react';
 
+import { logger } from '@/lib/logger.client';
+
 type KeyboardShortcutsProps = {
   onGetRandomPrototype: () => void;
   onClear: () => void;
   onScrollNext: () => void;
   onScrollPrev: () => void;
   onOpenPrototype: () => void;
+  onToggleCLI?: () => void;
 };
 
 export const useKeyboardShortcuts = ({
@@ -50,7 +53,12 @@ export const useKeyboardShortcuts = ({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const key = e.key;
 
-      if (key === 'Enter') {
+      if (key === '/' && onToggleCLI) {
+        e.preventDefault();
+        if (canTrigger('toggle-cli')) {
+          onToggleCLI();
+        }
+      } else if (key === 'Enter' || key === 'f' || key === 'F') {
         e.preventDefault();
         if (canTrigger('random')) {
           onGetRandomPrototype();
@@ -63,6 +71,7 @@ export const useKeyboardShortcuts = ({
       ) {
         e.preventDefault();
         if (canTrigger('scroll-next')) {
+          logger.debug('[useKeyboardShortcuts] triggering onScrollNext');
           onScrollNext();
         }
       } else if (
@@ -72,7 +81,15 @@ export const useKeyboardShortcuts = ({
         key === 'ArrowLeft'
       ) {
         e.preventDefault();
-        if (canTrigger('scroll-prev')) {
+        const action = 'scroll-prev';
+        const allowed = canTrigger(action);
+        logger.debug('[useKeyboardShortcuts] keydown', {
+          key,
+          action,
+          allowed,
+        });
+        if (allowed) {
+          logger.debug('[useKeyboardShortcuts] triggering onScrollPrev');
           onScrollPrev();
         }
       } else if (key === 'r' || key === 'R') {
@@ -96,5 +113,6 @@ export const useKeyboardShortcuts = ({
     onScrollNext,
     onScrollPrev,
     onOpenPrototype,
+    onToggleCLI,
   ]);
 };

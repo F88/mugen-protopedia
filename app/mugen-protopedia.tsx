@@ -116,6 +116,7 @@ export function MugenProtoPedia() {
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
+  const [showCLI, setShowCLI] = useState(false);
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -206,6 +207,7 @@ export function MugenProtoPedia() {
     // isLoading: isLoadingPrototype,
     // error: randomPrototypeError,
   } = useRandomPrototype();
+  // Special key sequences are wired only when command mode is active.
 
   /**
    * Create a deep-cloned copy of a prototype.
@@ -312,6 +314,10 @@ export function MugenProtoPedia() {
       `${headerHeight}px`,
     );
   }, [headerHeight]);
+
+  const handleToggleCLI = useCallback(() => {
+    setShowCLI((previous) => !previous);
+  }, []);
 
   // Scrolling & focus behavior
   const {
