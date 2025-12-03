@@ -41,7 +41,7 @@ export function GatewayDrugSection({ topMaterials }: GatewayDrugSectionProps) {
       delay="delay-400"
     >
       <div className="flex flex-wrap justify-center md:justify-start gap-3">
-        {topMaterials.slice(0, 15).map(({ material, count }) => (
+        {topMaterials.map(({ material, count }) => (
           <div
             key={material}
             className="flex items-center bg-white/80 dark:bg-black/20 rounded-lg px-4 py-2 border border-lime-100 dark:border-lime-800/50 hover:scale-105 transition-transform cursor-default"

@@ -25,14 +25,19 @@ import type {
 
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
+import {
+  type SpecialSequenceMatch,
+  useSpecialKeySequences,
+} from '@/lib/hooks/use-special-key-sequences';
 import { logger } from '@/lib/logger.client';
-import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
+import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
@@ -40,6 +45,7 @@ import { useDirectLaunch } from '@/hooks/use-direct-launch';
 
 // components
 import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { CommandWindow } from '@/components/command-window';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
@@ -48,7 +54,6 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 /**
  * Simulated delay ranges for different play modes.
@@ -116,6 +121,8 @@ export function MugenProtoPedia() {
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
+  const [showCLI, setShowCLI] = useState(false);
+  const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -206,6 +213,33 @@ export function MugenProtoPedia() {
     // isLoading: isLoadingPrototype,
     // error: randomPrototypeError,
   } = useRandomPrototype();
+
+  const [matchedCommand, setMatchedCommand] =
+    useState<SpecialSequenceMatch | null>(null);
+
+  const handleSpecialSequenceMatch = useCallback(
+    (match: SpecialSequenceMatch) => {
+      logger.info(
+        `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
+      );
+      setMatchedCommand(match);
+      setShowCLI(true);
+
+      // Reset matched state after animation
+      setTimeout(() => {
+        setMatchedCommand(null);
+        setShowCLI(false);
+      }, 2000);
+    },
+    [],
+  );
+
+  const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
+    onBufferChange: setSequenceBuffer,
+    // Always enabled to allow CLI toggle via key sequence
+    disabled: false,
+    onMatch: handleSpecialSequenceMatch,
+  });
 
   /**
    * Create a deep-cloned copy of a prototype.
@@ -312,6 +346,36 @@ export function MugenProtoPedia() {
       `${headerHeight}px`,
     );
   }, [headerHeight]);
+
+  const handleToggleCLI = useCallback(() => {
+    setShowCLI((previous) => {
+      const next = !previous;
+      // Reset key sequence buffer (internal + visual) whenever
+      // the command window is toggled (open or close).
+      resetKeySequencesBuffer();
+      return next;
+    });
+  }, [resetKeySequencesBuffer]);
+
+  // Close command window on Escape while CLI is visible
+  useEffect(() => {
+    if (!showCLI) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setShowCLI(false);
+        resetKeySequencesBuffer();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showCLI, resetKeySequencesBuffer]);
 
   // Scrolling & focus behavior
   const {
@@ -800,10 +864,20 @@ export function MugenProtoPedia() {
             onScrollNext={() => scrollToPrototype('next')}
             onScrollPrev={() => scrollToPrototype('prev')}
             onOpenPrototype={openCurrentPrototypeInProtoPedia}
+            onToggleCLI={handleToggleCLI}
+            shortcutsDisabled={showCLI}
             maxPrototypeId={maxPrototypeId}
           />
         </div>
       </div>
+
+      {/* Command window - centered panel toggled by "/" */}
+      {showCLI ? (
+        <CommandWindow
+          buffer={sequenceBuffer}
+          matchedCommand={matchedCommand}
+        />
+      ) : null}
 
       {/* Dashboard - Floating display at bottom */}
       {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">

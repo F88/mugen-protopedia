@@ -2,12 +2,16 @@
 
 import { useEffect, useRef } from 'react';
 
+// import { logger } from '@/lib/logger.client';
+
 type KeyboardShortcutsProps = {
   onGetRandomPrototype: () => void;
   onClear: () => void;
   onScrollNext: () => void;
   onScrollPrev: () => void;
   onOpenPrototype: () => void;
+  onToggleCLI?: () => void;
+  disabled?: boolean;
 };
 
 export const useKeyboardShortcuts = ({
@@ -16,6 +20,8 @@ export const useKeyboardShortcuts = ({
   onScrollNext,
   onScrollPrev,
   onOpenPrototype,
+  onToggleCLI,
+  disabled = false,
 }: KeyboardShortcutsProps) => {
   // const ACTION_COOLDOWN_MS = 0;
   // const ACTION_COOLDOWN_MS = 50;
@@ -36,6 +42,10 @@ export const useKeyboardShortcuts = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (disabled) {
+        return;
+      }
+
       // Check if user is typing in an input field
       const target = e.target as HTMLElement;
       if (
@@ -50,7 +60,12 @@ export const useKeyboardShortcuts = ({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const key = e.key;
 
-      if (key === 'Enter' || key === 'f' || key === 'F') {
+      if (key === '/' && onToggleCLI) {
+        e.preventDefault();
+        if (canTrigger('toggle-cli')) {
+          onToggleCLI();
+        }
+      } else if (key === 'Enter' || key === 'f' || key === 'F') {
         e.preventDefault();
         if (canTrigger('random')) {
           onGetRandomPrototype();
@@ -100,5 +115,7 @@ export const useKeyboardShortcuts = ({
     onScrollNext,
     onScrollPrev,
     onOpenPrototype,
+    onToggleCLI,
+    disabled,
   ]);
 };
