@@ -6,16 +6,24 @@ import { Dashboard, type DashboardProps } from '@/components/dashboard';
 import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
 import { PlaylistHeaderButton } from '@/components/playlist-header-button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { getPlayModeIcon, getSpeedIcon } from '@/lib/utils/converter';
 
 interface HeaderProps {
   dashboard: DashboardProps;
   analysisDashboard?: ReactNode; // allow injection for Storybook/tests
   playMode: PlayMode;
   showPlayMode?: boolean;
+  delayLevel?: string;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard, analysisDashboard, playMode, showPlayMode = false },
+  {
+    dashboard,
+    analysisDashboard,
+    playMode,
+    showPlayMode = false,
+    delayLevel = 'NORMAL',
+  },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -27,26 +35,6 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   // const mugenShort = '無限';
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
-
-  // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
-  let playModeLabel: string;
-  switch (playMode) {
-    case 'playlist':
-      playModeLabel = 'Playlist️';
-      break;
-    case 'unleashed':
-      playModeLabel = 'Unleashed';
-      break;
-    case 'joe':
-      playModeLabel = 'Joe';
-      break;
-    case 'normal':
-      playModeLabel = 'Normal';
-      break;
-    default:
-      playModeLabel = 'Normal';
-      break;
-  }
 
   /**
    * Tailwind screen breakpoints (min-width):
@@ -70,13 +58,18 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
           </h1>
 
           {/* Play mode */}
-          {showPlayMode && (
-            <>
-              {/* <Badge variant={'default'} className="uppercase tracking-wide"> */}
-              {playModeLabel}
-              {/* </Badge> */}
-            </>
-          )}
+          <div className="flex items-center gap-2">
+            {showPlayMode && (
+              <span className="text-sm font-medium text-muted-foreground">
+                {getPlayModeIcon(playMode)}
+              </span>
+            )}
+            {delayLevel && delayLevel !== 'NORMAL' && (
+              <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded text-xs font-bold animate-pulse">
+                {getSpeedIcon(delayLevel)}
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Dashboard */}
