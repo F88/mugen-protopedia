@@ -211,10 +211,22 @@ export function MugenProtoPedia() {
     // error: randomPrototypeError,
   } = useRandomPrototype();
 
+  const [matchedCommand, setMatchedCommand] = useState<string | null>(null);
+
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
     onBufferChange: setSequenceBuffer,
     // Always enabled to allow CLI toggle via key sequence
     disabled: false,
+    onMatch: (sequenceName) => {
+      logger.info(
+        `[MugenProtoPedia] Special key sequence matched: ${sequenceName}`,
+      );
+      setMatchedCommand(sequenceName);
+      // Reset matched state after animation
+      setTimeout(() => {
+        setMatchedCommand(null);
+      }, 1000);
+    },
   });
 
   /**
@@ -848,7 +860,12 @@ export function MugenProtoPedia() {
       </div>
 
       {/* Command window - centered panel toggled by "/" */}
-      {showCLI ? <CommandWindow buffer={sequenceBuffer} /> : null}
+      {showCLI ? (
+        <CommandWindow
+          buffer={sequenceBuffer}
+          matchedCommand={matchedCommand}
+        />
+      ) : null}
 
       {/* Dashboard - Floating display at bottom */}
       {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">

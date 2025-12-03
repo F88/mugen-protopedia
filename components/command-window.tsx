@@ -14,14 +14,21 @@ type CommandWindowProps = {
   title?: string;
   description?: ReactNode;
   buffer?: string[];
+  matchedCommand?: string | null;
 };
 
 export function CommandWindow({
   title = 'Mugen ProtoPedia Command Line',
   description = <p>Type your secret commands here. Press Esc to close.</p>,
   buffer,
+  matchedCommand,
 }: CommandWindowProps) {
-  logger.debug('[CommandWindow] ', { title, description, buffer });
+  logger.debug('[CommandWindow] ', {
+    title,
+    description,
+    buffer,
+    matchedCommand,
+  });
 
   const renderKey = (key: string): string => {
     if (key === 'ArrowLeft') return '←';
@@ -32,11 +39,20 @@ export function CommandWindow({
     return key;
   };
 
+  // Base classes for the window
+  const baseClasses =
+    'w-full max-w-2xl mx-4 rounded-xl border-4 bg-amber-50/50 text-slate-900 shadow-2xl dark:bg-slate-950/20 dark:text-slate-50 min-h-24 flex items-center transition-all duration-300';
+
+  // Dynamic classes based on matched state
+  const borderClasses = matchedCommand
+    ? 'border-cyan-200! dark:border-cyan-100! shadow-[0_0_40px_rgba(165,243,252,0.8)] dark:shadow-[0_0_60px_rgba(207,250,254,0.6)] scale-105'
+    : 'border-slate-700! dark:border-white!';
+
   return (
     // Outer overlay
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-xs">
       {/* Box */}
-      <div className="w-full max-w-2xl mx-4 rounded-xl border-4 border-slate-700! dark:border-white! bg-amber-50/50 text-slate-900 shadow-2xl dark:bg-slate-950/20 dark:text-slate-50 min-h-24 flex items-center">
+      <div className={`${baseClasses} ${borderClasses}`}>
         {/* <div className="px-5 py-4 text-lg leading-relaxed text-slate-100"> */}
         {/* {description} */}
         {/* </div> */}
