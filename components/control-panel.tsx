@@ -49,14 +49,17 @@ function MainPanel({
       <div className={cn('flex items-center gap-1', MUTED_XS)}>
         <Kbd>↑</Kbd>
         <Kbd>←</Kbd>
+        <Kbd>A</Kbd>
         <Kbd>k</Kbd>
         <span className="mx-2">|</span>
         <Kbd>j</Kbd>
+        <Kbd>D</Kbd>
         <Kbd>→</Kbd>
         <Kbd>↓</Kbd>
       </div>
       <div className={cn('flex items-center gap-1', MUTED_XS)}>
         <Kbd>o</Kbd>
+        <Kbd>E</Kbd>
         Open in ProtoPedia
       </div>
     </>
@@ -126,6 +129,8 @@ function MainPanel({
           </span>
           <div className={KBD_ROW_CLASS}>
             <Kbd>Enter</Kbd>
+            <span className="mx-1">/</span>
+            <Kbd>F</Kbd>
           </div>
         </div>
       </div>
