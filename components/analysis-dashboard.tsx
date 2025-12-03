@@ -642,7 +642,7 @@ export function AnalysisDashboard({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="gap-2"
+                className="gap-2 px-2"
               >
                 🔍
               </Button>
