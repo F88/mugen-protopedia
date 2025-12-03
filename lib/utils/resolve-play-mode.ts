@@ -31,10 +31,6 @@ export const buildUnleashedPlayModeState = (): PlayModeState => ({
   type: 'unleashed',
 });
 
-export const buildJoePlayModeState = (): PlayModeState => ({
-  type: 'joe',
-});
-
 /**
  * Resolves the play mode based on the provided direct launch parameters.
  */
@@ -56,11 +52,6 @@ export const resolvePlayMode = ({
   // Unleashed mode
   if (directLaunchParams.unleashed != null) {
     return buildUnleashedPlayModeState();
-  }
-
-  // Joe mode
-  if (directLaunchParams.joe != null) {
-    return buildJoePlayModeState();
   }
 
   // Playlist mode

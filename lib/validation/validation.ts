@@ -22,13 +22,11 @@ export const parseDirectLaunchParams = (
   const rawIds = searchParams.getAll('id');
   const rawTitle = searchParams.get('title');
   const rawUnleashed = searchParams.get('unleashed');
-  const rawJoe = searchParams.get('joe');
 
   const parseResult = directLaunchSchema.safeParse({
     id: normalizeIdsInput(rawIds),
     title: rawTitle,
     unleashed: rawUnleashed != null ? true : undefined,
-    joe: rawJoe != null ? true : undefined,
   });
 
   // Error aggregation
@@ -52,7 +50,6 @@ export const parseDirectLaunchParams = (
       ids: parseResult.data.id ?? [],
       title: normalizedTitle,
       unleashed: parseResult.data.unleashed,
-      joe: parseResult.data.joe,
     },
   };
 };

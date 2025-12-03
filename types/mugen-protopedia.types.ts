@@ -3,7 +3,7 @@
  * - 'normal': Standard browsing mode.
  * - 'playlist': Playlist mode for sequential prototype viewing.
  */
-export type PlayMode = 'normal' | 'playlist' | 'unleashed' | 'joe';
+export type PlayMode = 'normal' | 'playlist' | 'unleashed';
 
 type BasePlayModeState<T extends PlayMode> = {
   type: T;
@@ -17,14 +17,17 @@ export type PlaylistPlayModeState = BasePlayModeState<'playlist'> & {
 };
 
 export type UnleashedPlayModeState = BasePlayModeState<'unleashed'>;
-export type JoePlayModeState = BasePlayModeState<'joe'>;
 
 export type PlayModeState =
   | NormalPlayModeState
   | PlaylistPlayModeState
-  | UnleashedPlayModeState
-  | JoePlayModeState;
+  | UnleashedPlayModeState;
 
+/**
+ * Simulated delay range for loading prototypes.
+ * - min: Minimum delay in milliseconds.
+ * - max: Maximum delay in milliseconds.
+ */
 export type SimulatedDelayRange = { min: number; max: number };
 export type SimulatedDelayRangeByMode = Record<PlayMode, SimulatedDelayRange>;
 
