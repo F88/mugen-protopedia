@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import { logger } from '@/lib/logger.client';
+// import { logger } from '@/lib/logger.client';
 
 type KeyboardShortcutsProps = {
   onGetRandomPrototype: () => void;
@@ -78,7 +78,6 @@ export const useKeyboardShortcuts = ({
       ) {
         e.preventDefault();
         if (canTrigger('scroll-next')) {
-          logger.debug('[useKeyboardShortcuts] triggering onScrollNext');
           onScrollNext();
         }
       } else if (
@@ -90,13 +89,7 @@ export const useKeyboardShortcuts = ({
         e.preventDefault();
         const action = 'scroll-prev';
         const allowed = canTrigger(action);
-        logger.debug('[useKeyboardShortcuts] keydown', {
-          key,
-          action,
-          allowed,
-        });
         if (allowed) {
-          logger.debug('[useKeyboardShortcuts] triggering onScrollPrev');
           onScrollPrev();
         }
       } else if (key === 'r' || key === 'R') {
