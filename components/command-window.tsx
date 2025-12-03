@@ -3,8 +3,6 @@
 import { logger } from '@/lib/logger.client';
 import type { ReactNode } from 'react';
 
-// const KBD_CLASS = 'px-3 py-1.5 bg-slate-900 text-slate-50 border border-slate-600 rounded text-2xl font-mono';
-// const KBD_CLASS = 'px-3 py-1.5 bg-slate-800 text-slate-50 border border-slate-500 rounded text-2xl font-mono';
 const KBD_CLASS =
   'px-3 py-1.5 bg-white text-slate-900 border-2 border-slate-900! rounded-md text-2xl font-mono shadow-sm dark:bg-slate-800 dark:text-slate-50 dark:border-slate-200!';
 
