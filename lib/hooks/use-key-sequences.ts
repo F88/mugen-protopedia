@@ -59,6 +59,11 @@ export const useKeySequences = ({
       0,
     );
 
+    // Sort sequences by length (descending) to ensure longer sequences are matched first
+    const sortedSequences = [...sequences].sort(
+      (a, b) => b.keys.length - a.keys.length,
+    );
+
     const handleKeyDown = (event: KeyboardEvent) => {
       // logger.debug('[useKeySequences] keydown', {
       //   key: event.key,
@@ -95,7 +100,7 @@ export const useKeySequences = ({
       }
 
       // Check sequences from longest to shortest for a deterministic match
-      for (const sequence of sequences) {
+      for (const sequence of sortedSequences) {
         const { keys, onMatch } = sequence;
         if (keys.length === 0) continue;
 
@@ -132,7 +137,7 @@ export const useKeySequences = ({
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [sequences, onBufferChange, disabled]);
+  };, [sequences, onBufferChange, disabled]);
 
   return { resetBuffer };
 };
