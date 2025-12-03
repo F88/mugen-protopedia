@@ -11,6 +11,7 @@ type KeyboardShortcutsProps = {
   onScrollPrev: () => void;
   onOpenPrototype: () => void;
   onToggleCLI?: () => void;
+  disabled?: boolean;
 };
 
 export const useKeyboardShortcuts = ({
@@ -19,6 +20,8 @@ export const useKeyboardShortcuts = ({
   onScrollNext,
   onScrollPrev,
   onOpenPrototype,
+  onToggleCLI,
+  disabled = false,
 }: KeyboardShortcutsProps) => {
   // const ACTION_COOLDOWN_MS = 0;
   // const ACTION_COOLDOWN_MS = 50;
@@ -39,6 +42,10 @@ export const useKeyboardShortcuts = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (disabled) {
+        return;
+      }
+
       // Check if user is typing in an input field
       const target = e.target as HTMLElement;
       if (
@@ -114,5 +121,6 @@ export const useKeyboardShortcuts = ({
     onScrollPrev,
     onOpenPrototype,
     onToggleCLI,
+    disabled,
   ]);
 };

@@ -1,7 +1,15 @@
 import { useKeySequences } from '@/lib/hooks/use-key-sequences';
 
-export function useSpecialKeySequences(): void {
-  useKeySequences({
+type UseSpecialKeySequencesOptions = {
+  onBufferChange?: (buffer: string[]) => void;
+  disabled?: boolean;
+};
+
+export function useSpecialKeySequences({
+  onBufferChange,
+  disabled = false,
+}: UseSpecialKeySequencesOptions = {}) {
+  return useKeySequences({
     sequences: [
       {
         name: 'konami',
@@ -29,5 +37,7 @@ export function useSpecialKeySequences(): void {
         },
       },
     ],
+    onBufferChange,
+    disabled,
   });
 }

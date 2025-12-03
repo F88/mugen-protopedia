@@ -209,10 +209,12 @@ export type ControlPanelProps = {
   prototypeIdError: string | null;
   maxPrototypeId: number;
   controlPanelMode?: ControlpanelMode;
+  shortcutsDisabled?: boolean;
   // Keyboard shortcuts
   onScrollNext: () => void;
   onScrollPrev: () => void;
   onOpenPrototype: () => void;
+  onToggleCLI?: () => void;
 };
 
 export function ControlPanel({
@@ -227,8 +229,10 @@ export function ControlPanel({
   onScrollNext,
   onScrollPrev,
   onOpenPrototype,
+  onToggleCLI,
   maxPrototypeId,
   controlPanelMode = 'normal',
+  shortcutsDisabled = false,
 }: ControlPanelProps) {
   const [isSubPanelExpanded, setIsSubPanelExpanded] = useState(false);
   const isPlaylistMode = controlPanelMode === 'loadingPlaylist';
@@ -240,6 +244,9 @@ export function ControlPanel({
     onScrollNext,
     onScrollPrev,
     onOpenPrototype,
+    onToggleCLI,
+    // Disable shortcuts while CLI command window is active.
+    disabled: shortcutsDisabled,
   });
 
   return (

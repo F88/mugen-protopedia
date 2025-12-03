@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { logger } from '@/lib/logger.client';
 
@@ -10,6 +10,8 @@ export type KeySequence = {
 
 export type UseKeySequencesOptions = {
   sequences: KeySequence[];
+  onBufferChange?: (buffer: string[]) => void;
+  disabled?: boolean;
 };
 
 const isTextInputLike = (target: EventTarget | null) => {
@@ -28,11 +30,29 @@ const isTextInputLike = (target: EventTarget | null) => {
   return false;
 };
 
-export const useKeySequences = ({ sequences }: UseKeySequencesOptions) => {
+export const useKeySequences = ({
+  sequences,
+  onBufferChange,
+  disabled = false,
+}: UseKeySequencesOptions) => {
   const bufferRef = useRef<string[]>([]);
   const maxBufferLength = 10;
 
+  const resetBuffer = useCallback(() => {
+    logger.debug('[useKeySequences] resetBuffer called', {
+      previous: bufferRef.current.join(','),
+    });
+    bufferRef.current = [];
+    if (onBufferChange) {
+      onBufferChange([]);
+    }
+  }, [onBufferChange]);
+
   useEffect(() => {
+    if (disabled) {
+      return;
+    }
+
     if (sequences.length === 0) {
       return;
     }
@@ -64,6 +84,10 @@ export const useKeySequences = ({ sequences }: UseKeySequencesOptions) => {
         buffer.shift();
       }
 
+      if (onBufferChange) {
+        onBufferChange([...buffer]);
+      }
+
       logger.debug('[useKeySequences] keydown', {
         key,
         buffer: buffer.join(','),
@@ -91,7 +115,14 @@ export const useKeySequences = ({ sequences }: UseKeySequencesOptions) => {
             keys: sequence.keys,
           });
           onMatch();
+          logger.debug('[useKeySequences] reset buffer after match', {
+            name: sequence.name,
+            previous: bufferRef.current.join(','),
+          });
           bufferRef.current = [];
+          if (onBufferChange) {
+            onBufferChange([]);
+          }
         }
       }
     };
@@ -100,5 +131,7 @@ export const useKeySequences = ({ sequences }: UseKeySequencesOptions) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [sequences]);
+  }, [sequences, onBufferChange, disabled]);
+
+  return { resetBuffer };
 };

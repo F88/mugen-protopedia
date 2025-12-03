@@ -48,7 +48,9 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
+import { CommandWindow } from '@/components/command-window';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import { useSpecialKeySequences } from '@/lib/hooks/use-special-key-sequences';
 
 /**
  * Simulated delay ranges for different play modes.
@@ -117,6 +119,7 @@ export function MugenProtoPedia() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
   const [showCLI, setShowCLI] = useState(false);
+  const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -207,7 +210,13 @@ export function MugenProtoPedia() {
     // isLoading: isLoadingPrototype,
     // error: randomPrototypeError,
   } = useRandomPrototype();
-  // Special key sequences are wired only when command mode is active.
+
+  const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
+    onBufferChange: setSequenceBuffer,
+    // While the command window is hidden, suppress special key sequence
+    // tracking so that only normal keyboard shortcuts are active.
+    disabled: !showCLI,
+  });
 
   /**
    * Create a deep-cloned copy of a prototype.
@@ -316,8 +325,34 @@ export function MugenProtoPedia() {
   }, [headerHeight]);
 
   const handleToggleCLI = useCallback(() => {
-    setShowCLI((previous) => !previous);
-  }, []);
+    setShowCLI((previous) => {
+      const next = !previous;
+      // Reset key sequence buffer (internal + visual) whenever
+      // the command window is toggled (open or close).
+      resetKeySequencesBuffer();
+      return next;
+    });
+  }, [resetKeySequencesBuffer]);
+
+  // Close command window on Escape while CLI is visible
+  useEffect(() => {
+    if (!showCLI) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setShowCLI(false);
+        resetKeySequencesBuffer();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showCLI, resetKeySequencesBuffer]);
 
   // Scrolling & focus behavior
   const {
@@ -806,10 +841,15 @@ export function MugenProtoPedia() {
             onScrollNext={() => scrollToPrototype('next')}
             onScrollPrev={() => scrollToPrototype('prev')}
             onOpenPrototype={openCurrentPrototypeInProtoPedia}
+            onToggleCLI={handleToggleCLI}
+            shortcutsDisabled={showCLI}
             maxPrototypeId={maxPrototypeId}
           />
         </div>
       </div>
+
+      {/* Command window - centered panel toggled by "/" */}
+      {showCLI ? <CommandWindow buffer={sequenceBuffer} /> : null}
 
       {/* Dashboard - Floating display at bottom */}
       {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">
