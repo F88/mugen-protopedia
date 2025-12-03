@@ -215,7 +215,8 @@ export function MugenProtoPedia() {
     onBufferChange: setSequenceBuffer,
     // While the command window is hidden, suppress special key sequence
     // tracking so that only normal keyboard shortcuts are active.
-    disabled: !showCLI,
+    // disabled: !showCLI,
+    disabled: false,
   });
 
   /**
@@ -842,7 +843,7 @@ export function MugenProtoPedia() {
             onScrollPrev={() => scrollToPrototype('prev')}
             onOpenPrototype={openCurrentPrototypeInProtoPedia}
             onToggleCLI={handleToggleCLI}
-            shortcutsDisabled={showCLI}
+            // shortcutsDisabled={showCLI}
             maxPrototypeId={maxPrototypeId}
           />
         </div>
