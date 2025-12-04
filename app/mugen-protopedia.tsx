@@ -199,7 +199,7 @@ export function MugenProtoPedia() {
   function changeDelayLevel(to: SimulatedDelayLevel) {
     setDelayLevel((prev) => {
       logger.debug(
-        '[MugenProtoPedia] change delay level from ' + prev + " to '" + to,
+        '[MugenProtoPedia] ' + `Set delay level to ${to} (from ${prev})`,
       );
       return to;
     });
