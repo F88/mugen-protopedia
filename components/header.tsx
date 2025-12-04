@@ -35,6 +35,12 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   },
   ref,
 ) {
+  // const { isDark, resolvedTheme, theme } = useTheme();
+
+  // useEffect(() => {
+  //   // keep hook usage for future behavior if needed
+  // }, [isDark, resolvedTheme, theme]);
+
   // const longTitle = 'ProtoPedia Viewer 25';
   // const longTitle = '無限 ProtoPedia';
   const mugenLong = '無限';
