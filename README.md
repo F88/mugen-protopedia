@@ -88,7 +88,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ### 2025-12-04
 
-- 🐛 It's not a bug, it's a feature
+- 🐛 It's not a bug, it's a feature.
 
 ### 2025-12-03
 

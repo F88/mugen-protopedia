@@ -100,10 +100,16 @@ export const useTheme = () => {
   /** 現在の状態に応じてライト/ダークテーマをトグルする */
   const toggleTheme = useCallback(() => {
     setPreference((current) => {
-      if (current === 'system') {
-        return systemTheme === 'dark' ? 'light' : 'dark';
-      }
-      return current === 'dark' ? 'light' : 'dark';
+      const next: ThemePreference =
+        current === 'system'
+          ? systemTheme === 'dark'
+            ? 'light'
+            : 'dark'
+          : current === 'dark'
+            ? 'light'
+            : 'dark';
+
+      return next;
     });
   }, [systemTheme]);
 

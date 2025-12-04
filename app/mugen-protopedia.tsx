@@ -49,6 +49,7 @@ import { CommandWindow } from '@/components/command-window';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
+import { PlayModeTheme } from '@/components/play-mode-theme';
 import {
   PlaylistTitleCard,
   type PlaylistTitleCardVariant,
@@ -826,6 +827,9 @@ export function MugenProtoPedia() {
    */
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+      {/* Play Mode Theme Overlay */}
+      <PlayModeTheme mode={playModeState} delayLevel={delayLevel} />
+
       {/* Header */}
       <Header
         ref={headerRef}
@@ -884,7 +888,7 @@ export function MugenProtoPedia() {
           {/* Scrollable container for prototypes and other content */}
           <div
             ref={scrollContainerRef}
-            className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain"
+            className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain relative z-10"
           >
             {isPlaylistMode && playlistTitleCardProps && (
               <div
