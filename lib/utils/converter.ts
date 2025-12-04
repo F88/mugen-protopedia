@@ -1,4 +1,4 @@
-import { PlayMode } from '@/types/mugen-protopedia.types';
+import { PlayMode, SimulatedDelayLevel } from '@/types/mugen-protopedia.types';
 
 /**
  * Some fields in the prototype API responses are delivered as pipe separated strings.
@@ -40,7 +40,9 @@ export function getPlayModeIcon(playMode: PlayMode): undefined | string {
   }
 }
 
-export function getSpeedIcon(delayLevel: string): undefined | string {
+export function getSpeedIcon(
+  delayLevel: SimulatedDelayLevel,
+): undefined | string {
   switch (delayLevel) {
     case 'UNLEASHED':
       // return '🦸';

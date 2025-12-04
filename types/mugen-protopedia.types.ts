@@ -37,8 +37,8 @@ export type SimulatedDelayLevel =
   | 'FASTER'
   | 'FAST'
   | 'SLOW'
-  // | 'SLOWER'
-  // | 'SLOWEST'
+  | 'SLOWER'
+  | 'SLOWEST'
   | 'UNLEASHED';
 export type SimulatedDelayRangeByLevel = Record<
   SimulatedDelayLevel,

@@ -1,6 +1,9 @@
 import { forwardRef, type ReactNode } from 'react';
 
-import type { PlayMode } from '@/types/mugen-protopedia.types';
+import type {
+  PlayMode,
+  SimulatedDelayLevel,
+} from '@/types/mugen-protopedia.types';
 
 import {
   getPlayModeIcon,
@@ -19,7 +22,7 @@ interface HeaderProps {
   analysisDashboard?: ReactNode; // allow injection for Storybook/tests
   playMode: PlayMode;
   showPlayMode?: boolean;
-  delayLevel?: string;
+  delayLevel?: SimulatedDelayLevel;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
@@ -41,6 +44,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   // const mugenShort = '無限';
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
+
+  const playModeIcon = showPlayMode ? getPlayModeIcon(playMode) : null;
+  const speedIcon = getSpeedIcon(delayLevel);
 
   /**
    * Tailwind screen breakpoints (min-width):
@@ -69,16 +75,12 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             {process.env.NODE_ENV === 'development' && (
               <span>{getPlayModeLabel(playMode)}</span>
             )}
-            {showPlayMode && getPlayModeIcon(playMode) && (
-              <StatusIndicator>{getPlayModeIcon(playMode)}</StatusIndicator>
-            )}
+            {playModeIcon && <StatusIndicator>{playModeIcon}</StatusIndicator>}
             {/* Speed */}
-            {getSpeedIcon(delayLevel) != null && (
-              <>
-                <StatusIndicator variant="blue" pulse>
-                  {getSpeedIcon(delayLevel)}
-                </StatusIndicator>
-              </>
+            {speedIcon != null && (
+              <StatusIndicator variant="blue" pulse>
+                {speedIcon}
+              </StatusIndicator>
             )}
           </div>
 
