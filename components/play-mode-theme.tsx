@@ -2,6 +2,13 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useHtmlTheme } from '@/hooks/use-html-theme';
+import {
+  PlayModeState,
+  SimulatedDelayLevel,
+} from '@/types/mugen-protopedia.types';
+import { delay } from 'msw';
+import { UniverseBackgroundMainDark } from '@/app/observatory/shared/universe-background-main-dark';
+import { logger } from '@/lib/logger.client';
 
 // -----------------------------------------------------------------------------
 // Helper Components & Hooks
@@ -326,6 +333,22 @@ const UnleashedThemeSonic = () => {
 // -----------------------------------------------------------------------------
 
 /**
+ * Component that renders the normal theme background with slight variation based on delay level.
+ */
+const NormalThemeRandomized = ({
+  delayLevel,
+}: {
+  delayLevel?: SimulatedDelayLevel;
+}) => {
+  logger.debug('[NormalThemeRandomized] render', { delayLevel });
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <UniverseBackgroundMainDark />
+    </div>
+  );
+};
+
+/**
  * Component that randomly selects one of the Unleashed themes on mount.
  * Uses client-side only rendering to avoid hydration mismatches.
  */
@@ -356,12 +379,24 @@ const UnleashedThemeRandomized = () => {
   return <ThemeComponent />;
 };
 
+type PlayModeThemeProps = {
+  mode: PlayModeState;
+  delayLevel?: SimulatedDelayLevel;
+};
+
 /**
  * Main component for Play Mode themes.
  * Renders the appropriate theme overlay based on the current mode.
  */
-export function PlayModeTheme({ mode }: { mode: 'normal' | 'unleashed' }) {
-  if (mode !== 'unleashed') return null;
-
-  return <UnleashedThemeRandomized />;
+export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
+  logger.debug('[PlayModeTheme] render', { mode, delayLevel });
+  if (mode.type === 'unleashed') {
+    return <UnleashedThemeRandomized />;
+  }
+  if (mode.type === 'normal') {
+    if (delayLevel != null && delayLevel === 'FAST') {
+      return <NormalThemeRandomized delayLevel={delayLevel} />;
+    }
+  }
+  return null;
 }

@@ -828,7 +828,7 @@ export function MugenProtoPedia() {
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Play Mode Theme Overlay */}
-      <PlayModeTheme mode={playModeState.type} />
+      <PlayModeTheme mode={playModeState} />
 
       {/* Header */}
       <Header
