@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type {
   PlayModeState,
-  SimulatedDelayRangeByMode,
+  SimulatedDelayLevel,
 } from '@/types/mugen-protopedia.types';
 
 // lib
@@ -54,70 +54,46 @@ import {
   type PlaylistTitleCardVariant,
 } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
-
-/**
- * Simulated delay ranges for different play modes.
- */
-const DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE: SimulatedDelayRangeByMode = {
-  // normal: { min: 500, max: 2_000 },
-  normal: { min: 500, max: 3_000 },
-  // playlist: { min: 0, max: 0 },
-  // playlist: { min: 500, max: 1_000 } /* too fast */,
-  playlist: { min: 500, max: 3_000 },
-  // playlist: { min: 500, max: 5_000 },
-  // playlist: { min: 3_000, max: 5_000 },
-  unleashed: { min: 0, max: 0 },
-} as const;
-
-const DELAY_LEVELS: Record<string, { min: number; max: number }> = {
-  NORMAL: { min: 500, max: 3_000 },
-  FAST: { min: 500, max: 2_000 },
-  FASTER: { min: 500, max: 1_000 },
-  FASTEST: { min: 300, max: 300 },
-} as const;
+import {
+  arePlayModeStatesEqual,
+  getDefaultSimulatedDelayLevelForPlayMode,
+  getSimulatedDelayRangeForLevel,
+  speedUp,
+} from './mugen-protopedia-utils';
 
 /**
  * Interval between fetching prototypes in playlist mode (ms).
  */
 const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
-// /**
-//  * Build the external ProtoPedia detail page URL for a given prototype.
-//  *
-//  * @param prototype - Normalized prototype object
-//  * @returns absolute URL string to the ProtoPedia detail page
-//  */
-// const urlOfPageForPrototype = (prototype: Prototype): string =>
-//   buildPrototypeLink(prototype.id);
+// const arePlayModeStatesEqual = (
+//   left: PlayModeState,
+//   right: PlayModeState,
+// ): boolean => {
+//   if (left.type !== right.type) {
+//     return false;
+//   }
 
-const arePlayModeStatesEqual = (
-  left: PlayModeState,
-  right: PlayModeState,
-): boolean => {
-  if (left.type !== right.type) {
-    return false;
-  }
+//   if (left.type === 'normal' && right.type === 'normal') {
+//     return true;
+//   }
 
-  if (left.type === 'normal' && right.type === 'normal') {
-    return true;
-  }
+//   if (left.type === 'playlist' && right.type === 'playlist') {
+//     if (left.ids.length !== right.ids.length) {
+//       return false;
+//     }
 
-  if (left.type === 'playlist' && right.type === 'playlist') {
-    if (left.ids.length !== right.ids.length) {
-      return false;
-    }
+//     for (let index = 0; index < left.ids.length; index += 1) {
+//       if (left.ids[index] !== right.ids[index]) {
+//         return false;
+//       }
+//     }
 
-    for (let index = 0; index < left.ids.length; index += 1) {
-      if (left.ids[index] !== right.ids[index]) {
-        return false;
-      }
-    }
+//     return left.title === right.title;
+//   }
 
-    return left.title === right.title;
-  }
-
-  return false;
-};
+//   return false;
+// };
 
 export function MugenProtoPedia() {
   const router = useRouter();
@@ -129,14 +105,13 @@ export function MugenProtoPedia() {
   const [processedCount, setProcessedCount] = useState(0);
   const [showCLI, setShowCLI] = useState(false);
   const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
+  const [delayLevel, setDelayLevel] = useState<SimulatedDelayLevel>('NORMAL');
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
   const [playModeState, setPlayModeState] = useState<PlayModeState>(() =>
     resolvePlayMode({ directLaunchResult }),
   );
-  const [simulatedDelayRangeByMode, setSimulatedDelayRangeByMode] =
-    useState<SimulatedDelayRangeByMode>(DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE);
 
   // Sync play mode based on the latest direct launch parameters
   useEffect(() => {
@@ -149,6 +124,7 @@ export function MugenProtoPedia() {
         ? previousState
         : resolvedPlayMode;
       logger.debug(
+        '[MugenProtoPedia] ',
         'Play mode:',
         `${previousState.type} -> ${newPlayMode.type}`,
       );
@@ -172,7 +148,12 @@ export function MugenProtoPedia() {
 
   const isPlaylistMode = playModeState.type === 'playlist';
 
-  const simulateDelayRangeMs = simulatedDelayRangeByMode[playModeState.type];
+  useEffect(() => {
+    const defaultLevel = getDefaultSimulatedDelayLevelForPlayMode(
+      playModeState.type,
+    );
+    setDelayLevel(defaultLevel);
+  }, [playModeState.type]);
 
   // Slot & concurrency management
   const {
@@ -188,7 +169,7 @@ export function MugenProtoPedia() {
     maxConcurrentFetches,
   } = usePrototypeSlots({
     maxConcurrentFetches: 6,
-    simulateDelayRangeMs,
+    simulateDelayRangeMs: getSimulatedDelayRangeForLevel(delayLevel),
   });
 
   // data
@@ -215,6 +196,15 @@ export function MugenProtoPedia() {
     FALLBACK_MAX_PROTOTYPE_ID,
   );
 
+  function changeDelayLevel(to: SimulatedDelayLevel) {
+    setDelayLevel((prev) => {
+      logger.debug(
+        '[MugenProtoPedia] change delay level from ' + prev + " to '" + to,
+      );
+      return to;
+    });
+  }
+
   const {
     getRandomPrototype,
     // isLoading: isLoadingPrototype,
@@ -224,47 +214,25 @@ export function MugenProtoPedia() {
   const [matchedCommand, setMatchedCommand] =
     useState<SpecialSequenceMatch | null>(null);
 
-  const handleSpecialSequenceMatch = useCallback(
-    (match: SpecialSequenceMatch) => {
-      logger.info(
-        `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
-      );
-      setMatchedCommand(match);
-      setShowCLI(true);
+  const handleSpecialSequenceMatch = (match: SpecialSequenceMatch) => {
+    logger.info(
+      `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
+    );
+    setMatchedCommand(match);
+    setShowCLI(true);
 
-      if (match.name === 'ksk') {
-        setPlayModeState({ type: 'unleashed' });
-      } else if (match.name === '573') {
-        setSimulatedDelayRangeByMode((prev) => {
-          const current = prev[playModeState.type];
-          let nextDelay = DELAY_LEVELS.NORMAL;
-
-          if (current.max <= DELAY_LEVELS.FASTEST.max) {
-            nextDelay = DELAY_LEVELS.FASTEST;
-          } else if (current.max <= DELAY_LEVELS.FASTER.max) {
-            nextDelay = DELAY_LEVELS.FASTEST;
-          } else if (current.max <= DELAY_LEVELS.FAST.max) {
-            nextDelay = DELAY_LEVELS.FASTER;
-          } else {
-            nextDelay = DELAY_LEVELS.FAST;
-          }
-
-          return {
-            ...prev,
-            [playModeState.type]: nextDelay,
-          };
-        });
-      }
-
-      // Reset matched state after animation
-      setTimeout(() => {
-        setMatchedCommand(null);
-        setShowCLI(false);
-      }, 2000);
-    },
-    [playModeState.type],
-  );
-
+    if (match.name === 'ksk') {
+      setPlayModeState({ type: 'unleashed' });
+    } else if (match.name === '573') {
+      const nextLevel = speedUp(delayLevel);
+      changeDelayLevel(nextLevel);
+    }
+    // Reset matched state after animation
+    setTimeout(() => {
+      setMatchedCommand(null);
+      setShowCLI(false);
+    }, 2000);
+  };
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
     onBufferChange: setSequenceBuffer,
     // Always enabled to allow CLI toggle via key sequence
@@ -438,7 +406,9 @@ export function MugenProtoPedia() {
       }
 
       const clonedPrototype = clonePrototype(prototype);
-      logger.debug('Selected random prototype', { clonedPrototype });
+      logger.debug('[MugenProtoPedia] ' + 'Selected random prototype', {
+        clonedPrototype,
+      });
       return clonedPrototype;
     }, [getRandomPrototype, clonePrototype]);
 
@@ -467,21 +437,14 @@ export function MugenProtoPedia() {
 
     clearSlots();
 
-    // const defaultPlayMode = resolvePlayMode({ directLaunchResult });
-    setPlayModeState({ type: 'normal' });
-    // Reset simulated delay
-    setSimulatedDelayRangeByMode(DEFAULT_SIMULATED_DELAY_RANGE_BY_MODE);
-
     if (playModeState.type === 'playlist') {
       router.replace('/', { scroll: false });
     }
-  }, [
-    //
-    clearSlots,
-    isPlaylistPlaying,
-    playModeState.type,
-    router,
-  ]);
+
+    if (playModeState.type !== 'normal') {
+      setPlayModeState({ type: 'normal' });
+    }
+  }, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
@@ -489,7 +452,9 @@ export function MugenProtoPedia() {
    */
   const handleGetRandomPrototype = useCallback(async () => {
     if (isPlaylistPlaying) {
-      logger.warn('Cannot fetch random prototype while playlist is playing.');
+      logger.warn(
+        '[MugenProtoPedia] Cannot fetch random prototype while playlist is playing.',
+      );
       return;
     }
     if (!tryIncrementInFlightRequests()) {
@@ -543,7 +508,10 @@ export function MugenProtoPedia() {
    */
   const handleGetLatestPrototypeById = useCallback(
     async (id: number) => {
-      logger.debug('Fetching latest prototype by ID (SHOW)', { id });
+      logger.debug(
+        '[MugenProtoPedia] ' + 'Fetching latest prototype by ID (SHOW)',
+        { id },
+      );
 
       if (id < 0) {
         console.error('Invalid prototype ID:', id);
@@ -598,7 +566,10 @@ export function MugenProtoPedia() {
    */
   const handleGetPrototypeByIdInPlaylistMode = useCallback(
     async (id: number) => {
-      logger.debug('Fetching prototype by ID (PLAYLIST)', { id });
+      logger.debug(
+        '[MugenProtoPedia] ' + 'Fetching prototype by ID (PLAYLIST)',
+        { id },
+      );
 
       if (id < 0) {
         console.error('Invalid prototype ID:', id);
@@ -647,7 +618,10 @@ export function MugenProtoPedia() {
   );
 
   const handleGetPrototypeByIdFromInput = async () => {
-    logger.debug('Fetching prototype by ID from input:', prototypeIdInput);
+    logger.debug(
+      '[MugenProtoPedia] ' + 'Fetching prototype by ID from input:',
+      prototypeIdInput,
+    );
 
     // Validation
     const trimmed = prototypeIdInput.trim();
@@ -684,7 +658,15 @@ export function MugenProtoPedia() {
 
   // Prepare playlist queue when entering playlist mode with new parameters
   useEffect(() => {
-    logger.debug('Processing play mode state change:', playModeState);
+    logger.debug(
+      '[MugenProtoPedia] ' + 'Processing play mode state change:',
+      playModeState,
+    );
+
+    const delayLevel = getDefaultSimulatedDelayLevelForPlayMode(
+      playModeState['type'],
+    );
+    changeDelayLevel(delayLevel);
 
     // If not in playlist mode, reset playlist state
     if (playModeState.type !== 'playlist') {
@@ -697,11 +679,11 @@ export function MugenProtoPedia() {
 
     switch (playModeState.type) {
       case 'normal':
-        logger.debug('Switched to normal play mode');
+        logger.debug('[MugenProtoPedia] ' + 'Switched to normal play mode');
         break;
 
       case 'playlist':
-        logger.debug('Switched to playlist play mode');
+        logger.debug('[MugenProtoPedia] ' + 'Switched to playlist play mode');
         const { ids, title } = playModeState;
         if (ids.length === 0) {
           lastProcessedPlaylistSignatureRef.current = null;
@@ -716,7 +698,10 @@ export function MugenProtoPedia() {
           return;
         }
 
-        logger.debug({ ids, title }, 'Starting playlist playback');
+        logger.debug(
+          { ids, title },
+          '[MugenProtoPedia] ' + 'Starting playlist playback',
+        );
         lastProcessedPlaylistSignatureRef.current = signature;
         playlistQueueRef.current = [...ids];
         setProcessedCount(0);
@@ -750,7 +735,7 @@ export function MugenProtoPedia() {
       // Check if queue is empty
       if (playlistQueueRef.current.length === 0) {
         if (inFlightRequests === 0) {
-          logger.debug('Playlist playback completed');
+          logger.debug('[MugenProtoPedia] ' + 'Playlist playback completed');
           setIsPlaylistPlaying(false);
           setIsPlaylistCompleted(true);
         }
@@ -774,7 +759,7 @@ export function MugenProtoPedia() {
 
       // Next ID to process
       const id = playlistQueueRef.current.shift();
-      logger.debug('Processing playlist ID:', id);
+      logger.debug('[MugenProtoPedia] ' + 'Processing playlist ID:', id);
 
       if (id !== undefined) {
         void handleGetPrototypeByIdInPlaylistMode(id);
@@ -802,19 +787,6 @@ export function MugenProtoPedia() {
     handleGetPrototypeByIdInPlaylistMode,
   ]);
 
-  // const showPlayMode = process.env.NODE_ENV === 'development';
-  const showPlayMode = true;
-
-  const currentDelayRange = simulatedDelayRangeByMode[playModeState.type];
-  let currentDelayLevel = 'NORMAL';
-  if (currentDelayRange.max <= DELAY_LEVELS.FASTEST.max) {
-    currentDelayLevel = 'FASTEST';
-  } else if (currentDelayRange.max <= DELAY_LEVELS.FASTER.max) {
-    currentDelayLevel = 'FASTER';
-  } else if (currentDelayRange.max <= DELAY_LEVELS.FAST.max) {
-    currentDelayLevel = 'FAST';
-  }
-
   /**
    * Main application layout
    */
@@ -829,8 +801,8 @@ export function MugenProtoPedia() {
           maxConcurrentFetches: maxConcurrentFetches,
         }}
         playMode={playModeState.type}
-        showPlayMode={showPlayMode}
-        delayLevel={currentDelayLevel}
+        showPlayMode={true}
+        delayLevel={delayLevel}
         analysisDashboard={
           <AnalysisDashboard
             defaultExpanded={false}
