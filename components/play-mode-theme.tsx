@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { UniverseBackgroundMainDark } from '@/app/observatory/shared/universe-background-main-dark';
+
 import { useHtmlTheme } from '@/hooks/use-html-theme';
+
+import { logger } from '@/lib/logger.client';
+
 import {
   PlayModeState,
   SimulatedDelayLevel,
 } from '@/types/mugen-protopedia.types';
-import { delay } from 'msw';
-import { UniverseBackgroundMainDark } from '@/app/observatory/shared/universe-background-main-dark';
-import { logger } from '@/lib/logger.client';
 
 // -----------------------------------------------------------------------------
 // Helper Components & Hooks
