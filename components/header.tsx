@@ -2,11 +2,13 @@ import { forwardRef, type ReactNode } from 'react';
 
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
+import { getPlayModeIcon, getSpeedIcon } from '@/lib/utils/converter';
+
 import { Dashboard, type DashboardProps } from '@/components/dashboard';
 import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
 import { PlaylistHeaderButton } from '@/components/playlist-header-button';
+import { StatusIndicator } from '@/components/status-indicator';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { getPlayModeIcon, getSpeedIcon } from '@/lib/utils/converter';
 
 interface HeaderProps {
   dashboard: DashboardProps;
@@ -58,18 +60,18 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
           </h1>
 
           {/* Play mode and speed indicator */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {/* Play mode */}
             {showPlayMode && getPlayModeIcon(playMode) && (
-              <span className="text-sm font-medium text-muted-foreground">
-                {getPlayModeIcon(playMode)}
-              </span>
+              <StatusIndicator>{getPlayModeIcon(playMode)}</StatusIndicator>
             )}
             {/* Speed */}
             {getSpeedIcon(delayLevel) != null && (
-              <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded text-xs font-bold animate-pulse">
-                {getSpeedIcon(delayLevel)}
-              </span>
+              <>
+                <StatusIndicator variant="blue" pulse>
+                  {getSpeedIcon(delayLevel)}
+                </StatusIndicator>
+              </>
             )}
           </div>
 
