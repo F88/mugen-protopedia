@@ -107,13 +107,6 @@ const AnimatedLinearSpeedLines = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    // Debug: track lifecycle per theme
-
-    console.log('[AnimatedLinearSpeedLines] mount/useEffect', {
-      themeKey,
-      color,
-    });
-
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -227,7 +220,6 @@ const AnimatedLinearSpeedLines = ({
     animate();
 
     return () => {
-      console.log('[AnimatedLinearSpeedLines] cleanup', { themeKey });
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
