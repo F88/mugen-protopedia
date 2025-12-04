@@ -7,11 +7,10 @@ import React, { useEffect, useState, useRef } from 'react';
 // -----------------------------------------------------------------------------
 
 /**
- * Component that renders animated radial speed lines.
- * Uses requestAnimationFrame to update the background style directly,
- * bypassing React's render cycle for performance and to avoid lint errors.
+ * Component that renders animated radial speed lines (for Lightning, Accelerator, Manga).
+ * Uses requestAnimationFrame to update the background style directly.
  */
-const AnimatedSpeedLines = ({
+const AnimatedRadialSpeedLines = ({
   className,
   color,
 }: {
@@ -20,72 +19,187 @@ const AnimatedSpeedLines = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(
-    () => {
-      const element = ref.current;
-      if (!element) return;
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
 
-      let animationFrameId: number;
-      let lastTime = 0;
-      // Increase FPS to 24 for smoother/faster animation
-      // const fps = 24;
-      const fps = 12;
-      const interval = 1000 / fps;
+    let animationFrameId: number;
+    let lastTime = 0;
+    const fps = 24;
+    const interval = 1000 / fps;
 
-      const draw = () => {
-        const stops: string[] = [];
-        let currentAngle = 0;
+    const draw = () => {
+      const stops: string[] = [];
+      let currentAngle = 0;
 
-        while (currentAngle < 360) {
-          const gap = Math.random() * 15 + 5; // Gap between 5 and 20 degrees
-          const width = Math.random() * 2 + 0.5; // Line width between 0.5 and 2.5 degrees
+      while (currentAngle < 360) {
+        const gap = Math.random() * 15 + 5; // Gap between 5 and 20 degrees
+        const width = Math.random() * 2 + 0.5; // Line width between 0.5 and 2.5 degrees
 
-          const start = currentAngle + gap;
-          const end = start + width;
+        const start = currentAngle + gap;
+        const end = start + width;
 
-          // Fill gap with transparent
-          stops.push(`transparent ${currentAngle}deg ${start}deg`);
+        // Fill gap with transparent
+        stops.push(`transparent ${currentAngle}deg ${start}deg`);
 
-          if (start >= 360) break;
+        if (start >= 360) break;
 
-          // Draw line
-          stops.push(`${color} ${start}deg ${end}deg`);
+        // Draw line
+        stops.push(`${color} ${start}deg ${end}deg`);
 
-          currentAngle = end;
-        }
+        currentAngle = end;
+      }
 
-        // Fill remaining space
-        if (currentAngle < 360) {
-          stops.push(`transparent ${currentAngle}deg 360deg`);
-        }
+      // Fill remaining space
+      if (currentAngle < 360) {
+        stops.push(`transparent ${currentAngle}deg 360deg`);
+      }
 
-        // Use 'background' shorthand for better compatibility and ensure it's applied
-        element.style.background = `conic-gradient(from 0deg at 50% 50%, ${stops.join(', ')})`;
-      };
+      element.style.background = `conic-gradient(from 0deg at 50% 50%, ${stops.join(', ')})`;
 
-      const animate = (time: number) => {
-        animationFrameId = requestAnimationFrame(animate);
+      // Apply mask to fade out towards center
+      const mask = 'radial-gradient(circle, transparent 15%, black 80%)';
+      element.style.maskImage = mask;
+      element.style.webkitMaskImage = mask;
+    };
 
-        if (time - lastTime >= interval) {
-          lastTime = time;
-          draw();
-        }
-      };
-
-      // Initial draw
-      draw();
+    const animate = (time: number) => {
       animationFrameId = requestAnimationFrame(animate);
 
-      return () => cancelAnimationFrame(animationFrameId);
-    },
-    [
-      //
-      color,
-    ],
-    //
-  );
+      if (time - lastTime >= interval) {
+        lastTime = time;
+        draw();
+      }
+    };
+
+    // Initial draw
+    draw();
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [color]);
 
   return <div ref={ref} className={className} />;
+};
+
+/**
+ * Component that renders animated linear speed lines (for Sonic).
+ * Uses HTML5 Canvas to render vertical lines that fade in and out,
+ * simulating a high-speed vertical motion effect.
+ */
+const AnimatedLinearSpeedLines = ({
+  className,
+  color,
+}: {
+  className?: string;
+  color: string;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Resize handling
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Extract RGB from color string (assuming rgba format) to create transparent version
+    // Default to white if parsing fails
+    let r = 255,
+      g = 255,
+      b = 255;
+    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbaMatch) {
+      r = parseInt(rgbaMatch[1]);
+      g = parseInt(rgbaMatch[2]);
+      b = parseInt(rgbaMatch[3]);
+    }
+    const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`;
+
+    // Line particles
+    const lines: {
+      x: number;
+      y: number;
+      length: number;
+      speed: number;
+      opacity: number;
+      thickness: number;
+    }[] = [];
+    const lineCount = 40; // Number of lines
+
+    const initLines = () => {
+      lines.length = 0;
+      for (let i = 0; i < lineCount; i++) {
+        lines.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          length: Math.random() * 400 + 200, // Length between 200-600px
+          speed: Math.random() * 20 + 15, // Speed between 15-35px/frame
+          opacity: Math.random() * 0.6 + 0.2, // Opacity 0.2-0.8
+          thickness: Math.random() * 2 + 1, // Thickness 1-3px
+        });
+      }
+    };
+    initLines();
+
+    let animationFrameId: number;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      lines.forEach((line) => {
+        // Move line vertically
+        line.y += line.speed;
+        if (line.y > canvas.height) {
+          line.y = -line.length;
+          line.x = Math.random() * canvas.width;
+          // Randomize properties on reset
+          line.length = Math.random() * 400 + 200;
+          line.speed = Math.random() * 20 + 15;
+          line.opacity = Math.random() * 0.6 + 0.2;
+        }
+
+        // Create gradient for "fade in/out" effect (transparent -> color -> transparent)
+        const gradient = ctx.createLinearGradient(
+          line.x,
+          line.y,
+          line.x,
+          line.y + line.length,
+        );
+        gradient.addColorStop(0, transparentColor);
+        gradient.addColorStop(0.2, color); // Fade in quickly
+        gradient.addColorStop(0.8, color); // Stay visible
+        gradient.addColorStop(1, transparentColor); // Fade out
+
+        ctx.fillStyle = gradient;
+        ctx.globalAlpha = line.opacity;
+        ctx.fillRect(line.x, line.y, line.thickness, line.length);
+        ctx.globalAlpha = 1.0;
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [color]);
+
+  return <canvas ref={canvasRef} className={className} />;
 };
 
 // -----------------------------------------------------------------------------
@@ -100,7 +214,7 @@ const UnleashedThemeLightning = () => {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-slate-900/40" />
-      <AnimatedSpeedLines
+      <AnimatedRadialSpeedLines
         className="absolute inset-0 opacity-50 mix-blend-screen"
         color="rgba(255, 255, 255, 0.8)"
       />
@@ -117,7 +231,7 @@ const UnleashedThemeAccelerator = () => {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-red-950/40" />
-      <AnimatedSpeedLines
+      <AnimatedRadialSpeedLines
         className="absolute inset-0 opacity-50 mix-blend-screen"
         color="rgba(255, 200, 200, 0.8)"
       />
@@ -134,7 +248,7 @@ const UnleashedThemeManga = () => {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-white/5 mix-blend-overlay" />
-      <AnimatedSpeedLines
+      <AnimatedRadialSpeedLines
         className="absolute inset-0 opacity-30 mix-blend-multiply"
         color="rgba(0, 0, 0, 0.8)"
       />
@@ -144,15 +258,15 @@ const UnleashedThemeManga = () => {
 
 /**
  * Theme: Sonic
- * Visuals: Blue radial speed lines with vertical gradient.
+ * Visuals: Blue vertical linear speed lines.
  */
 const UnleashedThemeSonic = () => {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-blue-950/40" />
-      <AnimatedSpeedLines
+      <AnimatedLinearSpeedLines
         className="absolute inset-0 opacity-40 mix-blend-screen"
-        color="rgba(0, 100, 255, 0.8)"
+        color="rgba(0, 200, 255, 0.8)"
       />
       <div className="absolute inset-0 bg-linear-to-b from-blue-400/10 via-transparent to-blue-600/20" />
     </div>
@@ -175,10 +289,12 @@ const UnleashedThemeRandomized = () => {
     // Defer selection to avoid hydration mismatch and synchronous setState warning
     const timer = setTimeout(() => {
       const themes = [
-        // UnleashedThemeLightning,
-        // UnleashedThemeAccelerator,
+        // AnimatedRadialSpeedLines backgrounds
+        UnleashedThemeLightning,
+        UnleashedThemeAccelerator,
         UnleashedThemeManga,
-        // UnleashedThemeSonic,
+        // AnimatedLinearSpeedLines background
+        UnleashedThemeSonic,
       ];
       const RandomTheme = themes[Math.floor(Math.random() * themes.length)];
       setThemeComponent(() => RandomTheme);
