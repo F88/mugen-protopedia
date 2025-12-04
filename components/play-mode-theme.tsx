@@ -1,12 +1,10 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { useTheme } from '../hooks/use-theme';
+import { useHtmlTheme } from '@/hooks/use-html-theme';
 
 // -----------------------------------------------------------------------------
 // Helper Components & Hooks
-// -----------------------------------------------------------------------------
-
 /**
  * Component that renders animated radial speed lines (for Lightning, Accelerator, Manga).
  * Uses requestAnimationFrame to update the background style directly.
@@ -89,16 +87,26 @@ const AnimatedRadialSpeedLines = ({
  * simulating a high-speed vertical motion effect.
  * Supports multiple colors mixed together.
  */
+
 const AnimatedLinearSpeedLines = ({
   className,
   color,
+  themeKey,
 }: {
   className?: string;
   color: string | string[];
+  themeKey: string;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    // Debug: track lifecycle per theme
+
+    console.log('[AnimatedLinearSpeedLines] mount/useEffect', {
+      themeKey,
+      color,
+    });
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -212,10 +220,11 @@ const AnimatedLinearSpeedLines = ({
     animate();
 
     return () => {
+      console.log('[AnimatedLinearSpeedLines] cleanup', { themeKey });
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [color]);
+  }, [color, themeKey]);
 
   return <canvas ref={canvasRef} className={className} />;
 };
@@ -279,26 +288,34 @@ const UnleashedThemeManga = () => {
  * Visuals: Blue vertical linear speed lines.
  */
 const UnleashedThemeSonic = () => {
-  const { isDark } = useTheme();
+  const { isDark } = useHtmlTheme();
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
-        className={`absolute inset-0 ${
-          isDark ? 'bg-blue-950/40' : 'bg-sky-400/50'
-        }`}
+        className={`absolute inset-0 ${isDark ? 'bg-slate-950' : 'bg-sky-200'}`}
       />
       <AnimatedLinearSpeedLines
-        key={isDark ? 'dark' : 'light'}
-        className={`absolute inset-0 opacity-40 ${
-          isDark ? 'mix-blend-screen' : 'mix-blend-normal'
-        }`}
-        color={[
-          'rgba(0, 200, 255, 0.8)', // Light Blue
-          'rgba(0, 50, 180, 0.8)', // Dark Blue
-          'rgba(0, 20, 100, 0.8)', // Deep Blue
-          'rgba(200, 240, 255, 0.8)', // Pale Blue
-        ]}
+        className={
+          isDark
+            ? 'absolute inset-0 opacity-80 mix-blend-screen'
+            : 'absolute inset-0 opacity-70 mix-blend-normal'
+        }
+        color={
+          isDark
+            ? [
+                'rgba(56, 189, 248, 1)',
+                'rgba(59, 130, 246, 1)',
+                'rgba(191, 219, 254, 1)',
+              ]
+            : [
+                'rgba(30, 64, 175, 1)',
+                'rgba(37, 99, 235, 1)',
+                'rgba(59, 130, 246, 1)',
+                'rgba(255, 255, 255, 1)',
+              ]
+        }
+        themeKey={isDark ? 'dark' : 'light'}
       />
     </div>
   );
@@ -320,11 +337,11 @@ const UnleashedThemeRandomized = () => {
     // Defer selection to avoid hydration mismatch and synchronous setState warning
     const timer = setTimeout(() => {
       const themes = [
-        // AnimatedRadialSpeedLines backgrounds
-        // UnleashedThemeLightning,
-        // UnleashedThemeAccelerator,
-        // UnleashedThemeManga,
-        // AnimatedLinearSpeedLines background
+        /* AnimatedRadialSpeedLines backgrounds */
+        UnleashedThemeLightning,
+        UnleashedThemeAccelerator,
+        UnleashedThemeManga,
+        /* AnimatedLinearSpeedLines background */
         UnleashedThemeSonic,
       ];
       const RandomTheme = themes[Math.floor(Math.random() * themes.length)];
