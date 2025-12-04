@@ -148,13 +148,6 @@ export function MugenProtoPedia() {
 
   const isPlaylistMode = playModeState.type === 'playlist';
 
-  useEffect(() => {
-    const defaultLevel = getDefaultSimulatedDelayLevelForPlayMode(
-      playModeState.type,
-    );
-    setDelayLevel(defaultLevel);
-  }, [playModeState.type]);
-
   // Slot & concurrency management
   const {
     prototypeSlots,
