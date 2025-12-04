@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useTheme } from '../hooks/use-theme';
 
 // -----------------------------------------------------------------------------
 // Helper Components & Hooks
@@ -86,13 +87,14 @@ const AnimatedRadialSpeedLines = ({
  * Component that renders animated linear speed lines (for Sonic).
  * Uses HTML5 Canvas to render vertical lines that fade in and out,
  * simulating a high-speed vertical motion effect.
+ * Supports multiple colors mixed together.
  */
 const AnimatedLinearSpeedLines = ({
   className,
   color,
 }: {
   className?: string;
-  color: string;
+  color: string | string[];
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -114,18 +116,23 @@ const AnimatedLinearSpeedLines = ({
     resize();
     window.addEventListener('resize', resize);
 
-    // Extract RGB from color string (assuming rgba format) to create transparent version
-    // Default to white if parsing fails
-    let r = 255,
-      g = 255,
-      b = 255;
-    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (rgbaMatch) {
-      r = parseInt(rgbaMatch[1]);
-      g = parseInt(rgbaMatch[2]);
-      b = parseInt(rgbaMatch[3]);
-    }
-    const transparentColor = `rgba(${r}, ${g}, ${b}, 0)`;
+    // Prepare color palette (solid and transparent versions for each color)
+    const colorList = Array.isArray(color) ? color : [color];
+    const colorPalette = colorList.map((c) => {
+      let r = 255,
+        g = 255,
+        b = 255;
+      const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        r = parseInt(match[1]);
+        g = parseInt(match[2]);
+        b = parseInt(match[3]);
+      }
+      return {
+        solid: c,
+        transparent: `rgba(${r}, ${g}, ${b}, 0)`,
+      };
+    });
 
     // Line particles
     const lines: {
@@ -135,19 +142,25 @@ const AnimatedLinearSpeedLines = ({
       speed: number;
       opacity: number;
       thickness: number;
+      colorIndex: number;
     }[] = [];
     const lineCount = 40; // Number of lines
 
     const initLines = () => {
       lines.length = 0;
       for (let i = 0; i < lineCount; i++) {
+        // Length based on canvas height (30% to 100%)
+        const minLen = canvas.height * 0.3;
+        const maxLen = canvas.height * 1.0;
+
         lines.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          length: Math.random() * 400 + 200, // Length between 200-600px
+          length: Math.random() * (maxLen - minLen) + minLen,
           speed: Math.random() * 20 + 15, // Speed between 15-35px/frame
           opacity: Math.random() * 0.6 + 0.2, // Opacity 0.2-0.8
           thickness: Math.random() * 2 + 1, // Thickness 1-3px
+          colorIndex: Math.floor(Math.random() * colorPalette.length),
         });
       }
     };
@@ -165,10 +178,15 @@ const AnimatedLinearSpeedLines = ({
           line.y = -line.length;
           line.x = Math.random() * canvas.width;
           // Randomize properties on reset
-          line.length = Math.random() * 400 + 200;
+          const minLen = canvas.height * 0.3;
+          const maxLen = canvas.height * 1.0;
+          line.length = Math.random() * (maxLen - minLen) + minLen;
           line.speed = Math.random() * 20 + 15;
           line.opacity = Math.random() * 0.6 + 0.2;
+          line.colorIndex = Math.floor(Math.random() * colorPalette.length);
         }
+
+        const palette = colorPalette[line.colorIndex];
 
         // Create gradient for "fade in/out" effect (transparent -> color -> transparent)
         const gradient = ctx.createLinearGradient(
@@ -177,10 +195,10 @@ const AnimatedLinearSpeedLines = ({
           line.x,
           line.y + line.length,
         );
-        gradient.addColorStop(0, transparentColor);
-        gradient.addColorStop(0.2, color); // Fade in quickly
-        gradient.addColorStop(0.8, color); // Stay visible
-        gradient.addColorStop(1, transparentColor); // Fade out
+        gradient.addColorStop(0, palette.transparent);
+        gradient.addColorStop(0.2, palette.solid); // Fade in quickly
+        gradient.addColorStop(0.8, palette.solid); // Stay visible
+        gradient.addColorStop(1, palette.transparent); // Fade out
 
         ctx.fillStyle = gradient;
         ctx.globalAlpha = line.opacity;
@@ -261,14 +279,26 @@ const UnleashedThemeManga = () => {
  * Visuals: Blue vertical linear speed lines.
  */
 const UnleashedThemeSonic = () => {
+  const { isDark } = useTheme();
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-blue-950/40" />
-      <AnimatedLinearSpeedLines
-        className="absolute inset-0 opacity-40 mix-blend-screen"
-        color="rgba(0, 200, 255, 0.8)"
+      <div
+        className={`absolute inset-0 ${
+          isDark ? 'bg-blue-950/40' : 'bg-sky-400/50'
+        }`}
       />
-      <div className="absolute inset-0 bg-linear-to-b from-blue-400/10 via-transparent to-blue-600/20" />
+      <AnimatedLinearSpeedLines
+        className={`absolute inset-0 opacity-40 ${
+          isDark ? 'mix-blend-screen' : 'mix-blend-normal'
+        }`}
+        color={[
+          'rgba(0, 200, 255, 0.8)', // Light Blue
+          'rgba(0, 50, 180, 0.8)', // Dark Blue
+          'rgba(0, 20, 100, 0.8)', // Deep Blue
+          'rgba(200, 240, 255, 0.8)', // Pale Blue
+        ]}
+      />
     </div>
   );
 };
@@ -290,9 +320,9 @@ const UnleashedThemeRandomized = () => {
     const timer = setTimeout(() => {
       const themes = [
         // AnimatedRadialSpeedLines backgrounds
-        UnleashedThemeLightning,
-        UnleashedThemeAccelerator,
-        UnleashedThemeManga,
+        // UnleashedThemeLightning,
+        // UnleashedThemeAccelerator,
+        // UnleashedThemeManga,
         // AnimatedLinearSpeedLines background
         UnleashedThemeSonic,
       ];
