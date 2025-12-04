@@ -93,6 +93,7 @@ export function speedUp(current: SimulatedDelayLevel): SimulatedDelayLevel {
 /**
  * Calculate the next slower delay level.
  * Clamps at SLOW if called when already at SLOW.
+ * For lower levels (SLOWER, SLOWEST), it clamps at SLOWEST.
  *
  * @param current - The current delay level.
  * @returns The next slower delay level.
@@ -122,7 +123,7 @@ export function speedDown(current: SimulatedDelayLevel): SimulatedDelayLevel {
  * Compare two PlayModeState objects for equality.
  *
  * Performs a deep comparison for 'playlist' mode (checking IDs and title),
- * and a simple type check for 'normal' mode.
+ * and a simple type check for 'normal' and 'unleashed' modes.
  *
  * @param left - The first PlayModeState to compare.
  * @param right - The second PlayModeState to compare.
