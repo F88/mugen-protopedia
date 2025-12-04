@@ -124,7 +124,7 @@ export function MugenProtoPedia() {
         ? previousState
         : resolvedPlayMode;
       logger.debug(
-        '[MugenProtoPedia] ',
+        '[MugenProtoPedia]',
         'Play mode:',
         `${previousState.type} -> ${newPlayMode.type}`,
       );
@@ -198,7 +198,8 @@ export function MugenProtoPedia() {
       setDelayLevel((prev) => {
         const next = typeof action === 'function' ? action(prev) : action;
         logger.debug(
-          '[MugenProtoPedia] ' + `Set delay level to ${next} (from ${prev})`,
+          '[MugenProtoPedia]',
+          `Set delay level to ${next} (from ${prev})`,
         );
         return next;
       });
@@ -423,7 +424,7 @@ export function MugenProtoPedia() {
       }
 
       const clonedPrototype = clonePrototype(prototype);
-      logger.debug('[MugenProtoPedia] ' + 'Selected random prototype', {
+      logger.debug('[MugenProtoPedia]', 'Selected random prototype', {
         clonedPrototype,
       });
       return clonedPrototype;
@@ -538,7 +539,8 @@ export function MugenProtoPedia() {
   const handleGetLatestPrototypeById = useCallback(
     async (id: number) => {
       logger.debug(
-        '[MugenProtoPedia] ' + 'Fetching latest prototype by ID (SHOW)',
+        '[MugenProtoPedia]',
+        'Fetching latest prototype by ID (SHOW)',
         { id },
       );
 
@@ -595,10 +597,9 @@ export function MugenProtoPedia() {
    */
   const handleGetPrototypeByIdInPlaylistMode = useCallback(
     async (id: number) => {
-      logger.debug(
-        '[MugenProtoPedia] ' + 'Fetching prototype by ID (PLAYLIST)',
-        { id },
-      );
+      logger.debug('[MugenProtoPedia]', 'Fetching prototype by ID (PLAYLIST)', {
+        id,
+      });
 
       if (id < 0) {
         console.error('Invalid prototype ID:', id);
@@ -648,7 +649,8 @@ export function MugenProtoPedia() {
 
   const handleGetPrototypeByIdFromInput = async () => {
     logger.debug(
-      '[MugenProtoPedia] ' + 'Fetching prototype by ID from input:',
+      '[MugenProtoPedia]',
+      'Fetching prototype by ID from input:',
       prototypeIdInput,
     );
 
@@ -688,7 +690,8 @@ export function MugenProtoPedia() {
   // Prepare playlist queue when entering playlist mode with new parameters
   useEffect(() => {
     logger.debug(
-      '[MugenProtoPedia] ' + 'Processing play mode state change:',
+      '[MugenProtoPedia]',
+      'Processing play mode state change:',
       playModeState,
     );
 
@@ -708,11 +711,11 @@ export function MugenProtoPedia() {
 
     switch (playModeState.type) {
       case 'normal':
-        logger.debug('[MugenProtoPedia] ' + 'Switched to normal play mode');
+        logger.debug('[MugenProtoPedia]', 'Switched to normal play mode');
         break;
 
       case 'playlist':
-        logger.debug('[MugenProtoPedia] ' + 'Switched to playlist play mode');
+        logger.debug('[MugenProtoPedia]', 'Switched to playlist play mode');
         const { ids, title } = playModeState;
         if (ids.length === 0) {
           lastProcessedPlaylistSignatureRef.current = null;
@@ -729,7 +732,8 @@ export function MugenProtoPedia() {
 
         logger.debug(
           { ids, title },
-          '[MugenProtoPedia] ' + 'Starting playlist playback',
+          '[MugenProtoPedia]',
+          'Starting playlist playback',
         );
         lastProcessedPlaylistSignatureRef.current = signature;
         playlistQueueRef.current = [...ids];
@@ -765,7 +769,7 @@ export function MugenProtoPedia() {
       // Check if queue is empty
       if (playlistQueueRef.current.length === 0) {
         if (inFlightRequests === 0) {
-          logger.debug('[MugenProtoPedia] ' + 'Playlist playback completed');
+          logger.debug('[MugenProtoPedia]', 'Playlist playback completed');
           setIsPlaylistPlaying(false);
           setIsPlaylistCompleted(true);
         }
@@ -789,7 +793,7 @@ export function MugenProtoPedia() {
 
       // Next ID to process
       const id = playlistQueueRef.current.shift();
-      logger.debug('[MugenProtoPedia] ' + 'Processing playlist ID:', id);
+      logger.debug('[MugenProtoPedia]', 'Processing playlist ID:', id);
 
       if (id !== undefined) {
         void handleGetPrototypeByIdInPlaylistMode(id);
