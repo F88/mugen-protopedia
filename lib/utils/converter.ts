@@ -26,21 +26,17 @@ export function getPlayModeLabel(playMode: PlayMode): string {
 
 // const showPlayMode = process.env.NODE_ENV === 'development';
 export function getPlayModeIcon(playMode: PlayMode): undefined | string {
-  const label =
-    process.env.NODE_ENV === 'development'
-      ? `(${getPlayModeLabel(playMode)})`
-      : '';
   switch (playMode) {
     case 'normal':
-      // return `🎲${label}`;
-      return `${label}`;
+      // return `🎲`;
+      return ``;
     case 'playlist':
-      return `📜${label}`;
+      return `📜`;
     case 'unleashed':
-      return `🦸${label}`;
+      return `🦸`;
     //
     default:
-      return `❓${label}`;
+      return `❓`;
   }
 }
 

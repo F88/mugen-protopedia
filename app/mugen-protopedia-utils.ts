@@ -77,6 +77,8 @@ export function speedUp(current: SimulatedDelayLevel): SimulatedDelayLevel {
       return 'FASTEST';
     case 'FASTEST':
       return 'SLOW'; // Overheat to SLOW
+    case 'UNLEASHED':
+      return 'UNLEASHED'; // No change for UNLEASHED
     default:
       return current;
   }

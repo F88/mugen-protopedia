@@ -2,7 +2,11 @@ import { forwardRef, type ReactNode } from 'react';
 
 import type { PlayMode } from '@/types/mugen-protopedia.types';
 
-import { getPlayModeIcon, getSpeedIcon } from '@/lib/utils/converter';
+import {
+  getPlayModeIcon,
+  getPlayModeLabel,
+  getSpeedIcon,
+} from '@/lib/utils/converter';
 
 import { Dashboard, type DashboardProps } from '@/components/dashboard';
 import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
@@ -62,6 +66,9 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
           {/* Play mode and speed indicator */}
           <div className="flex items-center gap-1">
             {/* Play mode */}
+            {process.env.NODE_ENV === 'development' && (
+              <span>{getPlayModeLabel(playMode)}</span>
+            )}
             {showPlayMode && getPlayModeIcon(playMode) && (
               <StatusIndicator>{getPlayModeIcon(playMode)}</StatusIndicator>
             )}
