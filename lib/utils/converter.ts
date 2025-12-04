@@ -25,7 +25,7 @@ export function getPlayModeLabel(playMode: PlayMode): string {
 }
 
 // const showPlayMode = process.env.NODE_ENV === 'development';
-export function getPlayModeIcon(playMode: PlayMode) {
+export function getPlayModeIcon(playMode: PlayMode): undefined | string {
   const label =
     process.env.NODE_ENV === 'development'
       ? `(${getPlayModeLabel(playMode)})`
@@ -43,10 +43,10 @@ export function getPlayModeIcon(playMode: PlayMode) {
   }
 }
 
-export function getSpeedIcon(delayLevel: string) {
+export function getSpeedIcon(delayLevel: string): undefined | string {
   switch (delayLevel) {
     case 'UNLEASHED':
-      return '🦸';
+      // return '🦸';
       return '⏱️';
     case 'FASTEST':
       return '🚀';
@@ -62,6 +62,6 @@ export function getSpeedIcon(delayLevel: string) {
       return '🦥';
     default:
       // return '❓';
-      return '';
+      return undefined;
   }
 }
