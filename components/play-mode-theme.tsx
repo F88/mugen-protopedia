@@ -393,8 +393,12 @@ export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
   if (mode.type === 'unleashed') {
     return <UnleashedThemeRandomized />;
   }
-  if (mode.type === 'normal') {
-    if (delayLevel != null && delayLevel === 'FAST') {
+  if (mode.type === 'normal' && delayLevel != null) {
+    if (
+      delayLevel === 'FAST' ||
+      delayLevel === 'FASTER' ||
+      delayLevel === 'FASTEST'
+    ) {
       return <NormalThemeRandomized delayLevel={delayLevel} />;
     }
   }
