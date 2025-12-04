@@ -57,14 +57,16 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             <span className="hidden sm:inline">{longTitle}</span>
           </h1>
 
-          {/* Play mode */}
+          {/* Play mode and speed indicator */}
           <div className="flex items-center gap-2">
-            {showPlayMode && (
+            {/* Play mode */}
+            {showPlayMode && getPlayModeIcon(playMode) && (
               <span className="text-sm font-medium text-muted-foreground">
                 {getPlayModeIcon(playMode)}
               </span>
             )}
-            {delayLevel && delayLevel !== 'NORMAL' && (
+            {/* Speed */}
+            {getSpeedIcon(delayLevel) != null && (
               <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded text-xs font-bold animate-pulse">
                 {getSpeedIcon(delayLevel)}
               </span>
