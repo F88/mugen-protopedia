@@ -2,6 +2,7 @@
  * Play mode of the ProtoPedia Viewer.
  * - 'normal': Standard browsing mode.
  * - 'playlist': Playlist mode for sequential prototype viewing.
+ * - 'unleashed': Unleashed mode with no simulated delays.
  */
 export type PlayMode = 'normal' | 'playlist' | 'unleashed';
 
