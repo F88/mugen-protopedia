@@ -196,14 +196,22 @@ export function MugenProtoPedia() {
     FALLBACK_MAX_PROTOTYPE_ID,
   );
 
-  function changeDelayLevel(to: SimulatedDelayLevel) {
-    setDelayLevel((prev) => {
-      logger.debug(
-        '[MugenProtoPedia] ' + `Set delay level to ${to} (from ${prev})`,
-      );
-      return to;
-    });
-  }
+  const changeDelayLevel = useCallback(
+    (
+      action:
+        | SimulatedDelayLevel
+        | ((prev: SimulatedDelayLevel) => SimulatedDelayLevel),
+    ) => {
+      setDelayLevel((prev) => {
+        const next = typeof action === 'function' ? action(prev) : action;
+        logger.debug(
+          '[MugenProtoPedia] ' + `Set delay level to ${next} (from ${prev})`,
+        );
+        return next;
+      });
+    },
+    [],
+  );
 
   const {
     getRandomPrototype,
@@ -214,25 +222,41 @@ export function MugenProtoPedia() {
   const [matchedCommand, setMatchedCommand] =
     useState<SpecialSequenceMatch | null>(null);
 
-  const handleSpecialSequenceMatch = (match: SpecialSequenceMatch) => {
-    logger.info(
-      `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
-    );
-    setMatchedCommand(match);
-    setShowCLI(true);
+  const handleSpecialSequenceMatch = useCallback(
+    (match: SpecialSequenceMatch) => {
+      logger.info(
+        `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
+      );
+      setMatchedCommand(match);
+      setShowCLI(true);
 
-    if (match.name === 'ksk') {
-      setPlayModeState({ type: 'unleashed' });
-    } else if (match.name === '573') {
-      const nextLevel = speedUp(delayLevel);
-      changeDelayLevel(nextLevel);
-    }
-    // Reset matched state after animation
-    setTimeout(() => {
-      setMatchedCommand(null);
-      setShowCLI(false);
-    }, 2000);
-  };
+      if (match.name === 'ksk') {
+        setPlayModeState({ type: 'unleashed' });
+      } else if (match.name === '573') {
+        changeDelayLevel((currentLevel) => speedUp(currentLevel));
+      }
+      // Reset matched state after animation
+      setTimeout(() => {
+        setMatchedCommand(null);
+        setShowCLI(false);
+      }, 2000);
+    },
+    [changeDelayLevel],
+  );
+
+  // DEBUG: Monitor regeneration of handleSpecialSequenceMatch.
+  //
+  // We want to ensure this function is stable and not regenerated on every state change (like delayLevel).
+  // Frequent regeneration causes useSpecialKeySequences to re-register its global 'keydown' listener.
+  //
+  // If re-registration happens frequently, it may change the order of event listeners relative to
+  // useKeyboardShortcuts (used in ControlPanel). Since useKeyboardShortcuts calls preventDefault()
+  // for navigation keys (like 'k'), this can cause useSpecialKeySequences to miss key events
+  // needed for cheat codes (e.g., 'ksk') if it ends up running after useKeyboardShortcuts.
+  useEffect(() => {
+    logger.debug('[MugenProtoPedia] handleSpecialSequenceMatch regenerated');
+  }, [handleSpecialSequenceMatch]);
+
   const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
     onBufferChange: setSequenceBuffer,
     // Always enabled to allow CLI toggle via key sequence
@@ -450,7 +474,13 @@ export function MugenProtoPedia() {
     if (playModeState.type !== 'normal') {
       setPlayModeState({ type: 'normal' });
     }
-  }, [clearSlots, isPlaylistPlaying, playModeState.type, router]);
+  }, [
+    clearSlots,
+    isPlaylistPlaying,
+    playModeState.type,
+    router,
+    changeDelayLevel,
+  ]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
@@ -717,6 +747,7 @@ export function MugenProtoPedia() {
     }
   }, [
     playModeState,
+    changeDelayLevel,
     // , clearSlots
   ]);
 
