@@ -21,6 +21,7 @@ type SpecialSequenceDefinition = {
  */
 const konamiCommand = {
   name: '573',
+  // keys: ['5', '7', '3'],
   keys: [
     'ArrowUp',
     'ArrowUp',
@@ -33,7 +34,7 @@ const konamiCommand = {
     'b',
     'a',
   ],
-  message: 'OPTION',
+  message: 'SPEED UP',
 } satisfies SpecialSequenceDefinition;
 
 /**
@@ -45,7 +46,37 @@ const kskCommand = {
   message: 'あ あとは 勇気だけだ！',
 } satisfies SpecialSequenceDefinition;
 
+/**
+ * ping
+ */
+const pingCommand = {
+  name: 'ping',
+  keys: ['p', 'i', 'n', 'g'],
+  message: 'pong',
+} satisfies SpecialSequenceDefinition;
+
+/**
+ * SL
+ */
+const slCommand = {
+  name: 'sl',
+  keys: ['s', 'l'],
+  message: '🚞🚃🚃🚃🚃🚃🚃',
+} satisfies SpecialSequenceDefinition;
+
+/**
+ * Hi
+ */
+const hiCommand = {
+  name: 'hi',
+  keys: ['h', 'i'],
+  message: '┬┴┬┴┤･ω･)ﾉ├┬┴┬┴',
+} satisfies SpecialSequenceDefinition;
+
 const SPECIAL_SEQUENCES: SpecialSequenceDefinition[] = [
+  pingCommand,
+  slCommand,
+  hiCommand,
   konamiCommand,
   kskCommand,
 ];

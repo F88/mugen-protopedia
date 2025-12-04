@@ -24,6 +24,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import { SimulatedDelayRange } from '@/types/mugen-protopedia.types';
 import { logger } from '../logger.client';
 
 /**
@@ -45,7 +46,7 @@ export type PrototypeSlot = {
  */
 export type UsePrototypeSlotsOptions = {
   maxConcurrentFetches?: number;
-  simulateDelayRangeMs?: { min: number; max: number } | null;
+  simulateDelayRangeMs?: SimulatedDelayRange | null;
 };
 
 /**

@@ -2,8 +2,9 @@
  * Play mode of the ProtoPedia Viewer.
  * - 'normal': Standard browsing mode.
  * - 'playlist': Playlist mode for sequential prototype viewing.
+ * - 'unleashed': Unleashed mode with no simulated delays.
  */
-export type PlayMode = 'normal' | 'playlist' | 'unleashed' | 'joe';
+export type PlayMode = 'normal' | 'playlist' | 'unleashed';
 
 type BasePlayModeState<T extends PlayMode> = {
   type: T;
@@ -17,16 +18,33 @@ export type PlaylistPlayModeState = BasePlayModeState<'playlist'> & {
 };
 
 export type UnleashedPlayModeState = BasePlayModeState<'unleashed'>;
-export type JoePlayModeState = BasePlayModeState<'joe'>;
 
 export type PlayModeState =
   | NormalPlayModeState
   | PlaylistPlayModeState
-  | UnleashedPlayModeState
-  | JoePlayModeState;
+  | UnleashedPlayModeState;
 
+/**
+ * Simulated delay range for loading prototypes.
+ * - min: Minimum delay in milliseconds.
+ * - max: Maximum delay in milliseconds.
+ */
 export type SimulatedDelayRange = { min: number; max: number };
 export type SimulatedDelayRangeByMode = Record<PlayMode, SimulatedDelayRange>;
+
+export type SimulatedDelayLevel =
+  | 'NORMAL'
+  | 'FASTEST'
+  | 'FASTER'
+  | 'FAST'
+  | 'SLOW'
+  | 'SLOWER'
+  | 'SLOWEST'
+  | 'UNLEASHED';
+export type SimulatedDelayRangeByLevel = Record<
+  SimulatedDelayLevel,
+  SimulatedDelayRange
+>;
 
 /**
  * Control panel mode of the ProtoPedia Viewer.

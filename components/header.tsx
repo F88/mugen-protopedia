@@ -1,10 +1,20 @@
 import { forwardRef, type ReactNode } from 'react';
 
-import type { PlayMode } from '@/types/mugen-protopedia.types';
+import type {
+  PlayMode,
+  SimulatedDelayLevel,
+} from '@/types/mugen-protopedia.types';
+
+import {
+  getPlayModeIcon,
+  getPlayModeLabel,
+  getSpeedIcon,
+} from '@/lib/utils/converter';
 
 import { Dashboard, type DashboardProps } from '@/components/dashboard';
 import { ObservatoryHeaderButton } from '@/components/observatory-header-button';
 import { PlaylistHeaderButton } from '@/components/playlist-header-button';
+import { StatusIndicator } from '@/components/status-indicator';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 interface HeaderProps {
@@ -12,10 +22,17 @@ interface HeaderProps {
   analysisDashboard?: ReactNode; // allow injection for Storybook/tests
   playMode: PlayMode;
   showPlayMode?: boolean;
+  delayLevel?: SimulatedDelayLevel;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
-  { dashboard, analysisDashboard, playMode, showPlayMode = false },
+  {
+    dashboard,
+    analysisDashboard,
+    playMode,
+    showPlayMode = false,
+    delayLevel = 'NORMAL',
+  },
   ref,
 ) {
   // const longTitle = 'ProtoPedia Viewer 25';
@@ -28,25 +45,8 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
   const longTitle = mugenLong + 'ProtoPedia';
   const shortTitle = mugenShort + 'PP';
 
-  // const playModeLabel = playMode === 'playlist' ? 'Playlist' : 'Normal';
-  let playModeLabel: string;
-  switch (playMode) {
-    case 'playlist':
-      playModeLabel = 'Playlist️';
-      break;
-    case 'unleashed':
-      playModeLabel = 'Unleashed';
-      break;
-    case 'joe':
-      playModeLabel = 'Joe';
-      break;
-    case 'normal':
-      playModeLabel = 'Normal';
-      break;
-    default:
-      playModeLabel = 'Normal';
-      break;
-  }
+  const playModeIcon = showPlayMode ? getPlayModeIcon(playMode) : null;
+  const speedIcon = getSpeedIcon(delayLevel);
 
   /**
    * Tailwind screen breakpoints (min-width):
@@ -69,14 +69,20 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(
             <span className="hidden sm:inline">{longTitle}</span>
           </h1>
 
-          {/* Play mode */}
-          {showPlayMode && (
-            <>
-              {/* <Badge variant={'default'} className="uppercase tracking-wide"> */}
-              {playModeLabel}
-              {/* </Badge> */}
-            </>
-          )}
+          {/* Play mode and speed indicator */}
+          <div className="flex items-center gap-1">
+            {/* Play mode */}
+            {process.env.NODE_ENV === 'development' && (
+              <span>{getPlayModeLabel(playMode)}</span>
+            )}
+            {playModeIcon && <StatusIndicator>{playModeIcon}</StatusIndicator>}
+            {/* Speed */}
+            {speedIcon != null && (
+              <StatusIndicator variant="blue" pulse>
+                {speedIcon}
+              </StatusIndicator>
+            )}
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Dashboard */}
