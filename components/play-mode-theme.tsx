@@ -289,6 +289,7 @@ const UnleashedThemeSonic = () => {
         }`}
       />
       <AnimatedLinearSpeedLines
+        key={isDark ? 'dark' : 'light'}
         className={`absolute inset-0 opacity-40 ${
           isDark ? 'mix-blend-screen' : 'mix-blend-normal'
         }`}
