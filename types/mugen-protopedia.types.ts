@@ -31,6 +31,20 @@ export type PlayModeState =
 export type SimulatedDelayRange = { min: number; max: number };
 export type SimulatedDelayRangeByMode = Record<PlayMode, SimulatedDelayRange>;
 
+export type SimulatedDelayLevel =
+  | 'NORMAL'
+  | 'FASTEST'
+  | 'FASTER'
+  | 'FAST'
+  | 'SLOW'
+  // | 'SLOWER'
+  // | 'SLOWEST'
+  | 'UNLEASHED';
+export type SimulatedDelayRangeByLevel = Record<
+  SimulatedDelayLevel,
+  SimulatedDelayRange
+>;
+
 /**
  * Control panel mode of the ProtoPedia Viewer.
  * - 'normal': Standard control panel mode.
