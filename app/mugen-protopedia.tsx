@@ -435,12 +435,18 @@ export function MugenProtoPedia() {
   const handleClearPrototypes = useCallback(() => {
     if (isPlaylistPlaying) return;
 
+    // Clear any existing prototypes
     clearSlots();
 
+    // Reset delay level to default in any PlayMode
+    changeDelayLevel('NORMAL');
+
+    // Route back to home if in playlist mode
     if (playModeState.type === 'playlist') {
       router.replace('/', { scroll: false });
     }
 
+    // Reset play mode to normal if not already
     if (playModeState.type !== 'normal') {
       setPlayModeState({ type: 'normal' });
     }
