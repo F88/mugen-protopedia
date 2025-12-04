@@ -32,6 +32,7 @@ export function getPlayModeIcon(playMode: PlayMode): undefined | string {
       : '';
   switch (playMode) {
     case 'normal':
+      // return `🎲${label}`;
       return `${label}`;
     case 'playlist':
       return `📜${label}`;
