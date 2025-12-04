@@ -21,6 +21,7 @@ type SpecialSequenceDefinition = {
  */
 const konamiCommand = {
   name: '573',
+  // keys: ['5', '7', '3'],
   keys: [
     'ArrowUp',
     'ArrowUp',
@@ -33,7 +34,7 @@ const konamiCommand = {
     'b',
     'a',
   ],
-  message: 'OPTION',
+  message: 'SPEED UP',
 } satisfies SpecialSequenceDefinition;
 
 /**
