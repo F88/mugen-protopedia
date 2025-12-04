@@ -47,12 +47,13 @@ export function getSpeedIcon(delayLevel: string) {
   switch (delayLevel) {
     case 'UNLEASHED':
       return '🦸';
+      return '⏱️';
     case 'FASTEST':
       return '🚀';
     case 'FASTER':
       return '🚄';
     case 'FAST':
-      return '⚡️';
+      return '🏃🏼‍➡️';
     case 'SLOW':
       return '🐢';
     case 'SLOWER':
