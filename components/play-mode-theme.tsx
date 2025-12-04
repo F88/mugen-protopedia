@@ -279,22 +279,6 @@ const UnleashedThemeManga = () => {
  * Visuals: Blue vertical linear speed lines.
  */
 const UnleashedThemeSonic = () => {
-  const { isDark } = useTheme();
-
-  // Define colors for each theme
-  const darkColors = [
-    'rgba(0, 200, 255, 0.8)', // Light Blue
-    'rgba(0, 50, 180, 0.8)', // Dark Blue
-    'rgba(0, 20, 100, 0.8)', // Deep Blue
-    'rgba(200, 240, 255, 0.8)', // Pale Blue
-  ];
-
-  const lightColors = [
-    'rgba(0, 160, 255, 0.8)', // Vivid Blue
-    'rgba(0, 100, 200, 0.8)', // Strong Blue
-    'rgba(0, 180, 240, 0.8)', // Bright Blue
-  ];
-
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
@@ -303,15 +287,13 @@ const UnleashedThemeSonic = () => {
         }`}
       />
       <AnimatedLinearSpeedLines
-        key={isDark ? 'dark' : 'light'} // Force re-mount on theme change to ensure clean redraw
-        className={`absolute inset-0 opacity-40 ${
-          isDark ? 'mix-blend-screen' : 'mix-blend-normal'
-        }`}
-        color={isDark ? darkColors : lightColors}
+        className="absolute inset-0 opacity-40 mix-blend-screen"
+        color="rgba(0, 200, 255, 0.8)"
       />
+      <div className="absolute inset-0 bg-linear-to-b from-blue-400/10 via-transparent to-blue-600/20" />
     </div>
   );
-};;
+};
 
 // -----------------------------------------------------------------------------
 // Main Component
