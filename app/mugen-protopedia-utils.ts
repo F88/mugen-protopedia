@@ -17,6 +17,8 @@ import {
  * Defines the minimum and maximum delay in milliseconds for each speed setting.
  */
 export const DELAY_LEVELS: SimulatedDelayRangeByLevel = {
+  SLOWEST: { min: 3_000, max: 10_000 },
+  SLOWER: { min: 1_000, max: 7_000 },
   SLOW: { min: 1_000, max: 5_000 },
   NORMAL: { min: 500, max: 3_000 },
   FAST: { min: 500, max: 2_000 },
@@ -67,6 +69,10 @@ export function getDefaultSimulatedDelayLevelForPlayMode(
  */
 export function speedUp(current: SimulatedDelayLevel): SimulatedDelayLevel {
   switch (current) {
+    case 'SLOWEST':
+      return 'SLOWER';
+    case 'SLOWER':
+      return 'SLOW';
     case 'SLOW':
       return 'NORMAL';
     case 'NORMAL':
@@ -93,6 +99,10 @@ export function speedUp(current: SimulatedDelayLevel): SimulatedDelayLevel {
  */
 export function speedDown(current: SimulatedDelayLevel): SimulatedDelayLevel {
   switch (current) {
+    case 'SLOWEST':
+      return 'SLOWEST';
+    case 'SLOWER':
+      return 'SLOWEST';
     case 'SLOW':
       return 'SLOW';
     case 'NORMAL':

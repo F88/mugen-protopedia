@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { SimulatedDelayLevel } from '@/types/mugen-protopedia.types';
 import {
   DELAY_LEVELS,
   arePlayModeStatesEqual,
@@ -10,97 +11,62 @@ import {
 
 describe('mugen-protopedia-utils', () => {
   describe('getSimulatedDelayRangeForLevel', () => {
-    it('should return correct range for NORMAL level', () => {
-      const range = getSimulatedDelayRangeForLevel('NORMAL');
-      expect(range).toEqual(DELAY_LEVELS.NORMAL);
-    });
-
-    it('should return correct range for FASTEST level', () => {
-      const range = getSimulatedDelayRangeForLevel('FASTEST');
-      expect(range).toEqual(DELAY_LEVELS.FASTEST);
-    });
-
-    it('should return NORMAL range for unknown level (fallback)', () => {
+    it.each([
+      ['SLOWEST', DELAY_LEVELS.SLOWEST],
+      ['SLOWER', DELAY_LEVELS.SLOWER],
+      ['SLOW', DELAY_LEVELS.SLOW],
+      ['NORMAL', DELAY_LEVELS.NORMAL],
+      ['FAST', DELAY_LEVELS.FAST],
+      ['FASTER', DELAY_LEVELS.FASTER],
+      ['FASTEST', DELAY_LEVELS.FASTEST],
+      ['UNLEASHED', DELAY_LEVELS.UNLEASHED],
+      ['UNKNOWN_LEVEL', DELAY_LEVELS.NORMAL],
+    ])('should return correct range for %s level', (level, expected) => {
       // @ts-expect-error Testing invalid input
-      const range = getSimulatedDelayRangeForLevel('UNKNOWN_LEVEL');
-      expect(range).toEqual(DELAY_LEVELS.NORMAL);
+      const range = getSimulatedDelayRangeForLevel(level);
+      expect(range).toEqual(expected);
     });
   });
 
   describe('getDefaultSimulatedDelayLevelForPlayMode', () => {
-    it('should return NORMAL for normal play mode', () => {
-      expect(getDefaultSimulatedDelayLevelForPlayMode('normal')).toBe('NORMAL');
-    });
-
-    it('should return NORMAL for playlist play mode', () => {
-      expect(getDefaultSimulatedDelayLevelForPlayMode('playlist')).toBe(
-        'NORMAL',
-      );
-    });
-
-    it('should return UNLEASHED for unleashed play mode', () => {
-      expect(getDefaultSimulatedDelayLevelForPlayMode('unleashed')).toBe(
-        'UNLEASHED',
-      );
-    });
-
-    it('should return NORMAL for unknown play mode (fallback)', () => {
+    it.each([
+      ['normal', 'NORMAL'],
+      ['playlist', 'NORMAL'],
+      ['unleashed', 'UNLEASHED'],
+      ['unknown', 'NORMAL'],
+    ])('should return %s for %s play mode', (mode, expected) => {
       // @ts-expect-error Testing invalid input
-      expect(getDefaultSimulatedDelayLevelForPlayMode('unknown')).toBe(
-        'NORMAL',
-      );
+      expect(getDefaultSimulatedDelayLevelForPlayMode(mode)).toBe(expected);
     });
   });
 
   describe('speedUp', () => {
-    it('should increase speed from SLOW to NORMAL', () => {
-      expect(speedUp('SLOW')).toBe('NORMAL');
-    });
-
-    it('should increase speed from NORMAL to FAST', () => {
-      expect(speedUp('NORMAL')).toBe('FAST');
-    });
-
-    it('should increase speed from FAST to FASTER', () => {
-      expect(speedUp('FAST')).toBe('FASTER');
-    });
-
-    it('should increase speed from FASTER to FASTEST', () => {
-      expect(speedUp('FASTER')).toBe('FASTEST');
-    });
-
-    it('should overheat (reset to SLOW) from FASTEST', () => {
-      expect(speedUp('FASTEST')).toBe('SLOW');
-    });
-
-    it('should return current level for UNLEASHED (no change)', () => {
-      expect(speedUp('UNLEASHED')).toBe('UNLEASHED');
+    it.each([
+      ['SLOWEST', 'SLOWER'],
+      ['SLOWER', 'SLOW'],
+      ['SLOW', 'NORMAL'],
+      ['NORMAL', 'FAST'],
+      ['FAST', 'FASTER'],
+      ['FASTER', 'FASTEST'],
+      ['FASTEST', 'SLOW'],
+      ['UNLEASHED', 'UNLEASHED'],
+    ])('should increase speed from %s to %s', (current, expected) => {
+      expect(speedUp(current as SimulatedDelayLevel)).toBe(expected);
     });
   });
 
   describe('speedDown', () => {
-    it('should stay at SLOW when slowing down from SLOW', () => {
-      expect(speedDown('SLOW')).toBe('SLOW');
-    });
-
-    it('should decrease speed from NORMAL to SLOW', () => {
-      expect(speedDown('NORMAL')).toBe('SLOW');
-    });
-
-    it('should decrease speed from FAST to NORMAL', () => {
-      expect(speedDown('FAST')).toBe('NORMAL');
-    });
-
-    it('should decrease speed from FASTER to FAST', () => {
-      expect(speedDown('FASTER')).toBe('FAST');
-    });
-
-    it('should decrease speed from FASTEST to FASTER', () => {
-      expect(speedDown('FASTEST')).toBe('FASTER');
-    });
-
-    it('should return current level for UNLEASHED (no change)', () => {
-      expect(speedDown('UNLEASHED')).toBe('UNLEASHED');
+    it.each([
+      ['SLOWEST', 'SLOWEST'],
+      ['SLOWER', 'SLOWEST'],
+      ['SLOW', 'SLOW'],
+      ['NORMAL', 'SLOW'],
+      ['FAST', 'NORMAL'],
+      ['FASTER', 'FAST'],
+      ['FASTEST', 'FASTER'],
+      ['UNLEASHED', 'UNLEASHED'],
+    ])('should decrease speed from %s to %s', (current, expected) => {
+      expect(speedDown(current as SimulatedDelayLevel)).toBe(expected);
     });
   });
 
