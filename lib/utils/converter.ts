@@ -26,29 +26,41 @@ export function getPlayModeLabel(playMode: PlayMode): string {
 
 // const showPlayMode = process.env.NODE_ENV === 'development';
 export function getPlayModeIcon(playMode: PlayMode) {
-  // const label = process.env.NODE_ENV === 'development' ? `(${getPlayModeLabel(playMode)})` : '';
+  const label =
+    process.env.NODE_ENV === 'development'
+      ? `(${getPlayModeLabel(playMode)})`
+      : '';
   switch (playMode) {
     case 'normal':
-      return ``;
+      return `${label}`;
     case 'playlist':
-      return `📜`;
+      return `📜${label}`;
     case 'unleashed':
-      return `🦸`;
+      return `🦸${label}`;
     //
     default:
-      return `❓`;
+      return `❓${label}`;
   }
 }
 
 export function getSpeedIcon(delayLevel: string) {
   switch (delayLevel) {
-    case 'FAST':
-      return '⚡️';
-    case 'FASTER':
-      return '🚄';
+    case 'UNLEASHED':
+      return '🦸';
     case 'FASTEST':
       return '🚀';
+    case 'FASTER':
+      return '🚄';
+    case 'FAST':
+      return '⚡️';
+    case 'SLOW':
+      return '🐢';
+    case 'SLOWER':
+      return '🐌';
+    case 'SLOWEST':
+      return '🦥';
     default:
+      // return '❓';
       return '';
   }
 }
