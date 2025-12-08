@@ -18,7 +18,10 @@
  * - `PROTOPEDIA_API_V2_BASE_URL` for overriding the upstream base URL.
  * - `PROTOPEDIA_API_V2_LOG_LEVEL` to control SDK log verbosity.
  */
-import { createProtoPediaClient } from 'protopedia-api-v2-client';
+import {
+  createProtoPediaClient,
+  ProtoPediaApiError,
+} from 'protopedia-api-v2-client';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /**
@@ -66,18 +69,16 @@ if (validToken === 'DUMMY_TOKEN_FOR_BUILD') {
 baseLogger.debug({ logLevel }, 'ProtoPedia client configuration');
 
 /**
- * Error type used when communicating with the ProtoPedia API.
+ * Re-export ProtoPediaApiError from the SDK for convenience.
  *
- * - `status` holds the HTTP status code when available.
- * - `body` may contain the raw response payload for debugging.
- *
- * This error is surfaced by higher-level server actions and fetchers
- * instead of leaking low-level fetch or SDK-specific errors.
+ * In v2.0.0+, the error structure includes:
+ * - `req.url`: The request URL
+ * - `req.method`: The HTTP method
+ * - `status`: HTTP status code
+ * - `body`: Response body for debugging
  */
-export class ProtopediaApiError extends Error {
-  status?: number;
-  body?: string;
-}
+export { ProtoPediaApiError };
+
 /**
  * Data-cache-aware ProtoPedia client.
  *

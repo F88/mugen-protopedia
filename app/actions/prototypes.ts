@@ -21,7 +21,7 @@ import { logger as baseLogger } from '@/lib/logger.server';
 import {
   protopediaForceCacheClient,
   protopediaNoStoreClient,
-  ProtopediaApiError,
+  ProtoPediaApiError,
 } from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
@@ -273,10 +273,14 @@ const fetchPrototypesInternal = async (
       `Failed to fetch prototypes${isNoStore ? ' (no-store)' : ''}`,
     );
 
-    if (error instanceof ProtopediaApiError) {
+    if (error instanceof ProtoPediaApiError) {
       const status = error.status ?? 500;
       logger.debug(
-        { status, errorType: 'ProtopediaApiError' },
+        {
+          status,
+          errorType: 'ProtoPediaApiError',
+          req: error.req,
+        },
         `Returning Protopedia API error response${
           isNoStore ? ' (no-store)' : ''
         }`,
