@@ -24,14 +24,15 @@ export type NormalizedPrototype = {
   freeComment?: string;
   systemDescription?: string;
 
-  /** Pipe-separated tags string from upstream API */
+  /** Users and Team */
+  users: string[];
+  teamNm?: string;
+
+  /** Tags, Materials, Events, and Awards */
   tags: string[];
   materials: string[];
   events: string[];
   awards: string[];
-  users: string[];
-
-  teamNm: string;
 
   // URLs
   /** URL of official site (if any) */
