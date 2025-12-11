@@ -66,15 +66,24 @@ export type NormalizedPrototype = {
   // slideMode?: number;
 };
 
+/**
+ * Normalizes an upstream prototype object into a consistent internal format.
+ *
+ * @param p - Upstream prototype object from ProtoPedia API.
+ * @returns Normalized prototype object.
+ */
 export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
   return {
     /* ID */
     id: p.id,
 
     /* Editorial information  */
+    // Always ProtoPedia format → UTC ISO string
     createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
+    // Always ProtoPedia format → UTC ISO string
     updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate,
+    // ProtoPedia format → UTC ISO string, null or undefined → undefined
+    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? undefined,
     createId: p.createId,
     updateId: p.updateId,
     releaseFlg: p.releaseFlg ?? 2 /* Default to 'Released' */,
