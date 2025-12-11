@@ -63,6 +63,22 @@ describe('useClientAnniversaries', () => {
       averageMaintenanceDays: 0,
       maintenanceRatio: 0,
     },
+    yearlyTopMaterials: {},
+    evolutionSpan: {
+      distribution: {
+        noUpdates: 0,
+        sameDayUpdate: 0,
+        within3Days: 0,
+        within7Days: 0,
+        within14Days: 0,
+        within30Days: 0,
+        within90Days: 0,
+        within180Days: 0,
+        within1Year: 0,
+        within3Years: 0,
+        over3Years: 0,
+      },
+    },
     _debugMetrics: {},
   };
 

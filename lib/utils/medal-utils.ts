@@ -36,7 +36,7 @@ export function calculateMedalCounts(prototype: Prototype): MedalCounts {
 
   let cakeMedals = 0;
   let candleMedals = 0;
-  if (highlights.isBirthDay) {
+  if (highlights.isBirthDay && prototype.releaseDate) {
     cakeMedals++;
     const age = calculateAge(prototype.releaseDate);
     candleMedals = age.years;

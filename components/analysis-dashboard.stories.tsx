@@ -75,7 +75,7 @@ function analyzePrototypes(
       .map((prototype) => ({
         id: prototype.id,
         title: prototype.prototypeNm ?? '',
-        releaseDate: prototype.releaseDate,
+        releaseDate: prototype.releaseDate!,
       })),
   } as const;
 
