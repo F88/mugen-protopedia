@@ -9,52 +9,37 @@ export type NormalizedPrototype = {
   /* ID */
   id: number;
 
+  /* Editorial information  */
+  createDate: string;
+  updateDate?: string;
+  releaseDate?: string;
+  createId?: number;
+  updateId?: number;
+  releaseFlg: number;
+
   /* Basic information */
+  status: number;
   prototypeNm: string;
+  summary: string;
+  freeComment?: string;
+  systemDescription?: string;
 
   /** Pipe-separated tags string from upstream API */
-  tags?: string[];
+  tags: string[];
+  materials: string[];
+  events: string[];
+  awards: string[];
+  users: string[];
 
   teamNm: string;
 
-  /** Pipe-separated tags string from upstream API */
-  users: string[];
-
-  summary?: string;
-  status: number;
-  releaseFlg: number;
-
-  // uuid: string;
-  // nid?: string;
-
-  /* Times  */
-  createId?: number;
-  createDate: string;
-  updateId?: number;
-  updateDate: string;
-  releaseDate: string;
-
-  revision: number;
-
-  /** Pipe-separated tags string from upstream API */
-  awards?: string[];
-
-  freeComment: string;
-  systemDescription?: string;
-
-  // counts
-  viewCount: number;
-  goodCount: number;
-  commentCount: number;
-
   // URLs
-
+  /** URL of official site (if any) */
+  officialLink?: string;
   /** URL of YouTube or Vimeo */
   videoUrl?: string;
-
   /* URL of eyecatch image */
   mainUrl: string;
-
   /* URLs of related link */
   relatedLink?: string;
   relatedLink2?: string;
@@ -62,19 +47,22 @@ export type NormalizedPrototype = {
   relatedLink4?: string;
   relatedLink5?: string;
 
+  // counts
+  viewCount: number;
+  goodCount: number;
+  commentCount: number;
+
   // License
-  licenseType: number;
 
   // Others
-  thanksFlg: number;
+  uuid?: string;
+  nid?: string;
+  revision?: number;
+  licenseType?: number;
+  thanksFlg?: number;
+  slideMode?: number;
 
   /** Pipe-separated tags string from upstream API */
-  events?: string[];
-
-  officialLink?: string;
-
-  /** Pipe-separated tags string from upstream API */
-  materials?: string[];
 
   // slideMode?: number;
 };
@@ -84,19 +72,22 @@ export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
     id: p.id,
     prototypeNm: p.prototypeNm,
     tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
-    teamNm: p.teamNm,
+    teamNm: p.teamNm ?? '',
     users: p.users ? splitPipeSeparatedString(p.users) : [],
     summary: p.summary,
     status: p.status,
-    releaseFlg: p.releaseFlg,
+    releaseFlg: p.releaseFlg ?? 2,
     createId: p.createId,
     createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
     updateId: p.updateId,
     updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate,
-    revision: p.revision,
+    releaseDate:
+      normalizeProtoPediaTimestamp(p.releaseDate) ??
+      normalizeProtoPediaTimestamp(p.createDate) ??
+      p.createDate,
+    revision: p.revision ?? 0,
     awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
-    freeComment: p.freeComment,
+    freeComment: p.freeComment ?? '',
     systemDescription: p.systemDescription,
     viewCount: p.viewCount,
     goodCount: p.goodCount,
@@ -108,8 +99,8 @@ export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
     relatedLink3: p.relatedLink3,
     relatedLink4: p.relatedLink4,
     relatedLink5: p.relatedLink5,
-    licenseType: p.licenseType,
-    thanksFlg: p.thanksFlg,
+    licenseType: p.licenseType ?? 1,
+    thanksFlg: p.thanksFlg ?? 0,
     events: p.events ? splitPipeSeparatedString(p.events) : [],
     officialLink: p.officialLink,
     materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
