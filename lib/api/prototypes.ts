@@ -21,12 +21,12 @@ export type NormalizedPrototype = {
   status: number;
   prototypeNm: string;
   summary: string;
-  freeComment?: string;
-  systemDescription?: string;
+  freeComment: string;
+  systemDescription: string;
 
   /** Users and Team */
   users: string[];
-  teamNm?: string;
+  teamNm: string;
 
   /** Tags, Materials, Events, and Awards */
   tags: string[];
