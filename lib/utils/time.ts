@@ -47,8 +47,7 @@ export function parseAsProtoPediaTimestamp(value: string): string | undefined {
   ) {
     return undefined;
   }
-
-  // ProtoPedia の既存レスポンスは JST 起点で、UTC へ換算するために固定オフセットを引く
+  // ProtoPedia の既存レスポンスは JST 起点でなので、UTC へ換算するために固定オフセットを引く
   const utcMs =
     Date.UTC(year, month - 1, day, hour, minute, second, milli) - JST_OFFSET_MS;
   if (!Number.isFinite(utcMs)) {
