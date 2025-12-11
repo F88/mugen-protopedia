@@ -39,6 +39,33 @@ describe('buildAnniversaries', () => {
     ]);
     expect(logger.debug).toHaveBeenCalled();
   });
+
+  it('filters out prototypes with undefined releaseDate', () => {
+    const prototypes = [
+      { id: 1, releaseDate: '2000-01-01', prototypeNm: 'Birthday' },
+      { id: 2, releaseDate: undefined, prototypeNm: 'No Release' },
+      { id: 3, releaseDate: '2025-11-28', prototypeNm: 'Today' },
+      { id: 4, prototypeNm: 'Also No Release' },
+    ];
+
+    const result = buildAnniversaries(prototypes, { logger });
+
+    expect(result.birthdayPrototypes).toEqual([
+      {
+        id: 1,
+        title: 'Birthday',
+        years: 24,
+        releaseDate: '2000-01-01',
+      },
+    ]);
+    expect(result.newbornPrototypes).toEqual([
+      {
+        id: 3,
+        title: 'Today',
+        releaseDate: '2025-11-28',
+      },
+    ]);
+  });
 });
 
 describe('buildAnniversarySlice', () => {
