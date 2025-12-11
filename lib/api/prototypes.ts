@@ -34,28 +34,26 @@ export type NormalizedPrototype = {
   events: string[];
   awards: string[];
 
-  // URLs
-  /** URL of official site (if any) */
+  /* URLs */
+  // URL of official site (if any)
   officialLink?: string;
-  /** URL of YouTube or Vimeo */
+  // URL of YouTube or Vimeo video (if any)
   videoUrl?: string;
-  /* URL of eyecatch image */
+  // URL of eyecatch image
   mainUrl: string;
-  /* URLs of related link */
+  // URLs of related link
   relatedLink?: string;
   relatedLink2?: string;
   relatedLink3?: string;
   relatedLink4?: string;
   relatedLink5?: string;
 
-  // counts
+  /* counts */
   viewCount: number;
   goodCount: number;
   commentCount: number;
 
-  // License
-
-  // Others
+  /* Others */
   uuid?: string;
   nid?: string;
   revision?: number;
@@ -70,29 +68,36 @@ export type NormalizedPrototype = {
 
 export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
   return {
+    /* ID */
     id: p.id,
-    prototypeNm: p.prototypeNm,
-    tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
-    teamNm: p.teamNm ?? '',
-    users: p.users ? splitPipeSeparatedString(p.users) : [],
-    summary: p.summary,
-    status: p.status,
-    releaseFlg: p.releaseFlg ?? 2,
-    createId: p.createId,
+
+    /* Editorial information  */
     createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
-    updateId: p.updateId,
     updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate:
-      normalizeProtoPediaTimestamp(p.releaseDate) ??
-      normalizeProtoPediaTimestamp(p.createDate) ??
-      p.createDate,
-    revision: p.revision ?? 0,
-    awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
+    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate,
+    createId: p.createId,
+    updateId: p.updateId,
+    releaseFlg: p.releaseFlg ?? 2 /* Default to 'Released' */,
+
+    /* Basic information */
+    status: p.status,
+    prototypeNm: p.prototypeNm,
+    summary: p.summary ?? '',
     freeComment: p.freeComment ?? '',
-    systemDescription: p.systemDescription,
-    viewCount: p.viewCount,
-    goodCount: p.goodCount,
-    commentCount: p.commentCount,
+    systemDescription: p.systemDescription ?? '',
+
+    /** Users and Team */
+    users: p.users ? splitPipeSeparatedString(p.users) : [],
+    teamNm: p.teamNm ?? '',
+
+    /** Tags, Materials, Events, and Awards */
+    tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
+    materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
+    events: p.events ? splitPipeSeparatedString(p.events) : [],
+    awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
+
+    /* URLs */
+    officialLink: p.officialLink,
     videoUrl: p.videoUrl,
     mainUrl: p.mainUrl,
     relatedLink: p.relatedLink,
@@ -100,10 +105,18 @@ export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
     relatedLink3: p.relatedLink3,
     relatedLink4: p.relatedLink4,
     relatedLink5: p.relatedLink5,
+
+    /* counts */
+    viewCount: p.viewCount,
+    goodCount: p.goodCount,
+    commentCount: p.commentCount,
+
+    /* Others */
+    uuid: p.uuid,
+    nid: p.nid,
+    revision: p.revision ?? 0,
     licenseType: p.licenseType ?? 1,
     thanksFlg: p.thanksFlg ?? 0,
-    events: p.events ? splitPipeSeparatedString(p.events) : [],
-    officialLink: p.officialLink,
-    materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
+    slideMode: p.slideMode,
   } satisfies NormalizedPrototype;
 }
