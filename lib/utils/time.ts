@@ -59,25 +59,19 @@ export function parseAsProtoPediaTimestamp(value: string): string | undefined {
 }
 
 /**
- * Parse ISO 8601 timestamp with explicit timezone offset.
+ * Parse date string using JavaScript's Date parser.
  *
- * Accepts formats with explicit timezone:
- * - `YYYY-MM-DDTHH:MM:SSZ` (UTC)
- * - `YYYY-MM-DDTHH:MM:SS+HH:MM` (with offset)
- * - `YYYY-MM-DDTHH:MM:SS-HH:MM` (with offset)
+ * Accepts any format that `new Date()` can parse, including:
+ * - ISO 8601 with timezone: `YYYY-MM-DDTHH:MM:SSZ` or `YYYY-MM-DDTHH:MM:SS±HH:MM`
+ * - ISO 8601 without timezone: `YYYY-MM-DDTHH:MM:SS` (interpreted as local time)
+ * - Date-only formats: `YYYY-MM-DD`
+ * - Other formats supported by JavaScript Date parser
  *
- * @param value - String to parse (should have T separator)
+ * @param value - String to parse
  * @returns UTC ISO string if valid, undefined otherwise
  */
-export function parseAsIso8601(value: string): string | undefined {
+export function parseDateString(value: string): string | undefined {
   if (!value) {
-    return undefined;
-  }
-
-  // Check for explicit timezone offset
-  const hasOffset = value.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(value);
-
-  if (!hasOffset) {
     return undefined;
   }
 
@@ -92,20 +86,57 @@ export function parseAsIso8601(value: string): string | undefined {
 /**
  * Normalize ProtoPedia timestamps to UTC ISO strings.
  *
- * Supports:
- * - ProtoPedia format: `YYYY-MM-DD HH:MM:SS.f+` (JST, space separator, fractional seconds required)
- * - ISO 8601 with explicit timezone: `YYYY-MM-DDTHH:MM:SS[.f+]Z` or with offset
+ * This function attempts to parse timestamps using multiple strategies:
+ *
+ * 1. **ProtoPedia format** (`parseAsProtoPediaTimestamp`):
+ *    - Format: `YYYY-MM-DD HH:MM:SS.f+` (space separator, fractional seconds required)
+ *    - Timezone: Always treated as JST (UTC+9)
+ *    - Returns UTC ISO string with JST offset subtracted
+ *
+ * 2. **Flexible date strings** (`parseDateString`):
+ *    - Accepts any format parseable by JavaScript's `Date` constructor
+ *    - Includes ISO 8601 with timezone (Z or ±HH:MM), local time, etc.
+ *    - Returns UTC ISO string based on the parsed result
+ *
+ * 3. **Passthrough**:
+ *    - If both parsers fail, returns the input value as-is
+ *    - Allows downstream code to handle or log unexpected formats
+ *
+ * **Special cases**:
+ * - `null` input → `null` output (preserves explicit null in API responses)
+ * - `undefined` input → `undefined` output (preserves field absence)
+ * - Empty string or invalid format → returned as-is
+ *
+ * **Testing note**:
+ * This function is primarily tested through integration scenarios.
+ * Detailed format validation and edge cases are covered by unit tests
+ * for `parseAsProtoPediaTimestamp` and `parseDateString`.
  *
  * @param value - Timestamp string, null, or undefined from API response
- * @returns
- *   - UTC ISO string for valid JST or ISO 8601 timestamps
- *   - `null` if input is `null` (preserves explicit null)
- *   - `undefined` if input is `undefined` (preserves field absence)
- *   - Input value as-is if string cannot be parsed (allows downstream handling)
+ * @returns UTC ISO string, null, undefined, or original value
+ *
+ * @example
+ * ```typescript
+ * // ProtoPedia format (JST)
+ * normalizeProtoPediaTimestamp('2025-11-14 12:03:07.0')
+ * // => '2025-11-14T03:03:07.000Z'
+ *
+ * // ISO 8601 with timezone
+ * normalizeProtoPediaTimestamp('2025-11-14T12:03:07+09:00')
+ * // => '2025-11-14T03:03:07.000Z'
+ *
+ * // null/undefined preservation
+ * normalizeProtoPediaTimestamp(null) // => null
+ * normalizeProtoPediaTimestamp(undefined) // => undefined
+ *
+ * // Invalid format passthrough
+ * normalizeProtoPediaTimestamp('invalid') // => 'invalid'
+ * ```
  */
 export function normalizeProtoPediaTimestamp(
   value: string | null | undefined,
 ): string | null | undefined {
+  // Preserve null/undefined as-is
   if (value === null) {
     return null;
   }
@@ -113,15 +144,18 @@ export function normalizeProtoPediaTimestamp(
     return undefined;
   }
 
+  // Try ProtoPedia format first (JST-based, strict format)
   const protoPediaResult = parseAsProtoPediaTimestamp(value);
   if (protoPediaResult !== undefined) {
     return protoPediaResult;
   }
 
-  const iso8601Result = parseAsIso8601(value);
-  if (iso8601Result !== undefined) {
-    return iso8601Result;
+  // Fall back to flexible date parsing (handles ISO 8601, local time, etc.)
+  const dateStringResult = parseDateString(value);
+  if (dateStringResult !== undefined) {
+    return dateStringResult;
   }
 
+  // Return as-is if unparseable (allows downstream handling)
   return value;
 }
