@@ -638,8 +638,14 @@ describe('normalizePrototype', () => {
         awards: 'Best Innovation Award|Audience Award',
       };
       const result = normalizePrototype(prototype);
-      expect(result.events).toEqual(['Hackathon 2024@hack2024', 'Maker Faire@mf2024']);
-      expect(result.awards).toEqual(['Best Innovation Award', 'Audience Award']);
+      expect(result.events).toEqual([
+        'Hackathon 2024@hack2024',
+        'Maker Faire@mf2024',
+      ]);
+      expect(result.awards).toEqual([
+        'Best Innovation Award',
+        'Audience Award',
+      ]);
     });
 
     it('handles prototype with Japanese characters in text fields', () => {
