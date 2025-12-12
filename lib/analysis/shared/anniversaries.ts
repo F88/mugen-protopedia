@@ -59,7 +59,7 @@ import {
 export function buildAnniversaries(
   prototypes: Array<{
     id: number;
-    releaseDate: string;
+    releaseDate?: string;
     title?: string;
     prototypeNm?: string;
   }>,
@@ -82,12 +82,12 @@ export function buildAnniversaries(
         !isToday(prototype.releaseDate),
     )
     .map((prototype) => {
-      const age = calculateAge(prototype.releaseDate);
+      const age = calculateAge(prototype.releaseDate!);
       return {
         id: prototype.id,
         title: getTitle(prototype),
         years: age.years,
-        releaseDate: prototype.releaseDate,
+        releaseDate: prototype.releaseDate!,
       };
     });
 
@@ -98,7 +98,7 @@ export function buildAnniversaries(
     .map((prototype) => ({
       id: prototype.id,
       title: getTitle(prototype),
-      releaseDate: prototype.releaseDate,
+      releaseDate: prototype.releaseDate!,
     }));
 
   if (options?.logger) {

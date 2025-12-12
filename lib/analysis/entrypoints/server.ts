@@ -329,7 +329,7 @@ export function buildAnniversaryCandidates(
     .map((p) => ({
       id: p.id,
       title: p.prototypeNm,
-      releaseDate: p.releaseDate,
+      releaseDate: p.releaseDate!,
     }));
   const metadata = {
     computedAt: referenceDate.toISOString(),
@@ -459,7 +459,7 @@ export function analyzePrototypesForServer(
 
   // Compute dataset date range for diagnostics
   const validDates = prototypes
-    .map((p) => Date.parse(p.releaseDate))
+    .map((p) => (p.releaseDate ? Date.parse(p.releaseDate) : NaN))
     .filter((t) => Number.isFinite(t))
     .sort((a, b) => a - b);
   const datasetMin =

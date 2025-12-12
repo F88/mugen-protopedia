@@ -15,3 +15,9 @@ storybook-static/
 package-lock.json
 renovate.json
 tools/prompts/*
+
+
+# Temporary disabled files
+
+# __tests__/lib/utils/time.test.ts
+# lib/api/prototypes.test.ts
