@@ -229,6 +229,8 @@ export function MugenProtoPedia() {
         setPlayModeState({ type: 'unleashed' });
       } else if (match.name === '573') {
         changeDelayLevel((currentLevel) => speedUp(currentLevel));
+      } else if (match.name === 'rendezvous') {
+        setPlayModeState({ type: 'dev' });
       }
       // Reset matched state after animation
       setTimeout(() => {
