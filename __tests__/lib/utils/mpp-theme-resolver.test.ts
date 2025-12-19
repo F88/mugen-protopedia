@@ -1,6 +1,9 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 
-import { resolveMppThemeType } from '@/lib/utils/mpp-theme-resolver';
+import {
+  resolveMppThemeType,
+  resolveThemeByDate,
+} from '@/lib/utils/mpp-theme-resolver';
 
 import type {
   PlayModeState,
@@ -39,15 +42,15 @@ describe('resolveMppThemeType', () => {
     });
   });
 
-  describe('christmas mode', () => {
-    test('returns christmas theme for xmas mode', () => {
-      const mode: PlayModeState = { type: 'xmas' };
+  describe('dev mode', () => {
+    test('returns christmas theme for dev mode', () => {
+      const mode: PlayModeState = { type: 'dev' };
       const result = resolveMppThemeType(mode);
       expect(result).toBe('christmas');
     });
 
-    test('returns christmas theme for xmas mode with delay level', () => {
-      const mode: PlayModeState = { type: 'xmas' };
+    test('returns christmas theme for dev mode with delay level', () => {
+      const mode: PlayModeState = { type: 'dev' };
       const delayLevel: SimulatedDelayLevel = 'NORMAL';
       const result = resolveMppThemeType(mode, delayLevel);
       expect(result).toBe('christmas');
@@ -142,7 +145,7 @@ describe('resolveMppThemeType', () => {
           expected: 'christmas',
         },
         {
-          mode: { type: 'xmas' },
+          mode: { type: 'dev' },
           expected: 'christmas',
         },
         {
@@ -173,6 +176,152 @@ describe('resolveMppThemeType', () => {
       };
       const result = resolveMppThemeType(mode, 'FAST');
       expect(result).toBe('random');
+    });
+  });
+});
+
+describe('resolveThemeByDate', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe('Christmas theme period', () => {
+    test('returns christmas for December 19, 16:00', () => {
+      vi.setSystemTime(new Date('2025-12-19T16:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 19, 18:00', () => {
+      vi.setSystemTime(new Date('2025-12-19T18:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 20, 23:59', () => {
+      vi.setSystemTime(new Date('2025-12-20T23:59:59'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 21, 00:00 (after midnight)', () => {
+      vi.setSystemTime(new Date('2025-12-21T00:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 21, 05:59', () => {
+      vi.setSystemTime(new Date('2025-12-21T05:59:59'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 25, 20:00', () => {
+      vi.setSystemTime(new Date('2025-12-25T20:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns null for December 26, 02:00 (outside period)', () => {
+      vi.setSystemTime(new Date('2025-12-26T02:00:00'));
+      expect(resolveThemeByDate()).toBe(null);
+    });
+  });
+
+  describe('Outside Christmas theme period', () => {
+    test('returns null for December 19, 15:59', () => {
+      vi.setSystemTime(new Date('2025-12-19T15:59:59'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for December 19, 06:00', () => {
+      vi.setSystemTime(new Date('2025-12-19T06:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for December 18, 18:00', () => {
+      vi.setSystemTime(new Date('2025-12-18T18:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for December 26, 06:00', () => {
+      vi.setSystemTime(new Date('2025-12-26T06:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for December 26, 18:00', () => {
+      vi.setSystemTime(new Date('2025-12-26T18:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for November 20, 18:00', () => {
+      vi.setSystemTime(new Date('2025-11-20T18:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null for January 20, 18:00', () => {
+      vi.setSystemTime(new Date('2025-01-20T18:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+  });
+
+  describe('Boundary conditions', () => {
+    test('returns null at December 19, 15:59:59 (before start)', () => {
+      vi.setSystemTime(new Date('2025-12-19T15:59:59'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns christmas at December 19, 16:00:00 (exact start)', () => {
+      vi.setSystemTime(new Date('2025-12-19T16:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas at December 19, 16:00:01 (after start)', () => {
+      vi.setSystemTime(new Date('2025-12-19T16:00:01'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns null at December 20, 15:59:59 (before daily start)', () => {
+      vi.setSystemTime(new Date('2025-12-20T15:59:59'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns christmas at December 20, 16:00:00 (daily start)', () => {
+      vi.setSystemTime(new Date('2025-12-20T16:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas at December 21, 05:59:59 (before daily end)', () => {
+      vi.setSystemTime(new Date('2025-12-21T05:59:59'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns null at December 21, 06:00:00 (daily end)', () => {
+      vi.setSystemTime(new Date('2025-12-21T06:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns christmas at December 25, 23:59:59 (last moment of period)', () => {
+      vi.setSystemTime(new Date('2025-12-25T23:59:59'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns null at December 26, 00:00:00 (after period end)', () => {
+      vi.setSystemTime(new Date('2025-12-26T00:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null at December 26, 05:59:59 (after period end)', () => {
+      vi.setSystemTime(new Date('2025-12-26T05:59:59'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null at December 26, 06:00:00 (period end)', () => {
+      vi.setSystemTime(new Date('2025-12-26T06:00:00'));
+      expect(resolveThemeByDate()).toBeNull();
+    });
+
+    test('returns null at December 18, 23:59:59 (day before period)', () => {
+      vi.setSystemTime(new Date('2025-12-18T23:59:59'));
+      expect(resolveThemeByDate()).toBeNull();
     });
   });
 });

@@ -349,7 +349,7 @@ const TwinklingStars = ({ className }: { className?: string }) => {
       isBright: boolean;
     }>
   >(() => {
-    // Generate stars on client side to avoid hydration mismatch
+    // Generate stars on client side only to avoid hydration mismatch
     const starColors = ['#ffd700', '#c0c0c0', '#ffffff', '#ffeb3b'];
     const allStars = Array.from({ length: 25 }, (_, i) => ({
       id: i,
@@ -376,6 +376,10 @@ const TwinklingStars = ({ className }: { className?: string }) => {
 
     return [...allStars, ...brightStars];
   });
+
+  if (stars.length === 0) {
+    return null;
+  }
 
   return (
     <div className={className}>
