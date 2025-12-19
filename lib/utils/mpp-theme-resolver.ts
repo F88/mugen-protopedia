@@ -6,7 +6,7 @@ import type {
 
 /**
  * Resolves theme type based on current date and time.
- * Christmas theme is shown during December 20-25, 16:00-06:00 (next day) in user's local time.
+ * Christmas theme is shown during December 19-25, 16:00-06:00 (next day) in user's local time.
  *
  * @returns Theme type based on date/time, or null if no special theme
  */
@@ -20,8 +20,12 @@ export function resolveThemeByDate(): MppThemeType {
 
   // Check for Christmas theme condition
   //
-  // December 19-25, 16:00-06:00 (next day)
-  if (month === 11 && date >= 19 && date <= 25 && (hour >= 16 || hour < 6)) {
+  // December 19-24: 16:00-06:00 (next day)
+  // December 25: All day
+  if (
+    month === 11 &&
+    ((date >= 19 && date < 25 && (hour >= 16 || hour < 6)) || date === 25)
+  ) {
     return 'christmas';
   }
 

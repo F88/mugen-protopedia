@@ -220,6 +220,16 @@ describe('resolveThemeByDate', () => {
       expect(resolveThemeByDate()).toBe('christmas');
     });
 
+    test('returns christmas for December 25, 10:00 (all day active)', () => {
+      vi.setSystemTime(new Date('2025-12-25T10:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas for December 25, 10:00 (all day active)', () => {
+      vi.setSystemTime(new Date('2025-12-25T10:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
     test('returns null for December 26, 02:00 (outside period)', () => {
       vi.setSystemTime(new Date('2025-12-26T02:00:00'));
       expect(resolveThemeByDate()).toBe(null);
@@ -299,8 +309,18 @@ describe('resolveThemeByDate', () => {
       expect(resolveThemeByDate()).toBeNull();
     });
 
-    test('returns christmas at December 25, 23:59:59 (last moment of period)', () => {
+    test('returns christmas at December 25, 23:59:59 (last moment of Dec 25)', () => {
       vi.setSystemTime(new Date('2025-12-25T23:59:59'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas at December 25, 06:00:00 (all day active)', () => {
+      vi.setSystemTime(new Date('2025-12-25T06:00:00'));
+      expect(resolveThemeByDate()).toBe('christmas');
+    });
+
+    test('returns christmas at December 25, 06:00:00 (all day active)', () => {
+      vi.setSystemTime(new Date('2025-12-25T06:00:00'));
       expect(resolveThemeByDate()).toBe('christmas');
     });
 
