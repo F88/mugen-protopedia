@@ -265,6 +265,7 @@ const AnimatedSnowfall = ({ className }: { className?: string }) => {
       speed: number;
       drift: number;
       driftOffset: number;
+      driftFrequency: number;
     }[] = [];
     const snowflakeCount = 40; // Number of snowflakes
 
@@ -275,9 +276,10 @@ const AnimatedSnowfall = ({ className }: { className?: string }) => {
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           radius: Math.random() * 3 + 1, // Size between 1-4px
-          speed: Math.random() * 3 + 2, // Speed between 2-5px/frame
+          speed: Math.random() * 1 + 0.5, // Speed between 0.5-1.5px/frame
           drift: Math.random() * 0.5 + 0.25, // Horizontal drift 0.25-0.75
           driftOffset: Math.random() * Math.PI * 2, // Phase offset for sine wave
+          driftFrequency: Math.random() * 0.01 + 0.005, // Frequency 0.005-0.015
         });
       }
     };
@@ -293,7 +295,9 @@ const AnimatedSnowfall = ({ className }: { className?: string }) => {
       snowflakes.forEach((flake) => {
         // Move snowflake
         flake.y += flake.speed;
-        flake.x += Math.sin((frame + flake.driftOffset) * 0.01) * flake.drift;
+        flake.x +=
+          Math.sin(frame * flake.driftFrequency + flake.driftOffset) *
+          flake.drift;
 
         // Reset if off screen
         if (flake.y > canvas.height) {
@@ -342,11 +346,12 @@ const TwinklingStars = ({ className }: { className?: string }) => {
       color: string;
       delay: string;
       duration: string;
+      isBright: boolean;
     }>
   >(() => {
     // Generate stars on client side to avoid hydration mismatch
     const starColors = ['#ffd700', '#c0c0c0', '#ffffff', '#ffeb3b'];
-    return Array.from({ length: 25 }, (_, i) => ({
+    const allStars = Array.from({ length: 25 }, (_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       top: `${Math.random() * 100}%`,
@@ -354,7 +359,22 @@ const TwinklingStars = ({ className }: { className?: string }) => {
       color: starColors[Math.floor(Math.random() * starColors.length)],
       delay: `${Math.random() * 3}s`,
       duration: `${Math.random() * 2 + 1.5}s`, // 1.5-3.5s
+      isBright: false,
     }));
+
+    // Add 5 large bright stars
+    const brightStars = Array.from({ length: 5 }, (_, i) => ({
+      id: 25 + i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${Math.random() * 3 + 6}px`, // 6-9px
+      color: starColors[Math.floor(Math.random() * starColors.length)],
+      delay: `${Math.random() * 3}s`,
+      duration: `${Math.random() * 2 + 2}s`, // 2-4s (slower)
+      isBright: true,
+    }));
+
+    return [...allStars, ...brightStars];
   });
 
   return (
@@ -370,7 +390,9 @@ const TwinklingStars = ({ className }: { className?: string }) => {
             height: star.size,
             backgroundColor: star.color,
             borderRadius: '50%',
-            boxShadow: `0 0 6px ${star.color}`,
+            boxShadow: star.isBright
+              ? `0 0 12px ${star.color}, 0 0 24px ${star.color}`
+              : `0 0 6px ${star.color}`,
             animationDelay: star.delay,
             animationDuration: star.duration,
           }}
@@ -561,7 +583,8 @@ export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
 
   switch (themeType) {
     case 'unleashed':
-      return <UnleashedThemeRandomized />;
+      return <ChristmasTheme />;
+    // return <UnleashedThemeRandomized />;
     case 'christmas':
       return <ChristmasTheme />;
     case 'random':
