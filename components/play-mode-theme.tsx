@@ -583,8 +583,7 @@ export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
 
   switch (themeType) {
     case 'unleashed':
-      return <ChristmasTheme />;
-    // return <UnleashedThemeRandomized />;
+      return <UnleashedThemeRandomized />;
     case 'christmas':
       return <ChristmasTheme />;
     case 'random':
