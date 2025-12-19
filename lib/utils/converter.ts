@@ -19,6 +19,10 @@ export function getPlayModeLabel(playMode: PlayMode): string {
       return 'Playlist️';
     case 'unleashed':
       return 'Unleashed';
+    case 'dev':
+      return 'Dev';
+    case 'xmas':
+      return 'Christmas';
     default:
       return 'Unknown';
   }
@@ -34,7 +38,10 @@ export function getPlayModeIcon(playMode: PlayMode): undefined | string {
       return `📜`;
     case 'unleashed':
       return `🦸`;
-    //
+    case 'dev':
+      return `⚔️`;
+    case 'xmas':
+      return `🎄`;
     default:
       return `❓`;
   }

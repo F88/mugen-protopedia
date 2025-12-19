@@ -31,6 +31,10 @@ export const buildUnleashedPlayModeState = (): PlayModeState => ({
   type: 'unleashed',
 });
 
+export const buildDevPlayModeState = (): PlayModeState => ({
+  type: 'dev',
+});
+
 /**
  * Resolves the play mode based on the provided direct launch parameters.
  */

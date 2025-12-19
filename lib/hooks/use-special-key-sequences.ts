@@ -73,12 +73,22 @@ const hiCommand = {
   message: '┬┴┬┴┤･ω･)ﾉ├┬┴┬┴',
 } satisfies SpecialSequenceDefinition;
 
+/**
+ * Rendezvous
+ */
+const rendezvousCommand = {
+  name: 'rendezvous',
+  keys: ['r', 'e', 'n', 'd', 'e', 'z', 'v', 'o', 'u', 's'],
+  message: 'SET RUN_MODE=DEV',
+} satisfies SpecialSequenceDefinition;
+
 const SPECIAL_SEQUENCES: SpecialSequenceDefinition[] = [
   pingCommand,
   slCommand,
   hiCommand,
   konamiCommand,
   kskCommand,
+  rendezvousCommand,
 ];
 
 type UseSpecialKeySequencesOptions = {
