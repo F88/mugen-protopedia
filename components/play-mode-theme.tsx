@@ -7,6 +7,7 @@ import { UniverseBackgroundMainDark } from '@/app/observatory/shared/universe-ba
 import { useHtmlTheme } from '@/hooks/use-html-theme';
 
 import { logger } from '@/lib/logger.client';
+import { resolveMppThemeType } from '@/lib/utils/mpp-theme-resolver';
 
 import {
   PlayModeState,
@@ -231,6 +232,154 @@ const AnimatedLinearSpeedLines = ({
   return <canvas ref={canvasRef} className={className} />;
 };
 
+/**
+ * Component that renders animated snowfall for Christmas theme.
+ * Uses HTML5 Canvas to render falling snowflakes with varying sizes and gentle motion.
+ */
+const AnimatedSnowfall = ({ className }: { className?: string }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Resize handling
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Snowflake particles
+    const snowflakes: {
+      x: number;
+      y: number;
+      radius: number;
+      speed: number;
+      drift: number;
+      driftOffset: number;
+    }[] = [];
+    const snowflakeCount = 40; // Number of snowflakes
+
+    const initSnowflakes = () => {
+      snowflakes.length = 0;
+      for (let i = 0; i < snowflakeCount; i++) {
+        snowflakes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 1, // Size between 1-4px
+          speed: Math.random() * 3 + 2, // Speed between 2-5px/frame
+          drift: Math.random() * 0.5 + 0.25, // Horizontal drift 0.25-0.75
+          driftOffset: Math.random() * Math.PI * 2, // Phase offset for sine wave
+        });
+      }
+    };
+    initSnowflakes();
+
+    let animationFrameId: number;
+    let frame = 0;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+
+      snowflakes.forEach((flake) => {
+        // Move snowflake
+        flake.y += flake.speed;
+        flake.x += Math.sin((frame + flake.driftOffset) * 0.01) * flake.drift;
+
+        // Reset if off screen
+        if (flake.y > canvas.height) {
+          flake.y = -flake.radius;
+          flake.x = Math.random() * canvas.width;
+        }
+        if (flake.x < -flake.radius) {
+          flake.x = canvas.width + flake.radius;
+        }
+        if (flake.x > canvas.width + flake.radius) {
+          flake.x = -flake.radius;
+        }
+
+        // Draw snowflake
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className={className} />;
+};
+
+/**
+ * Component that renders twinkling stars for Christmas theme.
+ * Uses DOM elements with CSS animations for performance.
+ */
+const TwinklingStars = ({ className }: { className?: string }) => {
+  const [stars] = useState<
+    Array<{
+      id: number;
+      left: string;
+      top: string;
+      size: string;
+      color: string;
+      delay: string;
+      duration: string;
+    }>
+  >(() => {
+    // Generate stars on client side to avoid hydration mismatch
+    const starColors = ['#ffd700', '#c0c0c0', '#ffffff', '#ffeb3b'];
+    return Array.from({ length: 25 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${Math.random() * 3 + 2}px`, // 2-5px
+      color: starColors[Math.floor(Math.random() * starColors.length)],
+      delay: `${Math.random() * 3}s`,
+      duration: `${Math.random() * 2 + 1.5}s`, // 1.5-3.5s
+    }));
+  });
+
+  return (
+    <div className={className}>
+      {stars.map((star) => (
+        <div
+          key={star.id}
+          className="absolute animate-pulse"
+          style={{
+            left: star.left,
+            top: star.top,
+            width: star.size,
+            height: star.size,
+            backgroundColor: star.color,
+            borderRadius: '50%',
+            boxShadow: `0 0 6px ${star.color}`,
+            animationDelay: star.delay,
+            animationDuration: star.duration,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 // -----------------------------------------------------------------------------
 // Theme Components
 // -----------------------------------------------------------------------------
@@ -323,6 +472,28 @@ const UnleashedThemeSonic = () => {
   );
 };
 
+/**
+ * Theme: Christmas
+ * Visuals: Falling snow, twinkling stars, and festive colors.
+ */
+const ChristmasTheme = () => {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* Christmas background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-green-900/30 via-red-900/20 to-green-900/30" />
+
+      {/* Falling Snow */}
+      <AnimatedSnowfall className="absolute inset-0 opacity-80" />
+
+      {/* Twinkling Stars */}
+      <TwinklingStars className="absolute inset-0 opacity-70" />
+
+      {/* Warm overlay for Christmas atmosphere */}
+      <div className="absolute inset-0 bg-gradient-to-t from-amber-500/10 via-transparent to-red-500/10" />
+    </div>
+  );
+};
+
 // -----------------------------------------------------------------------------
 // Main Component
 // -----------------------------------------------------------------------------
@@ -385,17 +556,17 @@ type PlayModeThemeProps = {
  */
 export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
   logger.debug('[PlayModeTheme] render', { mode, delayLevel });
-  if (mode.type === 'unleashed') {
-    return <UnleashedThemeRandomized />;
-  }
-  if (mode.type === 'normal' && delayLevel != null) {
-    if (
-      delayLevel === 'FAST' ||
-      delayLevel === 'FASTER' ||
-      delayLevel === 'FASTEST'
-    ) {
+
+  const themeType = resolveMppThemeType(mode, delayLevel);
+
+  switch (themeType) {
+    case 'unleashed':
+      return <UnleashedThemeRandomized />;
+    case 'christmas':
+      return <ChristmasTheme />;
+    case 'random':
       return <NormalThemeRandomized delayLevel={delayLevel} />;
-    }
+    default:
+      return null;
   }
-  return null;
 }
