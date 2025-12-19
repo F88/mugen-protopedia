@@ -3,8 +3,10 @@
  * - 'normal': Standard browsing mode.
  * - 'playlist': Playlist mode for sequential prototype viewing.
  * - 'unleashed': Unleashed mode with no simulated delays.
+ * - 'dev': Development mode for testing new features.
+ * - 'xmas': Christmas mode active during December.
  */
-export type PlayMode = 'normal' | 'playlist' | 'unleashed';
+export type PlayMode = 'normal' | 'playlist' | 'unleashed' | 'dev' | 'xmas';
 
 type BasePlayModeState<T extends PlayMode> = {
   type: T;
@@ -19,10 +21,21 @@ export type PlaylistPlayModeState = BasePlayModeState<'playlist'> & {
 
 export type UnleashedPlayModeState = BasePlayModeState<'unleashed'>;
 
+export type DevPlayModeState = BasePlayModeState<'dev'>;
+
+export type XmasPlayModeState = BasePlayModeState<'xmas'>;
+
 export type PlayModeState =
   | NormalPlayModeState
   | PlaylistPlayModeState
-  | UnleashedPlayModeState;
+  | UnleashedPlayModeState
+  | DevPlayModeState
+  | XmasPlayModeState;
+
+/**
+ * Theme types available in the application.
+ */
+export type MppThemeType = 'unleashed' | 'christmas' | 'random' | null;
 
 /**
  * Simulated delay range for loading prototypes.
