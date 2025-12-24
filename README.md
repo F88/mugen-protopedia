@@ -88,6 +88,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2025-12-xx
+
+- 🎄 Happy Xmas 🤶🏼🧑🏽‍🎅
+
 ### 2025-12-04
 
 - 🐛 It's not a bug, it's a feature.
