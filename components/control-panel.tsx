@@ -255,7 +255,7 @@ export function ControlPanel({
   });
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 select-none">
       <MainPanel
         onClear={onClear}
         onGetRandomPrototype={onGetRandomPrototype}
