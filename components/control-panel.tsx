@@ -181,7 +181,7 @@ function SubPanel({
         max={99999}
         value={prototypeIdInput}
         onChange={onPrototypeIdInputChange}
-        className={`${PANEL_BORDER} w-24 rounded p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200`}
+        className={`${PANEL_BORDER} w-24 rounded p-2 text-base text-center tracking-widest bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-colors duration-200 select-text`}
         placeholder="ID"
         disabled={!canGetPrototypes}
       />
