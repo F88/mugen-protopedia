@@ -19,10 +19,8 @@ export function StatusIndicator({
     <span
       className={cn(
         'flex items-center justify-center w-6 h-6 rounded',
-        variant === 'gray' &&
-          'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100',
-        variant === 'blue' &&
-          'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100',
+        variant === 'gray' && ' text-gray-800 dark:text-gray-100',
+        variant === 'blue' && ' text-blue-800 dark:text-blue-100',
         pulse && 'animate-pulse',
         className,
       )}
