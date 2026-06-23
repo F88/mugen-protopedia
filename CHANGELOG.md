@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.06.23]
+
 ### Changed
 
 - Disable text selection on the header and the control panel to prevent
