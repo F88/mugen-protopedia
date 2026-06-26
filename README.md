@@ -166,9 +166,11 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Documentation
 
-- Development Guide: [`docs/development.md`](./docs/development.md)
-- Data Fetching Strategy: [`docs/specs/data-fetching-strategy.md`](./docs/specs/data-fetching-strategy.md)
-- Analysis Specification: [`docs/specs/analysis.md`](./docs/specs/analysis.md)
+See [`docs/README.md`](./docs/README.md) for the full documentation index.
+
+- Development Guide: [`docs/DEVELOPMENT.md`](./docs/DEVELOPMENT.md)
+- Data Fetching Strategy: [`docs/mugen-pp/data-fetching-strategy.md`](./docs/mugen-pp/data-fetching-strategy.md)
+- Analysis Specification: [`docs/analysis.md`](./docs/analysis.md)
 
 ## License
 
