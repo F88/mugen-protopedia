@@ -1,4 +1,26 @@
 /**
+ * ============================================================================
+ * DEPRECATED - DO NOT RUN. Kept for historical reference / fallback only.
+ * ============================================================================
+ *
+ * Icon generation has moved to `npm run generate-pwa-assets`
+ * (@vite-pwa/assets-generator, configured in `pwa-assets.config.ts`).
+ *
+ * This legacy script is intentionally retained as a fallback in case the new
+ * generation method ever needs to be revisited, but it should NOT be run as-is:
+ * - It produces the OLD scheme (legacy `icon-<N>x<N>.png` names, many sizes,
+ *   separate `*-maskable.png`), which is incompatible with the current minimal
+ *   set (`pwa-*`, `maskable-icon-512x512`, `apple-touch-icon-180x180`).
+ * - Running it with defaults is DANGEROUS: the output dir is `public/icons/`
+ *   and the default input is the placeholder `public/img/P-640x640.png`, so it
+ *   can OVERWRITE the current master `public/icons/icon-1024x1024.png` and
+ *   `favicon.ico`, and litter `public/icons/` with stale, conflicting files.
+ * - It depends on `png-to-ico`, which is no longer a declared dependency.
+ *
+ * To (re)generate icons, edit `pwa-assets.config.ts` and run
+ * `npm run generate-pwa-assets` instead.
+ * ============================================================================
+ *
  * @file generate-icons.mjs
  * @description Utility script to generate PWA / Apple Touch / maskable icons from a single
  * base image. Produces a set of PNG assets in `public/icons/` used by the web app's

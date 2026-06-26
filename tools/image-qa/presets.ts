@@ -10,7 +10,10 @@ export const presets: Record<string, Preset> = {
     description: 'Strict validation for PWA icons (dimensions, transparency)',
     config: {
       include: ['public/icons/**/*.png'],
-      exclude: ['public/icons/**/*-maskable.png'], // Maskable icons can have transparency
+      exclude: [
+        'public/icons/maskable-*.png', // Maskable icons are padded/opaque by design
+        'public/icons/source.png', // Generation source image, not a shipped icon
+      ],
       thresholds: {
         brightness: {
           mean: { min: 0.1, max: 0.9 }, // Normalized 0-1
@@ -23,7 +26,8 @@ export const presets: Record<string, Preset> = {
           allowFullyTransparent: true,
         },
         dimensions: {
-          pattern: 'icon-(\\d+)x(\\d+)', // Extract WxH from filename
+          // Extract WxH from filenames like pwa-192x192 / apple-touch-icon-180x180
+          pattern: '(\\d+)x(\\d+)',
         },
       },
       severity: 'error',
