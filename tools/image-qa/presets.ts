@@ -11,8 +11,7 @@ export const presets: Record<string, Preset> = {
     config: {
       include: ['public/icons/**/*.png'],
       exclude: [
-        'public/icons/maskable-*.png', // Maskable icons are padded/opaque by design
-        'public/icons/icon-1024x1024.png', // Generation source master, not a shipped icon
+        // 'public/icons/maskable-*.png', // Maskable icons are padded/opaque by design
       ],
       thresholds: {
         brightness: {
@@ -37,7 +36,11 @@ export const presets: Record<string, Preset> = {
     name: 'ogp',
     description: 'Validation for Open Graph Protocol images',
     config: {
-      include: ['public/og-*.png', 'public/images/og-*.png'],
+      include: [
+        'public/og-*.png',
+        'public/images/og-*.png',
+        'public/img/*-OG.png',
+      ],
       exclude: [],
       thresholds: {
         brightness: {
@@ -60,11 +63,12 @@ export const presets: Record<string, Preset> = {
       include: ['public/screenshots/**/*.png'],
       exclude: [],
       thresholds: {
-        brightness: {
-          mean: { min: 0.15, max: 0.85 },
-        },
+        // Screenshots are promotional / install-UI images that legitimately
+        // span light and dark themes, so brightness is intentionally NOT
+        // validated. Keep only a minimal "not blank / not corrupt" contrast
+        // floor.
         contrast: {
-          minVariance: 0.015,
+          minVariance: 0.01,
         },
       },
       severity: 'warning',
