@@ -54,7 +54,7 @@ Run the [verification suite](#verification). Commit: `chore(deps): update patch 
 ### 2. Minor (backwards-compatible features) — batch, with a few exceptions
 
 ```bash
-npx npm-check-updates -u --target minor
+npx npm-check-updates -u --target minor --reject next
 npm install
 ```
 
