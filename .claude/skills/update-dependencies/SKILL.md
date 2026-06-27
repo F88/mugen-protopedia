@@ -81,9 +81,9 @@ commits. For each major:
 3. Bump only that package — `ncu -u --filter <pkg>` (or `npm install <pkg>@<ver>`)
    — then `npm install`.
 4. Dry-run the breakage first: `npx tsc --noEmit` and `npm run build` to capture
-   the exact error list _before_ fixing anything (far cheaper than guessing). If
-   you decide to defer the major, revert with `git checkout -- package.json
-package-lock.json && npm install`.
+   the exact error list _before_ fixing anything (far cheaper than guessing). To
+   defer the major instead, restore `package.json` / `package-lock.json` from git
+   and run `npm install`.
 5. Fix the breakages, run the full [verification suite](#verification), commit.
 6. Open a PR for that single major.
 
