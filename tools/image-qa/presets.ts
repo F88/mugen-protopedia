@@ -10,7 +10,9 @@ export const presets: Record<string, Preset> = {
     description: 'Strict validation for PWA icons (dimensions, transparency)',
     config: {
       include: ['public/icons/**/*.png'],
-      exclude: ['public/icons/**/*-maskable.png'], // Maskable icons can have transparency
+      exclude: [
+        // 'public/icons/maskable-*.png', // Maskable icons are padded/opaque by design
+      ],
       thresholds: {
         brightness: {
           mean: { min: 0.1, max: 0.9 }, // Normalized 0-1
@@ -23,7 +25,8 @@ export const presets: Record<string, Preset> = {
           allowFullyTransparent: true,
         },
         dimensions: {
-          pattern: 'icon-(\\d+)x(\\d+)', // Extract WxH from filename
+          // Extract WxH from filenames like pwa-192x192 / apple-touch-icon-180x180
+          pattern: '(\\d+)x(\\d+)',
         },
       },
       severity: 'error',
@@ -33,7 +36,11 @@ export const presets: Record<string, Preset> = {
     name: 'ogp',
     description: 'Validation for Open Graph Protocol images',
     config: {
-      include: ['public/og-*.png', 'public/images/og-*.png'],
+      include: [
+        'public/og-*.png',
+        'public/images/og-*.png',
+        'public/img/*-OG.png',
+      ],
       exclude: [],
       thresholds: {
         brightness: {
@@ -56,11 +63,12 @@ export const presets: Record<string, Preset> = {
       include: ['public/screenshots/**/*.png'],
       exclude: [],
       thresholds: {
-        brightness: {
-          mean: { min: 0.15, max: 0.85 },
-        },
+        // Screenshots are promotional / install-UI images that legitimately
+        // span light and dark themes, so brightness is intentionally NOT
+        // validated. Keep only a minimal "not blank / not corrupt" contrast
+        // floor.
         contrast: {
-          minVariance: 0.015,
+          minVariance: 0.01,
         },
       },
       severity: 'warning',

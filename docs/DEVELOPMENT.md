@@ -55,6 +55,10 @@ Open <http://localhost:3000>.
 | `pnpm lint` / `pnpm lint:fix`      | Lint codebase (ESLint)            |
 | `pnpm format`                      | Format with Prettier              |
 | `pnpm tool:save-sample-prototypes` | Save sample data for development  |
+| `pnpm generate-pwa-assets`         | Regenerate PWA icons (see below)  |
+| `pnpm qa:icons`                    | Validate PWA icons (CI gate)      |
+| `pnpm qa:images`                   | Validate images                   |
+| `pnpm qa:screenshots`              | Validate screenshots              |
 
 ## Configuration (.env)
 
@@ -71,6 +75,21 @@ Adjust values in `.env.local`. For a fully annotated list, see `.env.example`.
 | `GOOGLE_SITE_VERIFICATION_TOKEN` | Google Search Console verification token                |
 
 See [Logging Policy](./logging.md) for details on logging configuration.
+
+## PWA Icons
+
+App icons are generated with `@vite-pwa/assets-generator` (minimal-2023 preset),
+configured in `pwa-assets.config.ts`.
+
+- Regenerate: `pnpm generate-pwa-assets`.
+- Source master: `public/icons/icon-1024x1024.png`. It produces six files in
+  `public/icons/`: `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`,
+  `maskable-icon-512x512.png`, `apple-touch-icon-180x180.png`, `favicon.ico`.
+- These filenames are referenced by hand in `app/manifest.ts` and
+  `lib/config/metadata.ts`; keep them in sync. `pnpm qa:icons` validates the
+  output and runs in CI.
+- Do not run `tools/generate-icons.mjs` — it is a deprecated fallback that
+  emits the old icon scheme and can overwrite the master image.
 
 ## Tech Stack
 
