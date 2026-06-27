@@ -51,10 +51,22 @@ npm run build
 npm run build-storybook   # when Storybook packages changed
 ```
 
-## Pinned / constrained dependencies
+## Pinned dependencies
 
-- **`next`** is pinned to an exact version (no `^`) on purpose. Upgrade it
-  deliberately in its own PR; do not let it float with blanket updates.
+These dependencies are pinned to an **exact** version (no `^`/`~` in
+`package.json`) so they never move during routine `ncu` batches. Enforce the
+pins while updating with `ncu --reject <name>`, and record every pin here **with
+its reason**. The exact version itself lives in `package.json`.
+
+### `next` — pinned exact
+
+Reason: Next.js major upgrades are real migrations, not routine bumps. Going
+from 15 to 16, for example, makes Turbopack the default build, removes
+synchronous Request APIs, changes caching semantics, raises the minimum Node to
+20.9, and can change metadata/`<head>` injection (related to issue #141). A
+floating range could pull a major in via a blanket update and silently break the
+build or the framework, so Next is upgraded deliberately in its own PR with full
+verification — never via a patch/minor batch.
 
 ## Handle with extra care (high blast radius)
 
