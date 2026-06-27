@@ -12,11 +12,12 @@ import {
  * filenames there in sync with what this generates. Source and outputs live
  * under `public/icons/` so URLs stay under `/icons/`.
  *
- * IMPORTANT: the maskable and apple icons add a safe-area margin that the
- * preset fills with WHITE by default. Our source master is opaque black, so we
- * override that fill to #000000 to keep the padding seamless and on-theme.
- * Do NOT remove these overrides — without them the maskable icon renders with a
- * white border.
+ * IMPORTANT: the maskable icon keeps a safe-area margin that the preset fills
+ * with WHITE by default. Our source master is opaque black, so we override that
+ * fill to #000000 to keep the maskable padding seamless and on-theme. Do NOT
+ * remove the maskable override — without it the maskable icon renders with a
+ * white border. The apple icon uses `padding: 0` (full-bleed); iOS applies its
+ * own rounded mask, so no extra margin is wanted.
  */
 export default defineConfig({
   headLinkOptions: {
@@ -32,11 +33,8 @@ export default defineConfig({
       },
     },
     apple: {
-      ...minimal2023Preset.apple,
-      resizeOptions: {
-        ...minimal2023Preset.apple.resizeOptions,
-        background: '#000000',
-      },
+      sizes: [180],
+      padding: 0, // full-bleed; iOS applies its own rounded mask
     },
   },
   images: ['public/icons/icon-1024x1024.png'],
