@@ -76,7 +76,9 @@ $RECYCLE.BIN/
 ## Gemini
 
 ## Claude
-.claude/
+.claude/settings.local.json
+.claude/worktrees
+
 
 ### TypeScript
 *.tsbuildinfo

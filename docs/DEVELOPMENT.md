@@ -19,6 +19,7 @@ For detailed information on specific topics, see:
 - [Logging Policy](./logging.md) - Server/client logging strategy and usage
 - [Data Fetching Strategy](./mugen-pp/data-fetching-strategy.md) - Performance and caching details
 - [UI Fetch Paths](./mugen-pp/ui-fetch-paths.md) - UI component data flow
+- [Dependency Management](./dependency-management.md) - Dependency update policy and constraints
 
 ## Requirements
 
