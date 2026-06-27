@@ -49,7 +49,7 @@ npx npm-check-updates -u --target patch --reject next
 npm install
 ```
 
-Run the [verification suite](#verification). Commit: `chore(deps): update patch versions`.
+Run the verification suite (below). Commit: `chore(deps): update patch versions`.
 
 ### 2. Minor (backwards-compatible features) — batch, with a few exceptions
 
@@ -84,7 +84,7 @@ commits. For each major:
    the exact error list _before_ fixing anything (far cheaper than guessing). To
    defer the major instead, restore `package.json` / `package-lock.json` from git
    and run `npm install`.
-5. Fix the breakages, run the full [verification suite](#verification), commit.
+5. Fix the breakages, run the full verification suite (below), commit.
 6. Open a PR for that single major.
 
 ## Constraints (do not violate)
