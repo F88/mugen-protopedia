@@ -54,6 +54,7 @@ docs/
 ├── DEVELOPMENT.md                         # Development setup and guidelines
 ├── analysis.md                            # Analysis pipeline specification (shared)
 ├── url-direct-launch.md                   # URL-based direct launch (shared)
+├── dependency-management.md               # Dependency update policy and constraints
 ├── mugen-pp/                              # Main application (/) specific docs
 │   ├── data-fetching-strategy.md          # Data fetching and caching strategy
 │   ├── play-mode.md                       # Play modes specification
@@ -74,6 +75,7 @@ Files in the root level apply to multiple areas or the entire project:
 - **DEVELOPMENT.md** - Local setup, configuration, scripts, testing, and quality tooling for the entire project
 - **analysis.md** - Analysis pipeline specification (shared between main app's basic analysis and Observatory's deep analysis)
 - **url-direct-launch.md** - URL-based direct launch functionality (core feature used by both main app and playlist tool)
+- **dependency-management.md** - Dependency update policy and constraints (npm, staged manual updates, pinned dependencies)
 
 ### mugen-pp/
 
