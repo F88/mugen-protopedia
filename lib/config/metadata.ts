@@ -31,9 +31,7 @@ export function buildBaseMetadata(): Metadata {
         { url: '/icons/pwa-512x512.png', sizes: '512x512', type: 'image/png' },
       ],
       shortcut: [{ url: '/icons/favicon.ico' }],
-      apple: [
-        { url: '/icons/apple-touch-icon-180x180.png', sizes: '180x180' },
-      ],
+      apple: [{ url: '/icons/apple-touch-icon-180x180.png', sizes: '180x180' }],
     },
     appleWebApp: {
       capable: true,
