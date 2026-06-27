@@ -45,7 +45,7 @@ and committing after each stage so a failure is easy to bisect.
 ### 1. Patch (backwards-compatible fixes) — batch
 
 ```bash
-npx npm-check-updates -u --target patch
+npx npm-check-updates -u --target patch --reject next
 npm install
 ```
 
