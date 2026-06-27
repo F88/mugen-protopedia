@@ -17,7 +17,7 @@ Carefully update npm dependencies in this repo. The goal is small, verifiable,
 reversible steps — not a single mass bump that's impossible to debug when
 something breaks.
 
-The authoritative policy lives in `docs/dependency-management.md` (repo root).
+The authoritative policy lives in `docs/dependency-management.md`.
 Read it if anything here is ambiguous; this skill is the actionable workflow.
 
 ## Ground rules
