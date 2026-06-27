@@ -12,7 +12,7 @@ export const presets: Record<string, Preset> = {
       include: ['public/icons/**/*.png'],
       exclude: [
         'public/icons/maskable-*.png', // Maskable icons are padded/opaque by design
-        'public/icons/source.png', // Generation source image, not a shipped icon
+        'public/icons/icon-1024x1024.png', // Generation source master, not a shipped icon
       ],
       thresholds: {
         brightness: {
