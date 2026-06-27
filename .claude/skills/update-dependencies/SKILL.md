@@ -1,14 +1,14 @@
 ---
 name: update-dependencies
 description: >-
-  Update npm dependencies in this repository following its staged, manual update
-  policy. Use this whenever the user wants to update, upgrade, bump, or audit npm
-  packages / dependencies — e.g. "update deps", "run npm-check-updates", "bump the
-  patch versions", "upgrade <package> to the latest", or after a vulnerability
-  alert. This repo uses npm (not pnpm/yarn), updates are manual (Renovate is
-  retired), and there are real constraints (next is exact-pinned, several
-  high-blast-radius packages) — so always use this skill rather than blindly
-  running `ncu -u` / `npm update`, which can break CI or the framework.
+    Update npm dependencies in this repository following its staged, manual update
+    policy. Use this whenever the user wants to update, upgrade, bump, or audit npm
+    packages / dependencies — e.g. "update deps", "run npm-check-updates", "bump the
+    patch versions", "upgrade <package> to the latest", or after a vulnerability
+    alert. This repo uses npm (not pnpm/yarn), updates are manual (Renovate is
+    retired), and there are real constraints (next is exact-pinned, several
+    high-blast-radius packages) — so always use this skill rather than blindly
+    running `ncu -u` / `npm update`, which can break CI or the framework.
 ---
 
 # Update Dependencies
@@ -82,15 +82,15 @@ testing. Do not include majors in the patch/minor commits above.
   float with `ncu`. Upgrade Next deliberately, in its own PR, with full testing.
   (A Next major can change metadata/`<head>` behavior, so treat it as a project.)
 - **High-blast-radius packages — extra care, prefer their own PR:**
-  - `protopedia-api-v2-client` — the core ProtoPedia data client; majors are
-    breaking and affect all data fetching.
-  - `sharp` — used by PWA icon generation (`npm run generate-pwa-assets`) and the
-    image-QA tool. After bumping, re-run `npm run qa:icons` (regenerate icons if
-    the output changed).
-  - `tailwindcss` / `@tailwindcss/oxide` — drive CSS; oxide is disabled in
-    `build`/`test` via `TAILWIND_DISABLE_OXIDE`. Verify the UI.
-  - `glob` — used by the image-QA tool (`tools/image-qa`).
-  - `eslint` / `typescript` — majors surface new lint/type errors.
+    - `protopedia-api-v2-client` — the core ProtoPedia data client; majors are
+      breaking and affect all data fetching.
+    - `sharp` — used by PWA icon generation (`npm run generate-pwa-assets`) and the
+      image-QA tool. After bumping, re-run `npm run qa:icons` (regenerate icons if
+      the output changed).
+    - `tailwindcss` / `@tailwindcss/oxide` — drive CSS; oxide is disabled in
+      `build`/`test` via `TAILWIND_DISABLE_OXIDE`. Verify the UI.
+    - `glob` — used by the image-QA tool (`tools/image-qa`).
+    - `eslint` / `typescript` — majors surface new lint/type errors.
 
 ## Verification
 
