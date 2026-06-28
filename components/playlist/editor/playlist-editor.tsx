@@ -148,10 +148,16 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return buildPlaylistUrlWithPathParams(effectiveIds, title, shouldAutoplay);
   }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay]);
 
-  useEffect(() => {
-    if (!playlistUrl) return;
-    setPlaylistUrlHighlighted(true);
-  }, [playlistUrl]);
+  // Flash the highlight when the generated URL changes. Compare against the
+  // previous value during render instead of synchronizing via an effect; the
+  // null initial value preserves the on-mount flash when a URL is present.
+  const [prevPlaylistUrl, setPrevPlaylistUrl] = useState<string | null>(null);
+  if (prevPlaylistUrl !== playlistUrl) {
+    setPrevPlaylistUrl(playlistUrl);
+    if (playlistUrl) {
+      setPlaylistUrlHighlighted(true);
+    }
+  }
 
   const playlistPageTitle = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
@@ -165,10 +171,17 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return computeDocumentTitle(playMode);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
-  useEffect(() => {
-    if (!playlistPageTitle) return;
-    setPlaylistTitleHighlighted(true);
-  }, [playlistPageTitle]);
+  // Flash the highlight when the page title changes (same render-time
+  // comparison pattern as the playlist URL above).
+  const [prevPlaylistPageTitle, setPrevPlaylistPageTitle] = useState<
+    string | null
+  >(null);
+  if (prevPlaylistPageTitle !== playlistPageTitle) {
+    setPrevPlaylistPageTitle(playlistPageTitle);
+    if (playlistPageTitle) {
+      setPlaylistTitleHighlighted(true);
+    }
+  }
 
   const handleCopy = useCallback(async () => {
     if (!playlistUrl) return;
