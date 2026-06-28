@@ -500,10 +500,9 @@ export function MugenProtoPedia() {
       const prototype = await getRandomPrototypeFromResults();
       if (!prototype) {
         setSlotError(slotId, 'Failed to load.');
-        return;
+      } else {
+        await replacePrototypeInSlot(slotId, prototype);
       }
-
-      await replacePrototypeInSlot(slotId, prototype);
     } catch (err) {
       console.error('Failed to fetch prototypes.', err);
       // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
@@ -520,9 +519,12 @@ export function MugenProtoPedia() {
         }
       }
       setSlotError(slotId, message);
-    } finally {
-      decrementInFlightRequests();
     }
+    // Previously a finally; the React Compiler cannot lower try/finally, so the
+    // cleanup runs after the try/catch instead. The not-found early return is
+    // converted to if/else so this still runs on every path (success,
+    // not-found, error); the catch never returns or throws.
+    decrementInFlightRequests();
   }, [
     tryIncrementInFlightRequests,
     appendPlaceholder,
@@ -566,19 +568,19 @@ export function MugenProtoPedia() {
         if (!prototype) {
           setPrototypeIdError('Not found.');
           setSlotError(slotId, 'Not found.');
-          return;
+        } else {
+          const clonedPrototype = clonePrototype(prototype);
+          await replacePrototypeInSlot(slotId, clonedPrototype);
         }
-
-        const clonedPrototype = clonePrototype(prototype);
-        await replacePrototypeInSlot(slotId, clonedPrototype);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to fetch prototype.';
         setPrototypeIdError(message);
         setSlotError(slotId, message);
-      } finally {
-        decrementInFlightRequests();
       }
+      // finally -> post-try/catch so the React Compiler can optimize; the
+      // not-found early return becomes if/else so cleanup runs on every path.
+      decrementInFlightRequests();
     },
     [
       tryIncrementInFlightRequests,
@@ -622,20 +624,21 @@ export function MugenProtoPedia() {
         if (!prototype) {
           setPrototypeIdError('Not found.');
           setSlotError(slotId, 'Not found.');
-          return;
+        } else {
+          const clonedPrototype = clonePrototype(prototype);
+          await replacePrototypeInSlot(slotId, clonedPrototype);
         }
-
-        const clonedPrototype = clonePrototype(prototype);
-        await replacePrototypeInSlot(slotId, clonedPrototype);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to fetch prototype.';
         setPrototypeIdError(message);
         setSlotError(slotId, message);
-      } finally {
-        decrementInFlightRequests();
-        setProcessedCount((c) => c + 1);
       }
+      // finally -> post-try/catch so the React Compiler can optimize; the
+      // not-found early return becomes if/else so both the decrement and the
+      // processed-count increment run on every path.
+      decrementInFlightRequests();
+      setProcessedCount((c) => c + 1);
     },
     [
       tryIncrementInFlightRequests,
