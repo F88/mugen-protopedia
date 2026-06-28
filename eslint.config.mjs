@@ -2,21 +2,12 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
 import prettierConfig from 'eslint-config-prettier';
-import { FlatCompat } from '@eslint/eslintrc';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import storybook from 'eslint-plugin-storybook';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTypescript,
-  ...compat.extends('plugin:storybook/recommended'),
+  ...storybook.configs['flat/recommended'],
   // Turn off rules that might conflict with Prettier formatting
   prettierConfig,
   // Restrict importing server-only logger from non-server files
