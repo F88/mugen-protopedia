@@ -90,20 +90,19 @@ ESLint 10 support:
   cap at `eslint ^9`, but they do **not** crash at runtime on ESLint 10 (verified:
   lint runs to completion). Stale peer ranges only, not a real block.
 
-Everything else we use already supports ESLint 10: `eslint-config-prettier`
-(`>=7`), `eslint-plugin-storybook` (`>=8`), `typescript-eslint` (`^10`),
-`eslint-plugin-react-hooks` (`^10`).
+Everything else we use already declares an ESLint peer range that includes v10
+(the parenthetical is each plugin's `eslint` peer range, not its own version):
+`eslint-config-prettier` (`eslint >=7`), `eslint-plugin-storybook`
+(`eslint >=8`), `typescript-eslint` (`eslint ^10`), and
+`eslint-plugin-react-hooks` (`eslint ^10`).
 
 **Workaround** — pin the React version in `eslint.config.mjs` so
 `eslint-plugin-react` skips the auto-detection path that calls `getFilename()`:
 
 ```js
+// eslint.config.mjs (excerpt)
 {
-    settings: {
-        react: {
-            version: '19.2.7';
-        }
-    }
+  settings: { react: { version: '19.2.7' } },
 }
 ```
 
