@@ -4,23 +4,16 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import * as analysisClient from '@/lib/analysis/entrypoints/client';
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 import type { AnniversariesSlice } from '@/lib/analysis/types';
+import { createMockServerAnalysis } from '@/__tests__/helpers/mock-server-analysis';
 
 describe('useClientAnniversaries', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  const baseServerAnalysis: ServerPrototypeAnalysis = {
+  const baseServerAnalysis = createMockServerAnalysis({
     totalCount: 2,
-    statusDistribution: {},
-    prototypesWithAwards: 0,
-    topTags: [],
-    topMaterials: [],
-    averageAgeInDays: 0,
-    topTeams: [],
-    analyzedAt: '2025-01-01T00:00:00.000Z',
     anniversaryCandidates: {
       metadata: {
         computedAt: '2025-01-01T00:00:00.000Z',
@@ -34,37 +27,7 @@ describe('useClientAnniversaries', () => {
         { id: 2, title: 'p2', releaseDate: '2020-01-02T00:00:00.000Z' },
       ],
     },
-    createTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    createDateDistribution: { month: [], year: {}, daily: {} },
-    releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    releaseDateDistribution: { month: [], year: {}, daily: {} },
-    updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    updateDateDistribution: { month: [], year: {}, daily: {} },
-    creationStreak: {
-      currentStreak: 0,
-      longestStreak: 0,
-      longestStreakEndDate: null,
-      totalActiveDays: 0,
-    },
-    earlyAdopters: [],
-    firstPenguins: [],
-    starAlignments: [],
-    anniversaryEffect: [],
-    laborOfLove: { longestGestation: [], distribution: {} },
-    maternityHospital: { topEvents: [], independentRatio: 0 },
-    powerOfDeadlines: { spikes: [] },
-    weekendWarrior: {
-      weekendHourlyCounts: [],
-      totalWeekendCount: 0,
-    },
-    holyDay: { topDays: [] },
-    longTermEvolution: {
-      longestMaintenance: [],
-      averageMaintenanceDays: 0,
-      maintenanceRatio: 0,
-    },
-    _debugMetrics: {},
-  };
+  });
 
   it('does nothing when disabled', async () => {
     const spy = vi.spyOn(analysisClient, 'analyzeCandidates');

@@ -7,8 +7,8 @@ import type {
   GetAllAnalysesResult,
   GetAnalysisResult,
 } from '@/app/actions/analysis';
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 import * as analysisActions from '@/app/actions/analysis';
+import { createMockServerAnalysis } from '@/__tests__/helpers/mock-server-analysis';
 
 describe('useLatestAnalysis', () => {
   beforeEach(() => {
@@ -16,25 +16,7 @@ describe('useLatestAnalysis', () => {
   });
 
   it('loads latest analysis successfully and exposes refresh', async () => {
-    const mockAnalysis: ServerPrototypeAnalysis = {
-      totalCount: 1,
-      statusDistribution: {},
-      prototypesWithAwards: 0,
-      topTags: [],
-      averageAgeInDays: 0,
-      topTeams: [],
-      analyzedAt: '2025-01-01T00:00:00.000Z',
-      anniversaryCandidates: {
-        metadata: {
-          computedAt: '2025-01-01T00:00:00.000Z',
-          windowUTC: {
-            fromISO: '2025-01-01T00:00:00.000Z',
-            toISO: '2025-01-03T23:59:59.999Z',
-          },
-        },
-        mmdd: [],
-      },
-    };
+    const mockAnalysis = createMockServerAnalysis({ totalCount: 1 });
     const mockResult: GetAnalysisResult = {
       ok: true,
       data: mockAnalysis,
@@ -105,25 +87,7 @@ describe('useAllAnalyses', () => {
   });
 
   it('loads all analyses successfully and exposes refresh', async () => {
-    const mockAnalysis: ServerPrototypeAnalysis = {
-      totalCount: 1,
-      statusDistribution: {},
-      prototypesWithAwards: 0,
-      topTags: [],
-      averageAgeInDays: 0,
-      topTeams: [],
-      analyzedAt: '2025-01-01T00:00:00.000Z',
-      anniversaryCandidates: {
-        metadata: {
-          computedAt: '2025-01-01T00:00:00.000Z',
-          windowUTC: {
-            fromISO: '2025-01-01T00:00:00.000Z',
-            toISO: '2025-01-03T23:59:59.999Z',
-          },
-        },
-        mmdd: [],
-      },
-    };
+    const mockAnalysis = createMockServerAnalysis({ totalCount: 1 });
     const mockResult: GetAllAnalysesResult = {
       ok: true,
       data: [
