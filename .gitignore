@@ -98,6 +98,10 @@ pids
 /.next/
 /out/
 
+# next.js auto-generated; regenerated on every dev/build/typegen and not
+# meant to be version-controlled (see Next.js TypeScript config docs).
+next-env.d.ts
+
 # env files
 .env
 .env*.local
