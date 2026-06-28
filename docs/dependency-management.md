@@ -76,9 +76,9 @@ ESLint 10 support:
 
 - **`eslint-plugin-react`** (`7.37.5`) — the real blocker. It auto-detects the
   React version via `context.getFilename()`, which ESLint 10 removed, so loading
-  any of its rules throws `TypeError: contextOrFilename.getFilename is not a
-  function`. Its last release was 2025-04 (14+ months); the v10 fix is tracked
-  upstream in [eslint-plugin-react#3977](https://github.com/jsx-eslint/eslint-plugin-react/issues/3977)
+  any of its rules throws `TypeError: contextOrFilename.getFilename is not a function`.
+  Its last release was 2025-04 (14+ months); the v10 fix is tracked upstream
+  in [eslint-plugin-react#3977](https://github.com/jsx-eslint/eslint-plugin-react/issues/3977)
   (open, no release yet). Vercel closed the dedicated request
   [next.js#91702](https://github.com/vercel/next.js/issues/91702) as a duplicate
   and defers ESLint 10 support to these upstream plugins.
