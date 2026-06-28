@@ -68,6 +68,42 @@ floating range could pull a major in via a blanket update and silently break the
 build or the framework, so Next is upgraded deliberately in its own PR with full
 verification — never via a patch/minor batch.
 
+## ESLint v10 and eslint-config-next
+
+ESLint 10 works in this repo, but **only with a workaround**, because
+`eslint-config-next` (latest `16.2.9`) bundles plugins that have not yet declared
+ESLint 10 support:
+
+- **`eslint-plugin-react`** (`7.37.5`) — the real blocker. It auto-detects the
+  React version via `context.getFilename()`, which ESLint 10 removed, so loading
+  any of its rules throws `TypeError: contextOrFilename.getFilename is not a
+  function`. Its last release was 2025-04 (14+ months); the v10 fix is tracked
+  upstream in [eslint-plugin-react#3977](https://github.com/jsx-eslint/eslint-plugin-react/issues/3977)
+  (open, no release yet). Vercel closed the dedicated request
+  [next.js#91702](https://github.com/vercel/next.js/issues/91702) as a duplicate
+  and defers ESLint 10 support to these upstream plugins.
+- **`eslint-plugin-import` / `eslint-plugin-jsx-a11y`** — their `peerDependencies`
+  cap at `eslint ^9`, but they do **not** crash at runtime on ESLint 10 (verified:
+  lint runs to completion). Stale peer ranges only, not a real block.
+
+Everything else we use already supports ESLint 10: `eslint-config-prettier`
+(`>=7`), `eslint-plugin-storybook` (`>=8`), `typescript-eslint` (`^10`),
+`eslint-plugin-react-hooks` (`^10`).
+
+**Workaround** — pin the React version in `eslint.config.mjs` so
+`eslint-plugin-react` skips the auto-detection path that calls `getFilename()`:
+
+```js
+{ settings: { react: { version: '19.2.7' } } }
+```
+
+Remove this once `eslint-config-next` ships ESLint-10-compatible plugins.
+
+Note: ESLint 10 pulls `eslint-plugin-react-hooks` `7.1.x`, which adds the
+`react-hooks/set-state-in-effect` rule. That surfaces new lint errors that
+ESLint 9 (with `7.0.x`) did not report; they are real findings to fix, not part
+of the compatibility block.
+
 ## Handle with extra care (high blast radius)
 
 - **`protopedia-api-v2-client`** — the core ProtoPedia data client; major
