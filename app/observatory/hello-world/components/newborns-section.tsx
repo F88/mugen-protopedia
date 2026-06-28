@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { IconSparkles } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
@@ -59,7 +58,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {prototypes.map((proto) => (
-            <Link
+            <a
               key={proto.id}
               href={buildPrototypeLink(proto.id)}
               target="_blank"
@@ -88,7 +87,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
                   minute: '2-digit',
                 })}
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       )}

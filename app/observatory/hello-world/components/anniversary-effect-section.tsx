@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
 import { Bar } from '../../components/bar';
@@ -86,7 +84,7 @@ export function AnniversaryEffectSection({
               </div>
               <div className="flex flex-wrap gap-2">
                 {holiday.examples.slice(0, 3).map((ex) => (
-                  <Link
+                  <a
                     key={ex.id}
                     href={buildPrototypeLink(ex.id)}
                     target="_blank"
@@ -94,7 +92,7 @@ export function AnniversaryEffectSection({
                     className="text-xs text-gray-500 dark:text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                   >
                     {ex.title} ({ex.year})
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>

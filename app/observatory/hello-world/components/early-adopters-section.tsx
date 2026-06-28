@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
@@ -81,7 +79,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {adopters.slice(0, 6).map((adopter) => (
-          <Link
+          <a
             key={adopter.tag}
             href={buildPrototypeLink(adopter.prototypeId)}
             target="_blank"
@@ -100,7 +98,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {new Date(adopter.releaseDate).toLocaleDateString()}
             </div>
-          </Link>
+          </a>
         ))}
       </div>
     </ObservatorySection>

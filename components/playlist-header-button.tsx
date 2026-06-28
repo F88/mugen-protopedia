@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -14,7 +15,7 @@ export function PlaylistHeaderButton() {
     queryString.length > 0 ? `/playlist/edit?${queryString}` : '/playlist/edit';
 
   return (
-    <Link href={href} aria-label="Open playlist editor">
+    <Link href={href as Route} aria-label="Open playlist editor">
       <Button
         variant="outline"
         size="icon-sm"

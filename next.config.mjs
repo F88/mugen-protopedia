@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Statically type next/link hrefs and next/navigation methods against the
+  // app's real routes so invalid links fail type-checking.
+  typedRoutes: true,
   logging: {
     level: 'info',
     fetches: {

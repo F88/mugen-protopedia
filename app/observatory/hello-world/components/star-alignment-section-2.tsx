@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { IconStar } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { helloWorldTheme } from '../theme';
@@ -203,7 +201,7 @@ export function StarAlignmentSection2({
                 {/* Prototype titles */}
                 <div className="flex flex-wrap gap-2 justify-center mb-6 z-10">
                   {alignment.prototypes.map((p) => (
-                    <Link
+                    <a
                       key={p.id}
                       href={buildPrototypeLink(p.id)}
                       target="_blank"
@@ -211,7 +209,7 @@ export function StarAlignmentSection2({
                       className="text-xl font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 transition-all hover:bg-white/10 hover:text-white hover:border-white/30"
                     >
                       {p.title}
-                    </Link>
+                    </a>
                   ))}
                 </div>
 

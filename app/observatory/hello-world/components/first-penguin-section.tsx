@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { IconPenguin } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { helloWorldTheme } from '../theme';
@@ -65,7 +64,7 @@ export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
                 First Penguin
               </span>
             </div>
-            <Link
+            <a
               href={buildPrototypeLink(penguin.prototype.id)}
               target="_blank"
               rel="noopener noreferrer"
@@ -84,7 +83,7 @@ export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
                 )}{' '}
                 (JST)
               </div>
-            </Link>
+            </a>
           </div>
         ))}
       </div>

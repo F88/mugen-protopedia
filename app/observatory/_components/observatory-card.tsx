@@ -1,3 +1,4 @@
+import type { Route } from 'next';
 import Link from 'next/link';
 
 import { observatoryTheme } from '../theme';
@@ -16,7 +17,7 @@ export interface ObservatoryCardProps {
   description: string;
   icon: React.ReactNode;
   color: ObservatoryCardColorScheme;
-  href?: string;
+  href?: Route;
   className?: string;
   titleSize?: string;
   descriptionSize?: string;
