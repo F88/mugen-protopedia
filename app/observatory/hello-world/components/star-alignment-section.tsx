@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { IconStar } from '../../shared/icons';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { helloWorldTheme } from '../theme';
@@ -68,7 +67,7 @@ export function StarAlignmentSection({
               </div>
               <div className="flex flex-wrap gap-3">
                 {alignment.prototypes.map((p) => (
-                  <Link
+                  <a
                     key={p.id}
                     href={buildPrototypeLink(p.id)}
                     target="_blank"
@@ -79,7 +78,7 @@ export function StarAlignmentSection({
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                       {p.title}
                     </span>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </div>

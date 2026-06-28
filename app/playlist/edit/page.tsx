@@ -11,7 +11,7 @@
  *   - PlaylistEditClient: Handles all URL-dependent client behavior and form interactions
  *   - Responsive layout with theme toggle and navigation controls
  */
-import type { Metadata } from 'next';
+import type { Metadata, Route } from 'next';
 import { Seymour_One } from 'next/font/google';
 
 import { Suspense } from 'react';
@@ -90,7 +90,7 @@ export default async function PlaylistEditPage(props: PlaylistEditPageProps) {
           >
             🏠 Back to home
           </Link> */}
-          <MugenProtoPediaHomeButton link={href} />
+          <MugenProtoPediaHomeButton link={href as Route} />
           <ThemeToggle />
         </div>
       </div>

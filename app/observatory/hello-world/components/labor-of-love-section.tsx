@@ -1,7 +1,5 @@
 import React from 'react';
 
-import Link from 'next/link';
-
 import { cn } from '@/lib/utils';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 
@@ -81,7 +79,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
           </h3>
           <div className="space-y-3">
             {longestGestation.slice(0, 5).map((item, index) => (
-              <Link
+              <a
                 key={item.id}
                 href={buildPrototypeLink(item.id)}
                 target="_blank"
@@ -108,7 +106,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                     Days
                   </span>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         </div>

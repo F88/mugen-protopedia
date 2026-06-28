@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ export function Playlist({
 
     params.set('title', title);
     params.set('id', ids.join(','));
-    return `/?${params.toString()}`;
+    return `/?${params.toString()}` as Route;
   }, [extraParams, title, ids]);
   // logger.debug(
   // { title, ids, destination },

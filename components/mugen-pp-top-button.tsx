@@ -1,11 +1,12 @@
 'use client';
 
+import type { Route } from 'next';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
 interface MugenProtoPediaHomeButtonProps {
-  link?: string;
+  link?: Route;
 }
 
 export function MugenProtoPediaHomeButton({
