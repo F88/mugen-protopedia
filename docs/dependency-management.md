@@ -94,7 +94,13 @@ Everything else we use already supports ESLint 10: `eslint-config-prettier`
 `eslint-plugin-react` skips the auto-detection path that calls `getFilename()`:
 
 ```js
-{ settings: { react: { version: '19.2.7' } } }
+{
+    settings: {
+        react: {
+            version: '19.2.7';
+        }
+    }
+}
 ```
 
 Remove this once `eslint-config-next` ships ESLint-10-compatible plugins.
