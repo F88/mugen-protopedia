@@ -338,15 +338,6 @@ export function MugenProtoPedia() {
 
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
-  // Select random variant when playlist starts
-  useEffect(() => {
-    if (isPlaylistMode && playModeState.type === 'playlist') {
-      const style = getRandomPlaylistStyle();
-      setPlaylistVariant(style.variant);
-      setPlaylistFont(style.fontFamily);
-    }
-  }, [isPlaylistMode, playModeState]);
-
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
   const shouldShowPlaylistSticky = isPlaylistMode && !isPlaylistCompleted;
 
@@ -751,6 +742,15 @@ export function MugenProtoPedia() {
         );
         lastProcessedPlaylistSignatureRef.current = signature;
         playlistQueueRef.current = [...ids];
+
+        // Pick a fresh random style/font for the playlist title card when a
+        // (non-empty) playlist starts. Moved here from a standalone effect to
+        // avoid a set-state-in-effect warning; the signature dedup above means
+        // this fires on the same new-playlist-start moments as before.
+        const playlistStyle = getRandomPlaylistStyle();
+        setPlaylistVariant(playlistStyle.variant);
+        setPlaylistFont(playlistStyle.fontFamily);
+
         setProcessedCount(0);
         setIsPlaylistPlaying(true);
         setIsPlaylistCompleted(false);
