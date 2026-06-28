@@ -19,10 +19,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          cache: 'npm'
+          node-version: 24
+          cache: npm
 
       - name: Show npm config
         run: npm config list

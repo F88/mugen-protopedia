@@ -106,15 +106,25 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return hasIds || hasTitle;
   }, [effectiveIds.length, hasInputError, idsError, title, titleError]);
 
-  useEffect(() => {
-    if (lastDriver === 'urls' && !urlsError) {
-      const ids = normalizeIdsFromUrls(urlsArray);
-      setIdsText(ids.join('\n'));
-      if (ids.length > 0) {
+  // Mirror the URL-derived IDs into the IDs textarea while URLs are the active,
+  // error-free driver. Done as a render-time comparison instead of an effect:
+  // the signature is null unless URLs drive the inputs, so the sync retriggers
+  // exactly when the old effect did (URLs change, a URL error clears, or the
+  // driver switches back to URLs). autoIds === normalizeIdsFromUrls(urlsArray).
+  const urlsDrivenIdsSignature =
+    lastDriver === 'urls' && !urlsError ? urlsArray.join('\n') : null;
+  const [prevUrlsDrivenIdsSignature, setPrevUrlsDrivenIdsSignature] = useState<
+    string | null
+  >(null);
+  if (prevUrlsDrivenIdsSignature !== urlsDrivenIdsSignature) {
+    setPrevUrlsDrivenIdsSignature(urlsDrivenIdsSignature);
+    if (urlsDrivenIdsSignature !== null) {
+      setIdsText(autoIds.join('\n'));
+      if (autoIds.length > 0) {
         setIdsHighlighted(true);
       }
     }
-  }, [urlsArray, lastDriver, urlsError]);
+  }
 
   useEffect(() => {
     if (
@@ -148,10 +158,16 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return buildPlaylistUrlWithPathParams(effectiveIds, title, shouldAutoplay);
   }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay]);
 
-  useEffect(() => {
-    if (!playlistUrl) return;
-    setPlaylistUrlHighlighted(true);
-  }, [playlistUrl]);
+  // Flash the highlight when the generated URL changes. Compare against the
+  // previous value during render instead of synchronizing via an effect; the
+  // null initial value preserves the on-mount flash when a URL is present.
+  const [prevPlaylistUrl, setPrevPlaylistUrl] = useState<string | null>(null);
+  if (prevPlaylistUrl !== playlistUrl) {
+    setPrevPlaylistUrl(playlistUrl);
+    if (playlistUrl) {
+      setPlaylistUrlHighlighted(true);
+    }
+  }
 
   const playlistPageTitle = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
@@ -165,10 +181,17 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return computeDocumentTitle(playMode);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
-  useEffect(() => {
-    if (!playlistPageTitle) return;
-    setPlaylistTitleHighlighted(true);
-  }, [playlistPageTitle]);
+  // Flash the highlight when the page title changes (same render-time
+  // comparison pattern as the playlist URL above).
+  const [prevPlaylistPageTitle, setPrevPlaylistPageTitle] = useState<
+    string | null
+  >(null);
+  if (prevPlaylistPageTitle !== playlistPageTitle) {
+    setPrevPlaylistPageTitle(playlistPageTitle);
+    if (playlistPageTitle) {
+      setPlaylistTitleHighlighted(true);
+    }
+  }
 
   const handleCopy = useCallback(async () => {
     if (!playlistUrl) return;
@@ -178,9 +201,12 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     } catch {
       // Swallow clipboard error; status already reflects failure
       setCopyStatus('fail');
-    } finally {
-      setTimeout(() => setCopyStatus('idle'), 2500);
     }
+    // Reset status after a delay. The catch above swallows all errors, so this
+    // always runs on both the success and failure paths (matching the previous
+    // `finally`), while avoiding try/finally, which the React Compiler cannot
+    // optimize.
+    setTimeout(() => setCopyStatus('idle'), 2500);
   }, [playlistUrl]);
 
   return (

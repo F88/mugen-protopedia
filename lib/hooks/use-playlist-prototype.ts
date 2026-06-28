@@ -49,6 +49,9 @@ export function usePlaylistPrototype(): UsePlaylistPrototypeResult {
       setIsLoading(true);
       setError(null);
 
+      // try/catch without a finally: the React Compiler cannot lower a
+      // TryStatement with a finalizer, so setIsLoading(false) is set on both
+      // the success and error paths instead of in a finally block.
       try {
         const result = await prototypeRepository.getByPrototypeId(prototypeId);
 
@@ -58,6 +61,7 @@ export function usePlaylistPrototype(): UsePlaylistPrototypeResult {
           setPrototype(null);
         }
 
+        setIsLoading(false);
         return result;
       } catch (caught) {
         const message =
@@ -65,9 +69,8 @@ export function usePlaylistPrototype(): UsePlaylistPrototypeResult {
             ? caught.message
             : 'Failed to fetch prototype.';
         setError(message);
-        throw caught;
-      } finally {
         setIsLoading(false);
+        throw caught;
       }
     },
     [],

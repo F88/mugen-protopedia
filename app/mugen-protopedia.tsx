@@ -114,8 +114,16 @@ export function MugenProtoPedia() {
     resolvePlayMode({ directLaunchResult }),
   );
 
-  // Sync play mode based on the latest direct launch parameters
-  useEffect(() => {
+  // Sync play mode when the direct launch parameters change. directLaunchResult
+  // is a stable reference (useDirectLaunch memoizes on searchParams), so compare
+  // it against the previous value during render instead of via an effect. The
+  // initial value is the current result, so this runs only on later changes,
+  // matching the old effect (which was a no-op on mount because playModeState is
+  // already initialized from the same resolver).
+  const [prevDirectLaunchResult, setPrevDirectLaunchResult] =
+    useState(directLaunchResult);
+  if (prevDirectLaunchResult !== directLaunchResult) {
+    setPrevDirectLaunchResult(directLaunchResult);
     const resolvedPlayMode = resolvePlayMode({ directLaunchResult });
     setPlayModeState((previousState) => {
       const newPlayMode = arePlayModeStatesEqual(
@@ -131,7 +139,7 @@ export function MugenProtoPedia() {
       );
       return newPlayMode;
     });
-  }, [directLaunchResult]);
+  }
 
   // PlayMode - playlist
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
@@ -330,15 +338,6 @@ export function MugenProtoPedia() {
 
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
-  // Select random variant when playlist starts
-  useEffect(() => {
-    if (isPlaylistMode && playModeState.type === 'playlist') {
-      const style = getRandomPlaylistStyle();
-      setPlaylistVariant(style.variant);
-      setPlaylistFont(style.fontFamily);
-    }
-  }, [isPlaylistMode, playModeState]);
-
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
   const shouldShowPlaylistSticky = isPlaylistMode && !isPlaylistCompleted;
 
@@ -500,10 +499,9 @@ export function MugenProtoPedia() {
       const prototype = await getRandomPrototypeFromResults();
       if (!prototype) {
         setSlotError(slotId, 'Failed to load.');
-        return;
+      } else {
+        await replacePrototypeInSlot(slotId, prototype);
       }
-
-      await replacePrototypeInSlot(slotId, prototype);
     } catch (err) {
       console.error('Failed to fetch prototypes.', err);
       // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
@@ -520,9 +518,12 @@ export function MugenProtoPedia() {
         }
       }
       setSlotError(slotId, message);
-    } finally {
-      decrementInFlightRequests();
     }
+    // Previously a finally; the React Compiler cannot lower try/finally, so the
+    // cleanup runs after the try/catch instead. The not-found early return is
+    // converted to if/else so this still runs on every path (success,
+    // not-found, error); the catch never returns or throws.
+    decrementInFlightRequests();
   }, [
     tryIncrementInFlightRequests,
     appendPlaceholder,
@@ -566,19 +567,19 @@ export function MugenProtoPedia() {
         if (!prototype) {
           setPrototypeIdError('Not found.');
           setSlotError(slotId, 'Not found.');
-          return;
+        } else {
+          const clonedPrototype = clonePrototype(prototype);
+          await replacePrototypeInSlot(slotId, clonedPrototype);
         }
-
-        const clonedPrototype = clonePrototype(prototype);
-        await replacePrototypeInSlot(slotId, clonedPrototype);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to fetch prototype.';
         setPrototypeIdError(message);
         setSlotError(slotId, message);
-      } finally {
-        decrementInFlightRequests();
       }
+      // finally -> post-try/catch so the React Compiler can optimize; the
+      // not-found early return becomes if/else so cleanup runs on every path.
+      decrementInFlightRequests();
     },
     [
       tryIncrementInFlightRequests,
@@ -622,20 +623,21 @@ export function MugenProtoPedia() {
         if (!prototype) {
           setPrototypeIdError('Not found.');
           setSlotError(slotId, 'Not found.');
-          return;
+        } else {
+          const clonedPrototype = clonePrototype(prototype);
+          await replacePrototypeInSlot(slotId, clonedPrototype);
         }
-
-        const clonedPrototype = clonePrototype(prototype);
-        await replacePrototypeInSlot(slotId, clonedPrototype);
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to fetch prototype.';
         setPrototypeIdError(message);
         setSlotError(slotId, message);
-      } finally {
-        decrementInFlightRequests();
-        setProcessedCount((c) => c + 1);
       }
+      // finally -> post-try/catch so the React Compiler can optimize; the
+      // not-found early return becomes if/else so both the decrement and the
+      // processed-count increment run on every path.
+      decrementInFlightRequests();
+      setProcessedCount((c) => c + 1);
     },
     [
       tryIncrementInFlightRequests,
@@ -690,7 +692,15 @@ export function MugenProtoPedia() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
-  // Prepare playlist queue when entering playlist mode with new parameters
+  // Prepare playlist queue when entering playlist mode with new parameters.
+  // This effect imperatively initializes the ref-backed playlist playback machine
+  // (playlistQueueRef / lastProcessedPlaylistSignatureRef are read by the
+  // timer-based playback effect below) and resets playback state in response to
+  // playModeState. It legitimately stays an effect: a render-time version would
+  // write refs during render. The set-state-in-effect rule over-flags this
+  // orchestration; a useReducer refactor is tracked in issue #158.
+
+  /* eslint-disable react-hooks/set-state-in-effect -- legitimate ref-backed orchestration; see #158 */
   useEffect(() => {
     logger.debug(
       '[MugenProtoPedia]',
@@ -740,6 +750,15 @@ export function MugenProtoPedia() {
         );
         lastProcessedPlaylistSignatureRef.current = signature;
         playlistQueueRef.current = [...ids];
+
+        // Pick a fresh random style/font for the playlist title card when a
+        // (non-empty) playlist starts. Moved here from a standalone effect to
+        // avoid a set-state-in-effect warning; the signature dedup above means
+        // this fires on the same new-playlist-start moments as before.
+        const playlistStyle = getRandomPlaylistStyle();
+        setPlaylistVariant(playlistStyle.variant);
+        setPlaylistFont(playlistStyle.fontFamily);
+
         setProcessedCount(0);
         setIsPlaylistPlaying(true);
         setIsPlaylistCompleted(false);
@@ -750,6 +769,7 @@ export function MugenProtoPedia() {
     changeDelayLevel,
     // , clearSlots
   ]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Process the playlist queue while in playlist mode
   useEffect(() => {
