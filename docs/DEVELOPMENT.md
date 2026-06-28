@@ -96,7 +96,7 @@ configured in `pwa-assets.config.ts`.
 
 ### Frontend
 
-- Next.js 15 (App Router / Server Functions)
+- Next.js 16 (App Router / Server Functions)
 - React 19
 
 ### UI
