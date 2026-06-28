@@ -64,9 +64,9 @@ its reason**. The exact version itself lives in `package.json`.
 
 ### `next` — pinned exact
 
-Reason: Next.js major upgrades are real migrations, not routine bumps. Going
-from 15 to 16, for example, makes Turbopack the default build, removes
-synchronous Request APIs, changes caching semantics, raises the minimum Node to
+Reason: Next.js major upgrades are real migrations, not routine bumps. The
+upgrade from 15 to 16, for example, made Turbopack the default build, removed
+synchronous Request APIs, changed caching semantics, raised the minimum Node to
 20.9, and can change metadata/`<head>` injection (related to issue #141). A
 floating range could pull a major in via a blanket update and silently break the
 build or the framework, so Next is upgraded deliberately in its own PR with full
