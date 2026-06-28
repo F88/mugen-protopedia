@@ -106,15 +106,25 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return hasIds || hasTitle;
   }, [effectiveIds.length, hasInputError, idsError, title, titleError]);
 
-  useEffect(() => {
-    if (lastDriver === 'urls' && !urlsError) {
-      const ids = normalizeIdsFromUrls(urlsArray);
-      setIdsText(ids.join('\n'));
-      if (ids.length > 0) {
+  // Mirror the URL-derived IDs into the IDs textarea while URLs are the active,
+  // error-free driver. Done as a render-time comparison instead of an effect:
+  // the signature is null unless URLs drive the inputs, so the sync retriggers
+  // exactly when the old effect did (URLs change, a URL error clears, or the
+  // driver switches back to URLs). autoIds === normalizeIdsFromUrls(urlsArray).
+  const urlsDrivenIdsSignature =
+    lastDriver === 'urls' && !urlsError ? urlsArray.join('\n') : null;
+  const [prevUrlsDrivenIdsSignature, setPrevUrlsDrivenIdsSignature] = useState<
+    string | null
+  >(null);
+  if (prevUrlsDrivenIdsSignature !== urlsDrivenIdsSignature) {
+    setPrevUrlsDrivenIdsSignature(urlsDrivenIdsSignature);
+    if (urlsDrivenIdsSignature !== null) {
+      setIdsText(autoIds.join('\n'));
+      if (autoIds.length > 0) {
         setIdsHighlighted(true);
       }
     }
-  }, [urlsArray, lastDriver, urlsError]);
+  }
 
   useEffect(() => {
     if (
