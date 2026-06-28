@@ -201,9 +201,12 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     } catch {
       // Swallow clipboard error; status already reflects failure
       setCopyStatus('fail');
-    } finally {
-      setTimeout(() => setCopyStatus('idle'), 2500);
     }
+    // Reset status after a delay. The catch above swallows all errors, so this
+    // always runs on both the success and failure paths (matching the previous
+    // `finally`), while avoiding try/finally, which the React Compiler cannot
+    // optimize.
+    setTimeout(() => setCopyStatus('idle'), 2500);
   }, [playlistUrl]);
 
   return (
