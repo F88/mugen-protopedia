@@ -19,7 +19,11 @@ Policy and constraints for updating npm dependencies in this repository.
 - **npm.** `package-lock.json` is the committed lockfile and the source of
   truth. CI installs with `npm ci --include=optional`. Use `npm install` /
   `npm ci`; do not introduce a `pnpm-lock.yaml` or `yarn.lock`.
-- Node: `engines.node >= 20`.
+- Node: `engines.node` is `24.x`, kept in sync with the CI workflow
+  (`node-version: 24`), `.nvmrc`, and the Vercel Project Settings (24.x). ESLint
+  10 requires Node `^20.19.0 || ^22.13.0 || >=24`; pinning the major (`24.x`)
+  rather than an open range (`>=20`) also stops Vercel from overriding the
+  project's Node version and auto-upgrading on new majors.
 
 > Inconsistency to reconcile: `docs/DEVELOPMENT.md` currently states
 > "pnpm (recommended)", but the committed lockfile and CI are npm. Treat npm as
