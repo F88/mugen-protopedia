@@ -114,8 +114,16 @@ export function MugenProtoPedia() {
     resolvePlayMode({ directLaunchResult }),
   );
 
-  // Sync play mode based on the latest direct launch parameters
-  useEffect(() => {
+  // Sync play mode when the direct launch parameters change. directLaunchResult
+  // is a stable reference (useDirectLaunch memoizes on searchParams), so compare
+  // it against the previous value during render instead of via an effect. The
+  // initial value is the current result, so this runs only on later changes,
+  // matching the old effect (which was a no-op on mount because playModeState is
+  // already initialized from the same resolver).
+  const [prevDirectLaunchResult, setPrevDirectLaunchResult] =
+    useState(directLaunchResult);
+  if (prevDirectLaunchResult !== directLaunchResult) {
+    setPrevDirectLaunchResult(directLaunchResult);
     const resolvedPlayMode = resolvePlayMode({ directLaunchResult });
     setPlayModeState((previousState) => {
       const newPlayMode = arePlayModeStatesEqual(
@@ -131,7 +139,7 @@ export function MugenProtoPedia() {
       );
       return newPlayMode;
     });
-  }, [directLaunchResult]);
+  }
 
   // PlayMode - playlist
   const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
