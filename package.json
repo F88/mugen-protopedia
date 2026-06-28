@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "'Mugen ProtoPedia' is a web application that securely connects to the ProtoPedia API (v2) to retrieve and display a single, randomly selected prototype whenever the user requests one.",
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   },
   "keywords": [
     "ProtoPedia",
@@ -86,7 +86,7 @@
     "@vitest/coverage-v8": "^4.1.9",
     "autoprefixer": "^10.5.2",
     "cross-env": "^10.1.0",
-    "eslint": "^9.39.4",
+    "eslint": "^10.6.0",
     "eslint-config-next": "^16.2.9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.4.6",

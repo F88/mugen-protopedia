@@ -44,17 +44,21 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
       setIsLoading(true);
       setError(null);
 
+      // try/catch without a finally: the React Compiler cannot lower a
+      // TryStatement with a finalizer, so setIsLoading(false) is set on both
+      // the success and error paths instead of in a finally block.
       try {
-        return await getRandomPrototypeData();
+        const result = await getRandomPrototypeData();
+        setIsLoading(false);
+        return result;
       } catch (caught) {
         const message =
           caught instanceof Error
             ? caught.message
             : 'Failed to fetch random prototype.';
         setError(message);
-        throw caught;
-      } finally {
         setIsLoading(false);
+        throw caught;
       }
     }, []);
 

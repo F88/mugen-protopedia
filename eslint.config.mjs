@@ -44,6 +44,12 @@ const eslintConfig = defineConfig([
       'no-restricted-imports': 'off',
     },
   },
+  // eslint-plugin-react (bundled by eslint-config-next) auto-detects the React
+  // version via context.getFilename(), which ESLint 10 removed. Pinning the
+  // version explicitly skips that detection path and avoids the crash.
+  {
+    settings: { react: { version: '19.2.7' } },
+  },
   globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
 ]);
 
