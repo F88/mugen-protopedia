@@ -31,6 +31,7 @@
     "generate-pwa-assets": "pwa-assets-generator",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "test": "cross-env TAILWIND_DISABLE_OXIDE=1 NEXT_DISABLE_TAILWIND_OXIDE=1 vitest run",
     "test:coverage": "cross-env TAILWIND_DISABLE_OXIDE=1 NEXT_DISABLE_TAILWIND_OXIDE=1 vitest run --coverage",
     "test:watch": "vitest",
