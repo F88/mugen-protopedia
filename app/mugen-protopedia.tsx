@@ -692,7 +692,15 @@ export function MugenProtoPedia() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
-  // Prepare playlist queue when entering playlist mode with new parameters
+  // Prepare playlist queue when entering playlist mode with new parameters.
+  // This effect imperatively initializes the ref-backed playlist playback machine
+  // (playlistQueueRef / lastProcessedPlaylistSignatureRef are read by the
+  // timer-based playback effect below) and resets playback state in response to
+  // playModeState. It legitimately stays an effect: a render-time version would
+  // write refs during render. The set-state-in-effect rule over-flags this
+  // orchestration; a useReducer refactor is tracked in issue #158.
+
+  /* eslint-disable react-hooks/set-state-in-effect -- legitimate ref-backed orchestration; see #158 */
   useEffect(() => {
     logger.debug(
       '[MugenProtoPedia]',
@@ -761,6 +769,7 @@ export function MugenProtoPedia() {
     changeDelayLevel,
     // , clearSlots
   ]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Process the playlist queue while in playlist mode
   useEffect(() => {
