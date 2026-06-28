@@ -235,7 +235,7 @@ const Footer = ({ logo }: { logo: string }) => (
     }}
   >
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src={logo} height="120" alt="" />
+    <img src={logo} height={120} alt="" />
   </div>
 );
 
