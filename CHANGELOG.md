@@ -26,6 +26,10 @@ and this project adheres to [CalVer](https://calver.org/).
 - Extract the max-prototype-id resolver (the `getMaxPrototypeId` server
   action call, its fallback and validation) out of `MugenProtoPedia` into
   a `useMaxPrototypeId` hook. Step B of decomposing the home page. (#168)
+- Use the client logger (`@/lib/logger.client`) instead of `console.*` in
+  the home page so all of its logging goes through one structured,
+  level-aware path (it already used `logger` for most messages). Warnings
+  and errors still surface at the default client log level.
 
 ## [2026.06.29]
 

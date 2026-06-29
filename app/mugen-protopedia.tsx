@@ -274,7 +274,7 @@ export function MugenProtoPedia() {
   // const logNotableHighlights = (prototype: Prototype) => {
   // const highlights = checkNotableHighlights(prototype);
   // Do something with highlights // TODO
-  // console.info('Prototype has any notable highlights!!', { highlights });
+  // logger.info('Prototype has any notable highlights!!', { highlights });
   // };
 
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
@@ -424,7 +424,7 @@ export function MugenProtoPedia() {
       return;
     }
     if (!tryIncrementInFlightRequests()) {
-      console.warn('Maximum concurrent fetches reached.');
+      logger.warn('Maximum concurrent fetches reached.');
       return;
     }
 
@@ -437,7 +437,7 @@ export function MugenProtoPedia() {
         await replacePrototypeInSlot(slotId, prototype);
       }
     } catch (err) {
-      console.error('Failed to fetch prototypes.', err);
+      logger.error('Failed to fetch prototypes.', err);
       // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
       // "Failed to fetch" is ambiguous but technically correct for network errors (offline, DNS, etc).
       // We list possible causes to aid troubleshooting.
@@ -483,12 +483,12 @@ export function MugenProtoPedia() {
       );
 
       if (id < 0) {
-        console.error('Invalid prototype ID:', id);
+        logger.error('Invalid prototype ID:', id);
         return;
       }
 
       if (!tryIncrementInFlightRequests()) {
-        console.warn('Maximum concurrent fetches reached.');
+        logger.warn('Maximum concurrent fetches reached.');
         return;
       }
 
@@ -540,12 +540,12 @@ export function MugenProtoPedia() {
       });
 
       if (id < 0) {
-        console.error('Invalid prototype ID:', id);
+        logger.error('Invalid prototype ID:', id);
         return;
       }
 
       if (!tryIncrementInFlightRequests()) {
-        console.warn('Maximum concurrent fetches reached.');
+        logger.warn('Maximum concurrent fetches reached.');
         return;
       }
 
@@ -735,7 +735,7 @@ export function MugenProtoPedia() {
 
       // Concurrency check: if we cannot fetch now, retry later
       if (!canFetchMorePrototypes) {
-        console.warn(
+        logger.warn(
           'Cannot fetch more prototypes while playlist is playing. Retry in ' +
             PLAYLIST_FETCH_INTERVAL_MS +
             'ms' +
