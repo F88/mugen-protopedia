@@ -20,7 +20,9 @@ and this project adheres to [CalVer](https://calver.org/).
 - Extract header-height measurement (the `ResizeObserver` and
   `--header-offset` CSS variable sync) out of `MugenProtoPedia` into a
   `useHeaderHeight` hook, as the first step of incrementally decomposing
-  the oversized home page component. (#168)
+  the oversized home page component. The hook also guards `ResizeObserver`
+  with a window `resize` fallback and removes `--header-offset` on unmount.
+  (#168)
 
 ## [2026.06.29]
 
