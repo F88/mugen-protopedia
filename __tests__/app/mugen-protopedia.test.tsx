@@ -116,10 +116,26 @@ describe('MugenProtoPedia fetch wiring (integration)', () => {
     });
     expect(h.fetchPlaylistPrototype).toHaveBeenCalledWith(11);
 
+    // While the playlist is playing, the reducer's isPlaying flag drives the
+    // control panel into 'loadingPlaylist' mode, which disables the random and
+    // reset controls. This asserts the reducer -> parent UI binding (the part
+    // the hook-level tests do not cover).
+    expect(screen.getByRole('button', { name: 'Prototype' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeDisabled();
+
     // The next item follows after the inter-fetch interval.
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1000);
     });
     expect(h.fetchPlaylistPrototype).toHaveBeenCalledWith(22);
+
+    // One more interval drains the queue with no in-flight requests, so the
+    // machine dispatches COMPLETED: isPlaying flips back to false and the
+    // controls re-enable.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(screen.getByRole('button', { name: 'Prototype' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeEnabled();
   });
 });
