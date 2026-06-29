@@ -20,7 +20,7 @@ const PANEL_BORDER = 'border border-slate-200 dark:border-gray-700';
 const KBD_CLASS =
   'px-1 py-0.5 bg-white dark:bg-gray-800 border dark:border-gray-600 rounded text-xs dark:text-white';
 const KBD_ROW_CLASS =
-  'hidden items-center gap-1 text-xs text-muted-foreground sm:flex';
+  'hidden items-center gap-1 pt-1 text-xs text-muted-foreground sm:flex';
 const MUTED_XS = 'text-xs text-muted-foreground';
 
 function Kbd({ children }: { children: ReactNode }) {
