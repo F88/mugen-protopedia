@@ -321,8 +321,8 @@ export function buildAnniversaryCandidates(
 
   // Filter prototypes by month-day (regardless of year) and extract only necessary fields
   const candidatePrototypes = prototypes
-    .filter((p) => {
-      if (!p.releaseDate) return false;
+    .filter((p): p is typeof p & { releaseDate: string } => {
+      if (p.releaseDate == null) return false;
       const mmdd = extractMonthDay(p.releaseDate);
       return isValidMMDD(mmdd) && targetMonthDays.has(mmdd);
     })
@@ -459,7 +459,7 @@ export function analyzePrototypesForServer(
 
   // Compute dataset date range for diagnostics
   const validDates = prototypes
-    .map((p) => Date.parse(p.releaseDate))
+    .map((p) => (p.releaseDate != null ? Date.parse(p.releaseDate) : Number.NaN))
     .filter((t) => Number.isFinite(t))
     .sort((a, b) => a - b);
   const datasetMin =

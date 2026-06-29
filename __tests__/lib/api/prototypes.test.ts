@@ -110,9 +110,16 @@ describe('normalizePrototypeForMpp', () => {
     it('defaults text fields to an empty string', () => {
       expect(result.teamNm).toBe('');
       expect(result.freeComment).toBe('');
-      expect(result.releaseDate).toBe('');
       expect(result.summary).toBe('');
       expect(result.systemDescription).toBe('');
+    });
+
+    it('leaves releaseDate / updateDate undefined when the API omits them', () => {
+      expect(result.releaseDate).toBeUndefined();
+      expect(
+        normalizePrototypeForMpp(makeUpstream({ updateDate: undefined }))
+          .updateDate,
+      ).toBeUndefined();
     });
 
     it('leaves URL fields undefined when absent', () => {

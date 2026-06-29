@@ -11,6 +11,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Make `PrototypeForMpp`'s `releaseDate` / `updateDate` optional
+  (`string | undefined`) instead of forcing them to `''`, reflecting that the
+  ProtoPedia API can return null for these. The adapter passes promidas's value
+  through, and consumers guard with `!= null` and only process valid dates
+  (replacing truthy/falsy checks). (#136, #137)
 - Make `PrototypeForMpp` fully `readonly` (including its array fields) to match
   promidas's `NormalizedPrototype` and reflect that normalized prototypes are
   treated as immutable. The normalization adapter now passes promidas's readonly

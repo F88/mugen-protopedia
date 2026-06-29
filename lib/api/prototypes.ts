@@ -37,8 +37,8 @@ export type PrototypeForMpp = {
   readonly createId?: number;
   readonly createDate: string;
   readonly updateId?: number;
-  readonly updateDate: string;
-  readonly releaseDate: string;
+  readonly updateDate?: string;
+  readonly releaseDate?: string;
 
   readonly revision: number;
 
@@ -93,10 +93,12 @@ export type PrototypeForMpp = {
  * and default values for the fields that `protopedia-api-v2-client` v3 marks
  * optional) is delegated to `promidas`, so this single source of truth stays in
  * sync with the ProtoPedia data model. This adapter only bridges the two type
- * shapes: it keeps `PrototypeForMpp`'s non-optional contract for the fields the
- * app reads unconditionally (filling `releaseDate` / `updateDate` to `''`) and
- * drops the promidas-only fields (`uuid`, `nid`, `slideMode`) the app does not
- * use. Both shapes are `readonly`, so the arrays pass through without copying.
+ * shapes: `releaseDate` / `updateDate` stay optional and pass through as
+ * `undefined` when the API omits them (the API can return null here), while the
+ * other fields keep `PrototypeForMpp`'s required contract via promidas's
+ * defaults. It drops the promidas-only fields (`uuid`, `nid`, `slideMode`) the
+ * app does not use. Both shapes are `readonly`, so arrays pass through without
+ * copying.
  */
 export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp {
   const n = normalizeUpstreamPrototype(p);
@@ -112,8 +114,8 @@ export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp 
     createId: n.createId,
     createDate: n.createDate,
     updateId: n.updateId,
-    updateDate: n.updateDate ?? '',
-    releaseDate: n.releaseDate ?? '',
+    updateDate: n.updateDate,
+    releaseDate: n.releaseDate,
     revision: n.revision ?? 0,
     awards: n.awards,
     freeComment: n.freeComment,
