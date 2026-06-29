@@ -30,6 +30,13 @@ and this project adheres to [CalVer](https://calver.org/).
   the home page so all of its logging goes through one structured,
   level-aware path (it already used `logger` for most messages). Warnings
   and errors still surface at the default client log level.
+- Extract the command window / cheat-code key sequences (visibility, the
+  key buffer, the matched-command display, and the Escape-to-close and
+  special-sequence handling) out of `MugenProtoPedia` into a
+  `useCommandWindow` hook. Step C of decomposing the home page; behavior
+  unchanged. The match-reset `setTimeout` is now tracked in a ref, cleared
+  before re-scheduling, and cancelled on unmount (no stacked timers or
+  post-unmount state updates). (#168)
 
 ## [2026.06.29]
 
