@@ -112,9 +112,11 @@ export default function RootLayout({
       {/**
        * Do NOT add a hand-written `<head>` here. In the App Router, a manual
        * `<head>` in the root layout breaks the insertion point of the Metadata
-       * API, pushing `<title>`, `<link rel="manifest">`, `<meta description>`
-       * and `og:*` into `<body>` (Chrome then reports "No manifest detected").
-       * Head tags are owned by the Metadata API; early scripts use `next/script`.
+       * API, pushing `<title>`, `<link rel="manifest">`,
+       * `<meta name="description">` and `og:*` into `<body>` (Chrome then
+       * reports "No manifest detected"). Head tags are owned by the Metadata
+       * API; the early theme script below runs as a plain inline `<script>` in
+       * `<body>` (see the note there for why `next/script` is not used).
        */}
       <body className={`${inter.className} min-h-screen`}>
         {/**
