@@ -9,6 +9,15 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Make `AnalysisDashboard` presentational and stop passing a hook as a
+  prop (`useLatestAnalysisHook`), which violated the Rules of Hooks and
+  blocked React Compiler memoization of the dashboard and its parents. A
+  new `AnalysisDashboardContainer` now owns the `useLatestAnalysis` hook.
+  Also hoist a value block out of a `try/catch` in the home page so the
+  compiler can optimize the max-prototype-id resolver. (#157, #166)
+
 ## [2026.06.29]
 
 ### Added
