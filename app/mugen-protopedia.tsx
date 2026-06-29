@@ -66,6 +66,15 @@ import {
  */
 const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
 
+/**
+ * Validate a resolved max prototype id. Kept as a standalone predicate so the
+ * short-circuiting logical chain (a "value block") stays out of the try/catch
+ * in the resolver effect; the React Compiler cannot lower value blocks within a
+ * try statement.
+ */
+const isValidMaxPrototypeId = (value: number | null): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value > 0;
+
 // const arePlayModeStatesEqual = (
 //   left: PlayModeState,
 //   right: PlayModeState,
@@ -284,27 +293,27 @@ export function MugenProtoPedia() {
     let isMounted = true;
 
     const resolveMaxPrototypeId = async () => {
+      // The try only wraps the awaited call; all conditional/value-block logic
+      // lives after the try/catch so the React Compiler can optimize this. On a
+      // thrown error maxId stays null and falls back below, matching the prior
+      // catch branch.
+      let maxId: number | null = null;
       try {
-        const maxId = await getMaxPrototypeId();
-        if (
-          isMounted &&
-          typeof maxId === 'number' &&
-          Number.isFinite(maxId) &&
-          maxId > 0
-        ) {
-          setMaxPrototypeId(maxId);
-        } else if (isMounted) {
-          setMaxPrototypeId(FALLBACK_MAX_PROTOTYPE_ID);
-        }
+        maxId = await getMaxPrototypeId();
       } catch (error) {
         console.warn(
           'Failed to resolve max prototype id, using fallback',
           error,
         );
-        if (isMounted) {
-          setMaxPrototypeId(FALLBACK_MAX_PROTOTYPE_ID);
-        }
       }
+
+      if (!isMounted) {
+        return;
+      }
+
+      setMaxPrototypeId(
+        isValidMaxPrototypeId(maxId) ? maxId : FALLBACK_MAX_PROTOTYPE_ID,
+      );
     };
 
     void resolveMaxPrototypeId();
