@@ -1,6 +1,8 @@
+import { http, HttpResponse } from 'msw';
 import { describe, it, expect } from 'vitest';
 
 import { fetchPrototypesViaPromidasNoStoreClient } from '@/app/actions/prototypes-direct';
+import { server } from '@/mocks/server';
 
 /**
  * Integration test for the promidas-backed no-store path (#138).
@@ -43,5 +45,39 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
 
     expect(result.data).toHaveLength(1);
     expect(result.data[0]?.id).toBe(1001);
+  });
+
+  it('returns an empty data array for an unknown prototypeId (not found)', async () => {
+    // The MSW handler filters by prototypeId, so an unknown id yields no
+    // results. getLatestPrototypeById turns this empty array into `null`.
+    const result = await fetchPrototypesViaPromidasNoStoreClient({
+      prototypeId: 999_999,
+      limit: 1,
+      offset: 0,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return; // Type guard
+    expect(result.data).toHaveLength(0);
+  });
+
+  it('maps an upstream 5xx error to a failure Result with the HTTP status', async () => {
+    // Override the handler for this test; vitest.setup resets handlers afterEach.
+    server.use(
+      http.get('*/v2/api/prototype/list', () =>
+        HttpResponse.json({ message: 'boom' }, { status: 500 }),
+      ),
+    );
+
+    const result = await fetchPrototypesViaPromidasNoStoreClient({
+      prototypeId: 6563,
+      limit: 1,
+      offset: 0,
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return; // Type guard
+    expect(result.status).toBe(500);
+    expect(typeof result.error).toBe('string');
   });
 });
