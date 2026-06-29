@@ -37,6 +37,11 @@ and this project adheres to [CalVer](https://calver.org/).
   unchanged. The match-reset `setTimeout` is now tracked in a ref, cleared
   before re-scheduling, and cancelled on unmount (no stacked timers or
   post-unmount state updates). (#168)
+- Extract the prototype-fetching handlers (random, by-id SHOW, and the
+  playlist-mode fetch) out of `MugenProtoPedia` into a `usePrototypeFetching`
+  hook. The slot operations stay owned by the page and are injected; the
+  playlist fetch is returned for the upcoming playlist-playback work (#158).
+  Step D of decomposing the home page; behavior unchanged. (#168)
 
 ## [2026.06.29]
 
