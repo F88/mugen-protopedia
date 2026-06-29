@@ -11,6 +11,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Delegate prototype normalization to `promidas` (added as a dependency with
+  `promidas-utils`). `normalizePrototype` now adapts `promidas`'s output to the
+  internal `PrototypeForMpp` shape; consumers are unchanged. Adopts promidas's
+  behavior: empty segments are dropped from pipe-separated fields, and missing
+  `summary`/`systemDescription` default to `''`. Adds characterization tests.
+  (#136, #137)
 - Upgrade `protopedia-api-v2-client` from 2.0.0 to 3.0.0. The v3 type
   definitions make 9 `ResultOfListPrototypesApiResponse` fields optional
   (`teamNm`, `users`, `freeComment`, `releaseDate`, `thanksFlg`, `uuid`,

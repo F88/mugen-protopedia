@@ -1,7 +1,5 @@
 import { ResultOfListPrototypesApiResponse } from 'protopedia-api-v2-client';
-
-import { splitPipeSeparatedString } from '../utils/converter';
-import { normalizeProtoPediaTimestamp } from '../utils/time';
+import { normalizePrototype as normalizeUpstreamPrototype } from 'promidas/fetcher';
 
 export type UpstreamPrototype = ResultOfListPrototypesApiResponse;
 
@@ -79,40 +77,53 @@ export type PrototypeForMpp = {
   // slideMode?: number;
 };
 
+/**
+ * Normalize an upstream prototype into the app-internal {@link PrototypeForMpp}
+ * shape.
+ *
+ * The actual normalization (pipe-separated splitting, JST -> UTC timestamps,
+ * and default values for the fields that `protopedia-api-v2-client` v3 marks
+ * optional) is delegated to `promidas`, so this single source of truth stays in
+ * sync with the ProtoPedia data model. This adapter only bridges the two type
+ * shapes: it keeps `PrototypeForMpp`'s non-optional contract for the fields the
+ * app reads unconditionally (filling `releaseDate` / `updateDate` to `''`),
+ * copies the readonly arrays into mutable ones, and drops the promidas-only
+ * fields (`uuid`, `nid`, `slideMode`) the app does not use.
+ */
 export function normalizePrototype(p: UpstreamPrototype): PrototypeForMpp {
+  const n = normalizeUpstreamPrototype(p);
   return {
-    id: p.id,
-    prototypeNm: p.prototypeNm,
-    tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
-    teamNm: p.teamNm ?? '',
-    users: p.users ? splitPipeSeparatedString(p.users) : [],
-    summary: p.summary,
-    status: p.status,
-    releaseFlg: p.releaseFlg ?? 0,
-    createId: p.createId,
-    createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
-    updateId: p.updateId,
-    updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate:
-      normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate ?? '',
-    revision: p.revision ?? 0,
-    awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
-    freeComment: p.freeComment ?? '',
-    systemDescription: p.systemDescription,
-    viewCount: p.viewCount,
-    goodCount: p.goodCount,
-    commentCount: p.commentCount,
-    videoUrl: p.videoUrl,
-    mainUrl: p.mainUrl,
-    relatedLink: p.relatedLink,
-    relatedLink2: p.relatedLink2,
-    relatedLink3: p.relatedLink3,
-    relatedLink4: p.relatedLink4,
-    relatedLink5: p.relatedLink5,
-    licenseType: p.licenseType ?? 0,
-    thanksFlg: p.thanksFlg ?? 0,
-    events: p.events ? splitPipeSeparatedString(p.events) : [],
-    officialLink: p.officialLink,
-    materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
+    id: n.id,
+    prototypeNm: n.prototypeNm,
+    tags: [...n.tags],
+    teamNm: n.teamNm,
+    users: [...n.users],
+    summary: n.summary,
+    status: n.status,
+    releaseFlg: n.releaseFlg,
+    createId: n.createId,
+    createDate: n.createDate,
+    updateId: n.updateId,
+    updateDate: n.updateDate ?? '',
+    releaseDate: n.releaseDate ?? '',
+    revision: n.revision ?? 0,
+    awards: [...n.awards],
+    freeComment: n.freeComment,
+    systemDescription: n.systemDescription,
+    viewCount: n.viewCount,
+    goodCount: n.goodCount,
+    commentCount: n.commentCount,
+    videoUrl: n.videoUrl,
+    mainUrl: n.mainUrl,
+    relatedLink: n.relatedLink,
+    relatedLink2: n.relatedLink2,
+    relatedLink3: n.relatedLink3,
+    relatedLink4: n.relatedLink4,
+    relatedLink5: n.relatedLink5,
+    licenseType: n.licenseType ?? 1,
+    thanksFlg: n.thanksFlg ?? 0,
+    events: [...n.events],
+    officialLink: n.officialLink,
+    materials: [...n.materials],
   } satisfies PrototypeForMpp;
 }
