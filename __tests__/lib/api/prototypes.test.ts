@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { ResultOfListPrototypesApiResponse } from 'protopedia-api-v2-client';
 
-import { normalizePrototype } from '@/lib/api/prototypes';
+import { normalizePrototypeForMpp } from '@/lib/api/prototypes';
 
 /**
- * Characterization tests for `normalizePrototype`.
+ * Characterization tests for `normalizePrototypeForMpp`.
  *
  * These lock in the current normalization contract (pipe-separated splitting,
  * JST -> UTC timestamp conversion, and fallback values for the fields that
@@ -29,9 +29,9 @@ const makeUpstream = (
     ...overrides,
   }) as ResultOfListPrototypesApiResponse;
 
-describe('normalizePrototype', () => {
+describe('normalizePrototypeForMpp', () => {
   it('maps a fully populated upstream prototype', () => {
-    const result = normalizePrototype(
+    const result = normalizePrototypeForMpp(
       makeUpstream({
         id: 123,
         prototypeNm: 'My Project',
@@ -105,7 +105,7 @@ describe('normalizePrototype', () => {
   });
 
   describe('fallbacks for optional / missing fields', () => {
-    const result = normalizePrototype(makeUpstream());
+    const result = normalizePrototypeForMpp(makeUpstream());
 
     it('defaults text fields to an empty string', () => {
       expect(result.teamNm).toBe('');
@@ -139,29 +139,29 @@ describe('normalizePrototype', () => {
 
   describe('pipe-separated splitting', () => {
     it('trims each segment', () => {
-      expect(normalizePrototype(makeUpstream({ tags: 'a | b |c' })).tags).toEqual(
+      expect(normalizePrototypeForMpp(makeUpstream({ tags: 'a | b |c' })).tags).toEqual(
         ['a', 'b', 'c'],
       );
     });
 
     it('filters out empty segments', () => {
-      expect(normalizePrototype(makeUpstream({ tags: 'a||b' })).tags).toEqual([
+      expect(normalizePrototypeForMpp(makeUpstream({ tags: 'a||b' })).tags).toEqual([
         'a',
         'b',
       ]);
-      expect(normalizePrototype(makeUpstream({ users: 'u1|' })).users).toEqual([
+      expect(normalizePrototypeForMpp(makeUpstream({ users: 'u1|' })).users).toEqual([
         'u1',
       ]);
     });
 
     it('returns an empty array for an empty string', () => {
-      expect(normalizePrototype(makeUpstream({ tags: '' })).tags).toEqual([]);
+      expect(normalizePrototypeForMpp(makeUpstream({ tags: '' })).tags).toEqual([]);
     });
   });
 
   describe('timestamp normalization', () => {
     it('converts JST timestamps to UTC ISO strings', () => {
-      const result = normalizePrototype(
+      const result = normalizePrototypeForMpp(
         makeUpstream({
           createDate: '2024-01-01 12:00:00.0',
           updateDate: '2024-01-01 00:00:00.0',
@@ -172,7 +172,7 @@ describe('normalizePrototype', () => {
     });
 
     it('falls back to the original string when the timestamp is unparseable', () => {
-      const result = normalizePrototype(
+      const result = normalizePrototypeForMpp(
         makeUpstream({ createDate: '2025/11/14 12:03:07' }),
       );
       expect(result.createDate).toBe('2025/11/14 12:03:07');

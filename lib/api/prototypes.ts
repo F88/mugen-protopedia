@@ -92,7 +92,7 @@ export type PrototypeForMpp = {
  * copies the readonly arrays into mutable ones, and drops the promidas-only
  * fields (`uuid`, `nid`, `slideMode`) the app does not use.
  */
-export function normalizePrototype(p: UpstreamPrototype): PrototypeForMpp {
+export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp {
   const n = normalizeUpstreamPrototype(p);
   return {
     id: n.id,
