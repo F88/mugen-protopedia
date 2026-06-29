@@ -13,74 +13,74 @@ export type { UpstreamPrototype };
 
 export type PrototypeForMpp = {
   /* ID */
-  id: number;
+  readonly id: number;
 
   /* Basic information */
-  prototypeNm: string;
+  readonly prototypeNm: string;
 
   /** Pipe-separated tags string from upstream API */
-  tags?: string[];
+  readonly tags?: readonly string[];
 
-  teamNm: string;
+  readonly teamNm: string;
 
   /** Pipe-separated tags string from upstream API */
-  users: string[];
+  readonly users: readonly string[];
 
-  summary?: string;
-  status: StatusCode;
-  releaseFlg: ReleaseFlagCode;
+  readonly summary?: string;
+  readonly status: StatusCode;
+  readonly releaseFlg: ReleaseFlagCode;
 
   // uuid: string;
   // nid?: string;
 
   /* Times  */
-  createId?: number;
-  createDate: string;
-  updateId?: number;
-  updateDate: string;
-  releaseDate: string;
+  readonly createId?: number;
+  readonly createDate: string;
+  readonly updateId?: number;
+  readonly updateDate: string;
+  readonly releaseDate: string;
 
-  revision: number;
+  readonly revision: number;
 
   /** Pipe-separated tags string from upstream API */
-  awards?: string[];
+  readonly awards?: readonly string[];
 
-  freeComment: string;
-  systemDescription?: string;
+  readonly freeComment: string;
+  readonly systemDescription?: string;
 
   // counts
-  viewCount: number;
-  goodCount: number;
-  commentCount: number;
+  readonly viewCount: number;
+  readonly goodCount: number;
+  readonly commentCount: number;
 
   // URLs
 
   /** URL of YouTube or Vimeo */
-  videoUrl?: string;
+  readonly videoUrl?: string;
 
   /* URL of eyecatch image */
-  mainUrl: string;
+  readonly mainUrl: string;
 
   /* URLs of related link */
-  relatedLink?: string;
-  relatedLink2?: string;
-  relatedLink3?: string;
-  relatedLink4?: string;
-  relatedLink5?: string;
+  readonly relatedLink?: string;
+  readonly relatedLink2?: string;
+  readonly relatedLink3?: string;
+  readonly relatedLink4?: string;
+  readonly relatedLink5?: string;
 
   // License
-  licenseType: LicenseTypeCode;
+  readonly licenseType: LicenseTypeCode;
 
   // Others
-  thanksFlg: ThanksFlagCode;
+  readonly thanksFlg: ThanksFlagCode;
 
   /** Pipe-separated tags string from upstream API */
-  events?: string[];
+  readonly events?: readonly string[];
 
-  officialLink?: string;
+  readonly officialLink?: string;
 
   /** Pipe-separated tags string from upstream API */
-  materials?: string[];
+  readonly materials?: readonly string[];
 
   // slideMode?: number;
 };
@@ -94,18 +94,18 @@ export type PrototypeForMpp = {
  * optional) is delegated to `promidas`, so this single source of truth stays in
  * sync with the ProtoPedia data model. This adapter only bridges the two type
  * shapes: it keeps `PrototypeForMpp`'s non-optional contract for the fields the
- * app reads unconditionally (filling `releaseDate` / `updateDate` to `''`),
- * copies the readonly arrays into mutable ones, and drops the promidas-only
- * fields (`uuid`, `nid`, `slideMode`) the app does not use.
+ * app reads unconditionally (filling `releaseDate` / `updateDate` to `''`) and
+ * drops the promidas-only fields (`uuid`, `nid`, `slideMode`) the app does not
+ * use. Both shapes are `readonly`, so the arrays pass through without copying.
  */
 export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp {
   const n = normalizeUpstreamPrototype(p);
   return {
     id: n.id,
     prototypeNm: n.prototypeNm,
-    tags: [...n.tags],
+    tags: n.tags,
     teamNm: n.teamNm,
-    users: [...n.users],
+    users: n.users,
     summary: n.summary,
     status: n.status,
     releaseFlg: n.releaseFlg,
@@ -115,7 +115,7 @@ export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp 
     updateDate: n.updateDate ?? '',
     releaseDate: n.releaseDate ?? '',
     revision: n.revision ?? 0,
-    awards: [...n.awards],
+    awards: n.awards,
     freeComment: n.freeComment,
     systemDescription: n.systemDescription,
     viewCount: n.viewCount,
@@ -130,8 +130,8 @@ export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp 
     relatedLink5: n.relatedLink5,
     licenseType: n.licenseType ?? 1,
     thanksFlg: n.thanksFlg ?? 0,
-    events: [...n.events],
+    events: n.events,
     officialLink: n.officialLink,
-    materials: [...n.materials],
+    materials: n.materials,
   } satisfies PrototypeForMpp;
 }

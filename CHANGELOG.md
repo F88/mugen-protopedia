@@ -11,6 +11,10 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Make `PrototypeForMpp` fully `readonly` (including its array fields) to match
+  promidas's `NormalizedPrototype` and reflect that normalized prototypes are
+  treated as immutable. The normalization adapter now passes promidas's readonly
+  arrays through without copying. No runtime behavior change. (#136, #137)
 - Type `PrototypeForMpp`'s `status`, `releaseFlg`, `licenseType`, and
   `thanksFlg` with promidas's code types (`StatusCode`, `ReleaseFlagCode`,
   `LicenseTypeCode`, `ThanksFlagCode`) instead of `number`, so invalid codes
