@@ -574,16 +574,21 @@ const UnleashedThemeRandomized = () => {
 type PlayModeThemeProps = {
   mode: PlayModeState;
   delayLevel?: SimulatedDelayLevel;
+  /**
+   * Reference date for the date-based theme fallback. Defaults to the current
+   * time; pass an explicit `Date` to preview a specific day (e.g. Storybook).
+   */
+  now?: Date;
 };
 
 /**
  * Main component for Play Mode themes.
  * Renders the appropriate theme overlay based on the current mode.
  */
-export function PlayModeTheme({ mode, delayLevel }: PlayModeThemeProps) {
+export function PlayModeTheme({ mode, delayLevel, now }: PlayModeThemeProps) {
   logger.debug('[PlayModeTheme] render', { mode, delayLevel });
 
-  const themeType = resolveMppThemeType(mode, delayLevel);
+  const themeType = resolveMppThemeType(mode, delayLevel, now);
 
   switch (themeType) {
     case 'unleashed':

@@ -5,15 +5,15 @@ import type {
 } from '@/types/mugen-protopedia.types';
 
 /**
- * Resolves theme type based on current date and time.
+ * Resolves theme type based on a date and time.
  * Christmas theme is shown during December 19-25, 16:00-06:00 (next day) in user's local time.
  *
+ * @param now - The reference date/time. Defaults to the current time. Pass an
+ *   explicit `Date` to make the result deterministic (tests, previews) without
+ *   mocking the global clock.
  * @returns Theme type based on date/time, or null if no special theme
  */
-export function resolveThemeByDate(): MppThemeType {
-  // Get current date and time on user's local timezone
-  const now = new Date();
-
+export function resolveThemeByDate(now: Date = new Date()): MppThemeType {
   const month = now.getMonth(); // 0-indexed: 0 = January, 11 = December
   const date = now.getDate(); // 1-31
   const hour = now.getHours(); // 0-23
@@ -37,11 +37,14 @@ export function resolveThemeByDate(): MppThemeType {
  *
  * @param mode - The current play mode state
  * @param delayLevel - The current simulated delay level (optional)
+ * @param now - The reference date/time for the date-based fallback. Defaults to
+ *   the current time; pass an explicit `Date` for deterministic results.
  * @returns The theme type to apply, or null for no theme
  */
 export function resolveMppThemeType(
   mode: PlayModeState,
   delayLevel?: SimulatedDelayLevel,
+  now: Date = new Date(),
 ): MppThemeType {
   // Unleashed mode always gets unleashed theme
   if (mode.type === 'unleashed') {
@@ -73,5 +76,5 @@ export function resolveMppThemeType(
   }
 
   // Date-based automatic theme resolution
-  return resolveThemeByDate();
+  return resolveThemeByDate(now);
 }
