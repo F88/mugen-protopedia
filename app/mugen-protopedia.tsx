@@ -17,12 +17,9 @@ import type {
 } from '@/types/mugen-protopedia.types';
 
 // lib
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
-import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { useMaxPrototypeId } from '@/lib/hooks/use-max-prototype-id';
-import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
+import { usePrototypeFetching } from '@/lib/hooks/use-prototype-fetching';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
-import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
@@ -91,7 +88,6 @@ export function MugenProtoPedia() {
   const { headerRef, headerHeight } = useHeaderHeight();
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [processedCount, setProcessedCount] = useState(0);
   const [delayLevel, setDelayLevel] = useState<SimulatedDelayLevel>('NORMAL');
 
@@ -161,13 +157,6 @@ export function MugenProtoPedia() {
     simulateDelayRangeMs: getSimulatedDelayRangeForLevel(delayLevel),
   });
 
-  // data
-  const {
-    fetchPrototype: fetchPlaylistPrototype,
-    // isLoading: isLoadingPlaylistPrototype,
-    // error: playlistPrototypeError,
-  } = usePlaylistPrototype();
-
   const [prototypeIdInput, setPrototypeIdInput] = useState(
     '',
     // '3' /* おしゃべりパパ人形 */,
@@ -200,29 +189,11 @@ export function MugenProtoPedia() {
     [],
   );
 
-  const {
-    getRandomPrototype,
-    // isLoading: isLoadingPrototype,
-    // error: randomPrototypeError,
-  } = useRandomPrototype();
-
   // Command window / cheat-code key sequences. The hook owns the CLI visibility,
   // the key buffer and the matched-command display; play-mode/delay side effects
   // of a matched cheat code are applied through the injected setters.
   const { showCLI, sequenceBuffer, matchedCommand, toggleCLI } =
     useCommandWindow({ setPlayModeState, changeDelayLevel });
-
-  /**
-   * Create a deep-cloned copy of a prototype.
-   *
-   * Note: This uses JSON round-trip which is sufficient for our normalized
-   * data shape (plain objects). If richer types are added later, replace with
-   * a safer cloning strategy.
-   */
-  const clonePrototype = useCallback(
-    (prototype: Prototype): Prototype => JSON.parse(JSON.stringify(prototype)),
-    [],
-  );
 
   // const logNotableHighlights = (prototype: Prototype) => {
   // const highlights = checkNotableHighlights(prototype);
@@ -270,26 +241,6 @@ export function MugenProtoPedia() {
   );
 
   /**
-   * Fetch a random prototype from the API and return a cloned instance.
-   *
-   * @returns cloned prototype or null when API yields no result
-   */
-  const getRandomPrototypeFromResults =
-    useCallback(async (): Promise<Prototype | null> => {
-      const prototype = await getRandomPrototype();
-
-      if (!prototype) {
-        return null;
-      }
-
-      const clonedPrototype = clonePrototype(prototype);
-      logger.debug('[MugenProtoPedia]', 'Selected random prototype', {
-        clonedPrototype,
-      });
-      return clonedPrototype;
-    }, [getRandomPrototype, clonePrototype]);
-
-  /**
    * Handle change for explicit ID input field.
    * Updates local state used by validation and fetch-by-ID action.
    */
@@ -335,200 +286,31 @@ export function MugenProtoPedia() {
     changeDelayLevel,
   ]);
 
-  /**
-   * Append a placeholder slot and populate it with a randomly fetched prototype.
-   * Respects concurrency cap; removes placeholder on null result or error.
-   */
-  const handleGetRandomPrototype = useCallback(async () => {
-    if (isPlaylistPlaying) {
-      logger.warn(
-        '[MugenProtoPedia] Cannot fetch random prototype while playlist is playing.',
-      );
-      return;
-    }
-    if (!tryIncrementInFlightRequests()) {
-      logger.warn('Maximum concurrent fetches reached.');
-      return;
-    }
+  // Advance the playlist progress count after each playlist item fetch attempt.
+  // Stable wrapper so the fetching hook's playlist handler stays stable.
+  const onPlaylistItemProcessed = useCallback(
+    () => setProcessedCount((c) => c + 1),
+    [],
+  );
 
-    const slotId = appendPlaceholder();
-    try {
-      const prototype = await getRandomPrototypeFromResults();
-      if (!prototype) {
-        setSlotError(slotId, 'Failed to load.');
-      } else {
-        await replacePrototypeInSlot(slotId, prototype);
-      }
-    } catch (err) {
-      logger.error('Failed to fetch prototypes.', err);
-      // This app targets power users/engineers, so we prefer technical accuracy over simplified user-friendly messages.
-      // "Failed to fetch" is ambiguous but technically correct for network errors (offline, DNS, etc).
-      // We list possible causes to aid troubleshooting.
-      let message = 'Failed to load.';
-      if (err instanceof Error) {
-        if (err.message === 'Failed to fetch') {
-          message =
-            'Failed to fetch. ' +
-            'Possible causes: Offline, DNS, CORS, or Server Down.';
-        } else {
-          message = err.message;
-        }
-      }
-      setSlotError(slotId, message);
-    }
-    // Previously a finally; the React Compiler cannot lower try/finally, so the
-    // cleanup runs after the try/catch instead. The not-found early return is
-    // converted to if/else so this still runs on every path (success,
-    // not-found, error); the catch never returns or throws.
-    decrementInFlightRequests();
-  }, [
-    tryIncrementInFlightRequests,
-    appendPlaceholder,
-    getRandomPrototypeFromResults,
-    replacePrototypeInSlot,
-    decrementInFlightRequests,
+  // Prototype fetching (random / by-id SHOW / playlist). Slots stay owned here
+  // and are injected; the playlist fetch is returned for the playback effect.
+  const {
+    prototypeIdError,
+    fetchRandomPrototype,
+    fetchPrototypeByIdFromInput,
+    fetchPrototypeByIdForPlaylist,
+  } = usePrototypeFetching({
+    slots: {
+      appendPlaceholder,
+      replacePrototypeInSlot,
+      setSlotError,
+      tryIncrementInFlightRequests,
+      decrementInFlightRequests,
+    },
     isPlaylistPlaying,
-    setSlotError,
-  ]);
-
-  /**
-   * Fetch a prototype by explicit ID from SHOW controls (input field).
-   *
-   * Validates input, respects concurrency cap, and performs a one-shot
-   * upstream fetch via `getLatestPrototypeById`.
-   */
-  const handleGetLatestPrototypeById = useCallback(
-    async (id: number) => {
-      logger.debug(
-        '[MugenProtoPedia]',
-        'Fetching latest prototype by ID (SHOW)',
-        { id },
-      );
-
-      if (id < 0) {
-        logger.error('Invalid prototype ID:', id);
-        return;
-      }
-
-      if (!tryIncrementInFlightRequests()) {
-        logger.warn('Maximum concurrent fetches reached.');
-        return;
-      }
-
-      const slotId = appendPlaceholder({ expectedPrototypeId: id });
-      setPrototypeIdError(null);
-
-      try {
-        const prototype = await getLatestPrototypeById(id);
-
-        if (!prototype) {
-          setPrototypeIdError('Not found.');
-          setSlotError(slotId, 'Not found.');
-        } else {
-          const clonedPrototype = clonePrototype(prototype);
-          await replacePrototypeInSlot(slotId, clonedPrototype);
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to fetch prototype.';
-        setPrototypeIdError(message);
-        setSlotError(slotId, message);
-      }
-      // finally -> post-try/catch so the React Compiler can optimize; the
-      // not-found early return becomes if/else so cleanup runs on every path.
-      decrementInFlightRequests();
-    },
-    [
-      tryIncrementInFlightRequests,
-      appendPlaceholder,
-      setPrototypeIdError,
-      setSlotError,
-      clonePrototype,
-      replacePrototypeInSlot,
-      decrementInFlightRequests,
-    ],
-  );
-
-  /**
-   * Fetch a prototype by ID for PLAYLIST mode.
-   *
-   * Shares slot/error handling with SHOW, but uses the map-store-first
-   * repository-backed `usePlaylistPrototype` and updates playlist
-   * processed count.
-   */
-  const handleGetPrototypeByIdInPlaylistMode = useCallback(
-    async (id: number) => {
-      logger.debug('[MugenProtoPedia]', 'Fetching prototype by ID (PLAYLIST)', {
-        id,
-      });
-
-      if (id < 0) {
-        logger.error('Invalid prototype ID:', id);
-        return;
-      }
-
-      if (!tryIncrementInFlightRequests()) {
-        logger.warn('Maximum concurrent fetches reached.');
-        return;
-      }
-
-      const slotId = appendPlaceholder({ expectedPrototypeId: id });
-      setPrototypeIdError(null);
-
-      try {
-        const prototype = await fetchPlaylistPrototype(id);
-        if (!prototype) {
-          setPrototypeIdError('Not found.');
-          setSlotError(slotId, 'Not found.');
-        } else {
-          const clonedPrototype = clonePrototype(prototype);
-          await replacePrototypeInSlot(slotId, clonedPrototype);
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Failed to fetch prototype.';
-        setPrototypeIdError(message);
-        setSlotError(slotId, message);
-      }
-      // finally -> post-try/catch so the React Compiler can optimize; the
-      // not-found early return becomes if/else so both the decrement and the
-      // processed-count increment run on every path.
-      decrementInFlightRequests();
-      setProcessedCount((c) => c + 1);
-    },
-    [
-      tryIncrementInFlightRequests,
-      appendPlaceholder,
-      fetchPlaylistPrototype,
-      setPrototypeIdError,
-      setSlotError,
-      clonePrototype,
-      replacePrototypeInSlot,
-      decrementInFlightRequests,
-      setProcessedCount,
-    ],
-  );
-
-  const handleGetPrototypeByIdFromInput = async () => {
-    logger.debug(
-      '[MugenProtoPedia]',
-      'Fetching prototype by ID from input:',
-      prototypeIdInput,
-    );
-
-    // Validation
-    const trimmed = prototypeIdInput.trim();
-    if (trimmed === '') {
-      setPrototypeIdError('Please enter a prototype ID.');
-      return;
-    }
-    const parsedId = Number.parseInt(trimmed, 10);
-    if (Number.isNaN(parsedId) || parsedId < 0) {
-      setPrototypeIdError('Prototype ID must be a non-negative number.');
-      return;
-    }
-    await handleGetLatestPrototypeById(parsedId);
-  };
+    onPlaylistItemProcessed,
+  });
 
   /**
    * Open the currently focused prototype in a new browser tab on ProtoPedia.
@@ -676,7 +458,7 @@ export function MugenProtoPedia() {
       logger.debug('[MugenProtoPedia]', 'Processing playlist ID:', id);
 
       if (id !== undefined) {
-        void handleGetPrototypeByIdInPlaylistMode(id);
+        void fetchPrototypeByIdForPlaylist(id);
 
         playlistProcessingTimeoutRef.current = window.setTimeout(
           processNext,
@@ -698,7 +480,7 @@ export function MugenProtoPedia() {
     isPlaylistPlaying,
     canFetchMorePrototypes,
     inFlightRequests,
-    handleGetPrototypeByIdInPlaylistMode,
+    fetchPrototypeByIdForPlaylist,
   ]);
 
   /**
@@ -795,11 +577,13 @@ export function MugenProtoPedia() {
         <div className="container mx-auto p-4">
           <ControlPanel
             controlPanelMode={isPlaylistPlaying ? 'loadingPlaylist' : 'normal'}
-            onGetRandomPrototype={handleGetRandomPrototype}
+            onGetRandomPrototype={fetchRandomPrototype}
             onClear={handleClearPrototypes}
             prototypeIdInput={prototypeIdInput}
             onPrototypeIdInputChange={handlePrototypeIdInputChange}
-            onGetPrototypeById={handleGetPrototypeByIdFromInput}
+            onGetPrototypeById={() =>
+              fetchPrototypeByIdFromInput(prototypeIdInput)
+            }
             onPrototypeIdInputSet={handlePrototypeIdInputSet}
             canFetchMorePrototypes={canFetchMorePrototypes}
             prototypeIdError={prototypeIdError}
