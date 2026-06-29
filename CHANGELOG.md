@@ -9,6 +9,14 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Removed
+
+- Remove the unused `getTsv` method from `PrototypeRepository` (it fetched a
+  non-existent `/api/prototypes/tsv` route and had no callers), and delete the
+  entirely unused `in-memory-prototype-repository` test helper. Sample-data TSV
+  export in `tools/get-sample-data.ts` is unaffected (it uses the SDK's
+  `downloadPrototypesTsv` directly).
+
 ### Changed
 
 - Fetch the SHOW / by-id prototype via a promidas-backed non-cached client.
