@@ -157,10 +157,17 @@ export default function RootLayout({
         {/**
          * JSON-LD structured data for SEO. Body placement is fine: crawlers
          * read JSON-LD anywhere in the document and it needs no early execution.
+         *
+         * `<` is escaped to its JSON unicode form so that no value can close
+         * the `<script>` tag early (e.g. a `</script>` substring). Values are
+         * currently static constants, so this is defensive; `<` decodes
+         * back to `<` when parsed as JSON, so the structured data is unchanged.
          */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+          }}
         />
         {children}
         <ServiceWorkerRegister />
