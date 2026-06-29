@@ -42,6 +42,17 @@ and this project adheres to [CalVer](https://calver.org/).
   hook. The slot operations stay owned by the page and are injected; the
   playlist fetch is returned for the upcoming playlist-playback work (#158).
   Step D of decomposing the home page; behavior unchanged. (#168)
+- Extract the playlist playback orchestration (the queue/signature/timeout
+  refs and the queue-prep + timer-loop effects) out of `MugenProtoPedia` into
+  a `usePlaylistPlayback` hook, and model its state as a `useReducer` state
+  machine in `usePlaylistPlaybackState` (collapsing `isPlaylistPlaying` /
+  `isPlaylistCompleted` / `processedCount` and the random title-card style).
+  The reducer-backed `dispatch` is stable and position-independent, so the
+  late-running orchestration drives state that is declared early and fed back
+  into `usePrototypeFetching` without a circular dependency. This removes the
+  block `eslint-disable react-hooks/set-state-in-effect` the imperative setters
+  required. Final step (E) of decomposing the home page; behavior unchanged.
+  (#168, #158)
 
 ## [2026.06.29]
 

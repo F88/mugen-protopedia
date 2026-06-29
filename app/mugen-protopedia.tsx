@@ -7,7 +7,7 @@
  */
 
 import type { ChangeEvent } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -22,7 +22,6 @@ import { usePrototypeFetching } from '@/lib/hooks/use-prototype-fetching';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
 import { logger } from '@/lib/logger.client';
-import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
@@ -30,6 +29,8 @@ import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 import { useCommandWindow } from '@/hooks/use-command-window';
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
 import { useHeaderHeight } from '@/hooks/use-header-height';
+import { usePlaylistPlayback } from '@/hooks/use-playlist-playback';
+import { usePlaylistPlaybackState } from '@/hooks/use-playlist-playback-state';
 
 // components
 import { AnalysisDashboardContainer } from '@/components/analysis-dashboard-container';
@@ -38,58 +39,25 @@ import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
 import { PlayModeTheme } from '@/components/play-mode-theme';
-import {
-  PlaylistTitleCard,
-  type PlaylistTitleCardVariant,
-} from '@/components/playlist/playlist-title';
+import { PlaylistTitleCard } from '@/components/playlist/playlist-title';
 import { PrototypeGrid } from '@/components/prototype/prototype-grid';
 import {
   arePlayModeStatesEqual,
-  getDefaultSimulatedDelayLevelForPlayMode,
   getSimulatedDelayRangeForLevel,
 } from './mugen-protopedia-utils';
-
-/**
- * Interval between fetching prototypes in playlist mode (ms).
- */
-const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
-
-// const arePlayModeStatesEqual = (
-//   left: PlayModeState,
-//   right: PlayModeState,
-// ): boolean => {
-//   if (left.type !== right.type) {
-//     return false;
-//   }
-
-//   if (left.type === 'normal' && right.type === 'normal') {
-//     return true;
-//   }
-
-//   if (left.type === 'playlist' && right.type === 'playlist') {
-//     if (left.ids.length !== right.ids.length) {
-//       return false;
-//     }
-
-//     for (let index = 0; index < left.ids.length; index += 1) {
-//       if (left.ids[index] !== right.ids[index]) {
-//         return false;
-//       }
-//     }
-
-//     return left.title === right.title;
-//   }
-
-//   return false;
-// };
 
 export function MugenProtoPedia() {
   const router = useRouter();
   const { headerRef, headerHeight } = useHeaderHeight();
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [processedCount, setProcessedCount] = useState(0);
   const [delayLevel, setDelayLevel] = useState<SimulatedDelayLevel>('NORMAL');
+
+  // Playlist playback state machine (isPlaying / isCompleted / processedCount /
+  // title-card style). Declared early so its stable `dispatch` can be fed into
+  // `usePrototypeFetching` below while the orchestration effects run later.
+  const { state: playbackState, dispatch: playbackDispatch } =
+    usePlaylistPlaybackState();
 
   // Direct launch & play mode
   const directLaunchResult = useDirectLaunch();
@@ -123,20 +91,6 @@ export function MugenProtoPedia() {
       return newPlayMode;
     });
   }
-
-  // PlayMode - playlist
-  const [isPlaylistPlaying, setIsPlaylistPlaying] = useState(false);
-  const [isPlaylistCompleted, setIsPlaylistCompleted] = useState(false);
-  const playlistQueueRef = useRef<number[]>([]);
-  const lastProcessedPlaylistSignatureRef = useRef<string | null>(null);
-  const playlistProcessingTimeoutRef = useRef<number | null>(null);
-
-  // Random variant selection for PlaylistTitleCard
-  const [playlistVariant, setPlaylistVariant] =
-    useState<PlaylistTitleCardVariant>('default');
-  const [playlistFont, setPlaylistFont] = useState<'sans' | 'serif' | 'mono'>(
-    'sans',
-  );
 
   const isPlaylistMode = playModeState.type === 'playlist';
 
@@ -204,7 +158,7 @@ export function MugenProtoPedia() {
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
-  const shouldShowPlaylistSticky = isPlaylistMode && !isPlaylistCompleted;
+  const shouldShowPlaylistSticky = isPlaylistMode && !playbackState.isCompleted;
 
   const shouldShowStickyBanner =
     shouldShowDirectLaunchBanner || shouldShowPlaylistSticky;
@@ -215,12 +169,12 @@ export function MugenProtoPedia() {
         className: 'mx-auto',
         ids: playModeState.ids,
         title: playModeState.title,
-        processedCount,
+        processedCount: playbackState.processedCount,
         totalCount: playlistTotalCount,
-        isCompleted: isPlaylistCompleted,
-        isPlaying: isPlaylistPlaying,
-        variant: playlistVariant,
-        fontFamily: playlistFont,
+        isCompleted: playbackState.isCompleted,
+        isPlaying: playbackState.isPlaying,
+        variant: playbackState.variant,
+        fontFamily: playbackState.fontFamily,
       }
     : null;
 
@@ -261,7 +215,7 @@ export function MugenProtoPedia() {
    * Clear all prototype slots.
    */
   const handleClearPrototypes = useCallback(() => {
-    if (isPlaylistPlaying) return;
+    if (playbackState.isPlaying) return;
 
     // Clear any existing prototypes
     clearSlots();
@@ -280,17 +234,18 @@ export function MugenProtoPedia() {
     }
   }, [
     clearSlots,
-    isPlaylistPlaying,
+    playbackState.isPlaying,
     playModeState.type,
     router,
     changeDelayLevel,
   ]);
 
   // Advance the playlist progress count after each playlist item fetch attempt.
-  // Stable wrapper so the fetching hook's playlist handler stays stable.
+  // Stable wrapper so the fetching hook's playlist handler stays stable
+  // (`dispatch` is constant).
   const onPlaylistItemProcessed = useCallback(
-    () => setProcessedCount((c) => c + 1),
-    [],
+    () => playbackDispatch({ type: 'ITEM_PROCESSED' }),
+    [playbackDispatch],
   );
 
   // Prototype fetching (random / by-id SHOW / playlist). Slots stay owned here
@@ -308,7 +263,7 @@ export function MugenProtoPedia() {
       tryIncrementInFlightRequests,
       decrementInFlightRequests,
     },
-    isPlaylistPlaying,
+    isPlaylistPlaying: playbackState.isPlaying,
     onPlaylistItemProcessed,
   });
 
@@ -331,157 +286,19 @@ export function MugenProtoPedia() {
     }
   }, [currentFocusIndex, prototypeSlots]);
 
-  // Prepare playlist queue when entering playlist mode with new parameters.
-  // This effect imperatively initializes the ref-backed playlist playback machine
-  // (playlistQueueRef / lastProcessedPlaylistSignatureRef are read by the
-  // timer-based playback effect below) and resets playback state in response to
-  // playModeState. It legitimately stays an effect: a render-time version would
-  // write refs during render. The set-state-in-effect rule over-flags this
-  // orchestration; a useReducer refactor is tracked in issue #158.
-
-  /* eslint-disable react-hooks/set-state-in-effect -- legitimate ref-backed orchestration; see #158 */
-  useEffect(() => {
-    logger.debug(
-      '[MugenProtoPedia]',
-      'Processing play mode state change:',
-      playModeState,
-    );
-
-    const delayLevel = getDefaultSimulatedDelayLevelForPlayMode(
-      playModeState['type'],
-    );
-    changeDelayLevel(delayLevel);
-
-    // If not in playlist mode, reset playlist state
-    if (playModeState.type !== 'playlist') {
-      lastProcessedPlaylistSignatureRef.current = null;
-      playlistQueueRef.current = [];
-      setIsPlaylistPlaying(false);
-      setIsPlaylistCompleted(false);
-      setProcessedCount(0);
-    }
-
-    switch (playModeState.type) {
-      case 'normal':
-        logger.debug('[MugenProtoPedia]', 'Switched to normal play mode');
-        break;
-
-      case 'playlist':
-        logger.debug('[MugenProtoPedia]', 'Switched to playlist play mode');
-        const { ids, title } = playModeState;
-        if (ids.length === 0) {
-          lastProcessedPlaylistSignatureRef.current = null;
-          playlistQueueRef.current = [];
-          setIsPlaylistPlaying(false);
-          setProcessedCount(0);
-          return;
-        }
-
-        const signature = `${ids.join(',')}|${title ?? ''}`;
-        if (lastProcessedPlaylistSignatureRef.current === signature) {
-          return;
-        }
-
-        logger.debug(
-          { ids, title },
-          '[MugenProtoPedia]',
-          'Starting playlist playback',
-        );
-        lastProcessedPlaylistSignatureRef.current = signature;
-        playlistQueueRef.current = [...ids];
-
-        // Pick a fresh random style/font for the playlist title card when a
-        // (non-empty) playlist starts. Moved here from a standalone effect to
-        // avoid a set-state-in-effect warning; the signature dedup above means
-        // this fires on the same new-playlist-start moments as before.
-        const playlistStyle = getRandomPlaylistStyle();
-        setPlaylistVariant(playlistStyle.variant);
-        setPlaylistFont(playlistStyle.fontFamily);
-
-        setProcessedCount(0);
-        setIsPlaylistPlaying(true);
-        setIsPlaylistCompleted(false);
-      // clearSlots(); // not required
-    }
-  }, [
+  // Playlist playback orchestration: the ref-backed queue/signature/timeout
+  // coordination and the two effects (queue-prep + timer loop) that drive the
+  // playback state machine. Runs here so it can receive the playlist fetcher
+  // from `usePrototypeFetching` above; it dispatches into `playbackDispatch`.
+  usePlaylistPlayback({
     playModeState,
+    state: playbackState,
+    dispatch: playbackDispatch,
     changeDelayLevel,
-    // , clearSlots
-  ]);
-  /* eslint-enable react-hooks/set-state-in-effect */
-
-  // Process the playlist queue while in playlist mode
-  useEffect(() => {
-    if (playlistProcessingTimeoutRef.current !== null) {
-      window.clearTimeout(playlistProcessingTimeoutRef.current);
-      playlistProcessingTimeoutRef.current = null;
-    }
-
-    if (playModeState.type !== 'playlist') {
-      return undefined;
-    }
-
-    if (!isPlaylistPlaying) {
-      return undefined;
-    }
-
-    const processNext = () => {
-      playlistProcessingTimeoutRef.current = null;
-
-      // Check if queue is empty
-      if (playlistQueueRef.current.length === 0) {
-        if (inFlightRequests === 0) {
-          logger.debug('[MugenProtoPedia]', 'Playlist playback completed');
-          setIsPlaylistPlaying(false);
-          setIsPlaylistCompleted(true);
-        }
-        return;
-      }
-
-      // Concurrency check: if we cannot fetch now, retry later
-      if (!canFetchMorePrototypes) {
-        logger.warn(
-          'Cannot fetch more prototypes while playlist is playing. Retry in ' +
-            PLAYLIST_FETCH_INTERVAL_MS +
-            'ms' +
-            ' for processing next id',
-        );
-        playlistProcessingTimeoutRef.current = window.setTimeout(
-          processNext,
-          PLAYLIST_FETCH_INTERVAL_MS,
-        );
-        return;
-      }
-
-      // Next ID to process
-      const id = playlistQueueRef.current.shift();
-      logger.debug('[MugenProtoPedia]', 'Processing playlist ID:', id);
-
-      if (id !== undefined) {
-        void fetchPrototypeByIdForPlaylist(id);
-
-        playlistProcessingTimeoutRef.current = window.setTimeout(
-          processNext,
-          PLAYLIST_FETCH_INTERVAL_MS,
-        );
-      }
-    };
-
-    playlistProcessingTimeoutRef.current = window.setTimeout(processNext, 0);
-
-    return () => {
-      if (playlistProcessingTimeoutRef.current !== null) {
-        window.clearTimeout(playlistProcessingTimeoutRef.current);
-        playlistProcessingTimeoutRef.current = null;
-      }
-    };
-  }, [
-    playModeState,
-    isPlaylistPlaying,
+    fetchPrototypeByIdForPlaylist,
     canFetchMorePrototypes,
     inFlightRequests,
-    fetchPrototypeByIdForPlaylist,
-  ]);
+  });
 
   /**
    * Main application layout
@@ -534,7 +351,7 @@ export function MugenProtoPedia() {
               {isPlaylistMode && playlistTitleCardProps && (
                 <div
                   className={`transition-all duration-3000 ease-out transform-gpu ${
-                    !isPlaylistCompleted
+                    !playbackState.isCompleted
                       ? 'opacity-100 translate-y-0 max-h-96 p-4'
                       : 'opacity-0 -translate-y-8 max-h-0 overflow-hidden p-0'
                   }`}
@@ -554,7 +371,7 @@ export function MugenProtoPedia() {
               <div
                 // delay-3000 waits until the sticky PlaylistTitleCard fades out before showing this one.
                 className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
-                  isPlaylistCompleted
+                  playbackState.isCompleted
                     ? 'opacity-100'
                     : 'opacity-0 max-h-0 overflow-hidden p-0'
                 }`}
@@ -576,7 +393,9 @@ export function MugenProtoPedia() {
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
         <div className="container mx-auto p-4">
           <ControlPanel
-            controlPanelMode={isPlaylistPlaying ? 'loadingPlaylist' : 'normal'}
+            controlPanelMode={
+              playbackState.isPlaying ? 'loadingPlaylist' : 'normal'
+            }
             onGetRandomPrototype={fetchRandomPrototype}
             onClear={handleClearPrototypes}
             prototypeIdInput={prototypeIdInput}
