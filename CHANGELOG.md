@@ -9,6 +9,40 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.06.29]
+
+### Added
+
+- Enable `typedRoutes` so internal `Link` hrefs are statically type
+  checked. (#162)
+
+### Changed
+
+- Upgrade Next.js from 15.5.7 to 16.2.9. (#161)
+- Upgrade to ESLint 10 and migrate to the native flat config. (#156,
+  #159)
+- Update `@vercel/analytics` to v2 and bump several major dependencies
+  (jsdom, glob, lucide-react, @chromatic-com/storybook). (#152, #155)
+- Simplify PWA icon generation using `@vite-pwa/assets-generator`.
+  (#143)
+
+### Fixed
+
+- Remove the hand-written `<head>` from the root layout. In the App
+  Router it broke the Metadata API insertion point, which could push
+  `<title>`, `<link rel="manifest">`, `<meta name="description">` and
+  Open Graph tags into `<body>` (causing Chrome to report "No manifest
+  detected"). The FOUC theme bootstrap is kept as a plain inline
+  `<script>` so it still runs synchronously before first paint. (#165)
+- Make the PWA `apple-touch-icon` full-bleed. (#144)
+
+### Security
+
+- Escape `<` in the JSON-LD structured data before injecting it via
+  `dangerouslySetInnerHTML`, so no value can terminate the `<script>`
+  tag early. Defensive hardening; current values are static constants
+  and the rendered output is unchanged. (#165)
+
 ## [2026.06.23]
 
 ### Changed
