@@ -8,6 +8,7 @@
 import type { Metadata, ResolvingMetadata } from 'next';
 import { Suspense } from 'react';
 
+import { HomeLayout } from './home-layout';
 import { MugenProtoPedia } from './mugen-protopedia';
 import { buildPlaylistMetadata } from '@/lib/metadata/playlist-metadata';
 import type { SearchParams } from '@/lib/metadata/playlist-metadata';
@@ -28,14 +29,17 @@ export async function generateMetadata(
 /**
  * Home page component.
  *
- * Renders the main `MugenProtoPedia` client experience inside a Suspense
- * boundary. All interactive behavior (play modes, scrolling, playlist
- * playback, etc.) is encapsulated within `MugenProtoPedia`.
+ * Owns the page-level layout shell (`HomeLayout`) and renders the main
+ * `MugenProtoPedia` client experience inside a Suspense boundary. All
+ * interactive behavior (play modes, scrolling, playlist playback, etc.) is
+ * encapsulated within `MugenProtoPedia`.
  */
 export default function HomePage() {
   return (
-    <Suspense fallback={null}>
-      <MugenProtoPedia />
-    </Suspense>
+    <HomeLayout>
+      <Suspense fallback={null}>
+        <MugenProtoPedia />
+      </Suspense>
+    </HomeLayout>
   );
 }

@@ -59,6 +59,11 @@ and this project adheres to [CalVer](https://calver.org/).
   isolation. The analysis dashboard is injected as a `ReactNode` prop (mirroring
   `Header`) to keep the data-fetching `AnalysisDashboardContainer` out of the
   view. Adds Storybook stories for the view. Behavior unchanged. (#71)
+- Move the home route's top-level `<main>` layout shell out of the view into a
+  `HomeLayout` component owned by `app/page.tsx`, so the page owns the layout
+  shell (mirroring `PlaylistEditPage`) while feature logic stays in
+  `MugenProtoPedia`. The view now returns a fragment; the shell renders during
+  Suspense instead of `null`. Behavior unchanged. (#71)
 
 ## [2026.06.29]
 

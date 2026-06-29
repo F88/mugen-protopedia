@@ -12,6 +12,7 @@ import {
 } from '../.storybook/prototypes.fixture';
 import { AnalysisDashboardStoryWrapper } from '@/components/storybook/analysis-dashboard-wrapper';
 
+import { HomeLayout } from './home-layout';
 import { MugenProtoPediaView } from './mugen-protopedia-view';
 
 /**
@@ -82,6 +83,15 @@ const meta = {
     },
   },
   tags: ['autodocs'],
+  decorators: [
+    // The view no longer renders its own `<main>`; the page owns the layout
+    // shell. Wrap stories in `HomeLayout` so the background shell is present.
+    (Story) => (
+      <HomeLayout>
+        <Story />
+      </HomeLayout>
+    ),
+  ],
   args: {
     headerRef: nullRef,
     stickyBannerRef: nullRef,

@@ -96,7 +96,7 @@ export function MugenProtoPediaView({
   matchedCommand,
 }: MugenProtoPediaViewProps) {
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+    <>
       {/* Play Mode Theme Overlay */}
       <PlayModeTheme mode={playModeState} delayLevel={delayLevel} />
 
@@ -182,6 +182,6 @@ export function MugenProtoPediaView({
       {showCLI ? (
         <CommandWindow buffer={commandBuffer} matchedCommand={matchedCommand} />
       ) : null}
-    </main>
+    </>
   );
 }
