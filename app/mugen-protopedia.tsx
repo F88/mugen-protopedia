@@ -24,16 +24,13 @@ import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { useScrollingBehavior } from '@/lib/hooks/use-scrolling-behavior';
-import {
-  type SpecialSequenceMatch,
-  useSpecialKeySequences,
-} from '@/lib/hooks/use-special-key-sequences';
 import { logger } from '@/lib/logger.client';
 import { getRandomPlaylistStyle } from '@/lib/utils/playlist-style';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
+import { useCommandWindow } from '@/hooks/use-command-window';
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
 import { useHeaderHeight } from '@/hooks/use-header-height';
 
@@ -53,7 +50,6 @@ import {
   arePlayModeStatesEqual,
   getDefaultSimulatedDelayLevelForPlayMode,
   getSimulatedDelayRangeForLevel,
-  speedUp,
 } from './mugen-protopedia-utils';
 
 /**
@@ -97,8 +93,6 @@ export function MugenProtoPedia() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
   const [processedCount, setProcessedCount] = useState(0);
-  const [showCLI, setShowCLI] = useState(false);
-  const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
   const [delayLevel, setDelayLevel] = useState<SimulatedDelayLevel>('NORMAL');
 
   // Direct launch & play mode
@@ -212,52 +206,11 @@ export function MugenProtoPedia() {
     // error: randomPrototypeError,
   } = useRandomPrototype();
 
-  const [matchedCommand, setMatchedCommand] =
-    useState<SpecialSequenceMatch | null>(null);
-
-  const handleSpecialSequenceMatch = useCallback(
-    (match: SpecialSequenceMatch) => {
-      logger.info(
-        `[MugenProtoPedia] Special key sequence matched: ${match.name}`,
-      );
-      setMatchedCommand(match);
-      setShowCLI(true);
-
-      if (match.name === 'ksk') {
-        setPlayModeState({ type: 'unleashed' });
-      } else if (match.name === '573') {
-        changeDelayLevel((currentLevel) => speedUp(currentLevel));
-      } else if (match.name === 'rendezvous') {
-        setPlayModeState({ type: 'dev' });
-      }
-      // Reset matched state after animation
-      setTimeout(() => {
-        setMatchedCommand(null);
-        setShowCLI(false);
-      }, 2000);
-    },
-    [changeDelayLevel],
-  );
-
-  // DEBUG: Monitor regeneration of handleSpecialSequenceMatch.
-  //
-  // We want to ensure this function is stable and not regenerated on every state change (like delayLevel).
-  // Frequent regeneration causes useSpecialKeySequences to re-register its global 'keydown' listener.
-  //
-  // If re-registration happens frequently, it may change the order of event listeners relative to
-  // useKeyboardShortcuts (used in ControlPanel). Since useKeyboardShortcuts calls preventDefault()
-  // for navigation keys (like 'k'), this can cause useSpecialKeySequences to miss key events
-  // needed for cheat codes (e.g., 'ksk') if it ends up running after useKeyboardShortcuts.
-  useEffect(() => {
-    logger.debug('[MugenProtoPedia] handleSpecialSequenceMatch regenerated');
-  }, [handleSpecialSequenceMatch]);
-
-  const { resetBuffer: resetKeySequencesBuffer } = useSpecialKeySequences({
-    onBufferChange: setSequenceBuffer,
-    // Always enabled to allow CLI toggle via key sequence
-    disabled: false,
-    onMatch: handleSpecialSequenceMatch,
-  });
+  // Command window / cheat-code key sequences. The hook owns the CLI visibility,
+  // the key buffer and the matched-command display; play-mode/delay side effects
+  // of a matched cheat code are applied through the injected setters.
+  const { showCLI, sequenceBuffer, matchedCommand, toggleCLI } =
+    useCommandWindow({ setPlayModeState, changeDelayLevel });
 
   /**
    * Create a deep-cloned copy of a prototype.
@@ -299,36 +252,6 @@ export function MugenProtoPedia() {
         fontFamily: playlistFont,
       }
     : null;
-
-  const handleToggleCLI = useCallback(() => {
-    setShowCLI((previous) => {
-      const next = !previous;
-      // Reset key sequence buffer (internal + visual) whenever
-      // the command window is toggled (open or close).
-      resetKeySequencesBuffer();
-      return next;
-    });
-  }, [resetKeySequencesBuffer]);
-
-  // Close command window on Escape while CLI is visible
-  useEffect(() => {
-    if (!showCLI) {
-      return;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        setShowCLI(false);
-        resetKeySequencesBuffer();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showCLI, resetKeySequencesBuffer]);
 
   // Scrolling & focus behavior
   const {
@@ -883,7 +806,7 @@ export function MugenProtoPedia() {
             onScrollNext={() => scrollToPrototype('next')}
             onScrollPrev={() => scrollToPrototype('prev')}
             onOpenPrototype={openCurrentPrototypeInProtoPedia}
-            onToggleCLI={handleToggleCLI}
+            onToggleCLI={toggleCLI}
             shortcutsDisabled={showCLI}
             maxPrototypeId={maxPrototypeId}
           />
