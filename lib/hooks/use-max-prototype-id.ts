@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { getMaxPrototypeId } from '@/app/actions/prototypes';
+import { logger } from '@/lib/logger.client';
 
 /**
  * Fallback max prototype id used until the real value is resolved, or when the
@@ -40,7 +41,7 @@ export function useMaxPrototypeId(): number {
       try {
         maxId = await getMaxPrototypeId();
       } catch (error) {
-        console.warn(
+        logger.warn(
           'Failed to resolve max prototype id, using fallback',
           error,
         );

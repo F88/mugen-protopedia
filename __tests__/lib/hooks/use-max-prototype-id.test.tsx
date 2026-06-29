@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as prototypeActions from '@/app/actions/prototypes';
 import { useMaxPrototypeId } from '@/lib/hooks/use-max-prototype-id';
+import { logger } from '@/lib/logger.client';
 
 const FALLBACK_MAX_PROTOTYPE_ID = 7_777;
 
@@ -55,7 +56,7 @@ describe('useMaxPrototypeId', () => {
   );
 
   it('falls back and warns when the lookup throws', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(prototypeActions, 'getMaxPrototypeId').mockRejectedValue(
       new Error('boom'),
     );
