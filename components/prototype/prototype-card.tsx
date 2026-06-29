@@ -161,21 +161,19 @@ export const PrototypeCard = ({
   const age = releaseDate != null ? calculateAge(releaseDate) : null;
   const ageBadge =
     releaseDate != null && age != null ? (
-      <>
-        <AnniversaryBadge
-          key="meta-date-2"
-          years={age.years}
-          yearLabel="歳"
-          months={age.months}
-          // days={age.days}
-          icon={`🎉`}
-          prefixText={`${formatDateForDisplay(releaseDate)} (`}
-          suffixText={')'}
-          className="w-full justify-center text-center"
-          nowrap
-          size="responsive"
-        />
-      </>
+      <AnniversaryBadge
+        key="meta-date-2"
+        years={age.years}
+        yearLabel="歳"
+        months={age.months}
+        // days={age.days}
+        icon={`🎉`}
+        prefixText={`${formatDateForDisplay(releaseDate)} (`}
+        suffixText={')'}
+        className="w-full justify-center text-center"
+        nowrap
+        size="responsive"
+      />
     ) : null;
 
   const videoBadges =

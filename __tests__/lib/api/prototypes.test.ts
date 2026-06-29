@@ -27,7 +27,7 @@ const makeUpstream = (
     goodCount: 0,
     commentCount: 0,
     ...overrides,
-  }) as ResultOfListPrototypesApiResponse;
+  }) satisfies ResultOfListPrototypesApiResponse;
 
 describe('normalizePrototypeForMpp', () => {
   it('maps a fully populated upstream prototype', () => {
@@ -105,9 +105,8 @@ describe('normalizePrototypeForMpp', () => {
   });
 
   describe('fallbacks for optional / missing fields', () => {
-    const result = normalizePrototypeForMpp(makeUpstream());
-
     it('defaults text fields to an empty string', () => {
+      const result = normalizePrototypeForMpp(makeUpstream());
       expect(result.teamNm).toBe('');
       expect(result.freeComment).toBe('');
       expect(result.summary).toBe('');
@@ -115,6 +114,7 @@ describe('normalizePrototypeForMpp', () => {
     });
 
     it('leaves releaseDate / updateDate undefined when the API omits them', () => {
+      const result = normalizePrototypeForMpp(makeUpstream());
       expect(result.releaseDate).toBeUndefined();
       expect(
         normalizePrototypeForMpp(makeUpstream({ updateDate: undefined }))
@@ -123,12 +123,14 @@ describe('normalizePrototypeForMpp', () => {
     });
 
     it('leaves URL fields undefined when absent', () => {
+      const result = normalizePrototypeForMpp(makeUpstream());
       expect(result.videoUrl).toBeUndefined();
       expect(result.officialLink).toBeUndefined();
       expect(result.relatedLink).toBeUndefined();
     });
 
     it('applies promidas default codes for numeric flag fields', () => {
+      const result = normalizePrototypeForMpp(makeUpstream());
       expect(result.releaseFlg).toBe(2); // Released
       expect(result.revision).toBe(0);
       expect(result.licenseType).toBe(1); // 表示(CC:BY)
@@ -136,6 +138,7 @@ describe('normalizePrototypeForMpp', () => {
     });
 
     it('defaults pipe-separated array fields to empty arrays', () => {
+      const result = normalizePrototypeForMpp(makeUpstream());
       expect(result.tags).toEqual([]);
       expect(result.users).toEqual([]);
       expect(result.awards).toEqual([]);
