@@ -8,6 +8,18 @@ import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { logger } from '@/lib/logger.client';
 
 /**
+ * Create a deep-cloned copy of a prototype.
+ *
+ * Note: This uses JSON round-trip which is sufficient for our normalized
+ * data shape (plain objects). If richer types are added later, replace with
+ * a safer cloning strategy. Module-level (pure) so it stays out of the hook's
+ * callback dependency arrays.
+ */
+function clonePrototype(prototype: Prototype): Prototype {
+  return JSON.parse(JSON.stringify(prototype));
+}
+
+/**
  * Subset of the slot API this hook needs. The slots themselves stay owned by the
  * page component (their other outputs feed the grid, header and playlist timer),
  * so the relevant operations are injected here. Imported type-only to avoid a
@@ -66,18 +78,6 @@ export function usePrototypeFetching({
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
 
   /**
-   * Create a deep-cloned copy of a prototype.
-   *
-   * Note: This uses JSON round-trip which is sufficient for our normalized
-   * data shape (plain objects). If richer types are added later, replace with
-   * a safer cloning strategy.
-   */
-  const clonePrototype = useCallback(
-    (prototype: Prototype): Prototype => JSON.parse(JSON.stringify(prototype)),
-    [],
-  );
-
-  /**
    * Fetch a random prototype from the API and return a cloned instance.
    *
    * @returns cloned prototype or null when API yields no result
@@ -95,7 +95,7 @@ export function usePrototypeFetching({
         clonedPrototype,
       });
       return clonedPrototype;
-    }, [getRandomPrototype, clonePrototype]);
+    }, [getRandomPrototype]);
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
@@ -206,7 +206,6 @@ export function usePrototypeFetching({
       appendPlaceholder,
       setPrototypeIdError,
       setSlotError,
-      clonePrototype,
       replacePrototypeInSlot,
       decrementInFlightRequests,
     ],
@@ -265,7 +264,6 @@ export function usePrototypeFetching({
       fetchPlaylistPrototype,
       setPrototypeIdError,
       setSlotError,
-      clonePrototype,
       replacePrototypeInSlot,
       decrementInFlightRequests,
       onPlaylistItemProcessed,
