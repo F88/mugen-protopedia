@@ -23,6 +23,9 @@ and this project adheres to [CalVer](https://calver.org/).
   the oversized home page component. The hook also guards `ResizeObserver`
   with a window `resize` fallback and removes `--header-offset` on unmount.
   (#168)
+- Extract the max-prototype-id resolver (the `getMaxPrototypeId` server
+  action call, its fallback and validation) out of `MugenProtoPedia` into
+  a `useMaxPrototypeId` hook. Step B of decomposing the home page. (#168)
 
 ## [2026.06.29]
 
