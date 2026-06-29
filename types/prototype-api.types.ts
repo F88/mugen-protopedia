@@ -1,4 +1,4 @@
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 /**
  * Parameters for fetching prototypes from the API.
@@ -20,7 +20,7 @@ export type FetchPrototypesParams = {
  */
 export type FetchPrototypesSuccess = {
   ok: true;
-  data: NormalizedPrototype[];
+  data: PrototypeForMpp[];
 };
 
 /**
@@ -51,15 +51,14 @@ export type FetchPrototypesFailure = {
  * Result type for fetchPrototypes function - either success with data or failure with error.
  */
 export type FetchPrototypesResult =
-  | FetchPrototypesSuccess
-  | FetchPrototypesFailure;
+  FetchPrototypesSuccess | FetchPrototypesFailure;
 
 /**
  * Successful response from fetchRandomPrototype containing a single prototype.
  */
 export type FetchRandomPrototypeSuccess = {
   ok: true;
-  data: NormalizedPrototype;
+  data: PrototypeForMpp;
 };
 
 /**
@@ -71,15 +70,13 @@ export type FetchRandomPrototypeFailure = FetchPrototypesFailure;
  * Result type for fetchRandomPrototype function - either success with single prototype or failure.
  */
 export type FetchRandomPrototypeResult =
-  | FetchRandomPrototypeSuccess
-  | FetchRandomPrototypeFailure;
+  FetchRandomPrototypeSuccess | FetchRandomPrototypeFailure;
 
 /**
  * Result type for fetchPrototypeById function - either success with single prototype or failure.
  */
 export type FetchPrototypeByIdResult =
-  | { ok: true; data: NormalizedPrototype }
-  | FetchPrototypesFailure;
+  { ok: true; data: PrototypeForMpp } | FetchPrototypesFailure;
 
 /**
  * Structure for network failure responses.

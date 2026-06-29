@@ -1,4 +1,4 @@
-import { NormalizedPrototype } from '../api/prototypes';
+import { PrototypeForMpp } from '../api/prototypes';
 
 /**
  * Repository interface for Prototype entities.
@@ -7,7 +7,7 @@ export interface PrototypeRepository {
   /**
    * Retrieve all prototypes as a single collection.
    */
-  getAll(): Promise<NormalizedPrototype[]>;
+  getAll(): Promise<PrototypeForMpp[]>;
 
   /**
    * List prototypes with pagination
@@ -18,14 +18,14 @@ export interface PrototypeRepository {
     limit?: number;
     offset?: number;
     prototypeId?: number;
-  }): Promise<NormalizedPrototype[]>;
+  }): Promise<PrototypeForMpp[]>;
 
   /**
    * Get prototype by ID
    *
    * @param ids
    */
-  getByPrototypeId(id: number): Promise<undefined | NormalizedPrototype>;
+  getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp>;
 
   /**
    * Get TSV data of prototypes

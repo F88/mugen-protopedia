@@ -45,12 +45,7 @@ const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
 const logLevel =
   (process.env.PROTOPEDIA_API_V2_LOG_LEVEL as
-    | 'silent'
-    | 'error'
-    | 'warn'
-    | 'info'
-    | 'debug'
-    | undefined) ?? 'error';
+    'silent' | 'error' | 'warn' | 'info' | 'debug' | undefined) ?? 'error';
 
 // console.debug('process.env.PROTOPEDIA_API_V2_TOKEN', process.env.PROTOPEDIA_API_V2_TOKEN);
 

@@ -4,7 +4,7 @@ import {
   buildAnniversaries,
   buildAnniversarySlice,
 } from '@/lib/analysis/shared/anniversaries';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   anniversaryMinimalPrototype,
   fullfilledPrototype,
@@ -12,9 +12,7 @@ import {
 } from '@/.storybook/prototypes.fixture';
 
 // Helper function for fixture
-function analyzePrototypes(
-  prototypes: NormalizedPrototype[],
-): PrototypeAnalysis {
+function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
   const serverAnalysis = analyzePrototypesForServer(prototypes);
 
   if (prototypes.length === 0) {

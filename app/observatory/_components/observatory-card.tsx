@@ -4,13 +4,7 @@ import Link from 'next/link';
 import { observatoryTheme } from '../theme';
 
 export type ObservatoryCardColorScheme =
-  | 'gray'
-  | 'yellow'
-  | 'pink'
-  | 'purple'
-  | 'amber'
-  | 'gold'
-  | 'cyber';
+  'gray' | 'yellow' | 'pink' | 'purple' | 'amber' | 'gold' | 'cyber';
 
 export interface ObservatoryCardProps {
   title: string;

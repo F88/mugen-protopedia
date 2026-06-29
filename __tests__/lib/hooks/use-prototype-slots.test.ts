@@ -2,11 +2,11 @@
 import { describe, it, expect } from 'vitest';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { renderHook, act } from '@testing-library/react';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
-// Minimal valid NormalizedPrototype factory for tests focused on slot state.
+// Minimal valid PrototypeForMpp factory for tests focused on slot state.
 // Only required (non-optional) fields are populated; optional fields omitted.
-const makePrototype = (id: number): NormalizedPrototype => ({
+const makePrototype = (id: number): PrototypeForMpp => ({
   id,
   prototypeNm: `Prototype ${id}`,
   teamNm: 'Team',

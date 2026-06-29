@@ -3,7 +3,7 @@
  * User & team analytics. Provides team rankings and a placeholder for future user metrics.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -26,7 +26,7 @@ const TOP_TEAM_LIMIT = 30;
  * Aggregates team rankings (and reserves space for upcoming user analytics).
  */
 export function buildUserTeamAnalytics(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { logger?: MinimalLogger },
 ): UserTeamAnalytics {
   const startTime = Date.now();

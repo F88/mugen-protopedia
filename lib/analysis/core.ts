@@ -165,8 +165,7 @@ export function calculateCreationStreak(
 
   // Calculate intensity for the longest streak
   let longestStreakIntensity:
-    | Array<{ date: string; count: number }>
-    | undefined;
+    Array<{ date: string; count: number }> | undefined;
   if (longestStreak > 0) {
     const streakDates = sortedDates.slice(
       longestStreakStartIndex,

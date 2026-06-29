@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildCoreSummaries } from './build-core-summaries';
 
 const toIso = (input: string) => new Date(input).toISOString();
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: overrides.id ?? 1,
   prototypeNm: overrides.prototypeNm ?? 'Proto',
   tags: overrides.tags ?? [],

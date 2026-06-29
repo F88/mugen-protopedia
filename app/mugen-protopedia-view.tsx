@@ -22,7 +22,10 @@ import type { DashboardProps } from '@/components/dashboard';
 import type { PrototypeSlot } from '@/lib/hooks/use-prototype-slots';
 
 import { CommandWindow } from '@/components/command-window';
-import { ControlPanel, type ControlPanelProps } from '@/components/control-panel';
+import {
+  ControlPanel,
+  type ControlPanelProps,
+} from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
 import { Header } from '@/components/header';
 import { PlayModeTheme } from '@/components/play-mode-theme';

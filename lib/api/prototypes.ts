@@ -5,7 +5,7 @@ import { normalizeProtoPediaTimestamp } from '../utils/time';
 
 export type UpstreamPrototype = ResultOfListPrototypesApiResponse;
 
-export type NormalizedPrototype = {
+export type PrototypeForMpp = {
   /* ID */
   id: number;
 
@@ -79,24 +79,25 @@ export type NormalizedPrototype = {
   // slideMode?: number;
 };
 
-export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
+export function normalizePrototype(p: UpstreamPrototype): PrototypeForMpp {
   return {
     id: p.id,
     prototypeNm: p.prototypeNm,
     tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
-    teamNm: p.teamNm,
+    teamNm: p.teamNm ?? '',
     users: p.users ? splitPipeSeparatedString(p.users) : [],
     summary: p.summary,
     status: p.status,
-    releaseFlg: p.releaseFlg,
+    releaseFlg: p.releaseFlg ?? 0,
     createId: p.createId,
     createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
     updateId: p.updateId,
     updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate: normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate,
-    revision: p.revision,
+    releaseDate:
+      normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate ?? '',
+    revision: p.revision ?? 0,
     awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
-    freeComment: p.freeComment,
+    freeComment: p.freeComment ?? '',
     systemDescription: p.systemDescription,
     viewCount: p.viewCount,
     goodCount: p.goodCount,
@@ -108,10 +109,10 @@ export function normalizePrototype(p: UpstreamPrototype): NormalizedPrototype {
     relatedLink3: p.relatedLink3,
     relatedLink4: p.relatedLink4,
     relatedLink5: p.relatedLink5,
-    licenseType: p.licenseType,
-    thanksFlg: p.thanksFlg,
+    licenseType: p.licenseType ?? 0,
+    thanksFlg: p.thanksFlg ?? 0,
     events: p.events ? splitPipeSeparatedString(p.events) : [],
     officialLink: p.officialLink,
     materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
-  } satisfies NormalizedPrototype;
+  } satisfies PrototypeForMpp;
 }

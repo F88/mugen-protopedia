@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   createLifecycleMomentContext,
   createPrototypeLifecycleContext,
@@ -28,7 +28,7 @@ describe('createLifecycleMomentContext', () => {
 });
 
 describe('createPrototypeLifecycleContext', () => {
-  const basePrototype: NormalizedPrototype = {
+  const basePrototype: PrototypeForMpp = {
     id: 1,
     prototypeNm: 'Example',
     tags: [],

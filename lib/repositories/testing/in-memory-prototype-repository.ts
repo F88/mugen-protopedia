@@ -1,15 +1,15 @@
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import type { PrototypeRepository } from '@/lib/repositories/types';
 
 export type InMemoryPrototypeRepository = {
   repository: PrototypeRepository;
-  setPrototypes: (prototypes: NormalizedPrototype[]) => void;
-  addPrototype: (prototype: NormalizedPrototype) => void;
+  setPrototypes: (prototypes: PrototypeForMpp[]) => void;
+  addPrototype: (prototype: PrototypeForMpp) => void;
   setTsv: (next: string) => void;
 };
 
 export type InMemoryPrototypeRepositoryOptions = {
-  prototypes?: NormalizedPrototype[];
+  prototypes?: PrototypeForMpp[];
   tsv?: string;
 };
 
@@ -54,11 +54,11 @@ export function createInMemoryPrototypeRepository({
     },
   };
 
-  const setPrototypes = (next: NormalizedPrototype[]) => {
+  const setPrototypes = (next: PrototypeForMpp[]) => {
     prototypes = [...next];
   };
 
-  const addPrototype = (prototype: NormalizedPrototype) => {
+  const addPrototype = (prototype: PrototypeForMpp) => {
     prototypes = [...prototypes, prototype];
   };
 

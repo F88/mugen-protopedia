@@ -6,7 +6,7 @@
  * calendar-grouped aggregations to keep reporting consistent across platforms.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   createPrototypeLifecycleContext,
   type LifecycleMomentContext,
@@ -142,7 +142,7 @@ export type AdvancedAnalysis = {
  * @returns Object containing advanced analysis results.
  */
 export function buildAdvancedAnalysis(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   topTags: { tag: string; count: number }[],
   options?: { logger?: MinimalLogger },
 ): AdvancedAnalysis {
@@ -196,16 +196,16 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
   const firstPenguins = new Map<
     number,
     {
-      prototype: NormalizedPrototype;
+      prototype: PrototypeForMpp;
       timestampMs: number;
     }
   >();
-  const timestampMap = new Map<string, NormalizedPrototype[]>();
+  const timestampMap = new Map<string, PrototypeForMpp[]>();
   const specialDays = createSpecialDayMap();
   const earlyAdopters = new Map<
     string,
     {
-      prototype: NormalizedPrototype;
+      prototype: PrototypeForMpp;
       timestampMs: number;
     }
   >();
@@ -279,7 +279,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
   function collectFirstPenguin(
     release: LifecycleMomentContext,
-    prototype: NormalizedPrototype,
+    prototype: PrototypeForMpp,
   ) {
     const record = firstPenguins.get(release.year);
     if (!record || release.timestampMs < record.timestampMs) {
@@ -292,7 +292,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
   function collectStarAlignment(
     release: LifecycleMomentContext,
-    prototype: NormalizedPrototype,
+    prototype: PrototypeForMpp,
   ) {
     const list = timestampMap.get(release.iso);
     if (list) {
@@ -304,7 +304,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
   function collectSpecialDays(
     release: LifecycleMomentContext,
-    prototype: NormalizedPrototype,
+    prototype: PrototypeForMpp,
   ) {
     const bucket = specialDays[release.mmdd];
     if (!bucket) {
@@ -321,7 +321,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
 
   function collectEarlyAdopters(
     release: LifecycleMomentContext,
-    prototype: NormalizedPrototype,
+    prototype: PrototypeForMpp,
   ) {
     if (!prototype.tags || prototype.tags.length === 0) {
       return;
@@ -342,7 +342,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     });
   }
 
-  function collectGestation(prototype: NormalizedPrototype) {
+  function collectGestation(prototype: PrototypeForMpp) {
     if (!prototype.createDate || !prototype.releaseDate) {
       return;
     }
@@ -383,7 +383,7 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     }
   }
 
-  function collectEvents(prototype: NormalizedPrototype) {
+  function collectEvents(prototype: PrototypeForMpp) {
     totalWithEventStatus += 1;
 
     if (prototype.events && prototype.events.length > 0) {

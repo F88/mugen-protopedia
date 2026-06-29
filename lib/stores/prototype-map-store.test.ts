@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { PrototypeMapStore } from '@/lib/stores/prototype-map-store';
 
 const { stubLogger } = vi.hoisted(() => ({
@@ -22,8 +22,8 @@ vi.mock('@/lib/logger.server', () => ({
 }));
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: overrides.id ?? 1,
   prototypeNm: 'Prototype 1',
   teamNm: 'Team A',

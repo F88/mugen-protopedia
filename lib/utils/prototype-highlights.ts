@@ -1,4 +1,4 @@
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import { isBirthDay } from '@/lib/utils/anniversary-nerd';
 
 /**

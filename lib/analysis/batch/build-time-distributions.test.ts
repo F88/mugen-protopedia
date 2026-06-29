@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildTimeDistributions } from './build-time-distributions';
 
 const iso = (value: string) => new Date(value).toISOString();
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype>,
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp>,
+): PrototypeForMpp => ({
   id: overrides.id ?? 1,
   prototypeNm: overrides.prototypeNm ?? 'Prototype',
   tags: overrides.tags ?? [],
@@ -44,7 +44,7 @@ const createPrototype = (
 
 describe('buildTimeDistributions', () => {
   it('bucketizes create, release, and update activity in JST', () => {
-    const prototypes: NormalizedPrototype[] = [
+    const prototypes: PrototypeForMpp[] = [
       createPrototype({
         id: 1,
         prototypeNm: 'Sunrise',

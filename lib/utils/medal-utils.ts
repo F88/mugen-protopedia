@@ -1,4 +1,4 @@
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import { checkNotableHighlights } from './prototype-highlights';
 import { calculateAge } from './anniversary-nerd';
 

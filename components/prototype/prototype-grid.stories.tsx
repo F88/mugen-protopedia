@@ -5,7 +5,7 @@ import {
   fullfilledPrototype,
   minimalPrototype,
 } from '../../.storybook/prototypes.fixture';
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 
 // Mock data for different prototype slots
 const createMockSlot = (

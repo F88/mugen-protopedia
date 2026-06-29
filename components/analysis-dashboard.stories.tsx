@@ -3,7 +3,7 @@ import {
   fullfilledPrototype,
   minimalPrototype,
 } from '@/.storybook/prototypes.fixture';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   buildTagAnalytics,
   buildCoreSummaries,
@@ -25,9 +25,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs';
 import { AnalysisDashboard } from './analysis-dashboard';
 
 // Helper function for Storybook
-function analyzePrototypes(
-  prototypes: NormalizedPrototype[],
-): PrototypeAnalysis {
+function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
   const referenceDate = new Date();
   const totalCount = prototypes.length;
   const {

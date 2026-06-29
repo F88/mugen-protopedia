@@ -12,12 +12,7 @@ import './skeleton-animations.css';
 import { hashString } from './utils/skeleton-kind';
 
 type AnimationVariant =
-  | 'shimmer'
-  | 'pulse'
-  | 'twinkle'
-  | 'wave'
-  | 'bounce'
-  | 'slide';
+  'shimmer' | 'pulse' | 'twinkle' | 'wave' | 'bounce' | 'slide';
 
 export type PrototypeSkeletonCardBaseProps = {
   expectedPrototypeId?: number;

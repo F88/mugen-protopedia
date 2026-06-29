@@ -6,7 +6,7 @@
  * - Provides reusable context objects for create/update/release/sunset events
  * - Centralizes future lifecycle-driven helpers across batch/core layers
  */
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 /**
  * Represents a single lifecycle moment (create, update, release, sunset) in JST.
@@ -39,7 +39,7 @@ export type LifecycleMomentContext = {
  * @property sunset - JST-normalized retirement moment (when status=4).
  */
 export type PrototypeLifecycleContext = {
-  prototype: NormalizedPrototype;
+  prototype: PrototypeForMpp;
   create?: LifecycleMomentContext;
   update?: LifecycleMomentContext;
   release: LifecycleMomentContext;
@@ -89,7 +89,7 @@ export function createLifecycleMomentContext(
  * @returns Lifecycle context when release data is valid; otherwise null.
  */
 export function createPrototypeLifecycleContext(
-  prototype: NormalizedPrototype,
+  prototype: PrototypeForMpp,
 ): PrototypeLifecycleContext | null {
   const release = createLifecycleMomentContext(prototype.releaseDate);
   if (!release) {

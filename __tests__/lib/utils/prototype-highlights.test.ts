@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { checkNotableHighlights } from '@/lib/utils/prototype-highlights';
 import type { NotableHighlights } from '@/lib/utils/prototype-highlights';
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: 1,
   prototypeNm: 'Prototype',
   teamNm: 'Team',

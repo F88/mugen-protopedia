@@ -1,4 +1,4 @@
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger as serverLogger } from '@/lib/logger.server';
 import {
   buildAnniversaryCandidateTotals,
@@ -64,7 +64,7 @@ type AnalysisPipelineResult = Pick<
 };
 
 function buildEmptyServerAnalysis(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   now: Date,
   logger: MinimalLogger,
   buildAnniversaryCandidatesFn: typeof buildAnniversaryCandidates,
@@ -135,7 +135,7 @@ function buildEmptyServerAnalysis(
 }
 
 function runAnalysisPipelines(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   now: Date,
   logger: MinimalLogger,
   buildAnniversaryCandidatesFn: typeof buildAnniversaryCandidates,
@@ -292,7 +292,7 @@ function runAnalysisPipelines(
  * ```
  */
 export function buildAnniversaryCandidates(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   referenceDate: Date,
   logger?: MinimalLogger,
 ): AnniversaryCandidates {
@@ -388,7 +388,7 @@ export function buildAnniversaryCandidates(
  * ```
  */
 export function analyzePrototypesForServer(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: {
     logger?: MinimalLogger;
     referenceDate?: Date;

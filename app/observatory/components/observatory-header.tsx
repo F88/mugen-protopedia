@@ -5,13 +5,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { audiowideFont } from '@/app/observatory/shared/fonts';
 
 export type ObservatoryHeaderColorScheme =
-  | 'blue'
-  | 'pink'
-  | 'gold'
-  | 'green'
-  | 'gray'
-  | 'amber'
-  | 'cyber';
+  'blue' | 'pink' | 'gold' | 'green' | 'gray' | 'amber' | 'cyber';
 
 interface ObservatoryHeaderProps {
   colorScheme?: ObservatoryHeaderColorScheme;

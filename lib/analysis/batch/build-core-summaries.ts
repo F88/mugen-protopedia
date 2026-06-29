@@ -6,7 +6,7 @@
  * a single pass over normalized prototypes.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import type { MinimalLogger } from '../types';
 
 import {
@@ -25,7 +25,7 @@ export type CoreSummaries = {
  * Computes core dashboard metrics in a single traversal.
  */
 export function buildCoreSummaries(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { referenceDate?: Date; logger?: MinimalLogger },
 ): CoreSummaries {
   const startTime = performance.now();

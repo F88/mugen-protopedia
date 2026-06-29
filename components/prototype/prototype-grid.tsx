@@ -1,5 +1,5 @@
 import { PrototypeContainer } from '@/components/prototype/prototype-container';
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 
 type PrototypeSlot = {
   id: number;

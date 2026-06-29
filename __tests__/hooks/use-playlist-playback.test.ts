@@ -51,9 +51,7 @@ describe('usePlaylistPlayback', () => {
   const changeDelayLevel = vi.fn();
   const fetchPrototypeByIdForPlaylist = vi.fn<(id: number) => Promise<void>>();
 
-  const baseProps = (
-    overrides: Partial<HarnessProps> = {},
-  ): HarnessProps => ({
+  const baseProps = (overrides: Partial<HarnessProps> = {}): HarnessProps => ({
     playModeState: { type: 'playlist', ids: [11, 22], title: 'T' },
     changeDelayLevel,
     fetchPrototypeByIdForPlaylist,
@@ -132,7 +130,9 @@ describe('usePlaylistPlayback', () => {
     // queue-prep effect must early-return and not restart playback.
     await act(async () => {
       rerender(
-        baseProps({ playModeState: { type: 'playlist', ids: [11, 22], title: 'T' } }),
+        baseProps({
+          playModeState: { type: 'playlist', ids: [11, 22], title: 'T' },
+        }),
       );
       await vi.advanceTimersByTimeAsync(PLAYLIST_FETCH_INTERVAL_MS);
     });

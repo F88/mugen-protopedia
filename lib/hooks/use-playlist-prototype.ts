@@ -10,12 +10,12 @@
 
 import { useCallback, useState } from 'react';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
 type UsePlaylistPrototypeResult = {
   /** Latest prototype data fetched for playlist, or null if none. */
-  prototype: NormalizedPrototype | null;
+  prototype: PrototypeForMpp | null;
   /** Normalized error message for the last fetch, if any. */
   error: string | null;
   /** Indicates that a fetch is currently in progress. */
@@ -25,9 +25,7 @@ type UsePlaylistPrototypeResult = {
    * Returns `undefined` when the prototype cannot be found (for example,
    * when the repository resolves a 404).
    */
-  fetchPrototype: (
-    prototypeId: number,
-  ) => Promise<NormalizedPrototype | undefined>;
+  fetchPrototype: (prototypeId: number) => Promise<PrototypeForMpp | undefined>;
 };
 
 /**
@@ -40,12 +38,12 @@ type UsePlaylistPrototypeResult = {
  *   rendered.
  */
 export function usePlaylistPrototype(): UsePlaylistPrototypeResult {
-  const [prototype, setPrototype] = useState<NormalizedPrototype | null>(null);
+  const [prototype, setPrototype] = useState<PrototypeForMpp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchPrototype = useCallback(
-    async (prototypeId: number): Promise<NormalizedPrototype | undefined> => {
+    async (prototypeId: number): Promise<PrototypeForMpp | undefined> => {
       setIsLoading(true);
       setError(null);
 

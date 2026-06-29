@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import { cn } from '@/lib/utils';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
 import { formatDateForDisplay } from '@/lib/utils/format';
