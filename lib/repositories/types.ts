@@ -26,11 +26,4 @@ export interface PrototypeRepository {
    * @param ids
    */
   getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp>;
-
-  /**
-   * Get TSV data of prototypes
-   *
-   * @returns
-   */
-  getTsv(options?: { limit?: number; offset?: number }): Promise<string>;
 }

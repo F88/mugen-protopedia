@@ -181,32 +181,4 @@ export const prototypeRepository: PrototypeRepository = {
 
     return result.data;
   },
-
-  async getTsv({
-    limit = 1,
-    offset = 0,
-  }: { limit?: number; offset?: number } = {}): Promise<string> {
-    logger.info('prototypeRepository.getTsv called');
-
-    const url =
-      `/api/prototypes/tsv` +
-      `?limit=${encodeURIComponent(String(limit))}&offset=${encodeURIComponent(String(offset))}`;
-    const res = await fetch(url, {
-      method: 'GET',
-      cache: 'force-cache',
-      next: {
-        revalidate: 60,
-      },
-    });
-    if (!res.ok) {
-      throw new Error(
-        `Error fetching prototypes TSV: ${res.status} ${res.statusText}`,
-      );
-    }
-    const tsvData = await res.text();
-    logger.debug('PrototypeRepository.getTsv fetched data', {
-      length: tsvData.length,
-    });
-    return tsvData;
-  },
 };
