@@ -3,7 +3,7 @@
  *
  * This file defines:
  * - Centralized metadata via Next.js Metadata API (Open Graph, Twitter, PWA hints).
- * - The root layout (`<html>`, `<head>`, `<body>`) applied to every page.
+ * - The root layout (`<html>`, `<body>`) applied to every page.
  * - JSON‑LD structured data injection for SEO.
  * - Early theme bootstrapping script to avoid FOUC when toggling dark mode.
  * - Vercel Analytics and Service Worker registration.
@@ -109,13 +109,27 @@ export default function RootLayout({
 
   return (
     <html lang="ja" suppressHydrationWarning>
-      <head>
-        {/** Apple touch icon will be injected by Next.js metadata (icons.apple) */}
-        {/** JSON-LD structured data for SEO */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+      {/**
+       * Do NOT add a hand-written `<head>` here. In the App Router, a manual
+       * `<head>` in the root layout breaks the insertion point of the Metadata
+       * API, pushing `<title>`, `<link rel="manifest">`,
+       * `<meta name="description">` and `og:*` into `<body>` (Chrome then
+       * reports "No manifest detected"). Head tags are owned by the Metadata
+       * API; the early theme script below runs as a plain inline `<script>` in
+       * `<body>` (see the note there for why `next/script` is not used).
+       */}
+      <body className={`${inter.className} min-h-screen`}>
+        {/**
+         * Early theme bootstrapping to avoid FOUC (flash of wrong theme).
+         *
+         * This MUST be a plain inline `<script>` (not `next/script`): only a raw
+         * inline script in the server HTML executes synchronously during parse,
+         * before the body paints, so the `dark` class is set in time.
+         * `next/script` (even `beforeInteractive`) defers execution via the
+         * `self.__next_s` queue, which runs after first paint and reintroduces
+         * the flash. Keeping it as the first child of `<body>` runs it ahead of
+         * any visible content without needing a hand-written `<head>`.
+         */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -140,8 +154,21 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className={`${inter.className} min-h-screen`}>
+        {/**
+         * JSON-LD structured data for SEO. Body placement is fine: crawlers
+         * read JSON-LD anywhere in the document and it needs no early execution.
+         *
+         * `<` is escaped to its JSON unicode form so that no value can close
+         * the `<script>` tag early (e.g. a `</script>` substring). Values are
+         * currently static constants, so this is defensive; `<` decodes
+         * back to `<` when parsed as JSON, so the structured data is unchanged.
+         */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+          }}
+        />
         {children}
         <ServiceWorkerRegister />
         <Analytics />

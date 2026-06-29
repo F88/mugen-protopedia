@@ -50,7 +50,13 @@ const eslintConfig = defineConfig([
   {
     settings: { react: { version: '19.2.7' } },
   },
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'storybook-static/**',
+    'next-env.d.ts',
+  ]),
 ]);
 
 export default eslintConfig;
