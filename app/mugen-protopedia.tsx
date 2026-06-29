@@ -7,13 +7,7 @@
  */
 
 import type { ChangeEvent } from 'react';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -41,6 +35,7 @@ import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 
 // hooks
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
+import { useHeaderHeight } from '@/hooks/use-header-height';
 
 // components
 import { AnalysisDashboardContainer } from '@/components/analysis-dashboard-container';
@@ -106,11 +101,10 @@ const isValidMaxPrototypeId = (value: number | null): value is number =>
 
 export function MugenProtoPedia() {
   const router = useRouter();
-  const headerRef = useRef<HTMLDivElement | null>(null);
+  const { headerRef, headerHeight } = useHeaderHeight();
   const stickyBannerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [prototypeIdError, setPrototypeIdError] = useState<string | null>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
   const [showCLI, setShowCLI] = useState(false);
   const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
@@ -329,21 +323,6 @@ export function MugenProtoPedia() {
   // console.info('Prototype has any notable highlights!!', { highlights });
   // };
 
-  // Observe Header height changes
-  useLayoutEffect(() => {
-    const headerElement = headerRef.current;
-    if (!headerElement) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      setHeaderHeight(headerElement.offsetHeight);
-    });
-
-    resizeObserver.observe(headerElement);
-
-    // Cleanup observer on unmount
-    return () => resizeObserver.disconnect();
-  }, []); // Run only once on mount
-
   const playlistTotalCount = isPlaylistMode ? playModeState.ids.length : 0;
 
   const shouldShowDirectLaunchBanner = directLaunchResult.type === 'failure';
@@ -366,13 +345,6 @@ export function MugenProtoPedia() {
         fontFamily: playlistFont,
       }
     : null;
-
-  useLayoutEffect(() => {
-    document.documentElement.style.setProperty(
-      '--header-offset',
-      `${headerHeight}px`,
-    );
-  }, [headerHeight]);
 
   const handleToggleCLI = useCallback(() => {
     setShowCLI((previous) => {
