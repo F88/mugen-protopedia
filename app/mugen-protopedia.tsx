@@ -11,7 +11,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { getMaxPrototypeId } from '@/app/actions/prototypes';
 import type {
   PlayModeState,
   SimulatedDelayLevel,
@@ -20,6 +19,7 @@ import type {
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
+import { useMaxPrototypeId } from '@/lib/hooks/use-max-prototype-id';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
@@ -60,15 +60,6 @@ import {
  * Interval between fetching prototypes in playlist mode (ms).
  */
 const PLAYLIST_FETCH_INTERVAL_MS = 1_000;
-
-/**
- * Validate a resolved max prototype id. Kept as a standalone predicate so the
- * short-circuiting logical chain (a "value block") stays out of the try/catch
- * in the resolver effect; the React Compiler cannot lower value blocks within a
- * try statement.
- */
-const isValidMaxPrototypeId = (value: number | null): value is number =>
-  typeof value === 'number' && Number.isFinite(value) && value > 0;
 
 // const arePlayModeStatesEqual = (
 //   left: PlayModeState,
@@ -195,10 +186,7 @@ export function MugenProtoPedia() {
     // '7759' /* 無限ProtoPedia */,
   );
 
-  const FALLBACK_MAX_PROTOTYPE_ID = 7_777;
-  const [maxPrototypeId, setMaxPrototypeId] = useState<number>(
-    FALLBACK_MAX_PROTOTYPE_ID,
-  );
+  const maxPrototypeId = useMaxPrototypeId();
 
   const changeDelayLevel = useCallback(
     (
@@ -282,40 +270,6 @@ export function MugenProtoPedia() {
     (prototype: Prototype): Prototype => JSON.parse(JSON.stringify(prototype)),
     [],
   );
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const resolveMaxPrototypeId = async () => {
-      // The try only wraps the awaited call; all conditional/value-block logic
-      // lives after the try/catch so the React Compiler can optimize this. On a
-      // thrown error maxId stays null and falls back below, matching the prior
-      // catch branch.
-      let maxId: number | null = null;
-      try {
-        maxId = await getMaxPrototypeId();
-      } catch (error) {
-        console.warn(
-          'Failed to resolve max prototype id, using fallback',
-          error,
-        );
-      }
-
-      if (!isMounted) {
-        return;
-      }
-
-      setMaxPrototypeId(
-        isValidMaxPrototypeId(maxId) ? maxId : FALLBACK_MAX_PROTOTYPE_ID,
-      );
-    };
-
-    void resolveMaxPrototypeId();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   // const logNotableHighlights = (prototype: Prototype) => {
   // const highlights = checkNotableHighlights(prototype);
