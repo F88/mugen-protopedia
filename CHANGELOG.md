@@ -11,6 +11,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Make `PrototypeForMpp`'s `summary` / `systemDescription` / `tags` / `awards` /
+  `events` / `materials` required (non-optional) to match promidas's
+  `NormalizedPrototype`; the adapter always supplies them (promidas defaults
+  missing strings to `''` and arrays to `[]`). Test mocks updated accordingly.
+  (#136, #137)
 - Make `PrototypeForMpp`'s `revision` / `licenseType` / `thanksFlg` optional to
   match promidas's `NormalizedPrototype` (the API may omit them), so their
   optionality is represented honestly rather than masked. The adapter no longer

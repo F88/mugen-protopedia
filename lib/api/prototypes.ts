@@ -19,14 +19,14 @@ export type PrototypeForMpp = {
   readonly prototypeNm: string;
 
   /** Pipe-separated tags string from upstream API */
-  readonly tags?: readonly string[];
+  readonly tags: readonly string[];
 
   readonly teamNm: string;
 
   /** Pipe-separated tags string from upstream API */
   readonly users: readonly string[];
 
-  readonly summary?: string;
+  readonly summary: string;
   readonly status: StatusCode;
   readonly releaseFlg: ReleaseFlagCode;
 
@@ -43,10 +43,10 @@ export type PrototypeForMpp = {
   readonly revision?: number;
 
   /** Pipe-separated tags string from upstream API */
-  readonly awards?: readonly string[];
+  readonly awards: readonly string[];
 
   readonly freeComment: string;
-  readonly systemDescription?: string;
+  readonly systemDescription: string;
 
   // counts
   readonly viewCount: number;
@@ -75,12 +75,12 @@ export type PrototypeForMpp = {
   readonly thanksFlg?: ThanksFlagCode;
 
   /** Pipe-separated tags string from upstream API */
-  readonly events?: readonly string[];
+  readonly events: readonly string[];
 
   readonly officialLink?: string;
 
   /** Pipe-separated tags string from upstream API */
-  readonly materials?: readonly string[];
+  readonly materials: readonly string[];
 
   // slideMode?: number;
 };
