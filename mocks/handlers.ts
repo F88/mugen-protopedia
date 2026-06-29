@@ -35,13 +35,22 @@ const listPrototypesHandler = http.get(
     const url = new URL(request.url);
     const limit = parseInt(url.searchParams.get('limit') || '10000', 10);
     const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+    const prototypeIdParam = url.searchParams.get('prototypeId');
+    const prototypeId = prototypeIdParam ? parseInt(prototypeIdParam, 10) : NaN;
 
     const snapshot = loadSnapshot('prototypes.json');
     if (snapshot && Array.isArray(snapshot.results)) {
-      // Apply pagination
+      // Filter by prototypeId when requested, mirroring the real API's
+      // `prototypeId` filter. Without this the mock ignored the id and the
+      // SHOW-by-id flow always returned the first snapshot entry.
+      const filteredResults = Number.isFinite(prototypeId)
+        ? snapshot.results.filter(
+            (prototype: { id?: number }) => prototype?.id === prototypeId,
+          )
+        : snapshot.results;
 
-      // console.debug('hoge', snapshot.results.length, limit, offset);
-      const slicedResults = snapshot.results.slice(offset, offset + limit);
+      // Apply pagination
+      const slicedResults = filteredResults.slice(offset, offset + limit);
       return HttpResponse.json({
         ...snapshot,
         results: slicedResults,

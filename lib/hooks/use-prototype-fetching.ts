@@ -3,17 +3,18 @@ import { useCallback, useState } from 'react';
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
-import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
+import type { UsePrototypeSlotsResult } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 import { logger } from '@/lib/logger.client';
 
 /**
  * Subset of the slot API this hook needs. The slots themselves stay owned by the
  * page component (their other outputs feed the grid, header and playlist timer),
- * so the relevant operations are injected here.
+ * so the relevant operations are injected here. Imported type-only to avoid a
+ * runtime dependency on the slots hook.
  */
 type SlotOperations = Pick<
-  ReturnType<typeof usePrototypeSlots>,
+  UsePrototypeSlotsResult,
   | 'appendPlaceholder'
   | 'replacePrototypeInSlot'
   | 'setSlotError'
@@ -98,7 +99,8 @@ export function usePrototypeFetching({
 
   /**
    * Append a placeholder slot and populate it with a randomly fetched prototype.
-   * Respects concurrency cap; removes placeholder on null result or error.
+   * Respects concurrency cap; marks the slot with an error message on null
+   * result or failure.
    */
   const fetchRandomPrototype = useCallback(async () => {
     if (isPlaylistPlaying) {
@@ -270,26 +272,29 @@ export function usePrototypeFetching({
     ],
   );
 
-  const fetchPrototypeByIdFromInput = async (input: string) => {
-    logger.debug(
-      '[MugenProtoPedia]',
-      'Fetching prototype by ID from input:',
-      input,
-    );
+  const fetchPrototypeByIdFromInput = useCallback(
+    async (input: string) => {
+      logger.debug(
+        '[MugenProtoPedia]',
+        'Fetching prototype by ID from input:',
+        input,
+      );
 
-    // Validation
-    const trimmed = input.trim();
-    if (trimmed === '') {
-      setPrototypeIdError('Please enter a prototype ID.');
-      return;
-    }
-    const parsedId = Number.parseInt(trimmed, 10);
-    if (Number.isNaN(parsedId) || parsedId < 0) {
-      setPrototypeIdError('Prototype ID must be a non-negative number.');
-      return;
-    }
-    await fetchPrototypeById(parsedId);
-  };
+      // Validation
+      const trimmed = input.trim();
+      if (trimmed === '') {
+        setPrototypeIdError('Please enter a prototype ID.');
+        return;
+      }
+      const parsedId = Number.parseInt(trimmed, 10);
+      if (Number.isNaN(parsedId) || parsedId < 0) {
+        setPrototypeIdError('Prototype ID must be a non-negative number.');
+        return;
+      }
+      await fetchPrototypeById(parsedId);
+    },
+    [fetchPrototypeById],
+  );
 
   return {
     prototypeIdError,
