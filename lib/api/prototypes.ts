@@ -40,7 +40,7 @@ export type PrototypeForMpp = {
   readonly updateDate?: string;
   readonly releaseDate?: string;
 
-  readonly revision: number;
+  readonly revision?: number;
 
   /** Pipe-separated tags string from upstream API */
   readonly awards?: readonly string[];
@@ -69,10 +69,10 @@ export type PrototypeForMpp = {
   readonly relatedLink5?: string;
 
   // License
-  readonly licenseType: LicenseTypeCode;
+  readonly licenseType?: LicenseTypeCode;
 
   // Others
-  readonly thanksFlg: ThanksFlagCode;
+  readonly thanksFlg?: ThanksFlagCode;
 
   /** Pipe-separated tags string from upstream API */
   readonly events?: readonly string[];
@@ -116,7 +116,7 @@ export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp 
     updateId: n.updateId,
     updateDate: n.updateDate,
     releaseDate: n.releaseDate,
-    revision: n.revision ?? 0,
+    revision: n.revision,
     awards: n.awards,
     freeComment: n.freeComment,
     systemDescription: n.systemDescription,
@@ -130,8 +130,8 @@ export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp 
     relatedLink3: n.relatedLink3,
     relatedLink4: n.relatedLink4,
     relatedLink5: n.relatedLink5,
-    licenseType: n.licenseType ?? 1,
-    thanksFlg: n.thanksFlg ?? 0,
+    licenseType: n.licenseType,
+    thanksFlg: n.thanksFlg,
     events: n.events,
     officialLink: n.officialLink,
     materials: n.materials,

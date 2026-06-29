@@ -11,6 +11,10 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Make `PrototypeForMpp`'s `revision` / `licenseType` / `thanksFlg` optional to
+  match promidas's `NormalizedPrototype` (the API may omit them), so their
+  optionality is represented honestly rather than masked. The adapter no longer
+  re-applies `0` / `1` defaults (promidas already supplies them). (#136, #137)
 - Make `PrototypeForMpp`'s `releaseDate` / `updateDate` optional
   (`string | undefined`) instead of forcing them to `''`, reflecting that the
   ProtoPedia API can return null for these. The adapter passes promidas's value
