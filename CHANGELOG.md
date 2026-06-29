@@ -17,6 +17,10 @@ and this project adheres to [CalVer](https://calver.org/).
   new `AnalysisDashboardContainer` now owns the `useLatestAnalysis` hook.
   Also hoist a value block out of a `try/catch` in the home page so the
   compiler can optimize the max-prototype-id resolver. (#157, #166)
+- Extract header-height measurement (the `ResizeObserver` and
+  `--header-offset` CSS variable sync) out of `MugenProtoPedia` into a
+  `useHeaderHeight` hook, as the first step of incrementally decomposing
+  the oversized home page component. (#168)
 
 ## [2026.06.29]
 

@@ -198,6 +198,22 @@ if (items.length > 0) {
 }
 ```
 
+### Custom hook placement (`hooks/` vs `lib/hooks/`)
+
+Decide by whether the hook **touches the data/domain layer** (API clients,
+fetchers, server actions, stores):
+
+- **`lib/hooks/`** — domain/data/feature hooks that wrap the data layer or
+  encapsulate reusable feature mechanics (e.g. `use-analysis`,
+  `use-prototype-slots`, `use-random-prototype`, the key-sequence hooks).
+- **`hooks/`** — app- or browser-environment UI hooks that do _not_ reach the
+  data layer (e.g. `use-theme`, `use-direct-launch`). A hook that only
+  **consumes** data hooks (without touching the data layer itself) belongs here
+  too — composition is an app concern.
+
+When in doubt, ask "does this hook import from the data layer?" Yes →
+`lib/hooks/`; no → `hooks/`.
+
 ## Contributing
 
 1. Create a feature branch (`feat/your-topic`).
