@@ -158,7 +158,11 @@ export const Empty: Story = {
 /** Playlist playing: sticky banner with the title card visible. */
 export const PlaylistPlaying: Story = {
   args: {
-    playModeState: { type: 'playlist', ids: [3, 12, 2345], title: 'Sample Playlist' },
+    playModeState: {
+      type: 'playlist',
+      ids: [3, 12, 2345],
+      title: 'Sample Playlist',
+    },
     isPlaylistMode: true,
     shouldShowStickyBanner: true,
     playlistTitleCardProps,
@@ -170,7 +174,11 @@ export const PlaylistPlaying: Story = {
 /** Playlist completed: title card moves into the scroll area. */
 export const PlaylistCompleted: Story = {
   args: {
-    playModeState: { type: 'playlist', ids: [3, 12, 2345], title: 'Sample Playlist' },
+    playModeState: {
+      type: 'playlist',
+      ids: [3, 12, 2345],
+      title: 'Sample Playlist',
+    },
     isPlaylistMode: true,
     shouldShowStickyBanner: false,
     playlistTitleCardProps: {
@@ -228,16 +236,9 @@ export const UnleashedMode: Story = {
   },
 };
 
-/** Dev play mode. */
+/** Dev play mode (for testing new features). */
 export const DevMode: Story = {
   args: {
     playModeState: { type: 'dev' },
-  },
-};
-
-/** Christmas play mode (seasonal theme overlay). */
-export const XmasMode: Story = {
-  args: {
-    playModeState: { type: 'xmas' },
   },
 };

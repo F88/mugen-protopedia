@@ -344,4 +344,32 @@ describe('resolveThemeByDate', () => {
       expect(resolveThemeByDate()).toBeNull();
     });
   });
+
+  describe('injected `now` (no fake timers)', () => {
+    test('returns christmas for an explicit December 24, 18:00 date', () => {
+      expect(resolveThemeByDate(new Date('2025-12-24T18:00:00'))).toBe(
+        'christmas',
+      );
+    });
+
+    test('returns null for an explicit non-period date', () => {
+      expect(resolveThemeByDate(new Date('2025-06-29T12:00:00'))).toBeNull();
+    });
+  });
+});
+
+describe('resolveMppThemeType with injected `now`', () => {
+  test('normal mode resolves christmas when `now` is in the period', () => {
+    const mode: PlayModeState = { type: 'normal' };
+    expect(
+      resolveMppThemeType(mode, undefined, new Date('2025-12-25T10:00')),
+    ).toBe('christmas');
+  });
+
+  test('normal mode resolves null when `now` is outside the period', () => {
+    const mode: PlayModeState = { type: 'normal' };
+    expect(
+      resolveMppThemeType(mode, undefined, new Date('2025-06-29T10:00')),
+    ).toBeNull();
+  });
 });

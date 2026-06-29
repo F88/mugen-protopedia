@@ -64,6 +64,12 @@ and this project adheres to [CalVer](https://calver.org/).
   shell (mirroring `PlaylistEditPage`) while feature logic stays in
   `MugenProtoPedia`. The view now returns a fragment; the shell renders during
   Suspense instead of `null`. Behavior unchanged. (#71)
+- Make the date-based Christmas theme injectable: `resolveThemeByDate` and
+  `resolveMppThemeType` now accept an optional `now: Date` (defaulting to the
+  current time), and `PlayModeTheme` accepts an optional `now` prop. This makes
+  the theme deterministic for tests (no global clock mocking) and previewable
+  for any date in Storybook. Adds `PlayModeTheme` theme-confirmation stories
+  (including a date-injected Christmas preview). Behavior unchanged. (#71)
 
 ## [2026.06.29]
 
