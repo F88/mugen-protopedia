@@ -418,6 +418,11 @@ export async function fetchPrototypesViaForceCacheClient(
  * - Uses {@link protopediaNoStoreClient} instead of {@link protopediaForceCacheClient}.
  * - Shares the same validation, logging, and normalization behavior.
  * - Intended for SHOW/upstream-only paths where freshest data is preferred.
+ *
+ * @deprecated Use `fetchPrototypesViaPromidasNoStoreClient` from
+ * `@/app/actions/prototypes-direct` instead, which is backed by promidas's
+ * fetcher (fetch + normalize + structured errors). This SDK-based action is
+ * retained only as a fallback and is no longer used in production.
  */
 export async function fetchPrototypesViaNoStoreClient(
   params: FetchPrototypesParams = {},

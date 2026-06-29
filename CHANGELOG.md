@@ -11,6 +11,16 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Fetch the SHOW / by-id prototype via a promidas-backed non-cached client.
+  `getLatestPrototypeById` now calls a new `fetchPrototypesViaPromidasNoStoreClient`
+  server action (backed by `lib/promidas-no-store-client.ts`, which uses
+  promidas's `ProtopediaApiCustomClient.fetchPrototypes` for fetch + normalize +
+  structured errors). Implemented as a separate path: the SDK-based no-store
+  client, the shared list (force-cache) path, and the random/map-store path are
+  untouched, so it can be rolled back by switching the consumer import. The
+  SDK-based `fetchPrototypesViaNoStoreClient` action and `protopediaNoStoreClient`
+  are now `@deprecated` (retained as a fallback) in favour of the promidas
+  versions. (#136, #138)
 - Adopt the `promidas` package for ProtoPedia prototype normalization (added
   `promidas` and `promidas-utils` as dependencies). `normalizePrototypeForMpp`
   delegates to promidas's `normalizePrototype`, replacing the local

@@ -1,4 +1,4 @@
-import { fetchPrototypesViaNoStoreClient } from '@/app/actions/prototypes';
+import { fetchPrototypesViaPromidasNoStoreClient } from '@/app/actions/prototypes-direct';
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
@@ -8,7 +8,7 @@ export const getLatestPrototypeById = async (
   id: number,
 ): Promise<PrototypeForMpp | null> => {
   // logger.debug('getLatestPrototypeById called', { id });
-  const result = await fetchPrototypesViaNoStoreClient({
+  const result = await fetchPrototypesViaPromidasNoStoreClient({
     prototypeId: id,
     limit: 1,
     offset: 0,
