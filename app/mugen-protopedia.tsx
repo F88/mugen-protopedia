@@ -26,7 +26,6 @@ import type {
 // lib
 import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
 import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
-import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { usePrototypeSlots } from '@/lib/hooks/use-prototype-slots';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
@@ -44,7 +43,7 @@ import { resolvePlayMode } from '@/lib/utils/resolve-play-mode';
 import { useDirectLaunch } from '@/hooks/use-direct-launch';
 
 // components
-import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import { AnalysisDashboardContainer } from '@/components/analysis-dashboard-container';
 import { CommandWindow } from '@/components/command-window';
 import { ControlPanel } from '@/components/control-panel';
 import { DirectLaunchResult } from '@/components/direct-launch-result';
@@ -864,9 +863,8 @@ export function MugenProtoPedia() {
         showPlayMode={true}
         delayLevel={delayLevel}
         analysisDashboard={
-          <AnalysisDashboard
+          <AnalysisDashboardContainer
             defaultExpanded={false}
-            useLatestAnalysisHook={useLatestAnalysis}
             preferClientTimezoneAnniversaries={true}
             isDevelopment={process.env.NODE_ENV === 'development'}
           />

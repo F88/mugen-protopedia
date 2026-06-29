@@ -7,8 +7,13 @@ import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 
 import './analysis-dashboard.css';
 
-// The hook is injected to avoid importing server actions in Storybook bundles.
-// Do NOT import the real hook here.
+// This component is intentionally presentational: it receives the already
+// resolved analysis state via the `analysisState` prop instead of calling the
+// real `useLatestAnalysis` hook itself. The real hook imports server actions,
+// so keeping it out of this module avoids pulling those into the Storybook
+// bundle, and not passing a hook around as a value lets the React Compiler
+// memoize this component (and its parents). The hook is owned by
+// `AnalysisDashboardContainer`. Do NOT import the real hook here.
 import type {
   PrototypeAnalysis,
   ServerPrototypeAnalysis,
@@ -451,7 +456,7 @@ function TrendList({
   );
 }
 
-type AnalysisState = {
+export type AnalysisState = {
   data: ServerPrototypeAnalysis | null;
   isLoading: boolean;
   error: string | null;
@@ -460,7 +465,13 @@ type AnalysisState = {
 
 type AnalysisDashboardProps = {
   defaultExpanded?: boolean;
-  useLatestAnalysisHook: () => AnalysisState;
+  /**
+   * Already resolved analysis state. The parent container owns the real hook
+   * (`useLatestAnalysis`) and passes its result here so this component stays
+   * presentational. See the module-level note above for why the hook is not
+   * called here.
+   */
+  analysisState: AnalysisState;
   /**
    * When true, recomputes anniversaries (birthdays/newborns) on the client using
    * the user's local timezone and uses that result for the two sections and
@@ -490,13 +501,13 @@ type AnalysisDashboardProps = {
  */
 export function AnalysisDashboard({
   defaultExpanded = true,
-  useLatestAnalysisHook,
+  analysisState,
   preferClientTimezoneAnniversaries = true,
   clientAnniversariesOverride = null,
   isDevelopment = false,
 }: AnalysisDashboardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(() => defaultExpanded);
-  const { data: analysis, isLoading, error, refresh } = useLatestAnalysisHook();
+  const { data: analysis, isLoading, error, refresh } = analysisState;
   // Always call the hook; gate heavy work via enabled flag to satisfy rules-of-hooks
   const clientTZ = useClientAnniversaries(analysis, {
     enabled: preferClientTimezoneAnniversaries,
