@@ -80,4 +80,18 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
     expect(result.status).toBe(500);
     expect(typeof result.error).toBe('string');
   });
+
+  it('caps limit at the safe maximum on the upstream request', async () => {
+    let requestedLimit: string | null = null;
+    server.use(
+      http.get('*/v2/api/prototype/list', ({ request }) => {
+        requestedLimit = new URL(request.url).searchParams.get('limit');
+        return HttpResponse.json({ results: [] });
+      }),
+    );
+
+    await fetchPrototypesViaPromidasNoStoreClient({ limit: 999_999 });
+
+    expect(requestedLimit).toBe('10000');
+  });
 });

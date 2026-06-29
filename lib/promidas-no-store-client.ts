@@ -28,6 +28,10 @@ import type {
  */
 const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
 
+/** Upper bound for `limit`, matching the SDK path's clamp, to guard against
+ * accidentally huge upstream responses if this action is reused. */
+const MAX_LIMIT = 10_000;
+
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
 
@@ -48,6 +52,19 @@ const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
     () => controller.abort(),
     CONNECTION_AND_HEADER_TIMEOUT_MS,
   );
+
+  // Compose any incoming signal (the SDK passes its own AbortSignal) with our
+  // timeout controller so caller/SDK cancellation still propagates.
+  const callerSignal = init?.signal;
+  const onCallerAbort = () => controller.abort(callerSignal?.reason);
+  if (callerSignal) {
+    if (callerSignal.aborted) {
+      onCallerAbort();
+    } else {
+      callerSignal.addEventListener('abort', onCallerAbort, { once: true });
+    }
+  }
+
   try {
     return await globalThis.fetch(url, {
       ...init,
@@ -57,6 +74,7 @@ const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
     });
   } finally {
     clearTimeout(timeoutId);
+    callerSignal?.removeEventListener('abort', onCallerAbort);
   }
 };
 
@@ -134,7 +152,7 @@ export const fetchPrototypesViaPromidasNoStore = async (
 
   const limit =
     typeof params.limit === 'number' && params.limit > 0
-      ? Math.floor(params.limit)
+      ? Math.min(Math.floor(params.limit), MAX_LIMIT)
       : 1;
   const offset =
     typeof params.offset === 'number' && params.offset > 0
