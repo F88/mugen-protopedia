@@ -14,8 +14,9 @@
  * Config is read independently from the environment so `lib/protopedia-client.ts`
  * stays an untouched fallback.
  */
-import { ProtopediaApiCustomClient } from 'promidas/fetcher';
+import { ProtopediaApiCustomClient, type Logger } from 'promidas/fetcher';
 
+import { logger as baseLogger } from '@/lib/logger.server';
 import type {
   FetchPrototypesParams,
   FetchPrototypesResult,
@@ -29,14 +30,6 @@ const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
-const logLevel =
-  (process.env.PROTOPEDIA_API_V2_LOG_LEVEL as
-    | 'silent'
-    | 'error'
-    | 'warn'
-    | 'info'
-    | 'debug'
-    | undefined) ?? 'error';
 
 // The placeholder warning is emitted by lib/protopedia-client.ts; avoid a
 // duplicate here and just resolve the token silently.
@@ -68,8 +61,36 @@ const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
 };
 
 /**
+ * Adapt promidas's `(message, meta)` logger calls to pino's `(bindings, message)`
+ * shape so this client's diagnostics flow through the app's structured server
+ * logger rather than a standalone ConsoleLogger. Verbosity is governed by the
+ * pino logger's own level.
+ */
+const emitLog = (
+  level: 'error' | 'warn' | 'info' | 'debug',
+  message: string,
+  meta?: unknown,
+): void => {
+  if (meta == null) {
+    baseLogger[level](message);
+  } else if (typeof meta === 'object') {
+    baseLogger[level](meta as Record<string, unknown>, message);
+  } else {
+    baseLogger[level]({ meta }, message);
+  }
+};
+
+const promidasLogger: Logger = {
+  error: (message, meta) => emitLog('error', message, meta),
+  warn: (message, meta) => emitLog('warn', message, meta),
+  info: (message, meta) => emitLog('info', message, meta),
+  debug: (message, meta) => emitLog('debug', message, meta),
+};
+
+/**
  * promidas fetcher client configured for non-cached, server-side use.
- * Progress tracking is disabled (single-prototype SHOW fetches are small).
+ * Progress tracking is disabled (single-prototype SHOW fetches are small);
+ * diagnostics flow through the app's pino logger via {@link promidasLogger}.
  */
 export const promidasNoStoreClient = new ProtopediaApiCustomClient({
   protoPediaApiClientOptions: {
@@ -77,7 +98,7 @@ export const promidasNoStoreClient = new ProtopediaApiCustomClient({
     baseUrl,
     fetch: noStoreFetch,
   },
-  logLevel,
+  logger: promidasLogger,
   progressLog: false,
 });
 

@@ -20,7 +20,9 @@ and this project adheres to [CalVer](https://calver.org/).
   untouched, so it can be rolled back by switching the consumer import. The
   SDK-based `fetchPrototypesViaNoStoreClient` action and `protopediaNoStoreClient`
   are now `@deprecated` (retained as a fallback) in favour of the promidas
-  versions. (#136, #138)
+  versions. The promidas client logs through the app's pino server logger (via a
+  small adapter) so its diagnostics are consistent with the rest of the server
+  code rather than going to a standalone console logger. (#136, #138)
 - Adopt the `promidas` package for ProtoPedia prototype normalization (added
   `promidas` and `promidas-utils` as dependencies). `normalizePrototypeForMpp`
   delegates to promidas's `normalizePrototype`, replacing the local
