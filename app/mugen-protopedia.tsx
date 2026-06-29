@@ -330,7 +330,9 @@ export function MugenProtoPedia() {
       currentFocusIndex={currentFocusIndex}
       onCardClick={handleCardClick}
       controlPanel={{
-        controlPanelMode: playbackState.isPlaying ? 'loadingPlaylist' : 'normal',
+        controlPanelMode: playbackState.isPlaying
+          ? 'loadingPlaylist'
+          : 'normal',
         onGetRandomPrototype: fetchRandomPrototype,
         onClear: handleClearPrototypes,
         prototypeIdInput,

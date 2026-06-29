@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildTagAnalytics } from './build-tag-analytics';
 
-const createPrototype = (tags: string[] = []): NormalizedPrototype => ({
+const createPrototype = (tags: string[] = []): PrototypeForMpp => ({
   id: Math.random(),
   prototypeNm: 'Proto',
   tags,

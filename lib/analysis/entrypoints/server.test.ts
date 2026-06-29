@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 const iso = (value: string) => new Date(value).toISOString();
 
@@ -42,8 +42,8 @@ const createLoggerPair = (): {
 };
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: overrides.id ?? 1,
   prototypeNm: overrides.prototypeNm ?? 'Prototype',
   tags: overrides.tags ?? [],

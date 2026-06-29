@@ -3,7 +3,7 @@ import {
   getRandomPrototypeFromMapOrFetch,
 } from '@/app/actions/prototypes';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
 
@@ -11,7 +11,7 @@ const FALLBACK_LIMIT = 500;
 const FALLBACK_OFFSET = 0;
 
 export const getRandomPrototypeData =
-  async (): Promise<NormalizedPrototype | null> => {
+  async (): Promise<PrototypeForMpp | null> => {
     // logger.debug('getRandomPrototypeData called');
 
     const mapResult = await getRandomPrototypeFromMapOrFetch();

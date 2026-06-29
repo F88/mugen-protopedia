@@ -1,12 +1,12 @@
 import { fetchPrototypesViaNoStoreClient } from '@/app/actions/prototypes';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
 
 export const getLatestPrototypeById = async (
   id: number,
-): Promise<NormalizedPrototype | null> => {
+): Promise<PrototypeForMpp | null> => {
   // logger.debug('getLatestPrototypeById called', { id });
   const result = await fetchPrototypesViaNoStoreClient({
     prototypeId: id,

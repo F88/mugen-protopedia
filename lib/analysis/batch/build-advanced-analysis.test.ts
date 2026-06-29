@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildAdvancedAnalysis } from './build-advanced-analysis';
 
 const iso = (value: string) => new Date(value).toISOString();
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype>,
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp>,
+): PrototypeForMpp => ({
   id: overrides.id ?? 1,
   prototypeNm: overrides.prototypeNm ?? 'Prototype',
   tags: overrides.tags ?? [],
@@ -44,7 +44,7 @@ const createPrototype = (
 
 describe('buildAdvancedAnalysis', () => {
   it('aggregates advanced insights across prototypes', () => {
-    const prototypes: NormalizedPrototype[] = [
+    const prototypes: PrototypeForMpp[] = [
       createPrototype({
         id: 1,
         prototypeNm: 'First Light',

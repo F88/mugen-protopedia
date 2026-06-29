@@ -103,8 +103,7 @@ const validatePrototypeId = (prototypeId?: number) => {
 const fetchPrototypesInternal = async (
   client: ProtopediaClient,
   action:
-    | 'fetchPrototypesViaForceCacheClient'
-    | 'fetchPrototypesViaNoStoreClient',
+    'fetchPrototypesViaForceCacheClient' | 'fetchPrototypesViaNoStoreClient',
   params: FetchPrototypesParams = {},
 ): Promise<FetchPrototypesResult> => {
   const isNoStore = action === 'fetchPrototypesViaNoStoreClient';

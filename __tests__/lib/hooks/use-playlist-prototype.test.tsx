@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
@@ -18,7 +18,7 @@ describe('usePlaylistPrototype', () => {
   });
 
   it('fetches a prototype successfully and updates state', async () => {
-    const prototype: NormalizedPrototype = {
+    const prototype: PrototypeForMpp = {
       id: 123,
       prototypeNm: 'Test Prototype',
       teamNm: 'Team',

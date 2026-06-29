@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { MockedFunction } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 
@@ -20,7 +20,7 @@ describe('useRandomPrototype', () => {
   });
 
   it('returns a prototype and updates state on success', async () => {
-    const prototype: NormalizedPrototype = {
+    const prototype: PrototypeForMpp = {
       id: 1,
       prototypeNm: 'Random Prototype',
       teamNm: 'Team',

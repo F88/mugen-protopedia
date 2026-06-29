@@ -9,7 +9,7 @@
 
 import { useCallback, useState } from 'react';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 
 type RandomPrototypeError = string | null;
@@ -22,7 +22,7 @@ type UseRandomPrototypeResult = {
    * Fetches a single random prototype. Returns `null` when no candidate exists or
    * 処理が失敗した場合。
    */
-  getRandomPrototype: () => Promise<NormalizedPrototype | null>;
+  getRandomPrototype: () => Promise<PrototypeForMpp | null>;
   /** Indicates that a random fetch is currently in progress. */
   isLoading: boolean;
   /** Latest error message (if any). */
@@ -40,7 +40,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
   const [error, setError] = useState<RandomPrototypeError>(null);
 
   const getRandomPrototype =
-    useCallback(async (): Promise<NormalizedPrototype | null> => {
+    useCallback(async (): Promise<PrototypeForMpp | null> => {
       setIsLoading(true);
       setError(null);
 

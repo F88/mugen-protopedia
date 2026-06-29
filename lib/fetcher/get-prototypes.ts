@@ -1,4 +1,4 @@
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
@@ -21,7 +21,7 @@ export const getPrototypes = async ({
   limit = defaultLimit,
   offset = 0,
   prototypeId,
-}: GetPrototypesOptions): Promise<NormalizedPrototype[]> => {
+}: GetPrototypesOptions): Promise<PrototypeForMpp[]> => {
   const startTime = performance.now();
   logger.debug('getPrototypes called', { limit, offset, prototypeId });
 

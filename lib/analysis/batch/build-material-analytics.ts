@@ -3,7 +3,7 @@
  * Material-centric batch analytics. Provides rankings and raw histogram counts.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -24,7 +24,7 @@ const TOP_MATERIAL_LIMIT = 30;
  * Aggregates material frequency, returning ranked results and the complete histogram.
  */
 export function buildMaterialAnalytics(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { logger?: MinimalLogger },
 ): MaterialAnalytics {
   const startTime = Date.now();

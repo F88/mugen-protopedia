@@ -4,7 +4,7 @@ import {
   fetchRandomPrototype,
   getRandomPrototypeFromMapOrFetch,
 } from '@/app/actions/prototypes';
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
@@ -34,8 +34,8 @@ const constructDisplayMessageMock =
   constructDisplayMessage as unknown as ReturnType<typeof vi.fn>;
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: 1,
   prototypeNm: 'Prototype 1',
   teamNm: 'Team A',

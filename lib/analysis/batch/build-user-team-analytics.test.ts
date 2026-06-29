@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildUserTeamAnalytics } from './build-user-team-analytics';
 
-const createPrototype = (teamNm: string | undefined): NormalizedPrototype => ({
+const createPrototype = (teamNm: string | undefined): PrototypeForMpp => ({
   id: Math.random(),
   prototypeNm: 'Proto',
   tags: [],

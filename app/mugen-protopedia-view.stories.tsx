@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import type { RefObject } from 'react';
 
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import type { PrototypeSlot } from '@/lib/hooks/use-prototype-slots';
 import type { ControlPanelProps } from '@/components/control-panel';
 

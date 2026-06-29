@@ -6,7 +6,7 @@
  * canonical data without repeated API calls while still respecting TTL limits.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 const THIRTY_MINUTES_IN_MS = 30 * 60 * 1_000;
@@ -33,7 +33,7 @@ type PrototypeMapStats = {
 type RefreshTask = () => Promise<void>;
 
 type Snapshot = {
-  data: NormalizedPrototype[];
+  data: PrototypeForMpp[];
   cachedAt: Date | null;
   isExpired: boolean;
 };
@@ -54,9 +54,9 @@ export class PrototypeMapStore {
 
   private readonly maxPayloadSizeBytes: number;
 
-  private prototypeMap = new Map<number, NormalizedPrototype>();
+  private prototypeMap = new Map<number, PrototypeForMpp>();
 
-  private prototypes: NormalizedPrototype[] = [];
+  private prototypes: PrototypeForMpp[] = [];
 
   private maxPrototypeId: number | null = null;
 
@@ -99,9 +99,7 @@ export class PrototypeMapStore {
    * Performs size estimation, replaces both the backing map and ordered array,
    * and refreshes metadata used for TTL enforcement.
    */
-  setAll(
-    prototypes: NormalizedPrototype[],
-  ): { approxSizeBytes: number } | null {
+  setAll(prototypes: PrototypeForMpp[]): { approxSizeBytes: number } | null {
     const approxSizeBytes = this.estimateSize(prototypes);
 
     if (approxSizeBytes > this.maxPayloadSizeBytes) {
@@ -147,12 +145,12 @@ export class PrototypeMapStore {
   }
 
   /** Retrieve the latest fetched prototypes in their original order. */
-  getAll(): NormalizedPrototype[] {
+  getAll(): PrototypeForMpp[] {
     return this.prototypes;
   }
 
   /** Retrieve a single prototype by its numeric identifier. */
-  getById(id: number): NormalizedPrototype | undefined {
+  getById(id: number): PrototypeForMpp | undefined {
     return this.prototypeMap.get(id);
   }
 
@@ -162,7 +160,7 @@ export class PrototypeMapStore {
    * Returns null when the store is empty, allowing callers to fall back to
    * alternative fetch paths.
    */
-  getRandom(): NormalizedPrototype | null {
+  getRandom(): PrototypeForMpp | null {
     if (this.prototypes.length === 0) {
       return null;
     }
@@ -254,7 +252,7 @@ export class PrototypeMapStore {
   }
 
   /** Estimate JSON payload size for logging and guardrails. */
-  private estimateSize(data: NormalizedPrototype[]): number {
+  private estimateSize(data: PrototypeForMpp[]): number {
     try {
       const serialized = JSON.stringify(data);
       if (typeof Buffer !== 'undefined') {

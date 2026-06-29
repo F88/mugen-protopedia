@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getPrototypes } from '@/lib/fetcher/get-prototypes';
 import { logger } from '@/lib/logger.client';
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
@@ -23,8 +23,8 @@ const listMock = prototypeRepository.list as unknown as ReturnType<
 >;
 
 const createPrototype = (
-  overrides: Partial<NormalizedPrototype> = {},
-): NormalizedPrototype => ({
+  overrides: Partial<PrototypeForMpp> = {},
+): PrototypeForMpp => ({
   id: 1,
   prototypeNm: 'Prototype 1',
   teamNm: 'Team A',

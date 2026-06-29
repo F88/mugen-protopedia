@@ -3,7 +3,7 @@
  * Tag-centric batch analytics. Provides rankings and raw histogram counts.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
@@ -20,7 +20,7 @@ const TOP_TAG_LIMIT = 30;
  * Aggregates tag frequency and returns ranked results alongside raw counts.
  */
 export function buildTagAnalytics(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { logger?: MinimalLogger },
 ): TagAnalytics {
   const startTime = Date.now();

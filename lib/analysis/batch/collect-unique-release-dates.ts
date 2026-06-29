@@ -3,7 +3,7 @@
  * Shared helpers for release-date keyed aggregations such as unique day counts.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   createLifecycleMomentContext,
   createPrototypeLifecycleContext,
@@ -62,7 +62,7 @@ export function trackDateBasedPrototypeInsights(
  * Builds date-keyed insights (create/update/release JST dates) in a single pass.
  */
 export function buildDateBasedPrototypeInsights(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { logger?: MinimalLogger },
 ): DateBasedPrototypeInsights {
   const startTime = performance.now();

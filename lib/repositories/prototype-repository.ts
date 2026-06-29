@@ -5,7 +5,7 @@ import {
   getPrototypesFromCacheOrFetch,
 } from '@/app/actions/prototypes';
 
-import { type NormalizedPrototype } from '@/lib/api/prototypes';
+import { type PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
 
@@ -16,7 +16,7 @@ const MAX_MAP_THRESHOLD = 10_000;
 // Simple repository for fetching prototypes via server functions.
 // Components should depend on this repository instead of calling fetch directly.
 export const prototypeRepository: PrototypeRepository = {
-  async getAll(): Promise<NormalizedPrototype[]> {
+  async getAll(): Promise<PrototypeForMpp[]> {
     // logger.info('prototypeRepository.getAll called');
 
     const mapResult = await getAllPrototypesFromMapOrFetch();
@@ -64,7 +64,7 @@ export const prototypeRepository: PrototypeRepository = {
     offset = 0,
     prototypeId,
   }: { limit?: number; offset?: number; prototypeId?: number } = {}): Promise<
-    NormalizedPrototype[]
+    PrototypeForMpp[]
   > {
     // Log input parameters at info level (browser-safe)
     // logger.info('prototypeRepository.list called', { limit, offset, prototypeId });
@@ -123,7 +123,7 @@ export const prototypeRepository: PrototypeRepository = {
     return result.data;
   },
 
-  async getByPrototypeId(id: number): Promise<undefined | NormalizedPrototype> {
+  async getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp> {
     logger.info('prototypeRepository.getByPrototypeId called', { id });
     const stringId = String(id);
 

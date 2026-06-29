@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 
 import { pickSkeletonKind } from './utils/skeleton-kind';
 

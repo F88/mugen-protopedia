@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 
 type PrototypeMainImageProps = {
   prototype: Pick<Prototype, 'mainUrl' | 'prototypeNm'>;

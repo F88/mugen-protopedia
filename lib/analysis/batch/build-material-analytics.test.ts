@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildMaterialAnalytics } from './build-material-analytics';
 
 const createPrototype = (
   materials: string[] = [],
   releaseDate: string = new Date().toISOString(),
-): NormalizedPrototype => ({
+): PrototypeForMpp => ({
   id: Math.random(),
   prototypeNm: 'Proto',
   tags: [],

@@ -23,7 +23,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import { SimulatedDelayRange } from '@/types/mugen-protopedia.types';
 import { logger } from '../logger.client';
 

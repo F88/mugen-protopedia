@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import type { NormalizedPrototype as Prototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';
 import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
 import type { UsePrototypeSlotsResult } from '@/lib/hooks/use-prototype-slots';

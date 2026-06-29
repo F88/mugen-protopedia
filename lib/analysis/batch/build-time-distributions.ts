@@ -4,7 +4,7 @@
  * JST-aligned buckets for consistent reporting.
  */
 
-import type { NormalizedPrototype } from '@/lib/api/prototypes';
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   createLifecycleMomentContext,
   createPrototypeLifecycleContext,
@@ -140,7 +140,7 @@ function recordDateBuckets(
  * @returns Aggregated time distributions for create/release/update events.
  */
 export function buildTimeDistributions(
-  prototypes: NormalizedPrototype[],
+  prototypes: PrototypeForMpp[],
   options?: { logger?: MinimalLogger },
 ): TimeDistributions {
   const startTime = performance.now();

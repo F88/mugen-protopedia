@@ -12,12 +12,7 @@ import './skeleton-animations.css';
 import { hashString } from './utils/skeleton-kind';
 
 type DynamicAnimationVariant =
-  | 'shuffle'
-  | 'explode'
-  | 'cascade'
-  | 'orbit'
-  | 'spin'
-  | 'rainbow';
+  'shuffle' | 'explode' | 'cascade' | 'orbit' | 'spin' | 'rainbow';
 
 type PrototypeDynamicSkeletonCardProps = PrototypeSkeletonCardBaseProps & {
   variant?: DynamicAnimationVariant;
