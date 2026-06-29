@@ -34,13 +34,7 @@ import { usePlaylistPlaybackState } from '@/hooks/use-playlist-playback-state';
 
 // components
 import { AnalysisDashboardContainer } from '@/components/analysis-dashboard-container';
-import { CommandWindow } from '@/components/command-window';
-import { ControlPanel } from '@/components/control-panel';
-import { DirectLaunchResult } from '@/components/direct-launch-result';
-import { Header } from '@/components/header';
-import { PlayModeTheme } from '@/components/play-mode-theme';
-import { PlaylistTitleCard } from '@/components/playlist/playlist-title';
-import { PrototypeGrid } from '@/components/prototype/prototype-grid';
+import { MugenProtoPediaView } from './mugen-protopedia-view';
 import {
   arePlayModeStatesEqual,
   getSimulatedDelayRangeForLevel,
@@ -302,136 +296,59 @@ export function MugenProtoPedia() {
 
   /**
    * Main application layout
+   *
+   * All markup lives in the presentational `MugenProtoPediaView`; this
+   * container only assembles the derived state and callbacks it needs.
    */
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-      {/* Play Mode Theme Overlay */}
-      <PlayModeTheme mode={playModeState} delayLevel={delayLevel} />
-
-      {/* Header */}
-      <Header
-        ref={headerRef}
-        dashboard={{
-          prototypeCount: prototypeSlots.length,
-          inFlightRequests,
-          maxConcurrentFetches: maxConcurrentFetches,
-        }}
-        playMode={playModeState.type}
-        showPlayMode={true}
-        delayLevel={delayLevel}
-        analysisDashboard={
-          <AnalysisDashboardContainer
-            defaultExpanded={false}
-            preferClientTimezoneAnniversaries={true}
-            isDevelopment={process.env.NODE_ENV === 'development'}
-          />
-        }
-      />
-
-      {headerHeight > 0 && (
-        <>
-          {/* Sticky banner container */}
-          {shouldShowStickyBanner ? (
-            <div
-              ref={stickyBannerRef}
-              className="sticky z-50 header-offset-top"
-            >
-              {/* Render direct launch status and PrototypeGrid only when headerHeight is determined */}
-              {shouldShowDirectLaunchBanner && (
-                <div className="p-4">
-                  <DirectLaunchResult
-                    className="bg-transparent p-0 text-left"
-                    directLaunchResult={directLaunchResult}
-                    successMessage="Direct launch parameters validated successfully."
-                    failureMessage="The URL contains invalid parameters for direct launch. Please check the URL and try again."
-                  />
-                </div>
-              )}
-              {/* Show playlist title when sticky banner is visible */}
-              {isPlaylistMode && playlistTitleCardProps && (
-                <div
-                  className={`transition-all duration-3000 ease-out transform-gpu ${
-                    !playbackState.isCompleted
-                      ? 'opacity-100 translate-y-0 max-h-96 p-4'
-                      : 'opacity-0 -translate-y-8 max-h-0 overflow-hidden p-0'
-                  }`}
-                >
-                  <PlaylistTitleCard {...playlistTitleCardProps} />
-                </div>
-              )}
-            </div>
-          ) : null}
-
-          {/* Scrollable container for prototypes and other content */}
-          <div
-            ref={scrollContainerRef}
-            className="w-full h-screen overflow-auto p-4 pb-40 header-offset-padding overscroll-contain relative z-10"
-          >
-            {isPlaylistMode && playlistTitleCardProps && (
-              <div
-                // delay-3000 waits until the sticky PlaylistTitleCard fades out before showing this one.
-                className={`p-4 transition-opacity duration-1000 delay-3000 ease-in ${
-                  playbackState.isCompleted
-                    ? 'opacity-100'
-                    : 'opacity-0 max-h-0 overflow-hidden p-0'
-                }`}
-              >
-                <PlaylistTitleCard {...playlistTitleCardProps} />
-              </div>
-            )}
-
-            <PrototypeGrid
-              prototypeSlots={prototypeSlots}
-              currentFocusIndex={currentFocusIndex}
-              onCardClick={handleCardClick}
-            />
-          </div>
-        </>
-      )}
-
-      {/* Control panel - Fixed overlay at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-transparent transition-colors duration-200">
-        <div className="container mx-auto p-4">
-          <ControlPanel
-            controlPanelMode={
-              playbackState.isPlaying ? 'loadingPlaylist' : 'normal'
-            }
-            onGetRandomPrototype={fetchRandomPrototype}
-            onClear={handleClearPrototypes}
-            prototypeIdInput={prototypeIdInput}
-            onPrototypeIdInputChange={handlePrototypeIdInputChange}
-            onGetPrototypeById={() =>
-              fetchPrototypeByIdFromInput(prototypeIdInput)
-            }
-            onPrototypeIdInputSet={handlePrototypeIdInputSet}
-            canFetchMorePrototypes={canFetchMorePrototypes}
-            prototypeIdError={prototypeIdError}
-            onScrollNext={() => scrollToPrototype('next')}
-            onScrollPrev={() => scrollToPrototype('prev')}
-            onOpenPrototype={openCurrentPrototypeInProtoPedia}
-            onToggleCLI={toggleCLI}
-            shortcutsDisabled={showCLI}
-            maxPrototypeId={maxPrototypeId}
-          />
-        </div>
-      </div>
-
-      {/* Command window - centered panel toggled by "/" */}
-      {showCLI ? (
-        <CommandWindow
-          buffer={sequenceBuffer}
-          matchedCommand={matchedCommand}
+    <MugenProtoPediaView
+      headerRef={headerRef}
+      stickyBannerRef={stickyBannerRef}
+      scrollContainerRef={scrollContainerRef}
+      playModeState={playModeState}
+      delayLevel={delayLevel}
+      dashboard={{
+        prototypeCount: prototypeSlots.length,
+        inFlightRequests,
+        maxConcurrentFetches,
+      }}
+      analysisDashboard={
+        <AnalysisDashboardContainer
+          defaultExpanded={false}
+          preferClientTimezoneAnniversaries={true}
+          isDevelopment={process.env.NODE_ENV === 'development'}
         />
-      ) : null}
-
-      {/* Dashboard - Floating display at bottom */}
-      {/* <div className="fixed top-20 right-4 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg dark:shadow-gray-900/50 p-3 transition-colors duration-200">
-        <Dashboard
-          prototypeCount={prototypeSlots.length}
-          inFlightRequests={inFlightRequests}
-          maxConcurrentFetches={MAX_CONCURRENT_FETCHES}
-        />
-      </div> */}
-    </main>
+      }
+      headerHeight={headerHeight}
+      shouldShowStickyBanner={shouldShowStickyBanner}
+      shouldShowDirectLaunchBanner={shouldShowDirectLaunchBanner}
+      isPlaylistMode={isPlaylistMode}
+      directLaunchResult={directLaunchResult}
+      playlistTitleCardProps={playlistTitleCardProps}
+      isPlaybackCompleted={playbackState.isCompleted}
+      prototypeSlots={prototypeSlots}
+      currentFocusIndex={currentFocusIndex}
+      onCardClick={handleCardClick}
+      controlPanel={{
+        controlPanelMode: playbackState.isPlaying ? 'loadingPlaylist' : 'normal',
+        onGetRandomPrototype: fetchRandomPrototype,
+        onClear: handleClearPrototypes,
+        prototypeIdInput,
+        onPrototypeIdInputChange: handlePrototypeIdInputChange,
+        onGetPrototypeById: () => fetchPrototypeByIdFromInput(prototypeIdInput),
+        onPrototypeIdInputSet: handlePrototypeIdInputSet,
+        canFetchMorePrototypes,
+        prototypeIdError,
+        onScrollNext: () => scrollToPrototype('next'),
+        onScrollPrev: () => scrollToPrototype('prev'),
+        onOpenPrototype: openCurrentPrototypeInProtoPedia,
+        onToggleCLI: toggleCLI,
+        shortcutsDisabled: showCLI,
+        maxPrototypeId,
+      }}
+      showCLI={showCLI}
+      commandBuffer={sequenceBuffer}
+      matchedCommand={matchedCommand}
+    />
   );
 }

@@ -53,6 +53,12 @@ and this project adheres to [CalVer](https://calver.org/).
   block `eslint-disable react-hooks/set-state-in-effect` the imperative setters
   required. Final step (E) of decomposing the home page; behavior unchanged.
   (#168, #158)
+- Split `MugenProtoPedia` into a container that wires the hooks and derived
+  state and a presentational `MugenProtoPediaView` that receives that state and
+  the callbacks as props, so the home view is hooks-free and renderable in
+  isolation. The analysis dashboard is injected as a `ReactNode` prop (mirroring
+  `Header`) to keep the data-fetching `AnalysisDashboardContainer` out of the
+  view. Adds Storybook stories for the view. Behavior unchanged. (#71)
 
 ## [2026.06.29]
 
