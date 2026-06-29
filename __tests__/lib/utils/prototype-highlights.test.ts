@@ -24,6 +24,11 @@ const createPrototype = (
   mainUrl: 'https://example.com',
   licenseType: 1,
   thanksFlg: 0,
+  summary: '',
+  systemDescription: '',
+  tags: [],
+  events: [],
+  materials: [],
   ...overrides,
 });
 

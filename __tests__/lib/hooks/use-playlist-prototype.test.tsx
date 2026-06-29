@@ -37,6 +37,11 @@ describe('usePlaylistPrototype', () => {
       mainUrl: 'https://example.com/image.png',
       licenseType: 0,
       thanksFlg: 0,
+      systemDescription: '',
+      tags: [],
+      awards: [],
+      events: [],
+      materials: [],
     };
 
     mockedRepository.getByPrototypeId = vi

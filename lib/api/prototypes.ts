@@ -1,118 +1,27 @@
-import { ResultOfListPrototypesApiResponse } from 'protopedia-api-v2-client';
+import {
+  normalizePrototype as normalizeUpstreamPrototype,
+  type UpstreamPrototype,
+} from 'promidas/fetcher';
+import type { NormalizedPrototype } from 'promidas/types';
 
-import { splitPipeSeparatedString } from '../utils/converter';
-import { normalizeProtoPediaTimestamp } from '../utils/time';
+export type { UpstreamPrototype };
 
-export type UpstreamPrototype = ResultOfListPrototypesApiResponse;
+/**
+ * The app-internal prototype type.
+ *
+ * Alias for promidas's {@link NormalizedPrototype}: the app and the library now
+ * share the same normalized shape. The MPP-specific name is kept for clarity at
+ * call sites and to avoid a churny rename across the codebase.
+ */
+export type PrototypeForMpp = NormalizedPrototype;
 
-export type PrototypeForMpp = {
-  /* ID */
-  id: number;
-
-  /* Basic information */
-  prototypeNm: string;
-
-  /** Pipe-separated tags string from upstream API */
-  tags?: string[];
-
-  teamNm: string;
-
-  /** Pipe-separated tags string from upstream API */
-  users: string[];
-
-  summary?: string;
-  status: number;
-  releaseFlg: number;
-
-  // uuid: string;
-  // nid?: string;
-
-  /* Times  */
-  createId?: number;
-  createDate: string;
-  updateId?: number;
-  updateDate: string;
-  releaseDate: string;
-
-  revision: number;
-
-  /** Pipe-separated tags string from upstream API */
-  awards?: string[];
-
-  freeComment: string;
-  systemDescription?: string;
-
-  // counts
-  viewCount: number;
-  goodCount: number;
-  commentCount: number;
-
-  // URLs
-
-  /** URL of YouTube or Vimeo */
-  videoUrl?: string;
-
-  /* URL of eyecatch image */
-  mainUrl: string;
-
-  /* URLs of related link */
-  relatedLink?: string;
-  relatedLink2?: string;
-  relatedLink3?: string;
-  relatedLink4?: string;
-  relatedLink5?: string;
-
-  // License
-  licenseType: number;
-
-  // Others
-  thanksFlg: number;
-
-  /** Pipe-separated tags string from upstream API */
-  events?: string[];
-
-  officialLink?: string;
-
-  /** Pipe-separated tags string from upstream API */
-  materials?: string[];
-
-  // slideMode?: number;
-};
-
-export function normalizePrototype(p: UpstreamPrototype): PrototypeForMpp {
-  return {
-    id: p.id,
-    prototypeNm: p.prototypeNm,
-    tags: p.tags ? splitPipeSeparatedString(p.tags) : [],
-    teamNm: p.teamNm ?? '',
-    users: p.users ? splitPipeSeparatedString(p.users) : [],
-    summary: p.summary,
-    status: p.status,
-    releaseFlg: p.releaseFlg ?? 0,
-    createId: p.createId,
-    createDate: normalizeProtoPediaTimestamp(p.createDate) ?? p.createDate,
-    updateId: p.updateId,
-    updateDate: normalizeProtoPediaTimestamp(p.updateDate) ?? p.updateDate,
-    releaseDate:
-      normalizeProtoPediaTimestamp(p.releaseDate) ?? p.releaseDate ?? '',
-    revision: p.revision ?? 0,
-    awards: p.awards ? splitPipeSeparatedString(p.awards) : [],
-    freeComment: p.freeComment ?? '',
-    systemDescription: p.systemDescription,
-    viewCount: p.viewCount,
-    goodCount: p.goodCount,
-    commentCount: p.commentCount,
-    videoUrl: p.videoUrl,
-    mainUrl: p.mainUrl,
-    relatedLink: p.relatedLink,
-    relatedLink2: p.relatedLink2,
-    relatedLink3: p.relatedLink3,
-    relatedLink4: p.relatedLink4,
-    relatedLink5: p.relatedLink5,
-    licenseType: p.licenseType ?? 0,
-    thanksFlg: p.thanksFlg ?? 0,
-    events: p.events ? splitPipeSeparatedString(p.events) : [],
-    officialLink: p.officialLink,
-    materials: p.materials ? splitPipeSeparatedString(p.materials) : [],
-  } satisfies PrototypeForMpp;
+/**
+ * Normalize an upstream prototype into {@link PrototypeForMpp}.
+ *
+ * Normalization (pipe-separated splitting, JST -> UTC timestamps, and defaults
+ * for fields the ProtoPedia API may omit) is delegated entirely to `promidas`,
+ * whose output is already the `PrototypeForMpp` shape.
+ */
+export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp {
+  return normalizeUpstreamPrototype(p);
 }

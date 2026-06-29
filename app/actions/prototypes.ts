@@ -13,7 +13,7 @@
  */
 
 import {
-  normalizePrototype,
+  normalizePrototypeForMpp,
   type UpstreamPrototype,
 } from '@/lib/api/prototypes';
 import { parsePositiveId } from '@/lib/api/validation';
@@ -205,7 +205,7 @@ const fetchPrototypesInternal = async (
 
     const normalizeStart = performance.now();
     const normalized = Array.isArray(upstream.results)
-      ? upstream.results.map(normalizePrototype)
+      ? upstream.results.map(normalizePrototypeForMpp)
       : [];
     const normalizeEnd = performance.now();
     const normalizeElapsedMs =

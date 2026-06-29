@@ -11,13 +11,25 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Adopt the `promidas` package for ProtoPedia prototype normalization (added
+  `promidas` and `promidas-utils` as dependencies). `normalizePrototypeForMpp`
+  delegates to promidas's `normalizePrototype`, replacing the local
+  normalization utilities (`splitPipeSeparatedString`, `lib/utils/time.ts`, now
+  removed), so promidas is the single source of truth for parsing. This adopts
+  promidas's behavior: empty segments are dropped from pipe-separated fields
+  (`tags` / `users` / `awards` / `events` / `materials`), missing `releaseDate`
+  / `updateDate` become `undefined` (not `''`; the API can return null), and
+  missing `summary` / `systemDescription` / `releaseFlg` / `licenseType` default
+  to `''` / `''` / `2` / `1`. Adds characterization tests. (#136, #137)
+- Align the internal `PrototypeForMpp` type with promidas's
+  `NormalizedPrototype` and make it a direct alias: fully `readonly`, code-typed
+  `status` / `releaseFlg` / `licenseType` / `thanksFlg`, and matching
+  optionality. Consumers are unchanged. (#136, #137)
 - Upgrade `protopedia-api-v2-client` from 2.0.0 to 3.0.0. The v3 type
   definitions make 9 `ResultOfListPrototypesApiResponse` fields optional
   (`teamNm`, `users`, `freeComment`, `releaseDate`, `thanksFlg`, `uuid`,
-  `revision`, `releaseFlg`, `licenseType`). `normalizePrototype` now applies
-  `''` / `0` fallbacks for the consumed fields, so the prototype model
-  contract is unchanged and consumers are unaffected. Prerequisite for
-  adopting the `promidas` / `promidas-utils` packages. (#136)
+  `revision`, `releaseFlg`, `licenseType`). Prerequisite for adopting the
+  `promidas` / `promidas-utils` packages. (#136)
 - Rename the local `NormalizedPrototype` type to `PrototypeForMpp` to make
   its app-specific scope explicit and avoid a name clash with the
   `NormalizedPrototype` type exported by `promidas`. (#136)

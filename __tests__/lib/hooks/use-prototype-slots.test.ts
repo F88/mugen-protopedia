@@ -24,6 +24,12 @@ const makePrototype = (id: number): PrototypeForMpp => ({
   mainUrl: '',
   licenseType: 0,
   thanksFlg: 0,
+  summary: '',
+  systemDescription: '',
+  tags: [],
+  awards: [],
+  events: [],
+  materials: [],
 });
 
 describe('usePrototypeSlots', () => {

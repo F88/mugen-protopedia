@@ -59,7 +59,7 @@ import {
 export function buildAnniversaries(
   prototypes: Array<{
     id: number;
-    releaseDate: string;
+    releaseDate?: string;
     title?: string;
     prototypeNm?: string;
   }>,
@@ -76,8 +76,8 @@ export function buildAnniversaries(
 
   const birthdayPrototypes = prototypes
     .filter(
-      (prototype) =>
-        prototype.releaseDate &&
+      (prototype): prototype is typeof prototype & { releaseDate: string } =>
+        prototype.releaseDate != null &&
         isBirthDay(prototype.releaseDate) &&
         !isToday(prototype.releaseDate),
     )
@@ -93,7 +93,8 @@ export function buildAnniversaries(
 
   const newbornPrototypes = prototypes
     .filter(
-      (prototype) => prototype.releaseDate && isToday(prototype.releaseDate),
+      (prototype): prototype is typeof prototype & { releaseDate: string } =>
+        prototype.releaseDate != null && isToday(prototype.releaseDate),
     )
     .map((prototype) => ({
       id: prototype.id,

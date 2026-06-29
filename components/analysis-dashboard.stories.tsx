@@ -69,7 +69,10 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
       },
     },
     mmdd: prototypes
-      .filter((prototype) => Boolean(prototype.releaseDate))
+      .filter(
+        (prototype): prototype is typeof prototype & { releaseDate: string } =>
+          prototype.releaseDate != null,
+      )
       .map((prototype) => ({
         id: prototype.id,
         title: prototype.prototypeNm ?? '',

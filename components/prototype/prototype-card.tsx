@@ -157,9 +157,10 @@ export const PrototypeCard = ({
   //   />,
   // ];
 
-  const age = calculateAge(prototype.releaseDate);
-  const ageBadge = (
-    <>
+  const releaseDate = prototype.releaseDate;
+  const age = releaseDate != null ? calculateAge(releaseDate) : null;
+  const ageBadge =
+    releaseDate != null && age != null ? (
       <AnniversaryBadge
         key="meta-date-2"
         years={age.years}
@@ -167,14 +168,13 @@ export const PrototypeCard = ({
         months={age.months}
         // days={age.days}
         icon={`🎉`}
-        prefixText={`${formatDateForDisplay(prototype.releaseDate)} (`}
+        prefixText={`${formatDateForDisplay(releaseDate)} (`}
         suffixText={')'}
         className="w-full justify-center text-center"
         nowrap
         size="responsive"
       />
-    </>
-  );
+    ) : null;
 
   const videoBadges =
     videoUrls.length > 0
