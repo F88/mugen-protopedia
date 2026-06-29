@@ -2,6 +2,12 @@ import {
   normalizePrototype as normalizeUpstreamPrototype,
   type UpstreamPrototype,
 } from 'promidas/fetcher';
+import type {
+  StatusCode,
+  ReleaseFlagCode,
+  LicenseTypeCode,
+  ThanksFlagCode,
+} from 'promidas/types';
 
 export type { UpstreamPrototype };
 
@@ -21,8 +27,8 @@ export type PrototypeForMpp = {
   users: string[];
 
   summary?: string;
-  status: number;
-  releaseFlg: number;
+  status: StatusCode;
+  releaseFlg: ReleaseFlagCode;
 
   // uuid: string;
   // nid?: string;
@@ -63,10 +69,10 @@ export type PrototypeForMpp = {
   relatedLink5?: string;
 
   // License
-  licenseType: number;
+  licenseType: LicenseTypeCode;
 
   // Others
-  thanksFlg: number;
+  thanksFlg: ThanksFlagCode;
 
   /** Pipe-separated tags string from upstream API */
   events?: string[];

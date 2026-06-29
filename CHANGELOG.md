@@ -11,6 +11,10 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Type `PrototypeForMpp`'s `status`, `releaseFlg`, `licenseType`, and
+  `thanksFlg` with promidas's code types (`StatusCode`, `ReleaseFlagCode`,
+  `LicenseTypeCode`, `ThanksFlagCode`) instead of `number`, so invalid codes
+  are caught at compile time. No runtime change. (#136, #137)
 - Delegate prototype normalization to `promidas` (added as a dependency with
   `promidas-utils`). `normalizePrototype` now adapts `promidas`'s output to the
   internal `PrototypeForMpp` shape; consumers are unchanged. Adopts promidas's

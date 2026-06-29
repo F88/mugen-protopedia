@@ -67,7 +67,7 @@ export const minimalPrototype: Prototype = {
   viewCount: 10,
   goodCount: 1,
   commentCount: 0,
-  releaseFlg: 0,
+  releaseFlg: 2,
   officialLink: '',
 };
 
