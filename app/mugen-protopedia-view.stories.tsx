@@ -40,6 +40,19 @@ const sampleSlots: PrototypeSlot[] = [
   createSlot(3, anniversaryMinimalPrototype),
 ];
 
+// A mix of loaded, loading and errored slots to exercise the grid states.
+const mixedStateSlots: PrototypeSlot[] = [
+  createSlot(1, fullfilledPrototype),
+  { id: 2, isLoading: true, errorMessage: null, expectedPrototypeId: 1002 },
+  {
+    id: 3,
+    isLoading: false,
+    errorMessage: 'Failed to load prototype',
+    expectedPrototypeId: 1003,
+  },
+  createSlot(4, minimalPrototype),
+];
+
 const baseControlPanel: ControlPanelProps = {
   controlPanelMode: 'normal',
   prototypeIdInput: '',
@@ -191,5 +204,40 @@ export const CommandWindowOpen: Story = {
     showCLI: true,
     commandBuffer: ['x', 'm', 'a', 's'],
     controlPanel: { ...baseControlPanel, shortcutsDisabled: true },
+  },
+};
+
+/** Grid with loaded, loading and errored slots side by side. */
+export const MixedSlotStates: Story = {
+  args: {
+    prototypeSlots: mixedStateSlots,
+    currentFocusIndex: 0,
+    dashboard: {
+      prototypeCount: mixedStateSlots.length,
+      inFlightRequests: 1,
+      maxConcurrentFetches: 6,
+    },
+  },
+};
+
+/** Unleashed play mode (theme overlay + no simulated delay). */
+export const UnleashedMode: Story = {
+  args: {
+    playModeState: { type: 'unleashed' },
+    delayLevel: 'UNLEASHED',
+  },
+};
+
+/** Dev play mode. */
+export const DevMode: Story = {
+  args: {
+    playModeState: { type: 'dev' },
+  },
+};
+
+/** Christmas play mode (seasonal theme overlay). */
+export const XmasMode: Story = {
+  args: {
+    playModeState: { type: 'xmas' },
   },
 };
