@@ -1,8 +1,7 @@
-'use client';
-
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
@@ -60,6 +59,7 @@ export function useCommandWindow({
   const [sequenceBuffer, setSequenceBuffer] = useState<string[]>([]);
   const [matchedCommand, setMatchedCommand] =
     useState<SpecialSequenceMatch | null>(null);
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleSpecialSequenceMatch = useCallback(
     (match: SpecialSequenceMatch) => {
@@ -76,14 +76,30 @@ export function useCommandWindow({
       } else if (match.name === 'rendezvous') {
         setPlayModeState({ type: 'dev' });
       }
-      // Reset matched state after animation
-      setTimeout(() => {
+
+      // Reset matched state after animation. Clear any pending reset first so a
+      // rapid second match does not get its display closed early by the first
+      // match's timer.
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+      }
+      resetTimeoutRef.current = setTimeout(() => {
         setMatchedCommand(null);
         setShowCLI(false);
+        resetTimeoutRef.current = null;
       }, 2000);
     },
     [changeDelayLevel, setPlayModeState],
   );
+
+  // Cancel a pending reset timer on unmount so it cannot fire afterwards.
+  useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // DEBUG: Monitor regeneration of handleSpecialSequenceMatch.
   //

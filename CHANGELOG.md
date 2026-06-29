@@ -34,7 +34,9 @@ and this project adheres to [CalVer](https://calver.org/).
   key buffer, the matched-command display, and the Escape-to-close and
   special-sequence handling) out of `MugenProtoPedia` into a
   `useCommandWindow` hook. Step C of decomposing the home page; behavior
-  unchanged. (#168)
+  unchanged. The match-reset `setTimeout` is now tracked in a ref, cleared
+  before re-scheduling, and cancelled on unmount (no stacked timers or
+  post-unmount state updates). (#168)
 
 ## [2026.06.29]
 

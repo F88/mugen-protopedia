@@ -82,4 +82,22 @@ describe('useCommandWindow', () => {
     expect(changeDelayLevel).toHaveBeenCalledTimes(1);
     expect(result.current.matchedCommand?.name).toBe('573');
   });
+
+  it('clears the matched command after the reset delay', () => {
+    // Scoped fake timers (the other tests rely on real timers via waitFor).
+    vi.useFakeTimers();
+    try {
+      const { result } = renderCommandWindow();
+
+      act(() => KSK_KEYS.forEach((key) => triggerKeyDown(key)));
+      expect(result.current.matchedCommand?.name).toBe('ksk');
+      expect(result.current.showCLI).toBe(true);
+
+      act(() => vi.advanceTimersByTime(2000));
+      expect(result.current.matchedCommand).toBeNull();
+      expect(result.current.showCLI).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
