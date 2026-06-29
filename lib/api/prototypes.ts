@@ -1,7 +1,9 @@
-import { ResultOfListPrototypesApiResponse } from 'protopedia-api-v2-client';
-import { normalizePrototype as normalizeUpstreamPrototype } from 'promidas/fetcher';
+import {
+  normalizePrototype as normalizeUpstreamPrototype,
+  type UpstreamPrototype,
+} from 'promidas/fetcher';
 
-export type UpstreamPrototype = ResultOfListPrototypesApiResponse;
+export type { UpstreamPrototype };
 
 export type PrototypeForMpp = {
   /* ID */
