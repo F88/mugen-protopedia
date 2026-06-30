@@ -243,11 +243,11 @@ export class PromidasBackedRepository {
    */
   private async ensureReady(): Promise<SnapshotOperationFailure | null> {
     const stats = this.repo.getStats();
-    repoLogger
-      .child({ action: 'ensureReady' })
-      .debug({ ...stats }, 'Snapshot stats');
 
     if (stats.cachedAt === null) {
+      repoLogger
+        .child({ action: 'ensureReady' })
+        .info({ ...stats }, 'Snapshot stats');
       // Single-flight: create the setup once; all concurrent cold reads await it.
       this.setupPromise ??= this.runSetup();
       return this.setupPromise;
@@ -319,6 +319,8 @@ export class PromidasBackedRepository {
     }
 
     const logger = repoLogger.child({ action: 'refreshSnapshot' });
+    logger.info({ ...stats }, 'Snapshot stats');
+
     if (this.refreshPromise) {
       logger.debug('Refresh already in flight; skipping');
       return;
