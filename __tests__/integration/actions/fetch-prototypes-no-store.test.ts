@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { describe, it, expect } from 'vitest';
 
-import { fetchPrototypesViaPromidasNoStoreClient } from '@/app/actions/prototypes-direct';
+import { fetchPrototypesNoStore } from '@/app/actions/prototypes-gateway';
 import { server } from '@/mocks/server';
 
 /**
@@ -14,9 +14,9 @@ import { server } from '@/mocks/server';
  * This verifies that the switch actually fetches and normalizes via promidas,
  * not just that it type-checks.
  */
-describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () => {
+describe('fetchPrototypesNoStore Integration Test (MSW)', () => {
   it('fetches and normalizes prototypes from the snapshot via promidas', async () => {
-    const result = await fetchPrototypesViaPromidasNoStoreClient({ limit: 10 });
+    const result = await fetchPrototypesNoStore({ limit: 10 });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return; // Type guard
@@ -34,7 +34,7 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
   });
 
   it('filters by prototypeId for the SHOW / by-id path', async () => {
-    const result = await fetchPrototypesViaPromidasNoStoreClient({
+    const result = await fetchPrototypesNoStore({
       prototypeId: 1001,
       limit: 1,
       offset: 0,
@@ -50,7 +50,7 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
   it('returns an empty data array for an unknown prototypeId (not found)', async () => {
     // The MSW handler filters by prototypeId, so an unknown id yields no
     // results. getLatestPrototypeById turns this empty array into `null`.
-    const result = await fetchPrototypesViaPromidasNoStoreClient({
+    const result = await fetchPrototypesNoStore({
       prototypeId: 999_999,
       limit: 1,
       offset: 0,
@@ -69,7 +69,7 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
       ),
     );
 
-    const result = await fetchPrototypesViaPromidasNoStoreClient({
+    const result = await fetchPrototypesNoStore({
       prototypeId: 6563,
       limit: 1,
       offset: 0,
@@ -90,7 +90,7 @@ describe('fetchPrototypesViaPromidasNoStoreClient Integration Test (MSW)', () =>
       }),
     );
 
-    await fetchPrototypesViaPromidasNoStoreClient({ limit: 999_999 });
+    await fetchPrototypesNoStore({ limit: 999_999 });
 
     expect(requestedLimit).toBe('10000');
   });

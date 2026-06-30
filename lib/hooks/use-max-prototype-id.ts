@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { getMaxPrototypeId } from '@/app/actions/prototypes';
+import { getMaxPrototypeId } from '@/app/actions/prototypes-gateway';
 import { logger } from '@/lib/logger.client';
 
 /**

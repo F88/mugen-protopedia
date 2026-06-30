@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { getPrototypeNamesFromStore } from '@/app/actions/prototypes-repo';
+import { getPrototypeNames } from '@/app/actions/prototypes-gateway';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -34,7 +34,7 @@ export function PlaylistPreviewCard({
       }
 
       try {
-        const names = await getPrototypeNamesFromStore(uniqueIds);
+        const names = await getPrototypeNames(uniqueIds);
         if (!isCancelled) {
           setNamesById(names);
         }

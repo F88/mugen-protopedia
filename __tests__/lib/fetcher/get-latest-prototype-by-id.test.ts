@@ -1,17 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-import { fetchPrototypesViaPromidasNoStoreClient } from '@/app/actions/prototypes-direct';
+import { fetchPrototypesNoStore } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getLatestPrototypeById } from '@/lib/fetcher/get-latest-prototype-by-id';
 import { logger } from '@/lib/logger.client';
 import { constructDisplayMessage } from '@/lib/network-utils';
 
-vi.mock('@/app/actions/prototypes-direct', () => ({
-  fetchPrototypesViaPromidasNoStoreClient: vi.fn(),
+vi.mock('@/app/actions/prototypes-gateway', () => ({
+  fetchPrototypesNoStore: vi.fn(),
 }));
 
 vi.mock('@/lib/logger.client', () => ({
   logger: {
+    debug: vi.fn(),
     error: vi.fn(),
   },
 }));
@@ -20,10 +21,8 @@ vi.mock('@/lib/network-utils', () => ({
   constructDisplayMessage: vi.fn(),
 }));
 
-const fetchPrototypesViaPromidasNoStoreClientMock =
-  fetchPrototypesViaPromidasNoStoreClient as unknown as ReturnType<
-    typeof vi.fn
-  >;
+const fetchPrototypesNoStoreMock =
+  fetchPrototypesNoStore as unknown as ReturnType<typeof vi.fn>;
 
 const loggerErrorMock = logger.error as unknown as ReturnType<typeof vi.fn>;
 const constructDisplayMessageMock =
@@ -60,7 +59,7 @@ const createPrototype = (
 
 describe('getLatestPrototypeById', () => {
   beforeEach(() => {
-    fetchPrototypesViaPromidasNoStoreClientMock.mockReset();
+    fetchPrototypesNoStoreMock.mockReset();
     loggerErrorMock.mockReset();
     constructDisplayMessageMock.mockReset();
   });
@@ -68,7 +67,7 @@ describe('getLatestPrototypeById', () => {
   it('returns the first prototype when data is non-empty', async () => {
     const prototype = createPrototype({ id: 42 });
 
-    fetchPrototypesViaPromidasNoStoreClientMock.mockResolvedValue({
+    fetchPrototypesNoStoreMock.mockResolvedValue({
       ok: true,
       data: [prototype],
     });
@@ -76,7 +75,7 @@ describe('getLatestPrototypeById', () => {
     const result = await getLatestPrototypeById(42);
 
     expect(result).toEqual(prototype);
-    expect(fetchPrototypesViaPromidasNoStoreClientMock).toHaveBeenCalledWith({
+    expect(fetchPrototypesNoStoreMock).toHaveBeenCalledWith({
       prototypeId: 42,
       limit: 1,
       offset: 0,
@@ -85,7 +84,7 @@ describe('getLatestPrototypeById', () => {
   });
 
   it('returns null when data array is empty', async () => {
-    fetchPrototypesViaPromidasNoStoreClientMock.mockResolvedValue({
+    fetchPrototypesNoStoreMock.mockResolvedValue({
       ok: true,
       data: [],
     });
@@ -93,7 +92,7 @@ describe('getLatestPrototypeById', () => {
     const result = await getLatestPrototypeById(9999);
 
     expect(result).toBeNull();
-    expect(fetchPrototypesViaPromidasNoStoreClientMock).toHaveBeenCalledWith({
+    expect(fetchPrototypesNoStoreMock).toHaveBeenCalledWith({
       prototypeId: 9999,
       limit: 1,
       offset: 0,
@@ -103,7 +102,7 @@ describe('getLatestPrototypeById', () => {
   it('throws an error when the server action fails', async () => {
     constructDisplayMessageMock.mockReturnValue('Something went wrong');
 
-    fetchPrototypesViaPromidasNoStoreClientMock.mockResolvedValue({
+    fetchPrototypesNoStoreMock.mockResolvedValue({
       ok: false,
       status: 503,
       error: 'Service Unavailable',

@@ -1,25 +1,28 @@
 /**
- * Server-side prototype cache backed by PROMIDAS's in-memory Repository.
+ * Server-side prototype repository backed by PROMIDAS's in-memory Repository.
  *
  * #136 / #181: an incremental, drop-in alternative to the app's
- * `prototypeMapStore` + `prototypeRepository` path. Consumers migrate one at a
- * time by switching their import to `app/actions/prototypes-repo.ts`
- * (`prototypes.ts` stays untouched as a fallback). Currently wired: playlist
- * preview name lookups.
+ * `prototypeMapStore` path. Consumers reach it through
+ * `app/actions/prototypes-gateway.ts`, which selects this or the legacy backend
+ * by the `USE_PROMIDAS_REPOSITORY` flag (`prototypes.ts` stays untouched).
+ *
+ * {@link PromidasBackedRepository} is a thin app-level adapter over a PROMIDAS
+ * `ProtopediaInMemoryRepository` (injected via the constructor for testability).
+ * It is NOT an implementation of the app's `PrototypeRepository` interface — its
+ * read surface (`getAllPrototypes` / `getPrototypeNames` / `getMaxPrototypeId`)
+ * differs intentionally.
  *
  * Design (see #181):
- * - Built via `PromidasRepositoryBuilder` as a server-side module singleton,
- *   `enableEvents: false` (events target interactive WebApp UI; not needed here).
  * - The canonical fetch (~24MB for limit=10000) exceeds the Next.js Data Cache
  *   per-entry limit (2MB) and cannot be cached there, so a `no-store` fetch is
  *   injected and the PROMIDAS in-memory snapshot is the SOLE effective cache
  *   (single-layer; freshness governed by the store `ttlMs`).
  *   Data Cache for Next.js:
  *   https://vercel.com/docs/caching/runtime-cache/data-cache
- * - PROMIDAS does NOT auto-refresh; {@link ensureFreshSnapshot} replicates the
- *   current stale-while-revalidate behavior (block only on cold start; serve
- *   stale + non-awaited background refresh on expiry). Concurrent refreshes are
- *   coalesced by PROMIDAS internally.
+ * - PROMIDAS does NOT auto-refresh; `ensureFreshSnapshot` replicates the current
+ *   stale-while-revalidate behavior (block only on cold start; serve stale +
+ *   non-awaited background refresh on expiry). Concurrent refreshes are coalesced
+ *   by PROMIDAS internally.
  */
 import { PromidasRepositoryBuilder } from 'promidas';
 import type {
@@ -41,7 +44,7 @@ import type { FetchPrototypesResult } from '@/types/prototype-api.types';
 
 /**
  * Module-scoped logger: every line carries `module: 'promidas-repository'`.
- * Each function derives a child with its own `action` for filterable logs.
+ * Each method derives a child with its own `action` for filterable logs.
  */
 const repoLogger = baseLogger.child({ module: 'promidas-repository' });
 
@@ -67,6 +70,12 @@ const STORE_MAX_DATA_SIZE_BYTES = LIMIT_DATA_SIZE_BYTES;
 const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
 /** Canonical snapshot size (matches the current canonical fetch). */
 const CANONICAL_LIMIT = 10_000;
+/**
+ * Minimum interval between background refresh attempts on an expired snapshot.
+ * Bounds the retry rate so a burst of expired reads (e.g. playlist typing)
+ * during a fast upstream failure cannot trigger a refresh storm. Tunable.
+ */
+const REFRESH_COOLDOWN_MS = 60_000;
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
@@ -183,9 +192,6 @@ export function buildPromidasRepository(options?: {
     .build();
 }
 
-/** Server-side module singleton. */
-export const promidasRepository = buildPromidasRepository();
-
 const mapFailureStatus = (failure: SnapshotOperationFailure): number => {
   if (failure.origin === 'fetcher') {
     return failure.status ?? 503;
@@ -194,34 +200,84 @@ const mapFailureStatus = (failure: SnapshotOperationFailure): number => {
 };
 
 /**
- * Replicate the current stale-while-revalidate behavior:
- * - empty snapshot (cold start) → `await setupSnapshot` (the only blocking case)
- * - expired & non-empty → non-awaited `refreshSnapshot` (serve stale meanwhile)
+ * App-level read adapter over a PROMIDAS `ProtopediaInMemoryRepository`.
  *
- * Returns the failure when the cold-start setup fails, otherwise `null`.
+ * Owns the snapshot lifecycle so reads do not have to: every read goes through
+ * {@link ensureReady}, which on a cold start awaits a SINGLE shared setup
+ * (concurrent reads coalesce onto one `setupSnapshot` at the app level, instead
+ * of each firing its own and relying on PROMIDAS's internal dedupe), and on
+ * expiry fires a bounded background refresh (single-flight + cooldown) while
+ * serving stale data.
+ *
+ * The repo is injected via the constructor so tests can build isolated repos
+ * (cold / populated / expired) per case; production uses the
+ * {@link promidasBackedRepository} singleton.
  */
-export async function ensureFreshSnapshot(
-  repo: ProtopediaInMemoryRepository,
-): Promise<SnapshotOperationFailure | null> {
-  const logger = repoLogger.child({ action: 'ensureFreshSnapshot' });
-  const stats = repo.getStats();
+export class PromidasBackedRepository {
+  /**
+   * In-flight cold-start setup, shared by all concurrent reads (single-flight):
+   * the first cold read creates it, the rest await the same promise, so
+   * `setupSnapshot` runs at most once. Cleared on settle so a failed setup can
+   * be retried by a later read.
+   */
+  private setupPromise: Promise<SnapshotOperationFailure | null> | null = null;
 
-  logger.debug({ ...stats }, 'Snapshot stats');
+  /** In-flight background refresh, if any (single-flight, non-blocking). */
+  private refreshPromise: Promise<void> | null = null;
 
-  if (stats.cachedAt === null) {
-    logger.info('Snapshot empty; setting up (cold start, blocking)');
-    const result = await repo.setupSnapshot({
-      limit: CANONICAL_LIMIT,
-      offset: 0,
-    });
+  /** Epoch ms of the last refresh attempt; rate-limits the expired branch. */
+  private lastRefreshAttemptAt = 0;
 
-    if (result.ok) {
-      logger.info(
-        { size: result.stats.size, cachedAt: result.stats.cachedAt },
-        'Snapshot setup completed',
-      );
-      return null;
-    } else {
+  constructor(private readonly repo: ProtopediaInMemoryRepository) {}
+
+  /**
+   * Readiness: ensure the snapshot HAS data to read. On a cold start (empty),
+   * await a SINGLE shared `setupSnapshot` (the only blocking case; concurrent
+   * reads coalesce onto one setup at the app level); otherwise return at once.
+   * This does NOT concern freshness — a non-empty-but-expired snapshot is
+   * "ready" (readable) and left to {@link revalidateIfStale}.
+   *
+   * Returns the failure when the cold-start setup fails, otherwise `null`.
+   */
+  private async ensureReady(): Promise<SnapshotOperationFailure | null> {
+    const stats = this.repo.getStats();
+    repoLogger
+      .child({ action: 'ensureReady' })
+      .debug({ ...stats }, 'Snapshot stats');
+
+    if (stats.cachedAt === null) {
+      // Single-flight: create the setup once; all concurrent cold reads await it.
+      this.setupPromise ??= this.runSetup();
+      return this.setupPromise;
+    }
+
+    return null;
+  }
+
+  /**
+   * Run the cold-start setup once, clearing `setupPromise` on settle: on success
+   * the snapshot is warm (so `ensureReady` skips the cold branch anyway); on
+   * failure it stays cold, so clearing lets the next read retry instead of
+   * replaying the cached failure forever.
+   */
+  private runSetup(): Promise<SnapshotOperationFailure | null> {
+    const logger = repoLogger.child({ action: 'setupSnapshot' });
+    logger.info(
+      'Snapshot empty; setting up (cold start, blocking, single-flight)',
+    );
+
+    const run = (async (): Promise<SnapshotOperationFailure | null> => {
+      const result = await this.repo.setupSnapshot({
+        limit: CANONICAL_LIMIT,
+        offset: 0,
+      });
+      if (result.ok) {
+        logger.info(
+          { size: result.stats.size, cachedAt: result.stats.cachedAt },
+          'Snapshot setup completed',
+        );
+        return null;
+      }
       const parsed = parseSnapshotOperationFailure(result);
       logger.error(
         {
@@ -231,128 +287,178 @@ export async function ensureFreshSnapshot(
         'Snapshot setup failed (cold start)',
       );
       return result;
-    }
-  }
+    })();
 
-  if (stats.isExpired) {
-    logger.info(
-      { size: stats.size, cachedAt: stats.cachedAt },
-      'Snapshot expired; scheduling background refresh (serving stale)',
-    );
-    // TODO(#181): this fires a refresh per request while expired. PROMIDAS
-    // coalescing dedupes *overlapping* refreshes, but rapid sequential requests
-    // from a single client (e.g. playlist typing) during a FAST upstream
-    // failure can each trigger a failing refresh. Consider a per-repo cooldown
-    // (minimum refresh interval) on this branch to bound the retry rate.
-    void repo.refreshSnapshot().catch((error: unknown) => {
-      logger.warn({ error }, 'background refreshSnapshot failed');
+    void run.finally(() => {
+      this.setupPromise = null;
     });
-  } else {
-    logger.debug({ size: stats.size }, 'Snapshot fresh; no refresh needed');
+
+    return run;
   }
 
-  return null;
-}
-
-/**
- * Run a snapshot read after ensuring the snapshot is fresh. Centralizes the
- * "always ensure before reading" rule for every read path: `read` receives the
- * cold-start failure (null on success) so Result-style callers can map it to an
- * error while best-effort callers ignore it.
- */
-async function withFreshSnapshot<T>(
-  repo: ProtopediaInMemoryRepository,
-  read: (failure: SnapshotOperationFailure | null) => Promise<T>,
-): Promise<T> {
-  const failure = await ensureFreshSnapshot(repo);
-  return read(failure);
-}
-
-/**
- * Fetch all prototypes via the PROMIDAS Repository, mapped to the app's
- * {@link FetchPrototypesResult} contract.
- */
-export async function getAllPrototypesFromRepo(
-  repo: ProtopediaInMemoryRepository,
-): Promise<FetchPrototypesResult> {
-  const logger = repoLogger.child({ action: 'getAllPrototypesFromRepo' });
-  return withFreshSnapshot(repo, async (failure) => {
-    if (failure) {
-      const status = mapFailureStatus(failure);
-      logger.warn(
-        { status, origin: failure.origin },
-        'Failed to ensure snapshot; returning error result',
-      );
-      return { ok: false, status, error: toLocalizedMessage(failure) };
+  /**
+   * Freshness: if the snapshot is non-empty but expired, fire a background
+   * refresh (stale-while-revalidate). Non-blocking — callers keep serving the
+   * stale snapshot. Fires at most one-at-a-time (single-flight) and no more
+   * often than {@link REFRESH_COOLDOWN_MS}, so a burst of expired reads during a
+   * fast upstream failure cannot trigger a refresh storm. No-op when the
+   * snapshot is empty (readiness is {@link ensureReady}'s job) or still fresh.
+   */
+  private revalidateIfStale(): void {
+    const stats = this.repo.getStats();
+    if (stats.cachedAt === null || !stats.isExpired) {
+      return;
     }
-    const data = await repo.getAllFromSnapshot();
-    logger.debug(
-      { count: data.length },
-      'Returning all prototypes from snapshot',
-    );
-    return { ok: true, data: [...data] };
-  });
-}
 
-/**
- * Resolve prototype names for the given ids. Awaits the snapshot setup on cold
- * start so the first lookup returns names (concurrent callers coalesce onto a
- * single fetch); serves stale data while refreshing in the background when
- * expired. Missing ids are omitted (sparse result).
- */
-export async function getPrototypeNamesFromRepo(
-  repo: ProtopediaInMemoryRepository,
-  ids: number[],
-): Promise<Record<number, string>> {
-  if (!Array.isArray(ids) || ids.length === 0) {
-    return {};
+    const logger = repoLogger.child({ action: 'refreshSnapshot' });
+    if (this.refreshPromise) {
+      logger.debug('Refresh already in flight; skipping');
+      return;
+    }
+    const now = Date.now();
+    if (now - this.lastRefreshAttemptAt < REFRESH_COOLDOWN_MS) {
+      logger.debug('Within refresh cooldown; skipping');
+      return;
+    }
+    this.lastRefreshAttemptAt = now;
+    logger.info(
+      { size: stats.size },
+      'Snapshot expired; refreshing in background (serving stale)',
+    );
+    this.refreshPromise = this.repo
+      .refreshSnapshot()
+      .then(() => undefined)
+      .catch((error: unknown) => {
+        logger.warn({ error }, 'background refreshSnapshot failed');
+      })
+      .finally(() => {
+        this.refreshPromise = null;
+      });
   }
 
-  const logger = repoLogger.child({ action: 'getPrototypeNamesFromRepo' });
+  /**
+   * Run a snapshot read with the snapshot made readable: block on cold start
+   * ({@link ensureReady}), then kick a background revalidation if stale
+   * ({@link revalidateIfStale}) before reading. `read` receives the cold-start
+   * failure (null on success) so Result-style callers can map it to an error
+   * while best-effort callers ignore it.
+   */
+  private async withReadySnapshot<T>(
+    read: (failure: SnapshotOperationFailure | null) => Promise<T>,
+  ): Promise<T> {
+    const failure = await this.ensureReady();
+    this.revalidateIfStale();
+    return read(failure);
+  }
 
-  // Dedupe only — do NOT pre-validate ids here. promidas is the single source of
-  // id validation; the per-id lookup below catches anything it rejects (and logs
-  // it), so a redundant filter would only hide bad input.
-  const uniqueIds = Array.from(new Set(ids));
-
-  // Best-effort: ignore the cold-start failure (an empty snapshot simply yields
-  // no names). withFreshSnapshot still blocks on cold start so the first lookup
-  // populates and resolves; expired serves stale + refreshes in the background.
-  return withFreshSnapshot(repo, async () => {
-    // Resolve each id via the snapshot's O(1) by-id lookup, avoiding the cost of
-    // materializing the full snapshot array + a Map just to read a few names.
-    // Isolate each lookup: promidas THROWS on an id it rejects (e.g. beyond the
-    // safe-integer range), and a single bad id must not reject the whole batch
-    // (best-effort), so catch it and omit that id.
-    const entries = await Promise.all(
-      uniqueIds.map(async (id) => {
-        try {
-          const prototype =
-            await repo.getPrototypeFromSnapshotByPrototypeId(id);
-          return [id, prototype?.prototypeNm] as const;
-        } catch (error) {
-          logger.warn({ id, error }, 'Skipping id rejected by snapshot lookup');
-          return [id, undefined] as const;
-        }
-      }),
-    );
-
-    const result: Record<number, string> = {};
-    for (const [id, name] of entries) {
-      if (name !== undefined) {
-        result[id] = name;
+  /** Fetch all prototypes, mapped to the app's {@link FetchPrototypesResult}. */
+  async getAllPrototypes(): Promise<FetchPrototypesResult> {
+    const logger = repoLogger.child({ action: 'getAllPrototypes' });
+    return this.withReadySnapshot(async (failure) => {
+      if (failure) {
+        const status = mapFailureStatus(failure);
+        logger.warn(
+          { status, origin: failure.origin },
+          'Failed to ensure snapshot; returning error result',
+        );
+        return { ok: false, status, error: toLocalizedMessage(failure) };
       }
+      const data = await this.repo.getAllFromSnapshot();
+      logger.debug(
+        { count: data.length },
+        'Returning all prototypes from snapshot',
+      );
+      return { ok: true, data: [...data] };
+    });
+  }
+
+  /**
+   * Resolve prototype names for the given ids. Awaits the snapshot setup on cold
+   * start so the first lookup returns names (concurrent callers coalesce onto a
+   * single fetch); serves stale data while refreshing in the background when
+   * expired. Missing ids are omitted (sparse result).
+   */
+  async getPrototypeNames(ids: number[]): Promise<Record<number, string>> {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return {};
     }
 
-    logger.debug(
-      {
-        requested: uniqueIds.length,
-        found: Object.keys(result).length,
-        names: result,
-      },
-      'Returning snapshot names',
-    );
+    const logger = repoLogger.child({ action: 'getPrototypeNames' });
 
-    return result;
-  });
+    // Dedupe only — do NOT pre-validate ids here. PROMIDAS is the single source
+    // of id validation; the per-id lookup below catches anything it rejects (and
+    // logs it), so a redundant filter would only hide bad input.
+    const uniqueIds = Array.from(new Set(ids));
+
+    // Best-effort: ignore the cold-start failure (an empty snapshot simply
+    // yields no names). withReadySnapshot still blocks on cold start so the
+    // first lookup populates and resolves; expired serves stale + revalidates in
+    // the background.
+    return this.withReadySnapshot(async () => {
+      // Resolve each id via the snapshot's O(1) by-id lookup, avoiding the cost
+      // of materializing the full snapshot array + a Map just to read a few
+      // names. Isolate each lookup: PROMIDAS THROWS on an id it rejects (e.g.
+      // beyond the safe-integer range), and a single bad id must not reject the
+      // whole batch (best-effort), so catch it and omit that id.
+      const entries = await Promise.all(
+        uniqueIds.map(async (id) => {
+          try {
+            const prototype =
+              await this.repo.getPrototypeFromSnapshotByPrototypeId(id);
+            return [id, prototype?.prototypeNm] as const;
+          } catch (error) {
+            logger.warn(
+              { id, error },
+              'Skipping id rejected by snapshot lookup',
+            );
+            return [id, undefined] as const;
+          }
+        }),
+      );
+
+      const result: Record<number, string> = {};
+      for (const [id, name] of entries) {
+        if (name !== undefined) {
+          result[id] = name;
+        }
+      }
+
+      logger.debug(
+        {
+          requested: uniqueIds.length,
+          found: Object.keys(result).length,
+          names: result,
+        },
+        'Returning snapshot names',
+      );
+
+      return result;
+    });
+  }
+
+  /**
+   * Resolve the maximum prototype id via `analyzePrototypes`. Blocks on cold
+   * start (through {@link ensureReady}) so the first call returns the real max
+   * rather than `null` — otherwise the only consumer (`useMaxPrototypeId`, which
+   * reads once on mount) would latch onto the fallback for the whole session.
+   * Returns `null` only when the cold-start setup fails (snapshot stays empty);
+   * the caller falls back to a default in that case.
+   */
+  async getMaxPrototypeId(): Promise<number | null> {
+    const logger = repoLogger.child({ action: 'getMaxPrototypeId' });
+    // Ignore the failure value (best-effort): on setup failure the snapshot is
+    // empty and analyzePrototypes yields null, which maps to the caller's
+    // fallback. ensureReady still blocks on cold so a successful setup resolves
+    // the real max on the first call.
+    return this.withReadySnapshot(async () => {
+      const { max } = await this.repo.analyzePrototypes();
+      logger.debug({ max }, 'Resolved max prototype id from snapshot');
+      return max;
+    });
+  }
 }
+
+/** Server-side singleton. */
+export const promidasBackedRepository = new PromidasBackedRepository(
+  buildPromidasRepository(),
+);
