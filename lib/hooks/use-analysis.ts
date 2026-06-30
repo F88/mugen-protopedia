@@ -72,43 +72,47 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
         { options },
         '[ANALYSIS] useLatestAnalysis - starting fetchLatest',
       );
+      // Keep the try narrow: it wraps only the awaited call that can throw, so
+      // a failure in result handling / setState is not miscaught as a fetch
+      // error. Result handling lives outside the try/catch.
+      let result: Awaited<ReturnType<typeof getLatestAnalysis>>;
       try {
-        const result = await getLatestAnalysis(options);
-
-        const fetchElapsedMs =
-          Math.round((performance.now() - fetchStart) * 100) / 100;
-        clientLogger.debug(
-          { fetchElapsedMs, resultOk: result?.ok ?? false },
-          '[ANALYSIS] useLatestAnalysis - fetchLatest completed',
-        );
-
-        if (signal?.aborted) {
-          return;
-        }
-
-        if (result.ok) {
-          setState({
-            data: result.data,
-            isLoading: false,
-            error: null,
-          });
-        } else {
-          setState({
-            data: null,
-            isLoading: false,
-            error: result.error,
-          });
-        }
+        result = await getLatestAnalysis(options);
       } catch (error) {
         if (signal?.aborted) {
           return;
         }
-
         setState({
           data: null,
           isLoading: false,
           error:
             error instanceof Error ? error.message : 'Unknown error occurred',
+        });
+        return;
+      }
+
+      const fetchElapsedMs =
+        Math.round((performance.now() - fetchStart) * 100) / 100;
+      clientLogger.debug(
+        { fetchElapsedMs, resultOk: result.ok },
+        '[ANALYSIS] useLatestAnalysis - fetchLatest completed',
+      );
+
+      if (signal?.aborted) {
+        return;
+      }
+
+      if (result.ok) {
+        setState({
+          data: result.data,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        setState({
+          data: null,
+          isLoading: false,
+          error: result.error,
         });
       }
     },
@@ -175,37 +179,40 @@ export function useAllAnalyses(): AnalysisHookState<GetAllAnalysesResult> {
   const performFetchAll = useCallback(async (signal?: AbortSignal) => {
     const fetchStart = performance.now();
     clientLogger.debug('[ANALYSIS] useAllAnalyses - starting fetchAll');
+    // Keep the try narrow: it wraps only the awaited call that can throw, so a
+    // failure in result handling / setState is not miscaught as a fetch error.
+    let result: GetAllAnalysesResult;
     try {
-      const result = await getAllAnalyses();
-
-      const fetchElapsedMs =
-        Math.round((performance.now() - fetchStart) * 100) / 100;
-      clientLogger.debug(
-        { fetchElapsedMs },
-        '[ANALYSIS] useAllAnalyses - fetchAll completed',
-      );
-
-      if (signal?.aborted) {
-        return;
-      }
-
-      setState({
-        data: result,
-        isLoading: false,
-        error: null,
-      });
+      result = await getAllAnalyses();
     } catch (error) {
       if (signal?.aborted) {
         return;
       }
-
       setState({
         data: null,
         isLoading: false,
         error:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });
+      return;
     }
+
+    const fetchElapsedMs =
+      Math.round((performance.now() - fetchStart) * 100) / 100;
+    clientLogger.debug(
+      { fetchElapsedMs },
+      '[ANALYSIS] useAllAnalyses - fetchAll completed',
+    );
+
+    if (signal?.aborted) {
+      return;
+    }
+
+    setState({
+      data: result,
+      isLoading: false,
+      error: null,
+    });
   }, []);
 
   useEffect(() => {

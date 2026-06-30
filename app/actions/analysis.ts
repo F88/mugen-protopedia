@@ -7,7 +7,7 @@
  * allowing WebApp components to retrieve analysis insights without re-computation.
  */
 
-import { getAllPrototypesFromMapOrFetch } from '@/app/actions/prototypes';
+import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
 import { logger as baseLogger } from '@/lib/logger.server';
 import {
   analysisCache,
@@ -216,7 +216,7 @@ export async function getLatestAnalysis(options?: {
         : 'No cached analysis found, attempting to hydrate from prototype map',
     );
 
-    const hydrateResult = await getAllPrototypesFromMapOrFetch();
+    const hydrateResult = await getAllPrototypes();
     const hydrationElapsedMs =
       Math.round((performance.now() - hydrationStart) * 100) / 100;
 
@@ -301,12 +301,15 @@ export async function getLatestAnalysis(options?: {
       'Prototype analysis completed (timezone + summary)',
     );
   }
-  logAnalysisDebugSample(
-    logger,
-    cached.analysis,
-    'Returning latest analysis payload',
-    'Failed to build debug sample for latest analysis',
-  );
+
+  // Temporaly disabled (do not remove) because it is too verbose for production logs, but useful for debugging.
+  //
+  // logAnalysisDebugSample(
+  //   logger,
+  //   cached.analysis,
+  //   'Returning latest analysis payload',
+  //   'Failed to build debug sample for latest analysis',
+  // );
   return {
     ok: true,
     data: cached.analysis,
