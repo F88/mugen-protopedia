@@ -1,7 +1,5 @@
-import {
-  fetchRandomPrototype,
-  getRandomPrototypeFromMapOrFetch,
-} from '@/app/actions/prototypes';
+import { fetchRandomPrototype } from '@/app/actions/prototypes';
+import { getRandomPrototype } from '@/app/actions/prototypes-gateway';
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger } from '@/lib/logger.client';
@@ -14,7 +12,7 @@ export const getRandomPrototypeData =
   async (): Promise<PrototypeForMpp | null> => {
     // logger.debug('getRandomPrototypeData called');
 
-    const mapResult = await getRandomPrototypeFromMapOrFetch();
+    const mapResult = await getRandomPrototype();
 
     if (mapResult.ok) {
       return mapResult.data;

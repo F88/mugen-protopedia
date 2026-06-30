@@ -39,9 +39,13 @@ import {
   toLocalizedMessage,
 } from 'promidas-utils/repository';
 
+import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.server';
 import { promidasLogger } from '@/lib/promidas-logger';
-import type { FetchPrototypesResult } from '@/types/prototype-api.types';
+import type {
+  FetchPrototypesResult,
+  FetchRandomPrototypeResult,
+} from '@/types/prototype-api.types';
 
 /**
  * Module-scoped logger: every line carries `module: 'promidas-repository'`.
@@ -380,6 +384,82 @@ export class PromidasBackedRepository {
   }
 
   /**
+   * Resolve a single prototype by id from the snapshot (cached by-id). Blocks on
+   * cold start via `withReadySnapshot`; the snapshot is the complete dataset, so
+   * a miss is simply `null` (no fallback fetch — that is the SHOW path's job).
+   * Returns `null` for an id promidas rejects (caught + logged), so a bad id
+   * never throws for the caller.
+   */
+  async getPrototypeById(id: number): Promise<PrototypeForMpp | null> {
+    const logger = repoLogger.child({ action: 'getPrototypeById' });
+    return this.withReadySnapshot(async () => {
+      try {
+        const prototype =
+          await this.repo.getPrototypeFromSnapshotByPrototypeId(id);
+        logger.debug(
+          { id, found: prototype != null },
+          'Resolved prototype by id from snapshot',
+        );
+        return prototype;
+      } catch (error) {
+        logger.warn({ id, error }, 'Skipping id rejected by snapshot lookup');
+        return null;
+      }
+    });
+  }
+
+  /**
+   * Pick a random prototype from the snapshot, mapped to the legacy
+   * {@link FetchRandomPrototypeResult} contract. A cold-start setup failure
+   * becomes a failure Result (mirroring getAllPrototypes); an empty snapshot
+   * becomes a 404, matching the legacy `getRandomPrototypeFromMapOrFetch`.
+   */
+  async getRandomPrototype(): Promise<FetchRandomPrototypeResult> {
+    const logger = repoLogger.child({ action: 'getRandomPrototype' });
+    return this.withReadySnapshot(async (failure) => {
+      if (failure) {
+        const status = mapFailureStatus(failure);
+        logger.warn(
+          { status, origin: failure.origin },
+          'Failed to ensure snapshot; returning error result',
+        );
+        return { ok: false, status, error: toLocalizedMessage(failure) };
+      }
+      const prototype = await this.repo.getRandomPrototypeFromSnapshot();
+      if (prototype == null) {
+        logger.warn('Snapshot empty; no random prototype available');
+        return { ok: false, status: 404, error: 'No prototypes available' };
+      }
+      logger.debug(
+        { id: prototype.id },
+        'Returning random prototype from snapshot',
+      );
+      return { ok: true, data: prototype };
+    });
+  }
+
+  /**
+   * Resolve the maximum prototype id via `analyzePrototypes`. Blocks on cold
+   * start (through {@link ensureReady}) so the first call returns the real max
+   * rather than `null` — otherwise the only consumer (`useMaxPrototypeId`, which
+   * reads once on mount) would latch onto the fallback for the whole session.
+   * Returns `null` only when the cold-start setup fails (snapshot stays empty);
+   * the caller falls back to a default in that case.
+   */
+  async getMaxPrototypeId(): Promise<number | null> {
+    const logger = repoLogger.child({ action: 'getMaxPrototypeId' });
+    // Ignore the failure value (best-effort): on setup failure the snapshot is
+    // empty and analyzePrototypes yields null, which maps to the caller's
+    // fallback. ensureReady still blocks on cold so a successful setup resolves
+    // the real max on the first call.
+    return this.withReadySnapshot(async () => {
+      const { max } = await this.repo.analyzePrototypes();
+      logger.debug({ max }, 'Resolved max prototype id from snapshot');
+      return max;
+    });
+  }
+
+  /**
    * Resolve prototype names for the given ids. Awaits the snapshot setup on cold
    * start so the first lookup returns names (concurrent callers coalesce onto a
    * single fetch); serves stale data while refreshing in the background when
@@ -440,27 +520,6 @@ export class PromidasBackedRepository {
       );
 
       return result;
-    });
-  }
-
-  /**
-   * Resolve the maximum prototype id via `analyzePrototypes`. Blocks on cold
-   * start (through {@link ensureReady}) so the first call returns the real max
-   * rather than `null` — otherwise the only consumer (`useMaxPrototypeId`, which
-   * reads once on mount) would latch onto the fallback for the whole session.
-   * Returns `null` only when the cold-start setup fails (snapshot stays empty);
-   * the caller falls back to a default in that case.
-   */
-  async getMaxPrototypeId(): Promise<number | null> {
-    const logger = repoLogger.child({ action: 'getMaxPrototypeId' });
-    // Ignore the failure value (best-effort): on setup failure the snapshot is
-    // empty and analyzePrototypes yields null, which maps to the caller's
-    // fallback. ensureReady still blocks on cold so a successful setup resolves
-    // the real max on the first call.
-    return this.withReadySnapshot(async () => {
-      const { max } = await this.repo.analyzePrototypes();
-      logger.debug({ max }, 'Resolved max prototype id from snapshot');
-      return max;
     });
   }
 }

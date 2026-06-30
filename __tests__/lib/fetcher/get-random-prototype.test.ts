@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  fetchRandomPrototype,
-  getRandomPrototypeFromMapOrFetch,
-} from '@/app/actions/prototypes';
+import { fetchRandomPrototype } from '@/app/actions/prototypes';
+import { getRandomPrototype } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 import { logger } from '@/lib/logger.client';
@@ -11,7 +9,10 @@ import { constructDisplayMessage } from '@/lib/network-utils';
 
 vi.mock('@/app/actions/prototypes', () => ({
   fetchRandomPrototype: vi.fn(),
-  getRandomPrototypeFromMapOrFetch: vi.fn(),
+}));
+
+vi.mock('@/app/actions/prototypes-gateway', () => ({
+  getRandomPrototype: vi.fn(),
 }));
 
 vi.mock('@/lib/logger.client', () => ({
@@ -24,8 +25,9 @@ vi.mock('@/lib/network-utils', () => ({
   constructDisplayMessage: vi.fn(),
 }));
 
-const getRandomPrototypeFromMapOrFetchMock =
-  getRandomPrototypeFromMapOrFetch as unknown as ReturnType<typeof vi.fn>;
+const getRandomPrototypeMock = getRandomPrototype as unknown as ReturnType<
+  typeof vi.fn
+>;
 const fetchRandomPrototypeMock = fetchRandomPrototype as unknown as ReturnType<
   typeof vi.fn
 >;
@@ -64,7 +66,7 @@ const createPrototype = (
 
 describe('getRandomPrototypeData', () => {
   beforeEach(() => {
-    getRandomPrototypeFromMapOrFetchMock.mockReset();
+    getRandomPrototypeMock.mockReset();
     fetchRandomPrototypeMock.mockReset();
     loggerErrorMock.mockReset();
     constructDisplayMessageMock.mockReset();
@@ -73,7 +75,7 @@ describe('getRandomPrototypeData', () => {
   it('returns map-store result when available', async () => {
     const prototype = createPrototype({ id: 10 });
 
-    getRandomPrototypeFromMapOrFetchMock.mockResolvedValue({
+    getRandomPrototypeMock.mockResolvedValue({
       ok: true,
       data: prototype,
     });
@@ -81,13 +83,13 @@ describe('getRandomPrototypeData', () => {
     const result = await getRandomPrototypeData();
 
     expect(result).toEqual(prototype);
-    expect(getRandomPrototypeFromMapOrFetchMock).toHaveBeenCalled();
+    expect(getRandomPrototypeMock).toHaveBeenCalled();
     expect(fetchRandomPrototypeMock).not.toHaveBeenCalled();
     expect(loggerErrorMock).not.toHaveBeenCalled();
   });
 
   it('returns null when map-store returns 404', async () => {
-    getRandomPrototypeFromMapOrFetchMock.mockResolvedValue({
+    getRandomPrototypeMock.mockResolvedValue({
       ok: false,
       status: 404,
       error: 'Not Found',
@@ -102,7 +104,7 @@ describe('getRandomPrototypeData', () => {
   it('falls back to fetchRandomPrototype on 503 from map-store', async () => {
     const prototype = createPrototype({ id: 20 });
 
-    getRandomPrototypeFromMapOrFetchMock.mockResolvedValue({
+    getRandomPrototypeMock.mockResolvedValue({
       ok: false,
       status: 503,
       error: 'Service Unavailable',
@@ -123,7 +125,7 @@ describe('getRandomPrototypeData', () => {
   });
 
   it('throws when map-store fails with non-503 error', async () => {
-    getRandomPrototypeFromMapOrFetchMock.mockResolvedValue({
+    getRandomPrototypeMock.mockResolvedValue({
       ok: false,
       status: 500,
       error: 'Internal Error',
@@ -150,7 +152,7 @@ describe('getRandomPrototypeData', () => {
   });
 
   it('throws when fallback fetchRandomPrototype fails', async () => {
-    getRandomPrototypeFromMapOrFetchMock.mockResolvedValue({
+    getRandomPrototypeMock.mockResolvedValue({
       ok: false,
       status: 503,
       error: 'Service Unavailable',

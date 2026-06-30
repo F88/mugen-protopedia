@@ -13,6 +13,10 @@ const mocks = vi.hoisted(() => ({
   allFromMapStore: vi.fn(),
   maxFromRepo: vi.fn(),
   maxFromMapStore: vi.fn(),
+  byIdFromRepo: vi.fn(),
+  byIdFromLegacy: vi.fn(),
+  randomFromRepo: vi.fn(),
+  randomFromMapStore: vi.fn(),
 }));
 
 vi.mock('@/lib/repositories/promidas-repository', () => ({
@@ -20,19 +24,28 @@ vi.mock('@/lib/repositories/promidas-repository', () => ({
     getPrototypeNames: mocks.namesFromRepo,
     getAllPrototypes: mocks.allFromRepo,
     getMaxPrototypeId: mocks.maxFromRepo,
+    getPrototypeById: mocks.byIdFromRepo,
+    getRandomPrototype: mocks.randomFromRepo,
   },
+}));
+
+vi.mock('@/lib/repositories/prototype-repository', () => ({
+  prototypeRepository: { getByPrototypeId: mocks.byIdFromLegacy },
 }));
 
 vi.mock('@/app/actions/prototypes', () => ({
   getPrototypeNamesFromStore: mocks.namesFromMapStore,
   getAllPrototypesFromMapOrFetch: mocks.allFromMapStore,
   getMaxPrototypeId: mocks.maxFromMapStore,
+  getRandomPrototypeFromMapOrFetch: mocks.randomFromMapStore,
 }));
 
 import {
   getAllPrototypes,
   getMaxPrototypeId,
+  getPrototypeById,
   getPrototypeNames,
+  getRandomPrototype,
 } from '@/app/actions/prototypes-gateway';
 
 describe('prototypes-gateway flag dispatch', () => {
@@ -116,6 +129,69 @@ describe('prototypes-gateway flag dispatch', () => {
       expect(result).toBe(7926);
       expect(mocks.maxFromMapStore).toHaveBeenCalledWith();
       expect(mocks.maxFromRepo).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getPrototypeById', () => {
+    it('routes to the promidas repository when the flag is enabled', async () => {
+      process.env.USE_PROMIDAS_REPOSITORY = 'true';
+      mocks.byIdFromRepo.mockResolvedValue({ id: 1001 });
+
+      const result = await getPrototypeById(1001);
+
+      expect(result).toEqual({ id: 1001 });
+      expect(mocks.byIdFromRepo).toHaveBeenCalledWith(1001);
+      expect(mocks.byIdFromLegacy).not.toHaveBeenCalled();
+    });
+
+    it('delegates to the legacy repository when the flag is disabled (default)', async () => {
+      delete process.env.USE_PROMIDAS_REPOSITORY;
+      mocks.byIdFromLegacy.mockResolvedValue({ id: 2002 });
+
+      const result = await getPrototypeById(2002);
+
+      expect(result).toEqual({ id: 2002 });
+      expect(mocks.byIdFromLegacy).toHaveBeenCalledWith(2002);
+      expect(mocks.byIdFromRepo).not.toHaveBeenCalled();
+    });
+
+    it('normalizes a not-found result to undefined for both backends', async () => {
+      // promidas resolves null on miss -> normalized to undefined.
+      process.env.USE_PROMIDAS_REPOSITORY = 'true';
+      mocks.byIdFromRepo.mockResolvedValue(null);
+      expect(await getPrototypeById(404)).toBeUndefined();
+
+      // legacy already resolves undefined on miss -> passed through.
+      delete process.env.USE_PROMIDAS_REPOSITORY;
+      mocks.byIdFromLegacy.mockResolvedValue(undefined);
+      expect(await getPrototypeById(404)).toBeUndefined();
+    });
+  });
+
+  describe('getRandomPrototype', () => {
+    it('routes to the promidas repository when the flag is enabled', async () => {
+      process.env.USE_PROMIDAS_REPOSITORY = 'true';
+      mocks.randomFromRepo.mockResolvedValue({ ok: true, data: { id: 1001 } });
+
+      const result = await getRandomPrototype();
+
+      expect(result).toEqual({ ok: true, data: { id: 1001 } });
+      expect(mocks.randomFromRepo).toHaveBeenCalledWith();
+      expect(mocks.randomFromMapStore).not.toHaveBeenCalled();
+    });
+
+    it('delegates to the legacy map-store when the flag is disabled (default)', async () => {
+      delete process.env.USE_PROMIDAS_REPOSITORY;
+      mocks.randomFromMapStore.mockResolvedValue({
+        ok: true,
+        data: { id: 2002 },
+      });
+
+      const result = await getRandomPrototype();
+
+      expect(result).toEqual({ ok: true, data: { id: 2002 } });
+      expect(mocks.randomFromMapStore).toHaveBeenCalledWith();
+      expect(mocks.randomFromRepo).not.toHaveBeenCalled();
     });
   });
 });
