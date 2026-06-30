@@ -3,16 +3,14 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { MockedFunction } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getRandomPrototype } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 import { useRandomPrototype } from '@/lib/hooks/use-random-prototype';
 
-vi.mock('@/lib/fetcher/get-random-prototype');
+vi.mock('@/app/actions/prototypes-gateway');
 
-const mockedGetRandomPrototypeData =
-  getRandomPrototypeData as unknown as MockedFunction<
-    typeof getRandomPrototypeData
-  >;
+const mockedGetRandomPrototype =
+  getRandomPrototype as unknown as MockedFunction<typeof getRandomPrototype>;
 
 describe('useRandomPrototype', () => {
   beforeEach(() => {
@@ -46,7 +44,7 @@ describe('useRandomPrototype', () => {
       materials: [],
     };
 
-    mockedGetRandomPrototypeData.mockResolvedValueOnce(prototype);
+    mockedGetRandomPrototype.mockResolvedValueOnce(prototype);
 
     const { result } = renderHook(() => useRandomPrototype());
 
@@ -57,11 +55,11 @@ describe('useRandomPrototype', () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(mockedGetRandomPrototypeData).toHaveBeenCalledTimes(1);
+    expect(mockedGetRandomPrototype).toHaveBeenCalledTimes(1);
   });
 
   it('returns null and does not set error when no prototype is available', async () => {
-    mockedGetRandomPrototypeData.mockResolvedValueOnce(null);
+    mockedGetRandomPrototype.mockResolvedValueOnce(null);
 
     const { result } = renderHook(() => useRandomPrototype());
 
@@ -72,13 +70,11 @@ describe('useRandomPrototype', () => {
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(mockedGetRandomPrototypeData).toHaveBeenCalledTimes(1);
+    expect(mockedGetRandomPrototype).toHaveBeenCalledTimes(1);
   });
 
   it('sets error state and rethrows when fetcher throws', async () => {
-    mockedGetRandomPrototypeData.mockRejectedValueOnce(
-      new Error('random-failed'),
-    );
+    mockedGetRandomPrototype.mockRejectedValueOnce(new Error('random-failed'));
 
     const { result } = renderHook(() => useRandomPrototype());
 

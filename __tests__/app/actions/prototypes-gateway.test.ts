@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => ({
   byIdFromRepo: vi.fn(),
   byIdFromLegacy: vi.fn(),
   randomFromRepo: vi.fn(),
-  randomFromMapStore: vi.fn(),
+  randomFromLegacy: vi.fn(),
 }));
 
 vi.mock('@/lib/repositories/promidas-repository', () => ({
@@ -33,11 +33,14 @@ vi.mock('@/lib/repositories/prototype-repository', () => ({
   prototypeRepository: { getByPrototypeId: mocks.byIdFromLegacy },
 }));
 
+vi.mock('@/lib/fetcher/get-random-prototype', () => ({
+  getRandomPrototypeData: mocks.randomFromLegacy,
+}));
+
 vi.mock('@/app/actions/prototypes', () => ({
   getPrototypeNamesFromStore: mocks.namesFromMapStore,
   getAllPrototypesFromMapOrFetch: mocks.allFromMapStore,
   getMaxPrototypeId: mocks.maxFromMapStore,
-  getRandomPrototypeFromMapOrFetch: mocks.randomFromMapStore,
 }));
 
 import {
@@ -171,26 +174,23 @@ describe('prototypes-gateway flag dispatch', () => {
   describe('getRandomPrototype', () => {
     it('routes to the promidas repository when the flag is enabled', async () => {
       process.env.USE_PROMIDAS_REPOSITORY = 'true';
-      mocks.randomFromRepo.mockResolvedValue({ ok: true, data: { id: 1001 } });
+      mocks.randomFromRepo.mockResolvedValue({ id: 1001 });
 
       const result = await getRandomPrototype();
 
-      expect(result).toEqual({ ok: true, data: { id: 1001 } });
+      expect(result).toEqual({ id: 1001 });
       expect(mocks.randomFromRepo).toHaveBeenCalledWith();
-      expect(mocks.randomFromMapStore).not.toHaveBeenCalled();
+      expect(mocks.randomFromLegacy).not.toHaveBeenCalled();
     });
 
-    it('delegates to the legacy map-store when the flag is disabled (default)', async () => {
+    it('delegates to the legacy fetcher when the flag is disabled (default)', async () => {
       delete process.env.USE_PROMIDAS_REPOSITORY;
-      mocks.randomFromMapStore.mockResolvedValue({
-        ok: true,
-        data: { id: 2002 },
-      });
+      mocks.randomFromLegacy.mockResolvedValue({ id: 2002 });
 
       const result = await getRandomPrototype();
 
-      expect(result).toEqual({ ok: true, data: { id: 2002 } });
-      expect(mocks.randomFromMapStore).toHaveBeenCalledWith();
+      expect(result).toEqual({ id: 2002 });
+      expect(mocks.randomFromLegacy).toHaveBeenCalledWith();
       expect(mocks.randomFromRepo).not.toHaveBeenCalled();
     });
   });

@@ -9,8 +9,8 @@
 
 import { useCallback, useState } from 'react';
 
+import { getRandomPrototype as getRandomPrototypeAction } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 
 type RandomPrototypeError = string | null;
 
@@ -48,7 +48,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
       // TryStatement with a finalizer, so setIsLoading(false) is set on both
       // the success and error paths instead of in a finally block.
       try {
-        const result = await getRandomPrototypeData();
+        const result = await getRandomPrototypeAction();
         setIsLoading(false);
         return result;
       } catch (caught) {

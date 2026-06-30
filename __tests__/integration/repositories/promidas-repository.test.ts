@@ -216,12 +216,11 @@ describe('PromidasBackedRepository.getRandomPrototype (MSW)', () => {
 
     const result = await reader.getRandomPrototype();
 
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect([1001, 1002]).toContain(result.data.id);
+    expect(result).not.toBeNull();
+    expect([1001, 1002]).toContain(result?.id);
   });
 
-  it('maps a cold-start setup failure (5xx) to a failure Result', async () => {
+  it('throws when the cold-start setup fails (5xx)', async () => {
     server.use(
       http.get('*/v2/api/prototype/list', () =>
         HttpResponse.json({ message: 'boom' }, { status: 500 }),
@@ -229,11 +228,8 @@ describe('PromidasBackedRepository.getRandomPrototype (MSW)', () => {
     );
 
     const reader = new PromidasBackedRepository(newRepo());
-    const result = await reader.getRandomPrototype();
 
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.status).toBe(500);
+    await expect(reader.getRandomPrototype()).rejects.toThrow();
   });
 });
 

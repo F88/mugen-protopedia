@@ -17,17 +17,16 @@ import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import type {
   FetchPrototypesParams,
   FetchPrototypesResult,
-  FetchRandomPrototypeResult,
 } from '@/types/prototype-api.types';
 
 import {
   getAllPrototypesFromMapOrFetch,
   getMaxPrototypeId as getMaxPrototypeIdFromMapStore,
   getPrototypeNamesFromStore,
-  getRandomPrototypeFromMapOrFetch,
 } from '@/app/actions/prototypes';
 
 import { isPromidasRepositoryEnabled } from '@/lib/feature-flags';
+import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 import { fetchPrototypesViaPromidasNoStore } from '@/lib/promidas-no-store-client';
 import { promidasBackedRepository } from '@/lib/repositories/promidas-repository';
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
@@ -73,15 +72,17 @@ export async function getPrototypeById(
 }
 
 /**
- * Pick a random prototype (cached), returning the legacy
- * `FetchRandomPrototypeResult` contract. Uses the promidas snapshot when
- * `USE_PROMIDAS_REPOSITORY` is enabled, otherwise the legacy map-store path.
+ * Pick a random prototype (cached). Returns `PrototypeForMpp | null` (`null`
+ * when none is available); a load failure throws. Uses the promidas snapshot
+ * when `USE_PROMIDAS_REPOSITORY` is enabled, otherwise the legacy map-store path
+ * (`getRandomPrototypeData`, which collapses its Result and falls back to a
+ * direct fetch).
  */
-export async function getRandomPrototype(): Promise<FetchRandomPrototypeResult> {
+export async function getRandomPrototype(): Promise<PrototypeForMpp | null> {
   if (isPromidasRepositoryEnabled()) {
     return promidasBackedRepository.getRandomPrototype();
   }
-  return getRandomPrototypeFromMapOrFetch();
+  return getRandomPrototypeData();
 }
 
 /**

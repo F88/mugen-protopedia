@@ -9,8 +9,8 @@
  * {@link PromidasBackedRepository} is a thin app-level adapter over a PROMIDAS
  * `ProtopediaInMemoryRepository` (injected via the constructor for testability).
  * It is NOT an implementation of the app's `PrototypeRepository` interface — its
- * read surface (`getAllPrototypes` / `getPrototypeNames` / `getMaxPrototypeId`)
- * differs intentionally.
+ * read surface (`getAllPrototypes` / `getPrototypeNames` / `getMaxPrototypeId` /
+ * `getPrototypeById` / `getRandomPrototype`) differs intentionally.
  *
  * Design (see #181):
  * - The canonical fetch (~24MB for limit=10000) exceeds the Next.js Data Cache
@@ -42,10 +42,7 @@ import {
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.server';
 import { promidasLogger } from '@/lib/promidas-logger';
-import type {
-  FetchPrototypesResult,
-  FetchRandomPrototypeResult,
-} from '@/types/prototype-api.types';
+import type { FetchPrototypesResult } from '@/types/prototype-api.types';
 
 /**
  * Module-scoped logger: every line carries `module: 'promidas-repository'`.
@@ -409,32 +406,26 @@ export class PromidasBackedRepository {
   }
 
   /**
-   * Pick a random prototype from the snapshot, mapped to the legacy
-   * {@link FetchRandomPrototypeResult} contract. A cold-start setup failure
-   * becomes a failure Result (mirroring getAllPrototypes); an empty snapshot
-   * becomes a 404, matching the legacy `getRandomPrototypeFromMapOrFetch`.
+   * Pick a random prototype from the snapshot. Blocks on cold start via
+   * `withReadySnapshot`; a cold-start setup failure throws (the dataset could
+   * not be loaded). Returns `null` when the snapshot is empty.
    */
-  async getRandomPrototype(): Promise<FetchRandomPrototypeResult> {
+  async getRandomPrototype(): Promise<PrototypeForMpp | null> {
     const logger = repoLogger.child({ action: 'getRandomPrototype' });
     return this.withReadySnapshot(async (failure) => {
       if (failure) {
-        const status = mapFailureStatus(failure);
         logger.warn(
-          { status, origin: failure.origin },
-          'Failed to ensure snapshot; returning error result',
+          { origin: failure.origin },
+          'Snapshot unavailable for random lookup',
         );
-        return { ok: false, status, error: toLocalizedMessage(failure) };
+        throw new Error(toLocalizedMessage(failure));
       }
       const prototype = await this.repo.getRandomPrototypeFromSnapshot();
-      if (prototype == null) {
-        logger.warn('Snapshot empty; no random prototype available');
-        return { ok: false, status: 404, error: 'No prototypes available' };
-      }
       logger.debug(
-        { id: prototype.id },
+        { id: prototype?.id ?? null },
         'Returning random prototype from snapshot',
       );
-      return { ok: true, data: prototype };
+      return prototype;
     });
   }
 
