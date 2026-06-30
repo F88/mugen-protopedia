@@ -11,16 +11,14 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Added
 
-- Add an opt-in promidas in-memory Repository data layer
-  (`lib/repositories/promidas-repository.ts`) behind the
-  `USE_PROMIDAS_REPOSITORY` flag (default off -> legacy map-store). When enabled,
-  the playlist preview name lookup (`getPrototypeNamesFromStore`) resolves via
-  the promidas snapshot instead of `prototypeMapStore`. Reads block on cold
-  start and serve stale + background refresh on expiry (`ensureFreshSnapshot`);
-  the canonical ~24MB fetch is not eligible for the Next.js Data Cache (2MB
-  per-entry limit), so a no-store fetch is used and the in-memory snapshot (TTL
-  via `PROMIDAS_STORE_TTL_SECONDS`, default 1800s; 30 MiB size cap) is the sole
-  cache. `prototypes.ts` stays untouched as the fallback.
+- Add an opt-in promidas in-memory Repository
+  (`lib/repositories/promidas-repository.ts`) behind `USE_PROMIDAS_REPOSITORY`
+  (default off; `prototypes.ts` is the fallback). When enabled, these prototype
+  reads resolve via the promidas snapshot through
+  `app/actions/prototypes-gateway.ts` instead of `prototypeMapStore`:
+    - name lookup (playlist preview)
+    - all prototypes (analysis hydrate)
+    - max prototype id
 
 ### Removed
 
@@ -33,8 +31,9 @@ and this project adheres to [CalVer](https://calver.org/).
 ### Changed
 
 - Fetch the SHOW / by-id prototype via a promidas-backed non-cached client.
-  `getLatestPrototypeById` now calls a new `fetchPrototypesViaPromidasNoStoreClient`
-  server action (backed by `lib/promidas-no-store-client.ts`, which uses
+  `getLatestPrototypeById` now calls the `fetchPrototypesNoStore` server action
+  in `app/actions/prototypes-gateway.ts` (backed by
+  `lib/promidas-no-store-client.ts`, which uses
   promidas's `ProtopediaApiCustomClient.fetchPrototypes` for fetch + normalize +
   structured errors). Implemented as a separate path: the SDK-based no-store
   client, the shared list (force-cache) path, and the random/map-store path are
