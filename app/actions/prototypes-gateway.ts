@@ -4,12 +4,13 @@
  * @fileoverview Consumer-facing prototype server actions (facade).
  *
  * The cached reads (`getAllPrototypes` / `getPrototypeNames` /
- * `getMaxPrototypeId`) route to the promidas in-memory Repository when the
- * `USE_PROMIDAS_REPOSITORY` flag is enabled (see `lib/feature-flags`), and
- * otherwise delegate to the legacy map-store actions in `prototypes.ts` (which
- * stays untouched). `fetchPrototypesNoStore` is the non-cached path (always via
- * the promidas fetcher, not flag-gated). Consumers import these purpose-named
- * actions; backend-specific functions live in `lib/`. Part of #136 / #181.
+ * `getMaxPrototypeId` / `getPrototypeById` / `getRandomPrototype`) route to the
+ * promidas in-memory Repository when the `USE_PROMIDAS_REPOSITORY` flag is
+ * enabled (see `lib/feature-flags`), and otherwise delegate to the legacy
+ * map-store path (`prototypes.ts` stays untouched). `fetchPrototypesNoStore` is
+ * the non-cached path (always via the promidas fetcher, not flag-gated).
+ * Consumers import these purpose-named actions; backend-specific functions live
+ * in `lib/`. Part of #136 / #181.
  */
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
