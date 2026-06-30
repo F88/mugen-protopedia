@@ -22,6 +22,8 @@ export type PrototypeForMpp = NormalizedPrototype;
  * for fields the ProtoPedia API may omit) is delegated entirely to `promidas`,
  * whose output is already the `PrototypeForMpp` shape.
  */
-export function normalizePrototypeForMpp(p: UpstreamPrototype): PrototypeForMpp {
+export function normalizePrototypeForMpp(
+  p: UpstreamPrototype,
+): PrototypeForMpp {
   return normalizeUpstreamPrototype(p);
 }

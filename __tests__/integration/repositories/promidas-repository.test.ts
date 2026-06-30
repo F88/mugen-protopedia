@@ -130,10 +130,12 @@ describe('getPrototypeNamesFromRepo (MSW)', () => {
     const repo = buildPromidasRepository({ progressLog: false });
     await repo.setupSnapshot({ limit: 10_000, offset: 0 });
 
-    const names = await getPrototypeNamesFromRepo(
-      repo,
-      [-1, 0, 1.5, Number.NaN],
-    );
+    const names = await getPrototypeNamesFromRepo(repo, [
+      -1,
+      0,
+      1.5,
+      Number.NaN,
+    ]);
 
     expect(names).toEqual({});
   });

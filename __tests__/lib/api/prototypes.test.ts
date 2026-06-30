@@ -149,23 +149,24 @@ describe('normalizePrototypeForMpp', () => {
 
   describe('pipe-separated splitting', () => {
     it('trims each segment', () => {
-      expect(normalizePrototypeForMpp(makeUpstream({ tags: 'a | b |c' })).tags).toEqual(
-        ['a', 'b', 'c'],
-      );
+      expect(
+        normalizePrototypeForMpp(makeUpstream({ tags: 'a | b |c' })).tags,
+      ).toEqual(['a', 'b', 'c']);
     });
 
     it('filters out empty segments', () => {
-      expect(normalizePrototypeForMpp(makeUpstream({ tags: 'a||b' })).tags).toEqual([
-        'a',
-        'b',
-      ]);
-      expect(normalizePrototypeForMpp(makeUpstream({ users: 'u1|' })).users).toEqual([
-        'u1',
-      ]);
+      expect(
+        normalizePrototypeForMpp(makeUpstream({ tags: 'a||b' })).tags,
+      ).toEqual(['a', 'b']);
+      expect(
+        normalizePrototypeForMpp(makeUpstream({ users: 'u1|' })).users,
+      ).toEqual(['u1']);
     });
 
     it('returns an empty array for an empty string', () => {
-      expect(normalizePrototypeForMpp(makeUpstream({ tags: '' })).tags).toEqual([]);
+      expect(normalizePrototypeForMpp(makeUpstream({ tags: '' })).tags).toEqual(
+        [],
+      );
     });
   });
 

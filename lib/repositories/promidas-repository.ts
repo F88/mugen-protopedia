@@ -206,10 +206,7 @@ export async function ensureFreshSnapshot(
   const logger = repoLogger.child({ action: 'ensureFreshSnapshot' });
   const stats = repo.getStats();
 
-  logger.debug(
-    { ...stats, remainingTtlMs: stats.remainingTtlMs },
-    'Snapshot stats',
-  );
+  logger.debug({ ...stats }, 'Snapshot stats');
 
   if (stats.cachedAt === null) {
     logger.info('Snapshot empty; setting up (cold start, blocking)');

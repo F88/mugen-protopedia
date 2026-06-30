@@ -21,7 +21,9 @@ vi.mock('@/lib/network-utils', () => ({
 }));
 
 const fetchPrototypesViaPromidasNoStoreClientMock =
-  fetchPrototypesViaPromidasNoStoreClient as unknown as ReturnType<typeof vi.fn>;
+  fetchPrototypesViaPromidasNoStoreClient as unknown as ReturnType<
+    typeof vi.fn
+  >;
 
 const loggerErrorMock = logger.error as unknown as ReturnType<typeof vi.fn>;
 const constructDisplayMessageMock =
