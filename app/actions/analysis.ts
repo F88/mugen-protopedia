@@ -301,6 +301,9 @@ export async function getLatestAnalysis(options?: {
       'Prototype analysis completed (timezone + summary)',
     );
   }
+
+  // Temporaly disabled (do not remove) because it is too verbose for production logs, but useful for debugging.
+  //
   // logAnalysisDebugSample(
   //   logger,
   //   cached.analysis,
