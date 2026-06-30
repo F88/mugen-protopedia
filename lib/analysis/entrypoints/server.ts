@@ -459,7 +459,9 @@ export function analyzePrototypesForServer(
 
   // Compute dataset date range for diagnostics
   const validDates = prototypes
-    .map((p) => (p.releaseDate != null ? Date.parse(p.releaseDate) : Number.NaN))
+    .map((p) =>
+      p.releaseDate != null ? Date.parse(p.releaseDate) : Number.NaN,
+    )
     .filter((t) => Number.isFinite(t))
     .sort((a, b) => a - b);
   const datasetMin =

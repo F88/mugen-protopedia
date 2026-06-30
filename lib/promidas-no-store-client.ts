@@ -14,9 +14,9 @@
  * Config is read independently from the environment so `lib/protopedia-client.ts`
  * stays an untouched fallback.
  */
-import { ProtopediaApiCustomClient, type Logger } from 'promidas/fetcher';
+import { ProtopediaApiCustomClient } from 'promidas/fetcher';
 
-import { logger as baseLogger } from '@/lib/logger.server';
+import { promidasLogger } from '@/lib/promidas-logger';
 import type {
   FetchPrototypesParams,
   FetchPrototypesResult,
@@ -76,33 +76,6 @@ const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
     clearTimeout(timeoutId);
     callerSignal?.removeEventListener('abort', onCallerAbort);
   }
-};
-
-/**
- * Adapt promidas's `(message, meta)` logger calls to pino's `(bindings, message)`
- * shape so this client's diagnostics flow through the app's structured server
- * logger rather than a standalone ConsoleLogger. Verbosity is governed by the
- * pino logger's own level.
- */
-const emitLog = (
-  level: 'error' | 'warn' | 'info' | 'debug',
-  message: string,
-  meta?: unknown,
-): void => {
-  if (meta == null) {
-    baseLogger[level](message);
-  } else if (typeof meta === 'object') {
-    baseLogger[level](meta as Record<string, unknown>, message);
-  } else {
-    baseLogger[level]({ meta }, message);
-  }
-};
-
-const promidasLogger: Logger = {
-  error: (message, meta) => emitLog('error', message, meta),
-  warn: (message, meta) => emitLog('warn', message, meta),
-  info: (message, meta) => emitLog('info', message, meta),
-  debug: (message, meta) => emitLog('debug', message, meta),
 };
 
 /**

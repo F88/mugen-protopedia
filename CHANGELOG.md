@@ -9,6 +9,19 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Add an opt-in promidas in-memory Repository data layer
+  (`lib/repositories/promidas-repository.ts`) behind the
+  `USE_PROMIDAS_REPOSITORY` flag (default off -> legacy map-store). When enabled,
+  the playlist preview name lookup (`getPrototypeNamesFromStore`) resolves via
+  the promidas snapshot instead of `prototypeMapStore`. Reads block on cold
+  start and serve stale + background refresh on expiry (`ensureFreshSnapshot`);
+  the canonical ~24MB fetch is not eligible for the Next.js Data Cache (2MB
+  per-entry limit), so a no-store fetch is used and the in-memory snapshot (TTL
+  via `PROMIDAS_STORE_TTL_SECONDS`, default 1800s; 30 MiB size cap) is the sole
+  cache. `prototypes.ts` stays untouched as the fallback.
+
 ### Removed
 
 - Remove the unused `getTsv` method from `PrototypeRepository` (it fetched a
