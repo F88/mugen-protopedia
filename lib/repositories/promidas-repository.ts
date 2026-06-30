@@ -56,7 +56,7 @@ const repoLogger = baseLogger.child({ module: 'promidas-repository' });
  * Lower it (e.g. 60) to observe refresh behavior in development.
  */
 const ttlSecondsRaw = Number.parseInt(
-  process.env.PROMIDAS_STORE_TTL_SECONDS ?? '1800',
+  process.env.PROMIDAS_STORE_TTL_SECONDS ?? '600',
   10,
 );
 const STORE_TTL_SECONDS =
@@ -75,9 +75,14 @@ const CANONICAL_LIMIT = 10_000;
 /**
  * Minimum interval between background refresh attempts on an expired snapshot.
  * Bounds the retry rate so a burst of expired reads (e.g. playlist typing)
- * during a fast upstream failure cannot trigger a refresh storm. Tunable.
+ * during a fast upstream failure cannot trigger a refresh storm.
+ *
+ * Linked to the TTL: never exceeds it (a short TTL — e.g. 30s in dev — would
+ * otherwise be starved of refreshes between expiry and cooldown), but capped at
+ * 60s so a transient failure under a long TTL (30min default) still retries
+ * within a minute instead of waiting a full cycle.
  */
-const REFRESH_COOLDOWN_MS = 60_000;
+const REFRESH_COOLDOWN_MS = Math.min(STORE_TTL_MS, 60_000);
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
@@ -242,12 +247,14 @@ export class PromidasBackedRepository {
    * Returns the failure when the cold-start setup fails, otherwise `null`.
    */
   private async ensureReady(): Promise<SnapshotOperationFailure | null> {
+    const logger = repoLogger.child({ action: 'ensureReady' });
     const stats = this.repo.getStats();
+    logger.debug(
+      `Snapshot: cachedAt: ${stats.cachedAt?.toISOString()} isExpired: ${stats.isExpired} remainingTtlMs: ${stats.remainingTtlMs}ms`,
+    );
 
     if (stats.cachedAt === null) {
-      repoLogger
-        .child({ action: 'ensureReady' })
-        .info({ ...stats }, 'Snapshot stats');
+      logger.info('Snapshot empty');
       // Single-flight: create the setup once; all concurrent cold reads await it.
       this.setupPromise ??= this.runSetup();
       return this.setupPromise;
@@ -264,9 +271,7 @@ export class PromidasBackedRepository {
    */
   private runSetup(): Promise<SnapshotOperationFailure | null> {
     const logger = repoLogger.child({ action: 'setupSnapshot' });
-    logger.info(
-      'Snapshot empty; setting up (cold start, blocking, single-flight)',
-    );
+    logger.info('Snapshot setup');
 
     const run = (async (): Promise<SnapshotOperationFailure | null> => {
       const result = await this.repo.setupSnapshot({
@@ -319,7 +324,6 @@ export class PromidasBackedRepository {
     }
 
     const logger = repoLogger.child({ action: 'refreshSnapshot' });
-    logger.info({ ...stats }, 'Snapshot stats');
 
     if (this.refreshPromise) {
       logger.debug('Refresh already in flight; skipping');
