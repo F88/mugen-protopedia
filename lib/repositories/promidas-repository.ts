@@ -19,9 +19,10 @@
  *   (single-layer; freshness governed by the store `ttlMs`).
  *   Data Cache for Next.js:
  *   https://vercel.com/docs/caching/runtime-cache/data-cache
- * - PROMIDAS does NOT auto-refresh; `ensureFreshSnapshot` replicates the current
- *   stale-while-revalidate behavior (block only on cold start; serve stale +
- *   non-awaited background refresh on expiry). Concurrent refreshes are coalesced
+ * - PROMIDAS does NOT auto-refresh; `PromidasBackedRepository` replicates the
+ *   current stale-while-revalidate behavior via `ensureReady` (readiness: block
+ *   only on cold start) + `revalidateIfStale` (freshness: non-awaited background
+ *   refresh on expiry while serving stale). Concurrent refreshes are coalesced
  *   by PROMIDAS internally.
  */
 import { PromidasRepositoryBuilder } from 'promidas';
@@ -289,9 +290,15 @@ export class PromidasBackedRepository {
       return result;
     })();
 
-    void run.finally(() => {
-      this.setupPromise = null;
-    });
+    // Clear on settle so a failed setup can be retried (see above). The returned
+    // `run` is what callers await, so the real error still surfaces there; this
+    // detached .finally() chain only manages state, so swallow its rejection to
+    // avoid an unhandled rejection if setupSnapshot throws (vs. returns failure).
+    void run
+      .finally(() => {
+        this.setupPromise = null;
+      })
+      .catch(() => {});
 
     return run;
   }
