@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { getPrototypeNamesFromStore } from '@/app/actions/prototypes';
+import { getPrototypeNamesFromStore } from '@/app/actions/prototypes-repo';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
