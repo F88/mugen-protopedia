@@ -124,10 +124,11 @@ export const protopediaForceCacheClient = createProtoPediaClient({
  * This client still benefits from connection / header timeouts to avoid
  * hanging requests when the upstream is unresponsive.
  *
- * @deprecated Use `promidasNoStoreClient` from
- * `@/lib/promidas-no-store-client` instead, which wraps the same no-store fetch
- * in promidas's `ProtopediaApiCustomClient` (fetch + normalize + structured
- * errors). This SDK-based client is retained only as a fallback.
+ * Backs the legacy (SDK-based) no-store path via
+ * `fetchPrototypesViaNoStoreClient`, which `fetchPrototypesNoStore` in
+ * `@/app/actions/prototypes-gateway` dispatches to when
+ * `USE_PROMIDAS_REPOSITORY` is disabled. The promidas counterpart is
+ * `promidasNoStoreClient` in `@/lib/promidas-no-store-client`.
  */
 export const protopediaNoStoreClient = createProtoPediaClient({
   token: validToken,

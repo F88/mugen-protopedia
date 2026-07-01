@@ -20,6 +20,7 @@ import type {
 } from '@/types/prototype-api.types';
 
 import {
+  fetchPrototypesViaNoStoreClient,
   getAllPrototypesFromMapOrFetch,
   getMaxPrototypeId as getMaxPrototypeIdFromMapStore,
   getPrototypeNamesFromStore,
@@ -32,14 +33,19 @@ import { promidasBackedRepository } from '@/lib/repositories/promidas-repository
 import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
 /**
- * Fetch prototypes without caching, via the promidas fetcher (always hits
- * upstream, bypassing the in-memory snapshot). Not flag-gated; used where the
- * freshest data is required (e.g. the SHOW / by-id path).
+ * Fetch prototypes without caching (always hits upstream, bypassing the
+ * in-memory snapshot); used where the freshest data is required (e.g. the
+ * SHOW / by-id path). Flag-gated like the other reads: the promidas fetcher
+ * when `USE_PROMIDAS_REPOSITORY` is enabled, otherwise the legacy SDK-based
+ * no-store client.
  */
 export async function fetchPrototypesNoStore(
   params: FetchPrototypesParams = {},
 ): Promise<FetchPrototypesResult> {
-  return fetchPrototypesViaPromidasNoStore(params);
+  if (isPromidasRepositoryEnabled()) {
+    return fetchPrototypesViaPromidasNoStore(params);
+  }
+  return fetchPrototypesViaNoStoreClient(params);
 }
 
 /**
