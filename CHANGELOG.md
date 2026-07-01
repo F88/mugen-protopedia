@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.01]
+
 ### Added
 
 - Add an opt-in promidas in-memory Repository
