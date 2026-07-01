@@ -252,7 +252,7 @@ export function buildPlaylistPath(
   autoplay: boolean = false,
 ): string {
   // Guard early: when neither IDs nor title are even candidates,
-  // there is no meaningful playlist URL to build.
+  // there is no meaningful playlist path to build.
   if ((!ids || ids.length === 0) && (!title || title.length === 0)) {
     logger.debug({}, 'buildPlaylistPath: skipped (no ids and empty title)');
     return '';
@@ -283,7 +283,7 @@ export function buildPlaylistPath(
   const query = params.toString();
   if (query.length === 0) {
     // When neither IDs nor title are valid, there is no meaningful
-    // playlist URL to build.
+    // playlist path to build.
     logger.debug(
       { ids: safeIds, title },
       'buildPlaylistPath: skipped (no valid ids/title)',
@@ -296,8 +296,8 @@ export function buildPlaylistPath(
   // query parameters.
   const path = `/?${query}`;
   logger.debug(
-    { ids: safeIds, title, url: path },
-    'buildPlaylistPath: built playlist URL',
+    { ids: safeIds, title, path },
+    'buildPlaylistPath: built playlist path',
   );
   return path;
 }
