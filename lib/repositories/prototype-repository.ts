@@ -1,8 +1,6 @@
 import {
   fetchPrototypeById,
-  getAllPrototypesFromMapOrFetch,
   getPrototypeByIdFromMapOrFetch,
-  getPrototypesFromCacheOrFetch,
 } from '@/app/actions/prototypes';
 
 import { type PrototypeForMpp } from '@/lib/api/prototypes';
@@ -11,118 +9,9 @@ import { constructDisplayMessage } from '@/lib/network-utils';
 
 import { PrototypeRepository } from './types';
 
-const MAX_MAP_THRESHOLD = 10_000;
-
 // Simple repository for fetching prototypes via server functions.
 // Components should depend on this repository instead of calling fetch directly.
 export const prototypeRepository: PrototypeRepository = {
-  async getAll(): Promise<PrototypeForMpp[]> {
-    // logger.info('prototypeRepository.getAll called');
-
-    const mapResult = await getAllPrototypesFromMapOrFetch();
-
-    if (mapResult.ok) {
-      // logger.debug('PrototypeRepository.getAll served from map store', {
-      // count: mapResult.data.length,
-      // });
-      if (mapResult.data.length === 0) {
-        throw new Error('No prototypes found');
-      }
-      return mapResult.data;
-    }
-
-    logger.warn(
-      'prototypeRepository.getAll map store unavailable, attempting fallback',
-      {
-        status: mapResult.status,
-        error: mapResult.error,
-      },
-    );
-
-    const fallback = await getPrototypesFromCacheOrFetch({
-      limit: MAX_MAP_THRESHOLD,
-      offset: 0,
-    });
-
-    if (!fallback.ok) {
-      throw new Error(constructDisplayMessage(fallback));
-    }
-
-    if (fallback.data.length === 0) {
-      throw new Error('No prototypes found');
-    }
-
-    // logger.debug('PrototypeRepository.getAll served from fallback cache path', {
-    // count: fallback.data.length,
-    // });
-
-    return fallback.data;
-  },
-
-  async list({
-    limit = 1,
-    offset = 0,
-    prototypeId,
-  }: { limit?: number; offset?: number; prototypeId?: number } = {}): Promise<
-    PrototypeForMpp[]
-  > {
-    // Log input parameters at info level (browser-safe)
-    // logger.info('prototypeRepository.list called', { limit, offset, prototypeId });
-
-    if (
-      prototypeId === undefined &&
-      limit >= MAX_MAP_THRESHOLD &&
-      offset === 0
-    ) {
-      const mapResult = await getAllPrototypesFromMapOrFetch();
-
-      if (!mapResult.ok) {
-        throw new Error(constructDisplayMessage(mapResult));
-      }
-
-      if (mapResult.data.length === 0) {
-        throw new Error('No prototypes found');
-      }
-
-      // logger.debug('PrototypeRepository.list served from map store', {
-      // limit,
-      // offset,
-      // count: mapResult.data.length,
-      // });
-
-      const sliced = mapResult.data.slice(offset, offset + limit);
-
-      if (sliced.length === 0) {
-        throw new Error('No prototypes found');
-      }
-
-      return sliced;
-    }
-
-    const result = await getPrototypesFromCacheOrFetch({
-      limit,
-      offset,
-      prototypeId,
-    });
-
-    if (!result.ok) {
-      throw new Error(constructDisplayMessage(result));
-    }
-
-    logger.debug('PrototypeRepository.list fetched data', {
-      limit,
-      offset,
-      prototypeId,
-      count: result.data.length,
-    });
-
-    if (result.data.length === 0) {
-      throw new Error('No prototypes found');
-    }
-
-    return result.data;
-  },
-
   async getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp> {
     logger.info('prototypeRepository.getByPrototypeId called', { id });
     const stringId = String(id);
