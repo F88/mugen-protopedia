@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
+
+import useSWR from 'swr';
 
 import { getPrototypeNames } from '@/app/actions/prototypes-gateway';
 
@@ -19,38 +23,21 @@ export type PlaylistPreviewCardProps = {
 export function PlaylistPreviewCard({
   effectiveIds,
 }: PlaylistPreviewCardProps) {
-  const [namesById, setNamesById] = useState<Record<number, string>>({});
+  // Deduplicate and sort so the SWR cache key is canonical: playlists with the
+  // same set of ids (regardless of order or duplicates) share one cache entry.
+  // The table below still renders `effectiveIds` verbatim (order + duplicates).
+  const uniqueIds = useMemo(
+    () => Array.from(new Set(effectiveIds)).sort((a, b) => a - b),
+    [effectiveIds],
+  );
 
-  useEffect(() => {
-    const uniqueIds = Array.from(new Set(effectiveIds));
-    let isCancelled = false;
-
-    const resolveNames = async () => {
-      if (uniqueIds.length === 0) {
-        if (!isCancelled) {
-          setNamesById({});
-        }
-        return;
-      }
-
-      try {
-        const names = await getPrototypeNames(uniqueIds);
-        if (!isCancelled) {
-          setNamesById(names);
-        }
-      } catch {
-        if (!isCancelled) {
-          setNamesById({});
-        }
-      }
-    };
-
-    void resolveNames();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [effectiveIds]);
+  // Conditional fetch: a `null` key skips the request when there are no ids,
+  // matching the previous empty-map behaviour. SWR deep-compares the array key,
+  // so an unchanged id set is served from cache instead of refetching.
+  const { data: namesById, isLoading } = useSWR(
+    uniqueIds.length > 0 ? (['prototypeNames', uniqueIds] as const) : null,
+    ([, ids]) => getPrototypeNames(ids),
+  );
 
   return (
     <Card className="w-full py-4 border-4">
@@ -58,6 +45,14 @@ export function PlaylistPreviewCard({
         <CardTitle>Prototypes in playlist</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
+        {/*
+          Let the prototype-name column absorb all slack via `w-full`
+          (width: 100%) while the table keeps its auto layout. The name column
+          then always claims the remaining width, so the ID column sizes only to
+          its own (constant) content and no longer changes between "loading..."
+          and the loaded names. This removes the layout shift without hardcoding
+          the ID column width.
+        */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -66,7 +61,7 @@ export function PlaylistPreviewCard({
                 <span className="sm:hidden">ID</span>
                 <span className="hidden sm:inline">Prototype ID</span>
               </TableHead>
-              <TableHead>Prototype name</TableHead>
+              <TableHead className="w-full">Prototype name</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -79,7 +74,7 @@ export function PlaylistPreviewCard({
                   {id}
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground break-all whitespace-normal">
-                  {namesById[id] ?? 'unknown (cache not available)'}
+                  {namesById?.[id] ?? (isLoading ? '' : '(unknown)')}
                 </TableCell>
               </TableRow>
             ))}
