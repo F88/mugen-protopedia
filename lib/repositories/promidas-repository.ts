@@ -52,7 +52,7 @@ const repoLogger = baseLogger.child({ module: 'promidas-repository' });
 
 /**
  * In-process snapshot TTL. Override via `PROMIDAS_STORE_TTL_SECONDS`
- * (default 1800 = 30 minutes, matching the current `prototypeMapStore`).
+ * (default 600 = 10 minutes, matching the current `prototypeMapStore`).
  * Lower it (e.g. 60) to observe refresh behavior in development.
  */
 const ttlSecondsRaw = Number.parseInt(
@@ -388,14 +388,23 @@ export class PromidasBackedRepository {
 
   /**
    * Resolve a single prototype by id from the snapshot (cached by-id). Blocks on
-   * cold start via `withReadySnapshot`; the snapshot is the complete dataset, so
-   * a miss is simply `null` (no fallback fetch — that is the SHOW path's job).
-   * Returns `null` for an id promidas rejects (caught + logged), so a bad id
-   * never throws for the caller.
+   * cold start via `withReadySnapshot`. A cold-start setup failure throws (the
+   * dataset could not be loaded — surfaced like the legacy by-id path and
+   * `getRandomPrototype`, rather than masquerading as "not found"). An absent id
+   * is `null` (the snapshot is the complete dataset; no fallback fetch — that is
+   * the SHOW path's job), and a non-positive-integer id promidas rejects is also
+   * `null` (caught), so a bad id never throws for the caller.
    */
   async getPrototypeById(id: number): Promise<PrototypeForMpp | null> {
     const logger = repoLogger.child({ action: 'getPrototypeById' });
-    return this.withReadySnapshot(async () => {
+    return this.withReadySnapshot(async (failure) => {
+      if (failure) {
+        logger.warn(
+          { id, origin: failure.origin },
+          'Snapshot unavailable for by-id lookup',
+        );
+        throw new Error(toLocalizedMessage(failure));
+      }
       try {
         const prototype =
           await this.repo.getPrototypeFromSnapshotByPrototypeId(id);

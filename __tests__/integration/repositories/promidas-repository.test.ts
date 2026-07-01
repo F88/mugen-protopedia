@@ -206,6 +206,19 @@ describe('PromidasBackedRepository.getPrototypeById (MSW)', () => {
     // Beyond Number.MAX_SAFE_INTEGER; promidas throws → caught → null.
     expect(await reader.getPrototypeById(11_111_111_111_111_112)).toBeNull();
   });
+
+  it('throws when the cold-start setup fails (load failure, not "not found")', async () => {
+    server.use(
+      http.get('*/v2/api/prototype/list', () =>
+        HttpResponse.json({ message: 'boom' }, { status: 500 }),
+      ),
+    );
+
+    const reader = new PromidasBackedRepository(newRepo());
+
+    // A load failure must surface, not masquerade as an absent id.
+    await expect(reader.getPrototypeById(1001)).rejects.toThrow();
+  });
 });
 
 describe('PromidasBackedRepository.getRandomPrototype (MSW)', () => {
