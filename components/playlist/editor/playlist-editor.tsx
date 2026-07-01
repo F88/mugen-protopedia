@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 
 import useSWRMutation from 'swr/mutation';
 
@@ -8,9 +14,10 @@ import type { PlayModeState } from '@/types/mugen-protopedia.types';
 
 import type { DirectLaunchParams } from '@/schemas/direct-launch';
 
+import { APP_URL } from '@/lib/config/app-constants';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
 import {
-  buildPlaylistUrlWithPathParams,
+  buildPlaylistPathWithPathParams,
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
 } from '@/lib/utils/playlist-builder';
@@ -29,6 +36,10 @@ import {
 type PlaylistEditorProps = {
   directLaunchParams?: DirectLaunchParams;
 };
+
+// The origin never changes during the page's lifetime, so useSyncExternalStore
+// has nothing to subscribe to: subscribe is a stable no-op.
+const subscribeOrigin = () => () => {};
 
 export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   const [title, setTitle] = useState(() => {
@@ -151,12 +162,32 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     playlistUrlHighlighted,
   ]);
 
+  // Resolve the origin without a hydration mismatch. useSyncExternalStore
+  // returns the server snapshot (the canonical APP_URL) during SSR and the
+  // initial hydration render, then swaps to the client's window.location.origin
+  // afterwards, so the server and first client render always agree. Computing
+  // window.location.origin inline during render would make the server (APP_URL)
+  // and client markup differ and trip a hydration mismatch.
+  const origin = useSyncExternalStore(
+    subscribeOrigin,
+    () => window.location.origin,
+    () => APP_URL,
+  );
+
   const playlistUrl = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
       return '';
     }
-    return buildPlaylistUrlWithPathParams(effectiveIds, title, shouldAutoplay);
-  }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay]);
+    const path = buildPlaylistPathWithPathParams(
+      effectiveIds,
+      title,
+      shouldAutoplay,
+    );
+    if (!path) {
+      return '';
+    }
+    return `${origin}${path}`;
+  }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay, origin]);
 
   // Flash the highlight when the generated URL changes. Compare against the
   // previous value during render instead of synchronizing via an effect; the
