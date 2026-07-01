@@ -30,6 +30,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Build the shareable playlist URL from the running environment's origin instead
+  of a hardcoded production domain. The URL builders now return an origin-less
+  path (`buildPlaylistUrl` -> `buildPlaylistPath`,
+  `buildPlaylistUrlWithPathParams` -> `buildPlaylistPathWithPathParams`) and the
+  playlist editor prepends the client's `window.location.origin`, falling back to
+  `APP_URL` during SSR (read hydration-safely via `useSyncExternalStore`).
 - Fetch the SHOW / by-id prototype via a promidas-backed non-cached client.
   `getLatestPrototypeById` now calls the `fetchPrototypesNoStore` server action
   in `app/actions/prototypes-gateway.ts` (backed by

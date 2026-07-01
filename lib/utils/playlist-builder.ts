@@ -9,7 +9,6 @@
  * - Build a shareable playlist URL from IDs and an optional title.
  */
 
-import { APP_URL } from '@/lib/config/app-constants';
 import { splitGraphemes } from '@/lib/utils';
 import { logger } from '@/lib/logger.client';
 import { decode } from 'he';
@@ -229,9 +228,11 @@ export function deduplicateIdsPreserveOrder(ids: number[]): number[] {
 }
 
 /**
- * Builds a shareable playlist URL from a list of IDs and optional title.
+ * Builds a shareable playlist **path** (origin-less) from a list of IDs and an
+ * optional title, e.g. `/?id=1,2&title=foo`. The caller prepends an origin
+ * (`window.location.origin` for the current environment, or a canonical URL).
  *
- * - Uses `APP_URL` as the origin.
+ * - Returns a relative path (query-param form); no origin.
  * - Encodes IDs as a comma-separated `id` query parameter when any IDs
  *   are provided.
  * - Adds a `title` query parameter when a non-empty title is provided
@@ -245,7 +246,7 @@ export function deduplicateIdsPreserveOrder(ids: number[]): number[] {
  * @param title - Optional title for the playlist.
  * @param autoplay - Whether to enable autoplay (adds 'autoplay' query param). Defaults to false.
  */
-export function buildPlaylistUrl(
+export function buildPlaylistPath(
   ids: number[],
   title: string,
   autoplay: boolean = false,
@@ -253,7 +254,7 @@ export function buildPlaylistUrl(
   // Guard early: when neither IDs nor title are even candidates,
   // there is no meaningful playlist URL to build.
   if ((!ids || ids.length === 0) && (!title || title.length === 0)) {
-    logger.debug({}, 'buildPlaylistUrl: skipped (no ids and empty title)');
+    logger.debug({}, 'buildPlaylistPath: skipped (no ids and empty title)');
     return '';
   }
 
@@ -285,7 +286,7 @@ export function buildPlaylistUrl(
     // playlist URL to build.
     logger.debug(
       { ids: safeIds, title },
-      'buildPlaylistUrl: skipped (no valid ids/title)',
+      'buildPlaylistPath: skipped (no valid ids/title)',
     );
     return '';
   }
@@ -293,26 +294,28 @@ export function buildPlaylistUrl(
   // Note: The path segment is not significant for playlist detection;
   // play mode is resolved purely from the presence of `id` / `title`
   // query parameters.
-  const url = `${APP_URL}/?${query}`;
+  const path = `/?${query}`;
   logger.debug(
-    { ids: safeIds, title, url },
-    'buildPlaylistUrl: built playlist URL',
+    { ids: safeIds, title, url: path },
+    'buildPlaylistPath: built playlist URL',
   );
-  return url;
+  return path;
 }
 
 /**
- * Builds a playlist URL using path parameters for OGP support.
+ * Builds a shareable playlist **path** (origin-less) using path parameters for
+ * OGP support; the caller prepends an origin (e.g. `window.location.origin`).
  *
- * - Format: /playlist/<title>/<ids>
- * - Requires both a non-empty title and at least one ID.
- * - Falls back to `buildPlaylistUrl` (query params) if requirements are not met.
+ * - Format: `/playlist/<title>/<ids>` when both a non-empty title and at least
+ *   one ID are present.
+ * - Otherwise falls back to {@link buildPlaylistPath} (query-param path).
+ * - Returns `''` when neither a title nor IDs are valid.
  *
  * @param ids - List of numeric prototype IDs.
  * @param title - Title for the playlist.
  * @param autoplay - Whether to enable autoplay (adds 'autoplay' query param). Defaults to false.
  */
-export function buildPlaylistUrlWithPathParams(
+export function buildPlaylistPathWithPathParams(
   ids: number[],
   title: string,
   autoplay: boolean = false,
@@ -328,19 +331,19 @@ export function buildPlaylistUrlWithPathParams(
     const encodedTitle = encodeURIComponent(title);
     // Encode the comma-separated IDs to ensure safe path segment (e.g. 1,2 -> 1%2C2)
     const encodedIds = encodeURIComponent(safeIds.join(','));
-    let url = `${APP_URL}/playlist/${encodedTitle}/${encodedIds}`;
+    let path = `/playlist/${encodedTitle}/${encodedIds}`;
     if (autoplay) {
-      url += '?autoplay=true';
+      path += '?autoplay=true';
     }
     logger.debug(
-      { ids: safeIds, title, url, autoplay },
-      'buildPlaylistUrlWithPathParams: built path-based playlist URL',
+      { ids: safeIds, title, path, autoplay },
+      'buildPlaylistPathWithPathParams: built path-based playlist path',
     );
-    return url;
+    return path;
   }
 
-  // Fallback to standard query param builder if conditions for path-based URL aren't met
-  return buildPlaylistUrl(ids, title, autoplay);
+  // Fallback to the query-param path builder (returns '' when nothing valid).
+  return buildPlaylistPath(ids, title, autoplay);
 }
 
 /**
