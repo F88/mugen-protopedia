@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { describe, it, expect } from 'vitest';
+import { afterAll, beforeAll, describe, it, expect } from 'vitest';
 
 import { fetchPrototypesNoStore } from '@/app/actions/prototypes-gateway';
 import { server } from '@/mocks/server';
@@ -13,8 +13,26 @@ import { server } from '@/mocks/server';
  * `vitest.setup.mjs`) and serves from `mocks/snapshots/test/prototypes.json`.
  * This verifies that the switch actually fetches and normalizes via promidas,
  * not just that it type-checks.
+ *
+ * `fetchPrototypesNoStore` is flag-gated, so the flag is forced on here to
+ * exercise the promidas fetcher (the legacy SDK no-store client has its own
+ * integration test in `fetch-prototypes-via-no-store-client.test.ts`).
  */
 describe('fetchPrototypesNoStore Integration Test (MSW)', () => {
+  const originalFlag = process.env.USE_PROMIDAS_REPOSITORY;
+
+  beforeAll(() => {
+    process.env.USE_PROMIDAS_REPOSITORY = 'true';
+  });
+
+  afterAll(() => {
+    if (originalFlag === undefined) {
+      delete process.env.USE_PROMIDAS_REPOSITORY;
+    } else {
+      process.env.USE_PROMIDAS_REPOSITORY = originalFlag;
+    }
+  });
+
   it('fetches and normalizes prototypes from the snapshot via promidas', async () => {
     const result = await fetchPrototypesNoStore({ limit: 10 });
 

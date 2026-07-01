@@ -30,6 +30,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Flag-gate the no-store SHOW / by-id fetch (`fetchPrototypesNoStore`) on
+  `USE_PROMIDAS_REPOSITORY` like the other reads: the promidas fetcher when
+  enabled, otherwise the legacy SDK-based no-store client. Previously this path
+  was always promidas (it was switched ahead of the flag), so with the flag off
+  (the default) it now uses the SDK client -- the flag is now a single master
+  switch (off = fully legacy, on = fully promidas). (#181)
 - Build the shareable playlist URL from the running environment's origin instead
   of a hardcoded production domain. The URL builders now return an origin-less
   path (`buildPlaylistUrl` -> `buildPlaylistPath`,

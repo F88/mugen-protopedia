@@ -17,6 +17,8 @@ const mocks = vi.hoisted(() => ({
   byIdFromLegacy: vi.fn(),
   randomFromRepo: vi.fn(),
   randomFromLegacy: vi.fn(),
+  noStoreFromPromidas: vi.fn(),
+  noStoreFromSdk: vi.fn(),
 }));
 
 vi.mock('@/lib/repositories/promidas-repository', () => ({
@@ -37,13 +39,19 @@ vi.mock('@/lib/fetcher/get-random-prototype', () => ({
   getRandomPrototypeData: mocks.randomFromLegacy,
 }));
 
+vi.mock('@/lib/promidas-no-store-client', () => ({
+  fetchPrototypesViaPromidasNoStore: mocks.noStoreFromPromidas,
+}));
+
 vi.mock('@/app/actions/prototypes', () => ({
   getPrototypeNamesFromStore: mocks.namesFromMapStore,
   getAllPrototypesFromMapOrFetch: mocks.allFromMapStore,
   getMaxPrototypeId: mocks.maxFromMapStore,
+  fetchPrototypesViaNoStoreClient: mocks.noStoreFromSdk,
 }));
 
 import {
+  fetchPrototypesNoStore,
   getAllPrototypes,
   getMaxPrototypeId,
   getPrototypeById,
@@ -192,6 +200,30 @@ describe('prototypes-gateway flag dispatch', () => {
       expect(result).toEqual({ id: 2002 });
       expect(mocks.randomFromLegacy).toHaveBeenCalledWith();
       expect(mocks.randomFromRepo).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchPrototypesNoStore', () => {
+    it('routes to the promidas no-store fetcher when the flag is enabled', async () => {
+      process.env.USE_PROMIDAS_REPOSITORY = 'true';
+      mocks.noStoreFromPromidas.mockResolvedValue({ ok: true, data: ['repo'] });
+
+      const result = await fetchPrototypesNoStore({ limit: 10 });
+
+      expect(result).toEqual({ ok: true, data: ['repo'] });
+      expect(mocks.noStoreFromPromidas).toHaveBeenCalledWith({ limit: 10 });
+      expect(mocks.noStoreFromSdk).not.toHaveBeenCalled();
+    });
+
+    it('delegates to the legacy SDK no-store client when the flag is disabled (default)', async () => {
+      delete process.env.USE_PROMIDAS_REPOSITORY;
+      mocks.noStoreFromSdk.mockResolvedValue({ ok: true, data: ['legacy'] });
+
+      const result = await fetchPrototypesNoStore({ limit: 10 });
+
+      expect(result).toEqual({ ok: true, data: ['legacy'] });
+      expect(mocks.noStoreFromSdk).toHaveBeenCalledWith({ limit: 10 });
+      expect(mocks.noStoreFromPromidas).not.toHaveBeenCalled();
     });
   });
 });
