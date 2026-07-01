@@ -399,8 +399,6 @@ const fetchPrototypesInternal = async (
  * via the force-cache client.
  *
  * - Does not read or populate the in-memory map store.
- * - Callers that want to benefit from caching or refresh semantics should
- *   prefer {@link getPrototypesFromCacheOrFetch} instead.
  */
 export async function fetchPrototypesViaForceCacheClient(
   params: FetchPrototypesParams = {},
@@ -432,74 +430,6 @@ export async function fetchPrototypesViaNoStoreClient(
     'fetchPrototypesViaNoStoreClient',
     params,
   );
-}
-
-/**
- * Cache-aware variant of {@link fetchPrototypesViaForceCacheClient} for list endpoints.
- *
- * Fallback / refresh behavior:
- * - Always calls {@link fetchPrototypesViaForceCacheClient} to retrieve the requested page.
- * - When no specific `prototypeId` is requested and the canonical
- *   snapshot is empty or expired, it schedules a background refresh of
- *   {@link prototypeMapStore} and the analysis cache.
- * - Returns the direct upstream result; callers never see partial or
- *   stale data from the map store.
- */
-export async function getPrototypesFromCacheOrFetch(
-  params: FetchPrototypesParams = {},
-): Promise<FetchPrototypesResult> {
-  const logger = baseLogger.child({ action: 'getPrototypesFromCacheOrFetch' });
-
-  logger.info({ params }, 'getPrototypesFromCacheOrFetch called');
-
-  const limit = clampLimit(params.limit);
-  const offset = clampOffset(params.offset);
-  const prototypeIdValidation = validatePrototypeId(params.prototypeId);
-
-  if (!prototypeIdValidation.ok) {
-    logger.debug(
-      { prototypeId: params.prototypeId, error: prototypeIdValidation.error },
-      'Prototype ID validation failed',
-    );
-    return {
-      ok: false,
-      status: 400,
-      error: prototypeIdValidation.error,
-    };
-  }
-
-  const prototypeId = prototypeIdValidation.value;
-
-  const result = await fetchPrototypesViaForceCacheClient({
-    limit,
-    offset,
-    prototypeId,
-  });
-
-  if (result.ok && prototypeId === undefined) {
-    const snapshot = prototypeMapStore.getSnapshot();
-    const shouldBootstrap = snapshot.data.length === 0;
-    const shouldRefresh = shouldBootstrap || snapshot.isExpired;
-
-    if (shouldRefresh && !prototypeMapStore.isRefreshInFlight()) {
-      const reason = shouldBootstrap
-        ? 'bootstrap-after-page-fetch'
-        : 'ttl-expired-on-page-fetch';
-      schedulePrototypeMapRefresh(logger, reason);
-    }
-  }
-
-  if (result.ok) {
-    logger.info(
-      {
-        params,
-        resultCount: result.data.length,
-      },
-      'Fetched prototypes directly from upstream',
-    );
-  }
-
-  return result;
 }
 
 /**
@@ -651,7 +581,6 @@ function schedulePrototypeMapRefresh(
  *   the list endpoint fails.
  * - Does not consult or update {@link prototypeMapStore}; callers that
  *   prefer cache-aware behavior should use
- *   {@link getRandomPrototypeFromCacheOrFetch} or
  *   {@link getRandomPrototypeFromMapOrFetch}.
  */
 export async function fetchRandomPrototype(
@@ -731,106 +660,6 @@ export async function fetchRandomPrototype(
       randomSelectionElapsedMs,
     },
     'Selected random prototype',
-  );
-
-  return {
-    ok: true,
-    data: prototype,
-  };
-}
-
-/**
- * Cache-aware random prototype selection using the Next.js data cache.
- *
- * Fallback behavior:
- * - Delegates to {@link getPrototypesFromCacheOrFetch} to obtain a list
- *   of candidates, benefiting from the data cache where applicable.
- * - When the cached path fails or yields no results, the error is
- *   returned to the caller; no additional upstream retries are performed
- *   here.
- * - This function does not interact with {@link prototypeMapStore}; for
- *   in-memory map based random selection use
- *   {@link getRandomPrototypeFromMapOrFetch} instead.
- */
-export async function getRandomPrototypeFromCacheOrFetch(
-  params: FetchPrototypesParams = {},
-): Promise<FetchRandomPrototypeResult> {
-  const logger = baseLogger.child({
-    action: 'getRandomPrototypeFromCacheOrFetch',
-  });
-  const startTime = performance.now();
-
-  logger.info({ params }, 'getRandomPrototypeFromCacheOrFetch called');
-
-  const fetchStart = performance.now();
-  const result = await getPrototypesFromCacheOrFetch(params);
-  const fetchElapsedMs =
-    Math.round((performance.now() - fetchStart) * 100) / 100;
-
-  logger.debug(
-    {
-      fetchElapsedMs,
-      resultOk: result.ok,
-      resultDataLength: result.ok ? result.data.length : 0,
-    },
-    'Cached prototype lookup completed',
-  );
-
-  if (!result.ok) {
-    const totalElapsedMs =
-      Math.round((performance.now() - startTime) * 100) / 100;
-    logger.warn(
-      { params, status: result.status, error: result.error, totalElapsedMs },
-      'Failed to resolve cached list',
-    );
-    return result;
-  }
-
-  if (result.data.length === 0) {
-    const totalElapsedMs =
-      Math.round((performance.now() - startTime) * 100) / 100;
-    logger.warn(
-      { params, totalElapsedMs },
-      'No prototypes available for random selection',
-    );
-    return {
-      ok: false,
-      status: 404,
-      error: 'No prototypes available',
-    };
-  }
-
-  const randomSelectionStart = performance.now();
-  const randomIndex = Math.floor(Math.random() * result.data.length);
-  const prototype = result.data[randomIndex];
-  const randomSelectionElapsedMs =
-    Math.round((performance.now() - randomSelectionStart) * 100) / 100;
-
-  const totalElapsedMs =
-    Math.round((performance.now() - startTime) * 100) / 100;
-
-  logger.debug(
-    {
-      randomIndex,
-      selectedPrototypeId: prototype.id,
-      selectedPrototypeName: prototype.prototypeNm,
-      randomSelectionElapsedMs,
-      hasMainUrl: Boolean(prototype.mainUrl),
-    },
-    'Random prototype selected from cache-aware path',
-  );
-
-  logger.info(
-    {
-      params,
-      count: result.data.length,
-      randomIndex,
-      prototypeId: prototype.id,
-      totalElapsedMs,
-      fetchElapsedMs,
-      randomSelectionElapsedMs,
-    },
-    'Selected random prototype from cache-aware path',
   );
 
   return {

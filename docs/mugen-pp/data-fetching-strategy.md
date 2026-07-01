@@ -16,8 +16,16 @@ instructions-for-ais:
 
 ## Context
 
+> **Status (since #181):** Prototype reads now go through
+> `app/actions/prototypes-gateway.ts`, which routes to the promidas in-memory
+> Repository (`lib/repositories/promidas-repository.ts`) when
+> `USE_PROMIDAS_REPOSITORY` is enabled, or to the legacy map-store path
+> described here when it is disabled (the default). This document describes the
+> **flag-off (legacy) path**; a promidas-first rewrite is deferred to the legacy
+> teardown.
+
 The MUGEN ProtoPedia application retrieves ProtoPedia prototypes via server actions defined in `app/actions/prototypes.ts`. The core normalization logic lives in `fetchPrototypes`, which performs upstream calls without caching and normalizes the results. Aggregate analysis does not run inside `fetchPrototypes`; it runs when refreshing the canonical snapshot (see below).
-Cache‑aware wrappers (`getPrototypesFromCacheOrFetch`, `getAllPrototypesFromMapOrFetch`, `getPrototypeByIdFromMapOrFetch`, `getRandomPrototypeFromMapOrFetch`) delegate to the same normalization logic and coordinate refresh behaviour for the map snapshot.
+Cache‑aware wrappers (`getAllPrototypesFromMapOrFetch`, `getPrototypeByIdFromMapOrFetch`, `getRandomPrototypeFromMapOrFetch`) delegate to the same normalization logic and coordinate refresh behaviour for the map snapshot.
 
 A separate in-memory `analysisCache` keeps track of analysis results, but prototype lists themselves are not cached beyond Next.js' default data cache (which is limited to roughly 2 MB payloads) and the map snapshot described below.
 
@@ -46,11 +54,6 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
     - The analysis output is cached via `analysisCache`.
 
 - **Map Snapshot Coordination**:
-    - `getPrototypesFromCacheOrFetch`:
-        - Resolves parameters and fetches data directly through `fetchPrototypes`.
-        - On successful list responses **without** a `prototypeId`, schedules
-          background refreshes for `prototypeMapStore` when the snapshot is empty
-          or stale.
     - `getAllPrototypesFromMapOrFetch`, `getPrototypeByIdFromMapOrFetch`, and
       `getRandomPrototypeFromMapOrFetch`:
         - Build on `prototypeMapStore`, which keeps a canonical snapshot keyed by

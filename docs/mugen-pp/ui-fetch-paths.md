@@ -19,6 +19,14 @@ This document describes concrete, implementation-level fetch paths initiated fro
 UI interactions. It complements `docs/specs/data-fetching-strategy.md` by
 focusing on **how** the UI is wired to server actions and the ProtoPedia API.
 
+> **Status (since #181):** The flows below describe the **flag-off (legacy)
+> path**. Prototype reads are now dispatched through
+> `app/actions/prototypes-gateway.ts`, which routes to the promidas in-memory
+> Repository when `USE_PROMIDAS_REPOSITORY` is enabled (by-id, random, names,
+> all, and max-id), or to the legacy map-store path shown here when it is
+> disabled (the default). A promidas-first rewrite is deferred to the legacy
+> teardown.
+
 ## Overview: Data Sources per UI Flow
 
 - [PROTOTYPE Button: Random Prototype Fetch](#prototype-button-random-prototype-fetch)
