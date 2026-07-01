@@ -30,6 +30,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Resolve prototype names in the playlist preview card with SWR (`useSWR`)
+  instead of a hand-rolled `useEffect` fetch. Names now dedupe/cache by id set,
+  the manual cancellation flag is gone, and `isLoading` distinguishes "still
+  loading" (blank cell) from a genuinely missing name (`(unknown)`). The name
+  column takes `w-full` so its width no longer shifts as names arrive.
 - Fetch the SHOW / by-id prototype via a promidas-backed non-cached client.
   `getLatestPrototypeById` now calls the `fetchPrototypesNoStore` server action
   in `app/actions/prototypes-gateway.ts` (backed by
