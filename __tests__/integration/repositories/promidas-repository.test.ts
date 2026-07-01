@@ -173,6 +173,79 @@ describe('PromidasBackedRepository.getMaxPrototypeId (MSW)', () => {
   });
 });
 
+describe('PromidasBackedRepository.getPrototypeById (MSW)', () => {
+  it('returns the prototype for a known id from a populated snapshot', async () => {
+    const repo = newRepo();
+    await repo.setupSnapshot({ limit: 10_000, offset: 0 });
+    const reader = new PromidasBackedRepository(repo);
+
+    const prototype = await reader.getPrototypeById(1001);
+
+    expect(prototype?.id).toBe(1001);
+    expect(prototype?.prototypeNm).toBe('Test Prototype 1');
+  });
+
+  it('returns null for a missing id', async () => {
+    const repo = newRepo();
+    await repo.setupSnapshot({ limit: 10_000, offset: 0 });
+    const reader = new PromidasBackedRepository(repo);
+
+    expect(await reader.getPrototypeById(9999)).toBeNull();
+  });
+
+  it('blocks on cold start and returns the prototype on the first call', async () => {
+    const reader = new PromidasBackedRepository(newRepo());
+    expect((await reader.getPrototypeById(1001))?.id).toBe(1001);
+  });
+
+  it('returns null for an out-of-range id the snapshot rejects (no throw)', async () => {
+    const repo = newRepo();
+    await repo.setupSnapshot({ limit: 10_000, offset: 0 });
+    const reader = new PromidasBackedRepository(repo);
+
+    // Beyond Number.MAX_SAFE_INTEGER; promidas throws → caught → null.
+    expect(await reader.getPrototypeById(11_111_111_111_111_112)).toBeNull();
+  });
+
+  it('throws when the cold-start setup fails (load failure, not "not found")', async () => {
+    server.use(
+      http.get('*/v2/api/prototype/list', () =>
+        HttpResponse.json({ message: 'boom' }, { status: 500 }),
+      ),
+    );
+
+    const reader = new PromidasBackedRepository(newRepo());
+
+    // A load failure must surface, not masquerade as an absent id.
+    await expect(reader.getPrototypeById(1001)).rejects.toThrow();
+  });
+});
+
+describe('PromidasBackedRepository.getRandomPrototype (MSW)', () => {
+  it('returns a random prototype from a populated snapshot', async () => {
+    const repo = newRepo();
+    await repo.setupSnapshot({ limit: 10_000, offset: 0 });
+    const reader = new PromidasBackedRepository(repo);
+
+    const result = await reader.getRandomPrototype();
+
+    expect(result).not.toBeNull();
+    expect([1001, 1002]).toContain(result?.id);
+  });
+
+  it('throws when the cold-start setup fails (5xx)', async () => {
+    server.use(
+      http.get('*/v2/api/prototype/list', () =>
+        HttpResponse.json({ message: 'boom' }, { status: 500 }),
+      ),
+    );
+
+    const reader = new PromidasBackedRepository(newRepo());
+
+    await expect(reader.getRandomPrototype()).rejects.toThrow();
+  });
+});
+
 describe('PromidasBackedRepository snapshot lifecycle (MSW)', () => {
   it('coalesces concurrent cold reads onto a single setupSnapshot', async () => {
     const repo = newRepo();

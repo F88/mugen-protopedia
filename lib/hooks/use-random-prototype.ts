@@ -9,8 +9,8 @@
 
 import { useCallback, useState } from 'react';
 
+import { getRandomPrototype as getRandomPrototypeAction } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import { getRandomPrototypeData } from '@/lib/fetcher/get-random-prototype';
 
 type RandomPrototypeError = string | null;
 
@@ -19,8 +19,9 @@ type RandomPrototypeError = string | null;
  */
 type UseRandomPrototypeResult = {
   /**
-   * Fetches a single random prototype. Returns `null` when no candidate exists or
-   * 処理が失敗した場合。
+   * Fetches a single random prototype. Returns `null` when no candidate is
+   * available; on failure it sets `error` and rethrows (it does not return
+   * `null` on failure).
    */
   getRandomPrototype: () => Promise<PrototypeForMpp | null>;
   /** Indicates that a random fetch is currently in progress. */
@@ -48,7 +49,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
       // TryStatement with a finalizer, so setIsLoading(false) is set on both
       // the success and error paths instead of in a finally block.
       try {
-        const result = await getRandomPrototypeData();
+        const result = await getRandomPrototypeAction();
         setIsLoading(false);
         return result;
       } catch (caught) {

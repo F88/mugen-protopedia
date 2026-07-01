@@ -4,13 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { usePlaylistPrototype } from '@/lib/hooks/use-playlist-prototype';
-import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
-vi.mock('@/lib/repositories/prototype-repository');
+const mocks = vi.hoisted(() => ({ getPrototypeById: vi.fn() }));
 
-const mockedRepository = prototypeRepository as unknown as {
-  getByPrototypeId: ReturnType<typeof vi.fn>;
-};
+vi.mock('@/app/actions/prototypes-gateway', () => ({
+  getPrototypeById: mocks.getPrototypeById,
+}));
 
 describe('usePlaylistPrototype', () => {
   beforeEach(() => {
@@ -44,9 +43,7 @@ describe('usePlaylistPrototype', () => {
       materials: [],
     };
 
-    mockedRepository.getByPrototypeId = vi
-      .fn()
-      .mockResolvedValueOnce(prototype);
+    mocks.getPrototypeById.mockResolvedValueOnce(prototype);
 
     const { result } = renderHook(() => usePlaylistPrototype());
 
@@ -58,13 +55,11 @@ describe('usePlaylistPrototype', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(result.current.prototype).toEqual(prototype);
-    expect(mockedRepository.getByPrototypeId).toHaveBeenCalledWith(123);
+    expect(mocks.getPrototypeById).toHaveBeenCalledWith(123);
   });
 
-  it('sets prototype to null when repository returns undefined', async () => {
-    mockedRepository.getByPrototypeId = vi
-      .fn()
-      .mockResolvedValueOnce(undefined);
+  it('sets prototype to null when the gateway returns undefined (not found)', async () => {
+    mocks.getPrototypeById.mockResolvedValueOnce(undefined);
 
     const { result } = renderHook(() => usePlaylistPrototype());
 
@@ -76,13 +71,11 @@ describe('usePlaylistPrototype', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(result.current.prototype).toBeNull();
-    expect(mockedRepository.getByPrototypeId).toHaveBeenCalledWith(999);
+    expect(mocks.getPrototypeById).toHaveBeenCalledWith(999);
   });
 
   it('propagates errors and sets error state', async () => {
-    mockedRepository.getByPrototypeId = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('boom'));
+    mocks.getPrototypeById.mockRejectedValueOnce(new Error('boom'));
 
     const { result } = renderHook(() => usePlaylistPrototype());
 

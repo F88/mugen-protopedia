@@ -2,16 +2,16 @@
  * @fileoverview Hook for retrieving playlist prototypes via repository.
  *
  * This hook is dedicated to ID-based fetching in playlist mode.
- * - It uses `prototypeRepository.getByPrototypeId` to prefer the
- *   `prototypeMapStore` snapshot and fall back to the ProtoPedia API
- *   when necessary.
+ * - It resolves ids through `getPrototypeById` (the prototypes gateway), which
+ *   reads the promidas snapshot or the legacy map-store depending on the
+ *   `USE_PROMIDAS_REPOSITORY` flag.
  */
 'use client';
 
 import { useCallback, useState } from 'react';
 
+import { getPrototypeById } from '@/app/actions/prototypes-gateway';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import { prototypeRepository } from '@/lib/repositories/prototype-repository';
 
 type UsePlaylistPrototypeResult = {
   /** Latest prototype data fetched for playlist, or null if none. */
@@ -51,7 +51,7 @@ export function usePlaylistPrototype(): UsePlaylistPrototypeResult {
       // TryStatement with a finalizer, so setIsLoading(false) is set on both
       // the success and error paths instead of in a finally block.
       try {
-        const result = await prototypeRepository.getByPrototypeId(prototypeId);
+        const result = await getPrototypeById(prototypeId);
 
         if (result) {
           setPrototype(result);
