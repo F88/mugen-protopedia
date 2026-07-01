@@ -12,7 +12,7 @@ import { PrototypeRepository } from './types';
 // Simple repository for fetching prototypes via server functions.
 // Components should depend on this repository instead of calling fetch directly.
 export const prototypeRepository: PrototypeRepository = {
-  async getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp> {
+  async getByPrototypeId(id: number): Promise<PrototypeForMpp | undefined> {
     logger.info('prototypeRepository.getByPrototypeId called', { id });
     const stringId = String(id);
 

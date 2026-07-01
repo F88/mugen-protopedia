@@ -9,5 +9,5 @@ export interface PrototypeRepository {
    *
    * @param ids
    */
-  getByPrototypeId(id: number): Promise<undefined | PrototypeForMpp>;
+  getByPrototypeId(id: number): Promise<PrototypeForMpp | undefined>;
 }
