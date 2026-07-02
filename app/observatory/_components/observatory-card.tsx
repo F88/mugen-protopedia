@@ -66,7 +66,7 @@ export function ObservatoryCard({
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
+          style={{ backgroundImage: `url("${backgroundImage}")` }}
         />
       ) : null}
       <div
