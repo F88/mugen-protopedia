@@ -80,6 +80,7 @@ export default function ObservatoryPage() {
               icon="🎉"
               color={observatoryTheme.cards.helloWorld.colorScheme}
               href="/observatory/hello-world"
+              // backgroundImage="/icons/icon-1024x1024.png"
               className={
                 observatoryFonts[observatoryTheme.cards.helloWorld.font]
                   .className

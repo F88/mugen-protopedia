@@ -28,6 +28,11 @@ export interface ObservatoryCardProps {
   className?: string;
   titleSize?: string;
   descriptionSize?: string;
+  /**
+   * Optional background image URL. Rendered as a subtle, low-opacity layer
+   * behind the card content so text stays readable.
+   */
+  backgroundImage?: string;
 }
 
 /** Detects an absolute external URL (http/https). */
@@ -46,6 +51,7 @@ export function ObservatoryCard({
   className,
   titleSize = 'text-xl',
   descriptionSize = 'text-lg',
+  backgroundImage,
 }: ObservatoryCardProps) {
   const styles = colorStyles[color];
   const isComingSoon = href == null;
@@ -53,6 +59,13 @@ export function ObservatoryCard({
 
   const content = (
     <>
+      {backgroundImage != null ? (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+        />
+      ) : null}
       <div
         className={`absolute inset-0 bg-linear-to-br ${styles.gradient} to-transparent dark:to-transparent opacity-50 ${
           !isComingSoon ? 'group-hover:opacity-100 transition-opacity' : ''
