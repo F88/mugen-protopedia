@@ -37,7 +37,7 @@ export function PeriodicTableSection({ elements }: PeriodicTableSectionProps) {
           id="periodic-table-heading"
           className={`${cinzelFont.className} text-2xl font-semibold text-violet-950 dark:text-violet-100 sm:text-3xl`}
         >
-          The Periodic Table
+          The Elements
         </h2>
         <p className="mt-2 text-violet-900/80 dark:text-violet-200/80">
           Every material as an element. Its atomic number is how common it is; its

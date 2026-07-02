@@ -9,6 +9,7 @@ import {
 } from './components/periodic-table-section';
 
 /** How many materials to lay out on the table (a real periodic table has 118). */
+// const MAX_ELEMENTS = 9999;
 const MAX_ELEMENTS = 118;
 
 function toRankedElements(
