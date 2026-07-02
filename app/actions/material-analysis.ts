@@ -62,5 +62,5 @@ export async function getMaterialAnalysis(): Promise<GetMaterialAnalysisResult> 
     return { ok: false, error: result.error };
   }
 
-  return { ok: true, data: buildMaterialInsights(result.data) };
+  return { ok: true, data: buildMaterialInsights(result.data, { logger }) };
 }

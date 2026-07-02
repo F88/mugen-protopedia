@@ -10,6 +10,10 @@
  */
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
+type MinimalLogger = {
+  debug: (payload: unknown, message?: string) => void;
+};
+
 /** A work that uses many materials (The Kitchen Sink). */
 export interface KitchenSinkEntry {
   id: number;
@@ -154,7 +158,9 @@ function median(values: number[]): number {
 
 export function buildMaterialInsights(
   prototypes: PrototypeForMpp[],
+  options?: { logger?: MinimalLogger },
 ): MaterialInsights {
+  const startTime = Date.now();
   const kitchenSink: KitchenSinkEntry[] = [];
   // Full material frequency (all occurrences, like buildMaterialAnalytics) —
   // computed here so this is the only pass over the dataset.
@@ -351,6 +357,21 @@ export function buildMaterialInsights(
       count: s.total,
       series: s.series,
     }));
+
+  if (options?.logger) {
+    options.logger.debug(
+      {
+        elapsedMs: Date.now() - startTime,
+        totalSamples: prototypes.length,
+        distinctMaterials: Object.keys(materialCounts).length,
+        primordial: primordial.length,
+        risingVapors: risingVapors.length,
+        newfound: newfound.length,
+        lostTech: lostTech.length,
+      },
+      '[ANALYSIS] Built material insights',
+    );
+  }
 
   return {
     materialCounts,

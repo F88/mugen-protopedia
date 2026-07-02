@@ -291,6 +291,7 @@ export function PrimordialSection({
   limit?: number;
 }) {
   if (materials.length === 0) return null;
+  const rows = topNWithTies(materials, limit, (e) => e.firstYear);
   return (
     <section aria-labelledby="primordial-heading" className="mt-12">
       <SectionHeading
@@ -299,7 +300,7 @@ export function PrimordialSection({
         description="Ancient and unkillable — elements from the elder days that have never once skipped a year. The immortal bedrock makers still build on."
       />
       <ol className="space-y-1">
-        {topNWithTies(materials, limit, (e) => e.firstYear).map((entry) => (
+        {rows.map((entry) => (
           <li
             key={entry.material}
             className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
@@ -351,6 +352,7 @@ export function RisingVaporsSection({
   limit?: number;
 }) {
   if (materials.length === 0) return null;
+  const rows = topNWithTies(materials, limit, (e) => e.count);
   return (
     <section aria-labelledby="rising-vapors-heading" className="mt-12">
       <SectionHeading
@@ -359,7 +361,7 @@ export function RisingVaporsSection({
         description="Reagents that have stirred the cauldron in the last two years. Not yet ancient, but no longer new — the elements currently shaping the landscape of our alchemy, rising with a momentum that cannot be ignored."
       />
       <ol className="space-y-1">
-        {topNWithTies(materials, limit, (e) => e.count).map((entry) => (
+        {rows.map((entry) => (
           <li
             key={entry.material}
             className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
@@ -471,6 +473,7 @@ export function LostTechnologySection({
   limit?: number;
 }) {
   if (materials.length === 0) return null;
+  const rows = topNWithTies(materials, limit, (e) => e.count);
   return (
     <section aria-labelledby="lost-tech-heading" className="mt-12">
       <SectionHeading
@@ -479,7 +482,7 @@ export function LostTechnologySection({
         description="Ghosts of workshops past — elements that burned bright for years, then fell silent. Gathering dust, unused for two winters and counting."
       />
       <ol className="space-y-1">
-        {topNWithTies(materials, limit, (e) => e.count).map((entry) => (
+        {rows.map((entry) => (
           <li
             key={entry.material}
             className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"

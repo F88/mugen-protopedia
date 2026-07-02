@@ -54,6 +54,7 @@ async function AlchemistsTableDashboard() {
   return (
     <>
       <PeriodicTableSection elements={elements} />
+
       <PrimordialSection
         materials={insights.primordial}
         //
@@ -70,7 +71,11 @@ async function AlchemistsTableDashboard() {
         limit={30}
       />
 
-      <NewfoundSection materials={insights.newfound} limit={30} />
+      <NewfoundSection
+        materials={insights.newfound}
+        //
+        limit={30}
+      />
 
       <KitchenSinkSection works={insights.kitchenSink} />
       <LessIsMoreSection buckets={insights.countEngagement} />
