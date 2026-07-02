@@ -12,7 +12,8 @@ export type ObservatoryCardColorScheme =
   | 'amber'
   | 'gold'
   | 'cyber'
-  | 'newspaper';
+  | 'newspaper'
+  | 'alchemy';
 
 export interface ObservatoryCardProps {
   title: string;

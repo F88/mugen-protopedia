@@ -16,6 +16,18 @@ and this project adheres to [CalVer](https://calver.org/).
     - `ObservatoryCard` now supports external URLs (opened in a new tab with an
       external-link icon) and rich `ReactNode` descriptions.
     - New `newspaper` card color scheme for a vintage newsprint look.
+- Add "The Alchemist's Table" Observatory page (`/observatory/alchemists-table`),
+  a materials-themed page. Backed by a dedicated `getMaterialAnalysis` /
+  material-insights source, kept separate from the base analysis so it does not
+  slow the top page.
+    - The Elements — usage-ranked catalog of materials.
+    - The Magnum Opus — works using the most materials.
+    - Less is More? — median views and likes by material count.
+    - An alchemist's timeline of materials, with sparklines: The Primordial
+      Element, The Rising Vapors, The Newfound Element (monthly), Lost Technology.
+    - New `alchemy` card color scheme; Cinzel Decorative + Science Gothic fonts.
+      Concept spec: `docs/observatory/content/the-alchemists-table.md`.
+- Switch The Sci-Fi Lab card font to Science Gothic.
 
 ## [2026.07.01]
 

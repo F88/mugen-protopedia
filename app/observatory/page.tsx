@@ -150,6 +150,24 @@ export default function ObservatoryPage() {
               }
             />
 
+            {/* ObservatoryCard for The Alchemist */}
+            <ObservatoryCard
+              title="The Alchemist's Table"
+              description="The elements of creation. Discover the materials makers build with, the golden combinations, and the alchemists who first fused them."
+              icon="⚗️"
+              color={observatoryTheme.cards.alchemistsTable.colorScheme}
+              href="/observatory/alchemists-table"
+              className={
+                observatoryFonts[observatoryTheme.cards.alchemistsTable.font]
+                  .className
+              }
+              titleClassName={
+                observatoryFonts[
+                  observatoryTheme.cards.alchemistsTable.titleFont
+                ].className
+              }
+            />
+
             {/* The Sci-Fi Lab Feature Card */}
             <ObservatoryCard
               title="The Sci-Fi Lab"
@@ -161,8 +179,6 @@ export default function ObservatoryPage() {
               className={
                 observatoryFonts[observatoryTheme.cards.sciFiLab.font].className
               }
-              titleSize={observatoryTheme.cards.sciFiLab.titleSize}
-              descriptionSize={observatoryTheme.cards.sciFiLab.descriptionSize}
             />
 
             {/* The Explorer's Guild Feature Card */}

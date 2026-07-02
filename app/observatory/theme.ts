@@ -86,10 +86,10 @@ export const observatoryTheme = {
       colorScheme: 'gray',
     },
     sciFiLab: {
-      font: 'VT323',
+      font: 'Science_Gothic',
       colorScheme: 'cyber',
-      titleSize: 'text-3xl',
-      descriptionSize: 'text-2xl',
+      // titleSize: 'text-3xl',
+      // descriptionSize: 'text-2xl',
     },
     explorersGuild: {
       font: 'Rye',
@@ -99,6 +99,11 @@ export const observatoryTheme = {
       font: 'Marcellus',
       titleFont: 'Cinzel',
       colorScheme: 'newspaper',
+    },
+    alchemistsTable: {
+      font: 'Marcellus',
+      titleFont: 'Cinzel_Decorative',
+      colorScheme: 'alchemy',
     },
   },
 
@@ -187,6 +192,21 @@ export const observatoryTheme = {
       linkText: 'text-stone-700 dark:text-stone-300',
       textColor: 'text-stone-900 dark:text-stone-100',
       descriptionColor: 'text-stone-700 dark:text-stone-300',
+    },
+    // Witch's cauldron / mad-lab: red flames at the bottom heat a bubbling
+    // green brew, with violet smoke curling up top. Vertical (bottom -> top)
+    // gradient tells that story; green accents are the glowing potion.
+    alchemy: {
+      gradient: 'from-emerald-200 dark:from-emerald-800/30',
+      cardBg:
+        'bg-gradient-to-t from-red-300/70 via-orange-200/50 to-violet-300/70 dark:from-red-900/85 dark:via-orange-950/50 dark:to-violet-950/85',
+      iconBg:
+        'bg-gradient-to-t from-red-400 to-emerald-400 dark:from-red-800 dark:to-emerald-700',
+      iconText: 'text-emerald-900 dark:text-lime-300',
+      hoverText: 'group-hover:text-emerald-600 dark:group-hover:text-lime-300',
+      linkText: 'text-emerald-700 dark:text-lime-300',
+      textColor: 'text-violet-950 dark:text-emerald-50',
+      descriptionColor: 'text-violet-900 dark:text-emerald-100',
     },
   },
 

@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as prototypeActions from '@/app/actions/prototypes';
+import * as prototypeActions from '@/app/actions/prototypes-gateway';
 import { useMaxPrototypeId } from '@/lib/hooks/use-max-prototype-id';
 import { logger } from '@/lib/logger.client';
 
