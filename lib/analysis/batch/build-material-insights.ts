@@ -42,33 +42,78 @@ export interface MaterialCountBucket {
   medianViews: number;
 }
 
-/** A long-lived material and when it first appeared (The Primordial Element). */
+/**
+ * A material that debuted long ago and has been used EVERY year since, up to the
+ * latest year in the data (The Primordial Element) — old but still going.
+ */
 export interface PrimordialEntry {
   material: string;
-  firstReleaseDate: string;
+  firstYear: number;
+  latestYear: number;
   count: number;
+  /** Per-year usage counts from `firstYear` to `latestYear` (all > 0). */
+  series: number[];
 }
 
-/** A material over-represented among retired works (Lost Technology). */
+/**
+ * A material that was used for years but has gone silent recently — used in the
+ * past yet not in the last couple of years (Lost Technology).
+ */
 export interface LostTechEntry {
   material: string;
+  firstYear: number;
+  lastYear: number;
   count: number;
+  /** Per-year usage counts from `firstYear` to `latestYear` (trailing zeros). */
+  series: number[];
+}
+
+/**
+ * A material that debuted in the last couple of years (not this year) and is
+ * still in use (The Rising Vapors) — the recent risers shaping the mainstream.
+ */
+export interface RisingVaporsEntry {
+  material: string;
+  firstYear: number;
+  count: number;
+  /** Per-year usage counts from the global earliest year to `latestYear`. */
+  series: number[];
+}
+
+/**
+ * A material first used within the trailing 12 months (The Newfound Element) —
+ * the freshest sparks. `series` is 12 MONTHLY counts (oldest -> newest).
+ */
+export interface NewfoundEntry {
+  material: string;
+  count: number;
+  /** Per-month usage counts for the trailing 12 months (oldest -> newest). */
+  series: number[];
 }
 
 export interface MaterialInsights {
   kitchenSink: KitchenSinkEntry[];
   countEngagement: MaterialCountBucket[];
   primordial: PrimordialEntry[];
+  risingVapors: RisingVaporsEntry[];
+  newfound: NewfoundEntry[];
   lostTech: LostTechEntry[];
+  /** Latest release year present in the data. */
+  latestYear: number;
 }
 
-const TOP_LIMIT = 12;
 /** The Kitchen Sink is shown as a ranking, so it lists more entries. */
 const KITCHEN_SINK_LIMIT = 20;
 /** Minimum overall usage for a material to count as "primordial" (not a one-off). */
-const MIN_COUNT_FOR_PRIMORDIAL = 5;
-/** Retired prototype status (供養). */
-const STATUS_RETIRED = 4;
+const MIN_COUNT_FOR_PRIMORDIAL = 20;
+/** Minimum lifespan (years, inclusive) to count as "old" for The Primordial Element. */
+const MIN_SPAN_YEARS = 5;
+/** Silent years (including the latest) that mark a material as Lost Technology. */
+const LOST_SILENT_YEARS = 2;
+/** Minimum distinct active years for a material to count as Lost Technology. */
+const MIN_ACTIVE_YEARS_FOR_LOST = 3;
+/** Debut window (years back from latest) to count as a Rising Star newcomer. */
+const NEWCOMER_DEBUT_WINDOW = 2;
 
 function bucketLabel(materialCount: number): string {
   if (materialCount <= 3) return '1-3';
@@ -79,6 +124,22 @@ function bucketLabel(materialCount: number): string {
 }
 
 const BUCKET_ORDER = ['1-3', '4-5', '6-10', '10-15', '15+'] as const;
+
+/** `YYYY-MM` for a date string (used by The Newfound Element's monthly view). */
+function toYearMonth(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** The trailing `count` months (oldest -> newest) ending at the current month. */
+function trailingMonths(count: number, now: Date = new Date()): string[] {
+  const months: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return months;
+}
 
 /** Median of a non-empty number array. */
 function median(values: number[]): number {
@@ -99,8 +160,19 @@ export function buildMaterialInsights(
   const bucketLikes: Record<string, number[]> = {};
   const bucketViews: Record<string, number[]> = {};
 
-  const earliestByMaterial: Record<string, string> = {};
-  const retiredMaterialCounts: Record<string, number> = {};
+  // Per-material yearly usage counts (foundation for time-based sections).
+  const yearlyByMaterial: Record<string, Record<number, number>> = {};
+  // Per-material monthly counts, kept only for the trailing 12 months window
+  // (The Newfound Element uses month granularity, not year).
+  const monthlyByMaterial: Record<string, Record<string, number>> = {};
+  const windowMonths = trailingMonths(12);
+  const windowStart = windowMonths[0];
+  const windowMonthsSet = new Set(windowMonths);
+  // Earliest release/create date per material — a FAIR tiebreak (unlike name,
+  // which would decide board inclusion by spelling).
+  const firstDateByMaterial: Record<string, string> = {};
+  let latestYear = 0;
+  let earliestYear = Infinity;
 
   for (const prototype of prototypes) {
     const materials = Array.isArray(prototype.materials)
@@ -124,22 +196,30 @@ export function buildMaterialInsights(
     bucketLikes[label].push(prototype.goodCount);
     bucketViews[label].push(prototype.viewCount);
 
-    // The Primordial Element (earliest release per material)
-    const releaseDate = prototype.releaseDate;
-    if (releaseDate != null && releaseDate !== '') {
+    // Per-material yearly counts (Primordial / Lost Technology) and monthly
+    // counts within the trailing-12-months window (The Newfound Element).
+    const dateStr = prototype.releaseDate || prototype.createDate;
+    const parsed = dateStr != null ? new Date(dateStr) : null;
+    const year =
+      parsed != null && !Number.isNaN(parsed.getTime())
+        ? parsed.getFullYear()
+        : NaN;
+    if (!Number.isNaN(year) && parsed != null && dateStr != null) {
+      if (year > latestYear) latestYear = year;
+      if (year < earliestYear) earliestYear = year;
+      const ym = `${year}-${String(parsed.getMonth() + 1).padStart(2, '0')}`;
+      const inWindow = windowMonthsSet.has(ym);
       for (const material of materials) {
-        const current = earliestByMaterial[material];
-        if (current == null || releaseDate < current) {
-          earliestByMaterial[material] = releaseDate;
+        if (yearlyByMaterial[material] == null) yearlyByMaterial[material] = {};
+        yearlyByMaterial[material][year] =
+          (yearlyByMaterial[material][year] ?? 0) + 1;
+        const prev = firstDateByMaterial[material];
+        if (prev == null || dateStr < prev) firstDateByMaterial[material] = dateStr;
+        if (inWindow) {
+          if (monthlyByMaterial[material] == null) monthlyByMaterial[material] = {};
+          monthlyByMaterial[material][ym] =
+            (monthlyByMaterial[material][ym] ?? 0) + 1;
         }
-      }
-    }
-
-    // Lost Technology (materials among retired works)
-    if (prototype.status === STATUS_RETIRED) {
-      for (const material of materials) {
-        retiredMaterialCounts[material] =
-          (retiredMaterialCounts[material] ?? 0) + 1;
       }
     }
   }
@@ -159,27 +239,117 @@ export function buildMaterialInsights(
     };
   });
 
-  const primordial: PrimordialEntry[] = Object.entries(earliestByMaterial)
-    .filter(
-      ([material]) => (materialCounts[material] ?? 0) >= MIN_COUNT_FOR_PRIMORDIAL,
-    )
-    .map(([material, firstReleaseDate]) => ({
+  // Shared per-material year stats (drives Primordial and Lost Technology).
+  const yearStats = Object.entries(yearlyByMaterial).map(([material, byYear]) => {
+    const years = Object.keys(byYear).map(Number);
+    const firstYear = Math.min(...years);
+    const lastYear = Math.max(...years);
+    // Continuity is judged over the material's own lifespan (debut -> latest).
+    let continuous = true;
+    for (let y = firstYear; y <= latestYear; y++) {
+      if ((byYear[y] ?? 0) === 0) {
+        continuous = false;
+        break;
+      }
+    }
+    // Display series is aligned to the GLOBAL range so every sparkline shares
+    // the same width and the same year on the x-axis (leading/trailing zeros
+    // show when a material debuted / went silent).
+    const series: number[] = [];
+    for (let y = earliestYear; y <= latestYear; y++) series.push(byYear[y] ?? 0);
+    return {
       material,
-      firstReleaseDate,
-      count: materialCounts[material] ?? 0,
-    }))
-    .sort((a, b) => a.firstReleaseDate.localeCompare(b.firstReleaseDate))
-    .slice(0, TOP_LIMIT);
+      firstYear,
+      lastYear,
+      activeYears: years.length,
+      total: materialCounts[material] ?? 0,
+      firstDate: firstDateByMaterial[material] ?? '',
+      series,
+      continuous,
+    };
+  });
 
-  const lostTech: LostTechEntry[] = Object.entries(retiredMaterialCounts)
-    .map(([material, count]) => ({ material, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, TOP_LIMIT);
+  // Fair, deterministic tiebreak for equal counts: earliest release date wins a
+  // board slot (never the material's name — that would be decided by spelling).
+  const byDate = (a: { firstDate: string }, b: { firstDate: string }) =>
+    a.firstDate.localeCompare(b.firstDate);
+
+  // The Primordial Element: old debut, used every year since, still going.
+  const primordial: PrimordialEntry[] = yearStats
+    .filter(
+      (s) =>
+        s.continuous &&
+        s.total >= MIN_COUNT_FOR_PRIMORDIAL &&
+        latestYear - s.firstYear + 1 >= MIN_SPAN_YEARS,
+    )
+    .sort(
+      (a, b) => a.firstYear - b.firstYear || b.total - a.total || byDate(a, b),
+    )
+    .map((s) => ({
+      material: s.material,
+      firstYear: s.firstYear,
+      latestYear,
+      count: s.total,
+      series: s.series,
+    }));
+
+  // The Rising Vapors: debuted in the last couple of years (but NOT this year)
+  // and still used this year — recent risers, not brand new. No minimum count.
+  const risingVapors: RisingVaporsEntry[] = yearStats
+    .filter(
+      (s) =>
+        s.firstYear >= latestYear - NEWCOMER_DEBUT_WINDOW &&
+        s.firstYear < latestYear &&
+        s.lastYear === latestYear,
+    )
+    .sort(
+      (a, b) => b.total - a.total || b.firstYear - a.firstYear || byDate(a, b),
+    )
+    .map((s) => ({
+      material: s.material,
+      firstYear: s.firstYear,
+      count: s.total,
+      series: s.series,
+    }));
+
+  // The Newfound Element: first used within the trailing 12 months (month
+  // granularity). Series is 12 monthly counts; count = uses within the window
+  // (all of it, since the material first appeared inside the window).
+  const newfound: NewfoundEntry[] = Object.keys(firstDateByMaterial)
+    .map((material) => {
+      const firstDate = firstDateByMaterial[material];
+      const series = windowMonths.map((m) => monthlyByMaterial[material]?.[m] ?? 0);
+      const count = series.reduce((sum, c) => sum + c, 0);
+      return { material, firstDate, firstMonth: toYearMonth(firstDate), count, series };
+    })
+    .filter((s) => s.firstMonth >= windowStart && s.count > 0)
+    .sort((a, b) => b.count - a.count || a.firstDate.localeCompare(b.firstDate))
+    .map((s) => ({ material: s.material, count: s.count, series: s.series }));
+
+  // Lost Technology: real past usage, but silent for the last couple of years.
+  const lostTech: LostTechEntry[] = yearStats
+    .filter(
+      (s) =>
+        s.total >= MIN_COUNT_FOR_PRIMORDIAL &&
+        s.activeYears >= MIN_ACTIVE_YEARS_FOR_LOST &&
+        s.lastYear <= latestYear - LOST_SILENT_YEARS,
+    )
+    .sort((a, b) => b.total - a.total || byDate(a, b))
+    .map((s) => ({
+      material: s.material,
+      firstYear: s.firstYear,
+      lastYear: s.lastYear,
+      count: s.total,
+      series: s.series,
+    }));
 
   return {
     kitchenSink: kitchenSink.slice(0, KITCHEN_SINK_LIMIT),
     countEngagement,
     primordial,
+    risingVapors,
+    newfound,
     lostTech,
+    latestYear: Number.isFinite(latestYear) ? latestYear : 0,
   };
 }

@@ -11,6 +11,8 @@ import {
   KitchenSinkSection,
   LessIsMoreSection,
   PrimordialSection,
+  RisingVaporsSection,
+  NewfoundSection,
   LostTechnologySection,
 } from './components/insight-sections';
 
@@ -52,10 +54,26 @@ async function AlchemistsTableDashboard() {
   return (
     <>
       <PeriodicTableSection elements={elements} />
+      <PrimordialSection
+        materials={insights.primordial}
+        //
+        limit={30}
+      />
+      <RisingVaporsSection
+        materials={insights.risingVapors}
+        latestYear={insights.latestYear}
+        limit={30}
+      />
+      <LostTechnologySection
+        materials={insights.lostTech}
+        latestYear={insights.latestYear}
+        limit={30}
+      />
+
+      <NewfoundSection materials={insights.newfound} limit={30} />
+
       <KitchenSinkSection works={insights.kitchenSink} />
       <LessIsMoreSection buckets={insights.countEngagement} />
-      <PrimordialSection materials={insights.primordial} />
-      <LostTechnologySection materials={insights.lostTech} />
     </>
   );
 }
@@ -70,9 +88,19 @@ export function AlchemistsTableContent() {
           The Alchemist&apos;s Table
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-violet-900/80 dark:text-violet-200/80">
-          The elements of creation. Discover the materials makers build with — and
-          the combinations they forge.
+          The elements of creation. Discover the materials makers build with —
+          and the combinations they forge.
         </p>
+        <ul className="mx-auto mt-4 max-w-2xl space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
+          <li>* Analysis covers all prototypes on ProtoPedia.</li>
+          <li>* Materials are the tools and parts listed on each prototype.</li>
+          <li>
+            * Yearly figures use the release date (creation date if missing).
+          </li>
+          <li>
+            * Material names are counted as written (no spelling normalization).
+          </li>
+        </ul>
       </div>
 
       <div className="mx-auto max-w-6xl">

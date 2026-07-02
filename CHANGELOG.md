@@ -18,10 +18,12 @@ and this project adheres to [CalVer](https://calver.org/).
     - New `newspaper` card color scheme for a vintage newsprint look.
 - Add "The Alchemist's Table" Observatory page (`/observatory/alchemists-table`),
   a materials-themed page.
-    - Sections: The Elements (usage-ranked catalog of materials), The Magnum Opus
-      (works using the most materials), Less is More? (engagement by material
-      count), The Primordial Element (oldest materials still in use), and Lost
-      Technology (materials common among retired works).
+    - Sections: The Elements (usage-ranked catalog), The Magnum Opus (works using
+      the most materials), Less is More? (median views/likes by material count),
+      and an alchemist's timeline of materials with per-year (or per-month)
+      sparklines: The Primordial Element (used every year since debut), The
+      Rising Vapors (recent risers), The Newfound Element (first used in the last
+      12 months, monthly), and Lost Technology (used for years, now silent).
     - Backed by dedicated `getMaterialAnalysis` / material-insights sources, kept
       separate from the base analysis so they do not slow the top page.
     - New `alchemy` card color scheme (witch's-cauldron gradient), plus
