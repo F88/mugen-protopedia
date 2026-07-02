@@ -1,6 +1,6 @@
 ---
 lang: en
-title: 'The Alchemist''s Table - Content Spec'
+title: "The Alchemist's Table - Content Spec"
 status: draft
 related:
     - docs/observatory/analysis-ideas.md
@@ -144,7 +144,7 @@ The heart of the theme: turning base metals into gold.
 
 ## Experience and interaction
 
-The metaphor is strongest when the reader gets to *experiment*, not just read.
+The metaphor is strongest when the reader gets to _experiment_, not just read.
 
 - **The Crucible (実験台):** the interactive form of The Alchemist. Drop two
   materials into a crucible and watch the first work and representative works of

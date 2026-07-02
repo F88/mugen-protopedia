@@ -55,7 +55,10 @@ export interface PrimordialEntry {
   firstYear: number;
   latestYear: number;
   count: number;
-  /** Per-year usage counts from `firstYear` to `latestYear` (all > 0). */
+  /**
+   * Per-year usage counts from the global earliest year to `latestYear`
+   * (leading zeros before debut, then > 0 every year — it never skips one).
+   */
   series: number[];
 }
 
@@ -68,7 +71,10 @@ export interface LostTechEntry {
   firstYear: number;
   lastYear: number;
   count: number;
-  /** Per-year usage counts from `firstYear` to `latestYear` (trailing zeros). */
+  /**
+   * Per-year usage counts from the global earliest year to `latestYear`
+   * (leading zeros before debut, trailing zeros after it went silent).
+   */
   series: number[];
 }
 
@@ -125,11 +131,11 @@ function bucketLabel(materialCount: number): string {
   if (materialCount <= 3) return '1-3';
   if (materialCount <= 5) return '4-5';
   if (materialCount <= 10) return '6-10';
-  if (materialCount <= 15) return '10-15';
-  return '15+';
+  if (materialCount <= 15) return '11-15';
+  return '16+';
 }
 
-const BUCKET_ORDER = ['1-3', '4-5', '6-10', '10-15', '15+'] as const;
+const BUCKET_ORDER = ['1-3', '4-5', '6-10', '11-15', '16+'] as const;
 
 /** `YYYY-MM` for a date string (used by The Newfound Element's monthly view). */
 function toYearMonth(dateStr: string): string {
@@ -142,7 +148,9 @@ function trailingMonths(count: number, now: Date = new Date()): string[] {
   const months: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
     const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(`${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`);
+    months.push(
+      `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`,
+    );
   }
   return months;
 }
@@ -229,9 +237,11 @@ export function buildMaterialInsights(
         yearlyByMaterial[material][year] =
           (yearlyByMaterial[material][year] ?? 0) + 1;
         const prev = firstDateByMaterial[material];
-        if (prev == null || dateStr < prev) firstDateByMaterial[material] = dateStr;
+        if (prev == null || dateStr < prev)
+          firstDateByMaterial[material] = dateStr;
         if (inWindow) {
-          if (monthlyByMaterial[material] == null) monthlyByMaterial[material] = {};
+          if (monthlyByMaterial[material] == null)
+            monthlyByMaterial[material] = {};
           monthlyByMaterial[material][ym] =
             (monthlyByMaterial[material][ym] ?? 0) + 1;
         }
@@ -255,34 +265,37 @@ export function buildMaterialInsights(
   });
 
   // Shared per-material year stats (drives Primordial and Lost Technology).
-  const yearStats = Object.entries(yearlyByMaterial).map(([material, byYear]) => {
-    const years = Object.keys(byYear).map(Number);
-    const firstYear = Math.min(...years);
-    const lastYear = Math.max(...years);
-    // Continuity is judged over the material's own lifespan (debut -> latest).
-    let continuous = true;
-    for (let y = firstYear; y <= latestYear; y++) {
-      if ((byYear[y] ?? 0) === 0) {
-        continuous = false;
-        break;
+  const yearStats = Object.entries(yearlyByMaterial).map(
+    ([material, byYear]) => {
+      const years = Object.keys(byYear).map(Number);
+      const firstYear = Math.min(...years);
+      const lastYear = Math.max(...years);
+      // Continuity is judged over the material's own lifespan (debut -> latest).
+      let continuous = true;
+      for (let y = firstYear; y <= latestYear; y++) {
+        if ((byYear[y] ?? 0) === 0) {
+          continuous = false;
+          break;
+        }
       }
-    }
-    // Display series is aligned to the GLOBAL range so every sparkline shares
-    // the same width and the same year on the x-axis (leading/trailing zeros
-    // show when a material debuted / went silent).
-    const series: number[] = [];
-    for (let y = earliestYear; y <= latestYear; y++) series.push(byYear[y] ?? 0);
-    return {
-      material,
-      firstYear,
-      lastYear,
-      activeYears: years.length,
-      total: materialCounts[material] ?? 0,
-      firstDate: firstDateByMaterial[material] ?? '',
-      series,
-      continuous,
-    };
-  });
+      // Display series is aligned to the GLOBAL range so every sparkline shares
+      // the same width and the same year on the x-axis (leading/trailing zeros
+      // show when a material debuted / went silent).
+      const series: number[] = [];
+      for (let y = earliestYear; y <= latestYear; y++)
+        series.push(byYear[y] ?? 0);
+      return {
+        material,
+        firstYear,
+        lastYear,
+        activeYears: years.length,
+        total: materialCounts[material] ?? 0,
+        firstDate: firstDateByMaterial[material] ?? '',
+        series,
+        continuous,
+      };
+    },
+  );
 
   // Fair, deterministic tiebreak for equal counts: earliest release date wins a
   // board slot (never the material's name — that would be decided by spelling).
@@ -333,9 +346,17 @@ export function buildMaterialInsights(
   const newfound: NewfoundEntry[] = Object.keys(firstDateByMaterial)
     .map((material) => {
       const firstDate = firstDateByMaterial[material];
-      const series = windowMonths.map((m) => monthlyByMaterial[material]?.[m] ?? 0);
+      const series = windowMonths.map(
+        (m) => monthlyByMaterial[material]?.[m] ?? 0,
+      );
       const count = series.reduce((sum, c) => sum + c, 0);
-      return { material, firstDate, firstMonth: toYearMonth(firstDate), count, series };
+      return {
+        material,
+        firstDate,
+        firstMonth: toYearMonth(firstDate),
+        count,
+        series,
+      };
     })
     .filter((s) => s.firstMonth >= windowStart && s.count > 0)
     .sort((a, b) => b.count - a.count || a.firstDate.localeCompare(b.firstDate))

@@ -118,9 +118,9 @@ function KitchenSinkRow({
         </span>
       </div>
       <ul className="mt-1.5 flex flex-wrap gap-1 pl-9">
-        {work.materials.map((material) => (
+        {work.materials.map((material, idx) => (
           <li
-            key={material}
+            key={`${material}-${idx}`}
             className={`rounded-full border border-violet-300/50 bg-violet-100/70 px-1.5 py-0.5 leading-tight text-violet-800 dark:border-violet-400/20 dark:bg-violet-950/60 dark:text-violet-200 ${tier.chip}`}
           >
             {material}
@@ -246,7 +246,9 @@ function Sparkline({
         <div
           key={index}
           className={`w-1 rounded-sm sm:w-2 lg:w-3 ${value > 0 ? barClass : 'bg-transparent'}`}
-          style={{ height: `${Math.max((value / max) * 100, value > 0 ? 8 : 0)}%` }}
+          style={{
+            height: `${Math.max((value / max) * 100, value > 0 ? 8 : 0)}%`,
+          }}
         />
       ))}
     </div>
@@ -274,7 +276,9 @@ function topNWithTies<T>(items: T[], n: number, key: (item: T) => number): T[] {
 function competitionRanks<T>(items: T[], key: (item: T) => number): number[] {
   const ranks: number[] = [];
   for (let i = 0; i < items.length; i++) {
-    ranks.push(i > 0 && key(items[i]) === key(items[i - 1]) ? ranks[i - 1] : i + 1);
+    ranks.push(
+      i > 0 && key(items[i]) === key(items[i - 1]) ? ranks[i - 1] : i + 1,
+    );
   }
   return ranks;
 }
@@ -387,7 +391,9 @@ export function RisingVaporsSection({
       </ol>
       <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
         <li>* No minimum count — even a handful qualifies (💎)</li>
-        <li>* Found in {latestYear - 2}–{latestYear - 1} (the last two years)</li>
+        <li>
+          * Found in {latestYear - 2}–{latestYear - 1} (the last two years)
+        </li>
         <li>* Still used this year ({latestYear})</li>
         <li>* Ordered by most prototypes</li>
         <li>* Bars = prototypes per year</li>

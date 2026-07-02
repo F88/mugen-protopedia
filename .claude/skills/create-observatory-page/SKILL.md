@@ -28,7 +28,7 @@ This is a deliberate product decision by the user. The main app (`/`) values
 consistency; Observatory does not. So:
 
 - Do **not** homogenize a new page to match `hello-world/` (or any other page).
-  Matching fonts, colors, section rhythm, or component structure is a *choice*,
+  Matching fonts, colors, section rhythm, or component structure is a _choice_,
   never a requirement.
 - Every page is encouraged to have its own theme, palette, typography, background
   treatment, and even bespoke components that exist nowhere else.
@@ -54,7 +54,7 @@ summarizes them:
   **"Unacceptable ideas"** section — respect it.
 - `docs/observatory/ogp-guidelines.md` — per-page Open Graph image guidance.
 
-Use `hello-world/` as a *reference implementation* to learn the mechanics — not
+Use `hello-world/` as a _reference implementation_ to learn the mechanics — not
 as a template to clone verbatim.
 
 ## First, decide what you're building
@@ -151,7 +151,7 @@ Instead:
 - **Verify before done:** `npx tsc --noEmit` and `npx eslint <changed files>` must
   be clean. Prefer running the app (`npm run dev`) to eyeball a visual page.
 - **Conventional Commits** (`feat(observatory): ...`), and add a `CHANGELOG.md`
-  Unreleased entry on the *same* branch as the code. Keep list entries short.
+  Unreleased entry on the _same_ branch as the code. Keep list entries short.
 - **Branch first** if on `main`; open a PR when asked. Don't commit without the
   user's go.
 - Prefer explicit `!= null` over truthy/falsy checks for optional fields.

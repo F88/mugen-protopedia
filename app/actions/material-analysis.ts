@@ -39,8 +39,7 @@ export interface GetMaterialAnalysisFailure {
 }
 
 export type GetMaterialAnalysisResult =
-  | GetMaterialAnalysisSuccess
-  | GetMaterialAnalysisFailure;
+  GetMaterialAnalysisSuccess | GetMaterialAnalysisFailure;
 
 /**
  * Compute material insights for Observatory material-centric pages.
