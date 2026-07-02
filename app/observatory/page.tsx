@@ -73,7 +73,7 @@ export default function ObservatoryPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            {/* Hello World Feature Card */}
+            {/* ObservatoryCard for 'Hello World' */}
             <ObservatoryCard
               title="Hello World"
               description="Celebrate new creations. Witness the birth of light and vivid moments where new prototypes begin their journey."
@@ -82,6 +82,36 @@ export default function ObservatoryPage() {
               href="/observatory/hello-world"
               className={
                 observatoryFonts[observatoryTheme.cards.helloWorld.font]
+                  .className
+              }
+            />
+
+            {/* ObservatoryCard for 'ProtoPedia Summary' (external site) */}
+            <ObservatoryCard
+              title="ProtoPedia Summary"
+              description={
+                <>
+                  <p>
+                    A website that helps you discover trending projects on
+                    ProtoPedia.
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs">
+                    <li className="flex gap-1">
+                      <span aria-hidden="true">&bull;</span>
+                      <span>
+                        ProtoPedia Daily Summary - Highlights the day&apos;s
+                        notable projects based on views and likes, complete with
+                        AI-generated summaries and insights.
+                      </span>
+                    </li>
+                  </ul>
+                </>
+              }
+              icon="📰️"
+              color={observatoryTheme.cards.protopediaSummary.colorScheme}
+              href="https://protopedia-summary.higedaruma.net/"
+              className={
+                observatoryFonts[observatoryTheme.cards.protopediaSummary.font]
                   .className
               }
             />

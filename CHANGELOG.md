@@ -9,6 +9,14 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Add a "ProtoPedia Summary" card to the Observatory top page, linking to the
+  external site (<https://protopedia-summary.higedaruma.net/>).
+    - `ObservatoryCard` now supports external URLs (opened in a new tab with an
+      external-link icon) and rich `ReactNode` descriptions.
+    - New `newspaper` card color scheme for a vintage newsprint look.
+
 ## [2026.07.01]
 
 ### Added

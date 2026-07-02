@@ -1,20 +1,38 @@
 import type { Route } from 'next';
 import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 
 import { observatoryTheme } from '../theme';
 
 export type ObservatoryCardColorScheme =
-  'gray' | 'yellow' | 'pink' | 'purple' | 'amber' | 'gold' | 'cyber';
+  | 'gray'
+  | 'yellow'
+  | 'pink'
+  | 'purple'
+  | 'amber'
+  | 'gold'
+  | 'cyber'
+  | 'newspaper';
 
 export interface ObservatoryCardProps {
   title: string;
-  description: string;
+  description: React.ReactNode;
   icon: React.ReactNode;
   color: ObservatoryCardColorScheme;
-  href?: Route;
+  /**
+   * Destination link. Accepts an internal typed `Route` or an absolute
+   * external URL (e.g. `https://example.com`). External URLs are opened in a
+   * new tab. When omitted, the card is rendered in a "Coming soon" state.
+   */
+  href?: Route | (string & {});
   className?: string;
   titleSize?: string;
   descriptionSize?: string;
+}
+
+/** Detects an absolute external URL (http/https). */
+function isExternalHref(href: string): boolean {
+  return /^https?:\/\//.test(href);
 }
 
 const colorStyles = observatoryTheme.cardColors;
@@ -30,7 +48,8 @@ export function ObservatoryCard({
   descriptionSize = 'text-lg',
 }: ObservatoryCardProps) {
   const styles = colorStyles[color];
-  const isComingSoon = !href;
+  const isComingSoon = href == null;
+  const isExternal = href != null && isExternalHref(href);
 
   const content = (
     <>
@@ -49,24 +68,31 @@ export function ObservatoryCard({
             {icon}
           </div>
           <h2
-            className={`${titleSize} font-semibold ${
+            className={`${titleSize} font-semibold inline-flex items-center gap-1.5 ${
               isComingSoon
                 ? 'text-gray-500 dark:text-gray-400'
                 : `${styles.textColor} ${styles.hoverText} transition-colors`
             }`}
           >
             {title}
+            {isExternal ? (
+              <ExternalLink
+                aria-label="External site (opens in a new tab)"
+                role="img"
+                className="h-[0.7em] w-[0.7em] shrink-0 opacity-70"
+              />
+            ) : null}
           </h2>
         </div>
-        <p
+        <div
           className={`${descriptionSize} ${
             isComingSoon
               ? 'text-gray-500 dark:text-gray-500'
               : styles.descriptionColor
           } flex-1`}
         >
-          {description}
-        </p>
+          {typeof description === 'string' ? <p>{description}</p> : description}
+        </div>
         <div
           className={`mt-4 flex items-center text-sm font-medium ${
             isComingSoon
@@ -90,11 +116,23 @@ export function ObservatoryCard({
     );
   }
 
+  const cardClassName = `group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 ${styles.cardBg} dark:border-gray-800 hover:shadow-lg transition-all duration-300 backdrop-blur-[2px]`;
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cardClassName}
+      >
+        {content}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      href={href!}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 ${styles.cardBg} dark:border-gray-800 hover:shadow-lg transition-all duration-300 backdrop-blur-[2px]`}
-    >
+    <Link href={href as Route} className={cardClassName}>
       {content}
     </Link>
   );
