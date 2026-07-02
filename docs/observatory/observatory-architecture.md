@@ -198,6 +198,43 @@ Observatory uses a flexible header component:
 - Uses `<div role="banner">` instead of `<header>` for SEO flexibility
 - Consistent across Observatory pages but customizable per page
 
+### 6. Observatory Top Page Cards (`ObservatoryCard`)
+
+The Observatory landing page (`app/observatory/page.tsx`) is a grid of
+`ObservatoryCard` components (`app/observatory/_components/observatory-card.tsx`).
+Each card is configured via the `cards` and `cardColors` sections of
+`app/observatory/theme.ts`.
+
+**Link behavior (driven by `href`):**
+
+- **Internal route**: a typed `next/link` `Route` (e.g. `/observatory/hello-world`).
+- **External URL**: an absolute `http(s)://` URL. The card renders as an
+  `<a target="_blank" rel="noopener noreferrer">` and shows a Lucide
+  `ExternalLink` icon next to the title (with an accessible label). Use this for
+  linking out to related sites; external cards do not have their own page or OG
+  image.
+- **Coming soon**: omit `href` to render a disabled, dashed "Coming soon..."
+  card.
+
+**Key props:**
+
+- `color`: a key of `cardColors` (`gray`, `yellow`, `pink`, `purple`, `amber`,
+  `gold`, `cyber`, `newspaper`).
+- `className`: applied to the whole card body — typically the card font from
+  `observatoryFonts[cards.<key>.font].className`.
+- `titleClassName`: applied to the title (`<h2>`) only — use for a title-only
+  font (e.g. `cards.<key>.titleFont`) that differs from the body font.
+- `description`: a `string` (auto-wrapped in `<p>`) or any `ReactNode` for rich
+  content such as lists.
+- `backgroundImage`: optional URL rendered as a subtle low-opacity layer behind
+  the card content.
+- `titleSize` / `descriptionSize`: Tailwind text-size overrides.
+
+**Color schemes:** add new schemes to `cardColors` in `theme.ts`. Each scheme
+defines `gradient`, `cardBg`, `iconBg`, `iconText`, `hoverText`, `linkText`,
+`textColor`, and `descriptionColor` (with light/dark variants). The `hoverText`
+color must differ from `textColor`, or the hover state has no visible effect.
+
 ## Key Differences from Main App
 
 | Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |
@@ -244,6 +281,8 @@ Observatory uses a flexible header component:
     - Create `ObservatoryCard` in `app/observatory/page.tsx`
     - Configure in `app/observatory/theme.ts` cards section
     - Use appropriate font and color scheme
+    - Cards can also link to external sites (absolute URL) — see
+      [Observatory Top Page Cards](#6-observatory-top-page-cards-observatorycard)
 
 ### Naming Conventions
 
