@@ -26,6 +26,8 @@ export interface ObservatoryCardProps {
    */
   href?: Route | (string & {});
   className?: string;
+  /** Extra class names applied to the title (`<h2>`) only, e.g. a font. */
+  titleClassName?: string;
   titleSize?: string;
   descriptionSize?: string;
   /**
@@ -49,6 +51,7 @@ export function ObservatoryCard({
   color,
   href,
   className,
+  titleClassName,
   titleSize = 'text-xl',
   descriptionSize = 'text-lg',
   backgroundImage,
@@ -85,7 +88,7 @@ export function ObservatoryCard({
               isComingSoon
                 ? 'text-gray-500 dark:text-gray-400'
                 : `${styles.textColor} ${styles.hoverText} transition-colors`
-            }`}
+            } ${titleClassName ?? ''}`}
           >
             {title}
             {isExternal ? (

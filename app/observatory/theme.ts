@@ -97,6 +97,7 @@ export const observatoryTheme = {
     },
     protopediaSummary: {
       font: 'Marcellus',
+      titleFont: 'Cinzel',
       colorScheme: 'newspaper',
     },
   },

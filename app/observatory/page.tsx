@@ -115,6 +115,11 @@ export default function ObservatoryPage() {
                 observatoryFonts[observatoryTheme.cards.protopediaSummary.font]
                   .className
               }
+              titleClassName={
+                observatoryFonts[
+                  observatoryTheme.cards.protopediaSummary.titleFont
+                ].className
+              }
             />
 
             {/* Hall of Fame Feature Card (Coming Soon) */}
