@@ -95,6 +95,11 @@ export const observatoryTheme = {
       font: 'Rye',
       colorScheme: 'amber',
     },
+    protopediaSummary: {
+      font: 'Marcellus',
+      titleFont: 'Cinzel',
+      colorScheme: 'newspaper',
+    },
   },
 
   // Card colors mapping (for ObservatoryCard component)
@@ -171,6 +176,17 @@ export const observatoryTheme = {
       linkText: 'text-white dark:text-green-400',
       textColor: 'text-white dark:text-green-400',
       descriptionColor: 'text-gray-300 dark:text-green-500',
+    },
+    // Vintage daily-newspaper look: warm newsprint paper and black ink.
+    newspaper: {
+      gradient: 'from-amber-50 dark:from-stone-800/30',
+      cardBg: 'bg-stone-100/85 dark:bg-stone-900/80',
+      iconBg: 'bg-stone-200 dark:bg-stone-800',
+      iconText: 'text-stone-800 dark:text-stone-200',
+      hoverText: 'group-hover:text-red-800 dark:group-hover:text-red-400',
+      linkText: 'text-stone-700 dark:text-stone-300',
+      textColor: 'text-stone-900 dark:text-stone-100',
+      descriptionColor: 'text-stone-700 dark:text-stone-300',
     },
   },
 
