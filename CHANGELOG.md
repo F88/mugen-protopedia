@@ -16,6 +16,10 @@ and this project adheres to [CalVer](https://calver.org/).
     - `ObservatoryCard` now supports external URLs (opened in a new tab with an
       external-link icon) and rich `ReactNode` descriptions.
     - New `newspaper` card color scheme for a vintage newsprint look.
+- Add a "The Alchemist's Table" coming-soon card to the Observatory top page
+  (materials-themed page, not yet implemented), with a new `alchemy` card color
+  scheme (witch's-cauldron gradient). Concept spec:
+  `docs/observatory/content/the-alchemists-table.md`.
 
 ## [2026.07.01]
 
