@@ -16,10 +16,14 @@ and this project adheres to [CalVer](https://calver.org/).
     - `ObservatoryCard` now supports external URLs (opened in a new tab with an
       external-link icon) and rich `ReactNode` descriptions.
     - New `newspaper` card color scheme for a vintage newsprint look.
-- Add a "The Alchemist's Table" coming-soon card to the Observatory top page
-  (materials-themed page, not yet implemented), with a new `alchemy` card color
-  scheme (witch's-cauldron gradient). Concept spec:
-  `docs/observatory/content/the-alchemists-table.md`.
+- Add "The Alchemist's Table" Observatory page (`/observatory/alchemists-table`),
+  a materials-themed page whose first section is the Periodic Table of Materials.
+    - Backed by a dedicated `getMaterialAnalysis` source, kept separate from the
+      base analysis so it does not slow the top page.
+    - New `alchemy` card color scheme (witch's-cauldron gradient), plus
+      Cinzel Decorative (titles) and Science Gothic fonts. Concept spec:
+      `docs/observatory/content/the-alchemists-table.md`.
+- Switch The Sci-Fi Lab card font to Science Gothic.
 
 ## [2026.07.01]
 

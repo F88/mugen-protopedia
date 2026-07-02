@@ -156,15 +156,15 @@ export default function ObservatoryPage() {
               description="The elements of creation. Discover the materials makers build with, the golden combinations, and the alchemists who first fused them."
               icon="⚗️"
               color={observatoryTheme.cards.alchemistsTable.colorScheme}
-              href={undefined}
-              // href={'/observatory/alchemists-table/'}
+              href="/observatory/alchemists-table"
               className={
                 observatoryFonts[observatoryTheme.cards.alchemistsTable.font]
                   .className
               }
-              titleSize={observatoryTheme.cards.alchemistsTable.titleSize}
-              descriptionSize={
-                observatoryTheme.cards.alchemistsTable.descriptionSize
+              titleClassName={
+                observatoryFonts[
+                  observatoryTheme.cards.alchemistsTable.titleFont
+                ].className
               }
             />
 
@@ -179,8 +179,6 @@ export default function ObservatoryPage() {
               className={
                 observatoryFonts[observatoryTheme.cards.sciFiLab.font].className
               }
-              titleSize={observatoryTheme.cards.sciFiLab.titleSize}
-              descriptionSize={observatoryTheme.cards.sciFiLab.descriptionSize}
             />
 
             {/* The Explorer's Guild Feature Card */}

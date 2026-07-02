@@ -86,10 +86,10 @@ export const observatoryTheme = {
       colorScheme: 'gray',
     },
     sciFiLab: {
-      font: 'VT323',
+      font: 'Science_Gothic',
       colorScheme: 'cyber',
-      titleSize: 'text-3xl',
-      descriptionSize: 'text-2xl',
+      // titleSize: 'text-3xl',
+      // descriptionSize: 'text-2xl',
     },
     explorersGuild: {
       font: 'Rye',
@@ -101,10 +101,9 @@ export const observatoryTheme = {
       colorScheme: 'newspaper',
     },
     alchemistsTable: {
-      font: 'VT323',
+      font: 'Marcellus',
+      titleFont: 'Cinzel_Decorative',
       colorScheme: 'alchemy',
-      titleSize: 'text-3xl',
-      descriptionSize: 'text-2xl',
     },
   },
 

@@ -7,11 +7,13 @@
 import {
   Audiowide,
   Cinzel,
+  Cinzel_Decorative,
   Electrolize,
   Marcellus,
   Rye,
   VT323,
   M_PLUS_1_Code,
+  Science_Gothic,
 } from 'next/font/google';
 
 // Font definitions - Next.js requires individual const declarations
@@ -20,6 +22,17 @@ export const marcellusFont = Marcellus({ weight: '400', subsets: ['latin'] });
 export const cinzelFont = Cinzel({
   weight: ['400', '700'],
   subsets: ['latin'],
+});
+export const cinzelDecorativeFont = Cinzel_Decorative({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+});
+// Variable sci-fi grotesque; weight axis used as variable. `adjustFontFallback`
+// is disabled because next has no fallback-override metrics for this newer font
+// (otherwise it warns and skips fallback generation anyway).
+export const scienceGothicFont = Science_Gothic({
+  subsets: ['latin'],
+  adjustFontFallback: false,
 });
 export const electrolizeFont = Electrolize({
   weight: '400',
@@ -41,6 +54,8 @@ export const observatoryFonts = {
   VT323: vt323Font,
   Rye: ryeFont,
   M_PLUS_1_Code: mPlus1CodeFont,
+  Cinzel_Decorative: cinzelDecorativeFont,
+  Science_Gothic: scienceGothicFont,
 } as const;
 
 export type ObservatoryFontName = keyof typeof observatoryFonts;
