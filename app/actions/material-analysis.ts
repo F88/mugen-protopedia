@@ -17,14 +17,23 @@ import {
   buildMaterialAnalytics,
   type MaterialAnalytics,
 } from '@/lib/analysis/batch/build-material-analytics';
+import {
+  buildMaterialInsights,
+  type MaterialInsights,
+} from '@/lib/analysis/batch/build-material-insights';
 import { logger as baseLogger } from '@/lib/logger.server';
+
+/** Material analytics (frequency) plus derived insights for the page. */
+export type MaterialAnalysisData = MaterialAnalytics & {
+  insights: MaterialInsights;
+};
 
 /**
  * Successful response containing material analytics.
  */
 export interface GetMaterialAnalysisSuccess {
   ok: true;
-  data: MaterialAnalytics;
+  data: MaterialAnalysisData;
 }
 
 /**
@@ -58,6 +67,10 @@ export async function getMaterialAnalysis(): Promise<GetMaterialAnalysisResult> 
     return { ok: false, error: result.error };
   }
 
-  const data = buildMaterialAnalytics(result.data, { logger });
-  return { ok: true, data };
+  const analytics = buildMaterialAnalytics(result.data, { logger });
+  const insights = buildMaterialInsights(
+    result.data,
+    analytics.materialCounts,
+  );
+  return { ok: true, data: { ...analytics, insights } };
 }

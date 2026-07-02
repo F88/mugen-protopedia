@@ -7,6 +7,12 @@ import {
   PeriodicTableSection,
   type MaterialElement,
 } from './components/periodic-table-section';
+import {
+  KitchenSinkSection,
+  LessIsMoreSection,
+  PrimordialSection,
+  LostTechnologySection,
+} from './components/insight-sections';
 
 /** How many materials to lay out on the table (a real periodic table has 118). */
 // const MAX_ELEMENTS = 9999;
@@ -41,8 +47,17 @@ async function AlchemistsTableDashboard() {
   }
 
   const elements = toRankedElements(result.data.materialCounts);
+  const { insights } = result.data;
 
-  return <PeriodicTableSection elements={elements} />;
+  return (
+    <>
+      <PeriodicTableSection elements={elements} />
+      <KitchenSinkSection works={insights.kitchenSink} />
+      <LessIsMoreSection buckets={insights.countEngagement} />
+      <PrimordialSection materials={insights.primordial} />
+      <LostTechnologySection materials={insights.lostTech} />
+    </>
+  );
 }
 
 export function AlchemistsTableContent() {

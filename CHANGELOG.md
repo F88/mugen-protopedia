@@ -17,9 +17,13 @@ and this project adheres to [CalVer](https://calver.org/).
       external-link icon) and rich `ReactNode` descriptions.
     - New `newspaper` card color scheme for a vintage newsprint look.
 - Add "The Alchemist's Table" Observatory page (`/observatory/alchemists-table`),
-  a materials-themed page whose first section is the Periodic Table of Materials.
-    - Backed by a dedicated `getMaterialAnalysis` source, kept separate from the
-      base analysis so it does not slow the top page.
+  a materials-themed page.
+    - Sections: The Elements (usage-ranked catalog of materials), The Magnum Opus
+      (works using the most materials), Less is More? (engagement by material
+      count), The Primordial Element (oldest materials still in use), and Lost
+      Technology (materials common among retired works).
+    - Backed by dedicated `getMaterialAnalysis` / material-insights sources, kept
+      separate from the base analysis so they do not slow the top page.
     - New `alchemy` card color scheme (witch's-cauldron gradient), plus
       Cinzel Decorative (titles) and Science Gothic fonts. Concept spec:
       `docs/observatory/content/the-alchemists-table.md`.

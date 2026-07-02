@@ -27,9 +27,18 @@ function toSymbol(name: string): string {
 
 export interface PeriodicTableSectionProps {
   elements: MaterialElement[];
+  /**
+   * How many tiles to show on small screens (the rest are hidden below `sm`).
+   * This is a CSS-only responsive cap — SSR cannot know the viewport, so all
+   * tiles are rendered and the overflow is hidden on mobile via `max-sm:hidden`.
+   */
+  mobileLimit?: number;
 }
 
-export function PeriodicTableSection({ elements }: PeriodicTableSectionProps) {
+export function PeriodicTableSection({
+  elements,
+  mobileLimit = 28,
+}: PeriodicTableSectionProps) {
   return (
     <section aria-labelledby="periodic-table-heading" className="mt-4">
       <div className="mb-6">
@@ -40,8 +49,8 @@ export function PeriodicTableSection({ elements }: PeriodicTableSectionProps) {
           The Elements
         </h2>
         <p className="mt-2 text-violet-900/80 dark:text-violet-200/80">
-          Every material as an element. Its atomic number is how common it is; its
-          weight is how many works are built on it.
+          Every material as an element. Its atomic number is how common it is;
+          its weight is how many works are built on it.
         </p>
       </div>
 
@@ -52,7 +61,9 @@ export function PeriodicTableSection({ elements }: PeriodicTableSectionProps) {
             <li
               key={el.material}
               title={`${el.material} — used in ${el.count} works`}
-              className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition-colors hover:border-emerald-400/70 dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50"
+              className={`group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition-colors hover:border-emerald-400/70 dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50 ${
+                index >= mobileLimit ? 'max-sm:hidden' : ''
+              }`}
             >
               <span className="font-mono text-[10px] leading-none text-violet-700/70 dark:text-violet-300/60">
                 {atomicNumber}
