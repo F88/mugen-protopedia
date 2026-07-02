@@ -153,37 +153,76 @@ export function LessIsMoreSection({
 }: {
   buckets: MaterialCountBucket[];
 }) {
-  const maxRate = Math.max(...buckets.map((b) => b.avgGoodRate), 0.0001);
+  const maxViews = Math.max(...buckets.map((b) => b.medianViews), 1);
+  const maxLikes = Math.max(...buckets.map((b) => b.medianLikes), 1);
   return (
     <section aria-labelledby="less-is-more-heading" className="mt-12">
       <SectionHeading
         id="less-is-more-heading"
         title="Less is More?"
-        description="Average engagement by the number of materials a work uses. Do lean builds punch above their weight?"
+        description="Two independent axes by the number of materials a work uses: how much it is seen (views) and how much it is liked (likes). Do lean builds punch above their weight?"
       />
-      <div className="space-y-2">
+      <div className="space-y-4">
         {buckets.map((bucket) => (
-          <div key={bucket.label} className="flex items-center gap-3">
-            <span className="w-10 shrink-0 text-right font-mono text-sm text-violet-700 dark:text-violet-300">
-              {bucket.label}
-            </span>
-            <div className="h-5 flex-1 overflow-hidden rounded bg-violet-100 dark:bg-violet-950/50">
-              <div
-                className="h-full rounded bg-linear-to-r from-emerald-500 to-lime-400 dark:from-emerald-600 dark:to-lime-500"
-                style={{ width: `${(bucket.avgGoodRate / maxRate) * 100}%` }}
-              />
+          <div key={bucket.label}>
+            <div className="mb-1 flex items-baseline justify-between">
+              <span className="font-mono text-sm font-semibold text-violet-800 dark:text-violet-200">
+                {bucket.label} materials
+              </span>
+              <span className="font-mono text-xs text-violet-600/70 dark:text-violet-300/60">
+                {bucket.works.toLocaleString()} works
+              </span>
             </div>
-            <span className="w-28 shrink-0 font-mono text-xs text-violet-800 dark:text-emerald-200">
-              {(bucket.avgGoodRate * 100).toFixed(1)}% · {bucket.works} works
-            </span>
+            <MetricBar
+              label="views"
+              value={bucket.medianViews}
+              max={maxViews}
+              barClass="from-sky-400 to-indigo-400 dark:from-sky-600 dark:to-indigo-500"
+            />
+            <MetricBar
+              label="likes"
+              value={bucket.medianLikes}
+              max={maxLikes}
+              barClass="from-emerald-500 to-lime-400 dark:from-emerald-600 dark:to-lime-500"
+            />
           </div>
         ))}
       </div>
       <p className="mt-2 text-xs text-violet-700/70 dark:text-violet-300/60">
-        Good-rate = likes / views (works with at least 30 views). Correlation,
-        not causation.
+        Median views and median likes per work (independent axes, each scaled to
+        its own maximum). Correlation, not causation.
       </p>
     </section>
+  );
+}
+
+/** A single labeled metric bar (its own scale) used by Less is More?. */
+function MetricBar({
+  label,
+  value,
+  max,
+  barClass,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  barClass: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-10 shrink-0 text-right font-mono text-[10px] uppercase tracking-wide text-violet-500 dark:text-violet-400">
+        {label}
+      </span>
+      <div className="h-3 flex-1 overflow-hidden rounded bg-violet-100 dark:bg-violet-950/50">
+        <div
+          className={`h-full rounded bg-linear-to-r ${barClass}`}
+          style={{ width: `${(value / max) * 100}%` }}
+        />
+      </div>
+      <span className="w-16 shrink-0 whitespace-nowrap text-right font-mono text-xs text-violet-800 dark:text-emerald-200">
+        {value.toLocaleString()}
+      </span>
+    </div>
   );
 }
 

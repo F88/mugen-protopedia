@@ -27,14 +27,19 @@ function resolveAuthor(prototype: PrototypeForMpp): string {
   return users.join(', ');
 }
 
-/** Engagement aggregated by how many materials a work uses (Less is More?). */
+/**
+ * Engagement aggregated by how many materials a work uses (Less is More?).
+ * Uses likes directly (not likes/views): views measure exposure, likes measure
+ * appreciation, and the two are largely independent here — so dividing by views
+ * would inject noise rather than normalize. Median is robust to viral outliers.
+ */
 export interface MaterialCountBucket {
   label: string;
   works: number;
-  /** Mean good-rate (good/view) over works with enough views. */
-  avgGoodRate: number;
-  /** Mean good count over all works in the bucket. */
-  avgGood: number;
+  /** Median like (good) count of works in the bucket. */
+  medianLikes: number;
+  /** Median view count of works in the bucket. */
+  medianViews: number;
 }
 
 /** A long-lived material and when it first appeared (The Primordial Element). */
@@ -60,22 +65,29 @@ export interface MaterialInsights {
 const TOP_LIMIT = 12;
 /** The Kitchen Sink is shown as a ranking, so it lists more entries. */
 const KITCHEN_SINK_LIMIT = 20;
-/** Minimum views before a good-rate is trusted (avoids tiny-sample noise). */
-const MIN_VIEWS_FOR_RATE = 30;
 /** Minimum overall usage for a material to count as "primordial" (not a one-off). */
 const MIN_COUNT_FOR_PRIMORDIAL = 5;
 /** Retired prototype status (供養). */
 const STATUS_RETIRED = 4;
 
 function bucketLabel(materialCount: number): string {
-  if (materialCount <= 1) return '1';
-  if (materialCount === 2) return '2';
-  if (materialCount === 3) return '3';
+  if (materialCount <= 3) return '1-3';
   if (materialCount <= 5) return '4-5';
-  return '6+';
+  if (materialCount <= 10) return '6-10';
+  if (materialCount <= 15) return '10-15';
+  return '15+';
 }
 
-const BUCKET_ORDER = ['1', '2', '3', '4-5', '6+'] as const;
+const BUCKET_ORDER = ['1-3', '4-5', '6-10', '10-15', '15+'] as const;
+
+/** Median of a non-empty number array. */
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+}
 
 export function buildMaterialInsights(
   prototypes: PrototypeForMpp[],
@@ -83,11 +95,9 @@ export function buildMaterialInsights(
 ): MaterialInsights {
   const kitchenSink: KitchenSinkEntry[] = [];
 
-  // Less is More? accumulators, keyed by bucket label.
-  const bucketWorks: Record<string, number> = {};
-  const bucketGoodSum: Record<string, number> = {};
-  const bucketRateSum: Record<string, number> = {};
-  const bucketRateN: Record<string, number> = {};
+  // Less is More?: collect likes and views per bucket, then take medians.
+  const bucketLikes: Record<string, number[]> = {};
+  const bucketViews: Record<string, number[]> = {};
 
   const earliestByMaterial: Record<string, string> = {};
   const retiredMaterialCounts: Record<string, number> = {};
@@ -107,15 +117,12 @@ export function buildMaterialInsights(
       materials,
     });
 
-    // Less is More? (engagement by material count)
+    // Less is More? (likes and views by material count)
     const label = bucketLabel(materials.length);
-    bucketWorks[label] = (bucketWorks[label] ?? 0) + 1;
-    bucketGoodSum[label] = (bucketGoodSum[label] ?? 0) + prototype.goodCount;
-    if (prototype.viewCount >= MIN_VIEWS_FOR_RATE) {
-      bucketRateSum[label] =
-        (bucketRateSum[label] ?? 0) + prototype.goodCount / prototype.viewCount;
-      bucketRateN[label] = (bucketRateN[label] ?? 0) + 1;
-    }
+    if (bucketLikes[label] == null) bucketLikes[label] = [];
+    if (bucketViews[label] == null) bucketViews[label] = [];
+    bucketLikes[label].push(prototype.goodCount);
+    bucketViews[label].push(prototype.viewCount);
 
     // The Primordial Element (earliest release per material)
     const releaseDate = prototype.releaseDate;
@@ -140,16 +147,17 @@ export function buildMaterialInsights(
   kitchenSink.sort((a, b) => b.materialCount - a.materialCount);
 
   const countEngagement: MaterialCountBucket[] = BUCKET_ORDER.filter(
-    (label) => (bucketWorks[label] ?? 0) > 0,
-  ).map((label) => ({
-    label,
-    works: bucketWorks[label] ?? 0,
-    avgGood: (bucketGoodSum[label] ?? 0) / (bucketWorks[label] ?? 1),
-    avgGoodRate:
-      (bucketRateN[label] ?? 0) > 0
-        ? (bucketRateSum[label] ?? 0) / (bucketRateN[label] ?? 1)
-        : 0,
-  }));
+    (label) => (bucketLikes[label]?.length ?? 0) > 0,
+  ).map((label) => {
+    const likes = bucketLikes[label];
+    return {
+      label,
+      works: likes.length,
+      // Counts are integers; round the median (even-sized sets average two mids).
+      medianLikes: Math.round(median(likes)),
+      medianViews: Math.round(median(bucketViews[label])),
+    };
+  });
 
   const primordial: PrimordialEntry[] = Object.entries(earliestByMaterial)
     .filter(
