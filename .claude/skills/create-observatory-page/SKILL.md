@@ -121,6 +121,29 @@ Steps:
    `app/observatory/shared/fonts.ts`: import from `next/font/google`, export a
    `const`, and register it in the `observatoryFonts` map.
 
+## Data sourcing — keep the base analysis lean
+
+Observatory is **sub-content at its own URL**, not part of the 無限PP top page.
+The top page depends on the base analysis (`analyzePrototypesForServer` /
+`getLatestAnalysis`), so **do NOT bolt Observatory-specific analytics onto it** —
+growing that pipeline bloats it and slows the top page. This is a real
+performance boundary, not a style preference.
+
+Instead:
+
+- **Share the raw data, not the analysis.** Fetch prototypes via
+  `getAllPrototypes()` (`app/actions/prototypes-gateway`) — the same source the
+  base analysis uses — and compute your page's own metrics in a **dedicated**
+  server module/action (e.g. `app/actions/<page>-analysis.ts`). Reuse existing
+  batch builders in `lib/analysis/batch/` (e.g. `buildMaterialAnalytics`) rather
+  than duplicating logic or extending the shared `ServerPrototypeAnalysis` type.
+- **Compute lazily.** Observatory data need not exist at app startup; build it at
+  access time and cache with the page's `revalidate` (ISR), plus a page-specific
+  cache if the computation is expensive. Do not warm it on the top-page path.
+- **Only reach for `getLatestAnalysis()`** when your page genuinely wants the
+  base analysis that the top page already computes — not as a convenient bag to
+  extend.
+
 ## Repo conventions (do not skip)
 
 - **Half-width characters only** for all numbers/letters/symbols, including inside
