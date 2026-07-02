@@ -48,8 +48,8 @@ async function AlchemistsTableDashboard() {
     );
   }
 
-  const elements = toRankedElements(result.data.materialCounts);
-  const { insights } = result.data;
+  const insights = result.data;
+  const elements = toRankedElements(insights.materialCounts);
 
   return (
     <>

@@ -92,6 +92,8 @@ export interface NewfoundEntry {
 }
 
 export interface MaterialInsights {
+  /** Full material frequency histogram (all occurrences). */
+  materialCounts: Record<string, number>;
   kitchenSink: KitchenSinkEntry[];
   countEngagement: MaterialCountBucket[];
   primordial: PrimordialEntry[];
@@ -152,9 +154,11 @@ function median(values: number[]): number {
 
 export function buildMaterialInsights(
   prototypes: PrototypeForMpp[],
-  materialCounts: Record<string, number>,
 ): MaterialInsights {
   const kitchenSink: KitchenSinkEntry[] = [];
+  // Full material frequency (all occurrences, like buildMaterialAnalytics) —
+  // computed here so this is the only pass over the dataset.
+  const materialCounts: Record<string, number> = {};
 
   // Less is More?: collect likes and views per bucket, then take medians.
   const bucketLikes: Record<string, number[]> = {};
@@ -195,6 +199,11 @@ export function buildMaterialInsights(
     if (bucketViews[label] == null) bucketViews[label] = [];
     bucketLikes[label].push(prototype.goodCount);
     bucketViews[label].push(prototype.viewCount);
+
+    // Global material frequency (all occurrences, regardless of date validity).
+    for (const material of materials) {
+      materialCounts[material] = (materialCounts[material] ?? 0) + 1;
+    }
 
     // Per-material yearly counts (Primordial / Lost Technology) and monthly
     // counts within the trailing-12-months window (The Newfound Element).
@@ -344,6 +353,7 @@ export function buildMaterialInsights(
     }));
 
   return {
+    materialCounts,
     kitchenSink: kitchenSink.slice(0, KITCHEN_SINK_LIMIT),
     countEngagement,
     primordial,

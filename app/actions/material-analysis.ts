@@ -14,19 +14,13 @@
 
 import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
 import {
-  buildMaterialAnalytics,
-  type MaterialAnalytics,
-} from '@/lib/analysis/batch/build-material-analytics';
-import {
   buildMaterialInsights,
   type MaterialInsights,
 } from '@/lib/analysis/batch/build-material-insights';
 import { logger as baseLogger } from '@/lib/logger.server';
 
-/** Material analytics (frequency) plus derived insights for the page. */
-export type MaterialAnalysisData = MaterialAnalytics & {
-  insights: MaterialInsights;
-};
+/** Material frequency histogram plus all derived insights for the page. */
+export type MaterialAnalysisData = MaterialInsights;
 
 /**
  * Successful response containing material analytics.
@@ -49,11 +43,12 @@ export type GetMaterialAnalysisResult =
   | GetMaterialAnalysisFailure;
 
 /**
- * Compute material analytics for Observatory material-centric pages.
+ * Compute material insights for Observatory material-centric pages.
  *
- * Fetches the shared prototype dataset via {@link getAllPrototypes} and runs the
- * existing {@link buildMaterialAnalytics} batch builder. Does not run, or depend
- * on, the base server analysis.
+ * Fetches the shared prototype dataset via {@link getAllPrototypes} and runs
+ * {@link buildMaterialInsights} in a SINGLE pass (frequency histogram + yearly /
+ * monthly per-material data + all sections). Does not run, or depend on, the
+ * base server analysis.
  */
 export async function getMaterialAnalysis(): Promise<GetMaterialAnalysisResult> {
   const logger = baseLogger.child({ action: 'getMaterialAnalysis' });
@@ -67,10 +62,5 @@ export async function getMaterialAnalysis(): Promise<GetMaterialAnalysisResult> 
     return { ok: false, error: result.error };
   }
 
-  const analytics = buildMaterialAnalytics(result.data, { logger });
-  const insights = buildMaterialInsights(
-    result.data,
-    analytics.materialCounts,
-  );
-  return { ok: true, data: { ...analytics, insights } };
+  return { ok: true, data: buildMaterialInsights(result.data) };
 }
