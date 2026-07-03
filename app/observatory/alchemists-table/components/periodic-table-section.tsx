@@ -5,7 +5,7 @@
  * pseudo-symbol, an atomic number (= frequency rank) and an atomic weight
  * (= usage count). The hero and navigation surface of The Alchemist's Table.
  */
-import { cinzelFont } from '@/app/observatory/shared/fonts';
+import { SectionHeading, type SectionCopy } from './section-heading';
 
 export interface MaterialElement {
   material: string;
@@ -27,6 +27,7 @@ function toSymbol(name: string): string {
 
 export interface PeriodicTableSectionProps {
   elements: MaterialElement[];
+  copy: SectionCopy;
   /**
    * How many tiles to show on small screens (the rest are hidden below `sm`).
    * This is a CSS-only responsive cap — SSR cannot know the viewport, so all
@@ -37,22 +38,16 @@ export interface PeriodicTableSectionProps {
 
 export function PeriodicTableSection({
   elements,
+  copy,
   mobileLimit = 28,
 }: PeriodicTableSectionProps) {
   return (
     <section aria-labelledby="periodic-table-heading" className="mt-4">
-      <div className="mb-6">
-        <h2
-          id="periodic-table-heading"
-          className={`${cinzelFont.className} text-2xl font-semibold text-violet-950 dark:text-violet-100 sm:text-3xl`}
-        >
-          The Elements
-        </h2>
-        <p className="mt-2 text-violet-900/80 dark:text-violet-200/80">
-          Every material as an element. Its atomic number is how common it is;
-          its weight is how many works are built on it.
-        </p>
-      </div>
+      <SectionHeading
+        id="periodic-table-heading"
+        copy={copy}
+        className="mb-6"
+      />
 
       <ol className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-2">
         {elements.map((el, index) => {

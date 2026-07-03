@@ -7,9 +7,8 @@
  * - Less is More? (engagement by material count)
  * - The Primordial Element (oldest materials still in use)
  * - Lost Technology (materials common among retired works)
+ * - The Monumental Elements (most-used materials of all time)
  */
-import { cinzelFont } from '@/app/observatory/shared/fonts';
-
 import type {
   KitchenSinkEntry,
   MaterialCountBucket,
@@ -17,31 +16,10 @@ import type {
   RisingVaporsEntry,
   NewfoundEntry,
   LostTechEntry,
+  MonumentalEntry,
 } from '@/lib/analysis/batch/build-material-insights';
 
-function SectionHeading({
-  id,
-  title,
-  description,
-}: {
-  id: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="mb-4">
-      <h2
-        id={id}
-        className={`${cinzelFont.className} text-2xl font-semibold text-violet-950 dark:text-violet-100 sm:text-3xl`}
-      >
-        {title}
-      </h2>
-      <p className="mt-2 text-violet-900/80 dark:text-violet-200/80">
-        {description}
-      </p>
-    </div>
-  );
-}
+import { SectionHeading, type SectionCopy } from './section-heading';
 
 const PROTOTYPE_URL = 'https://protopedia.net/prototype/';
 
@@ -132,14 +110,16 @@ function KitchenSinkRow({
 }
 
 /** The Kitchen Sink — works assembled from the most materials. */
-export function KitchenSinkSection({ works }: { works: KitchenSinkEntry[] }) {
+export function KitchenSinkSection({
+  works,
+  copy,
+}: {
+  works: KitchenSinkEntry[];
+  copy: SectionCopy;
+}) {
   return (
     <section aria-labelledby="kitchen-sink-heading" className="mt-12">
-      <SectionHeading
-        id="kitchen-sink-heading"
-        title="The Magnum Opus"
-        description="The great work — creations forged from the most materials of all."
-      />
+      <SectionHeading id="kitchen-sink-heading" copy={copy} />
       <ol className="space-y-3">
         {works.map((work, index) => (
           <KitchenSinkRow key={work.id} work={work} index={index} />
@@ -152,18 +132,16 @@ export function KitchenSinkSection({ works }: { works: KitchenSinkEntry[] }) {
 /** Less is More? — engagement grouped by how many materials a work uses. */
 export function LessIsMoreSection({
   buckets,
+  copy,
 }: {
   buckets: MaterialCountBucket[];
+  copy: SectionCopy;
 }) {
   const maxViews = Math.max(...buckets.map((b) => b.medianViews), 1);
   const maxLikes = Math.max(...buckets.map((b) => b.medianLikes), 1);
   return (
     <section aria-labelledby="less-is-more-heading" className="mt-12">
-      <SectionHeading
-        id="less-is-more-heading"
-        title="Less is More?"
-        description="Two independent axes by the number of materials a work uses: how much it is seen (views) and how much it is liked (likes). Do lean builds punch above their weight?"
-      />
+      <SectionHeading id="less-is-more-heading" copy={copy} />
       <div className="space-y-4">
         {buckets.map((bucket) => (
           <div key={bucket.label}>
@@ -289,20 +267,18 @@ function competitionRanks<T>(items: T[], key: (item: T) => number): number[] {
  */
 export function PrimordialSection({
   materials,
+  copy,
   limit = 12,
 }: {
   materials: PrimordialEntry[];
+  copy: SectionCopy;
   limit?: number;
 }) {
   if (materials.length === 0) return null;
   const rows = topNWithTies(materials, limit, (e) => e.firstYear);
   return (
     <section aria-labelledby="primordial-heading" className="mt-12">
-      <SectionHeading
-        id="primordial-heading"
-        title="The Primordial Element"
-        description="Ancient and unkillable — elements from the elder days that have never once skipped a year. The immortal bedrock makers still build on."
-      />
+      <SectionHeading id="primordial-heading" copy={copy} />
       <ol className="space-y-1">
         {rows.map((entry) => (
           <li
@@ -348,10 +324,12 @@ export function PrimordialSection({
  */
 export function RisingVaporsSection({
   materials,
+  copy,
   latestYear,
   limit = 12,
 }: {
   materials: RisingVaporsEntry[];
+  copy: SectionCopy;
   latestYear: number;
   limit?: number;
 }) {
@@ -359,11 +337,7 @@ export function RisingVaporsSection({
   const rows = topNWithTies(materials, limit, (e) => e.count);
   return (
     <section aria-labelledby="rising-vapors-heading" className="mt-12">
-      <SectionHeading
-        id="rising-vapors-heading"
-        title="The Rising Vapors"
-        description="Reagents that have stirred the cauldron in the last two years. Not yet ancient, but no longer new — the elements currently shaping the landscape of our alchemy, rising with a momentum that cannot be ignored."
-      />
+      <SectionHeading id="rising-vapors-heading" copy={copy} />
       <ol className="space-y-1">
         {rows.map((entry) => (
           <li
@@ -408,9 +382,11 @@ export function RisingVaporsSection({
  */
 export function NewfoundSection({
   materials,
+  copy,
   limit = 12,
 }: {
   materials: NewfoundEntry[];
+  copy: SectionCopy;
   limit?: number;
 }) {
   if (materials.length === 0) return null;
@@ -418,11 +394,7 @@ export function NewfoundSection({
   const ranks = competitionRanks(rows, (e) => e.count);
   return (
     <section aria-labelledby="newfound-heading" className="mt-12">
-      <SectionHeading
-        id="newfound-heading"
-        title="The Newfound Element"
-        description="Strange new matter, freshly discovered — from the stars above or the trenches below. The newcomers the world just started using."
-      />
+      <SectionHeading id="newfound-heading" copy={copy} />
       <ol className="space-y-1">
         {rows.map((entry, index) => {
           // Style by the competition rank (not the row index), so tied ranks
@@ -471,10 +443,12 @@ export function NewfoundSection({
  */
 export function LostTechnologySection({
   materials,
+  copy,
   latestYear,
   limit = 12,
 }: {
   materials: LostTechEntry[];
+  copy: SectionCopy;
   latestYear: number;
   limit?: number;
 }) {
@@ -482,11 +456,7 @@ export function LostTechnologySection({
   const rows = topNWithTies(materials, limit, (e) => e.count);
   return (
     <section aria-labelledby="lost-tech-heading" className="mt-12">
-      <SectionHeading
-        id="lost-tech-heading"
-        title="Lost Technology"
-        description="Ghosts of workshops past — elements that burned bright for years, then fell silent. Gathering dust, unused for two winters and counting."
-      />
+      <SectionHeading id="lost-tech-heading" copy={copy} />
       <ol className="space-y-1">
         {rows.map((entry) => (
           <li
@@ -523,6 +493,67 @@ export function LostTechnologySection({
         </li>
         <li>* Ordered by most prototypes</li>
         <li>* Bars = prototypes per year (trailing empty = faded out)</li>
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * The Monumental Elements — the most-used materials of all time, ranked purely
+ * by total usage. A time-agnostic ranking that catches high-volume staples the
+ * temporal sections miss (still going with an early gap, faded, or just risen).
+ */
+export function MonumentalSection({
+  materials,
+  copy,
+  limit = 12,
+}: {
+  materials: MonumentalEntry[];
+  copy: SectionCopy;
+  limit?: number;
+}) {
+  if (materials.length === 0) return null;
+  const rows = topNWithTies(materials, limit, (e) => e.count);
+  const ranks = competitionRanks(rows, (e) => e.count);
+  return (
+    <section aria-labelledby="monumental-heading" className="mt-12">
+      <SectionHeading id="monumental-heading" copy={copy} />
+      <ol className="space-y-1">
+        {rows.map((entry, index) => {
+          // Style by the competition rank (not the row index), so tied ranks
+          // look identical — matching The Magnum Opus's rank tiers.
+          const tier = rankTier(ranks[index] - 1);
+          return (
+            <li
+              key={entry.material}
+              className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
+            >
+              <span className={`w-8 shrink-0 font-mono ${tier.number}`}>
+                {ranks[index]}
+              </span>
+              <span
+                className={`flex-1 truncate text-violet-950 dark:text-violet-100 ${tier.name}`}
+              >
+                {entry.material}
+              </span>
+              <Sparkline
+                series={entry.series}
+                barClass="bg-violet-500/70 dark:bg-violet-400/70"
+              />
+              <span
+                title={`${entry.count} prototypes`}
+                className={`shrink-0 whitespace-nowrap text-right font-mono text-amber-600 dark:text-amber-400 ${tier.count}`}
+              >
+                💎 {entry.count.toLocaleString()}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
+        <li>* Every material qualifies — no time constraints at all</li>
+        <li>* Ranked purely by total prototypes of all time (💎)</li>
+        <li>* Bars = prototypes per year</li>
       </ul>
     </section>
   );
