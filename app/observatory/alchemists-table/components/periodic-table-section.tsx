@@ -5,6 +5,7 @@
  * pseudo-symbol, an atomic number (= frequency rank) and an atomic weight
  * (= usage count). The hero and navigation surface of The Alchemist's Table.
  */
+import { cn } from '@/lib/utils';
 import { buildMaterialLink } from '@/lib/utils/prototype-utils';
 
 import { SectionHeading, type SectionCopy } from './section-heading';
@@ -57,14 +58,23 @@ export function PeriodicTableSection({
           return (
             <li
               key={el.material}
-              className={index >= mobileLimit ? 'max-sm:hidden' : undefined}
+              className={index >= mobileLimit ? 'max-sm:hidden ' : undefined}
             >
               <a
                 href={buildMaterialLink(el.material)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`${el.material} — used in ${el.count} works`}
-                className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition hover:border-amber-400 hover:shadow-[0_0_10px_0_rgba(251,191,36,0.85),0_0_28px_2px_rgba(245,158,11,0.55)] dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50"
+                className={cn(
+                  //
+                  `group relative flex aspect-square flex-col justify-between overflow-hidden`,
+                  `rounded-md border-2 p-1.5`,
+                  // `border-stone-600 dark:border-violet-400/20` /* no effect: overridden by the unlayered `* { border-color }` in globals.css (unlayered beats @layer utilities) */,
+                  `bg-linear-to-br from-stone-100 to-stone-50 dark:from-violet-950/70 dark:to-emerald-950/50`,
+                  // `hover:border-amber-400` /* no effect (same reason); gold hover comes from the shadow glow below */,
+                  `transition`,
+                  `hover:shadow-[0_0_10px_0_rgba(251,191,36,0.85),0_0_28px_2px_rgba(245,158,11,0.55)]`,
+                )}
               >
                 <div className="flex items-baseline justify-between font-mono text-[10px] leading-none">
                   <span className="text-violet-700/70 dark:text-violet-300/60">
