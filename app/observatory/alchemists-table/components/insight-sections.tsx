@@ -42,7 +42,7 @@ function rankTier(index: number): RankTier {
   if (index < 3) {
     return {
       number:
-        'w-6 shrink-0 text-xl sm:text-4xl font-bold text-amber-600 dark:text-amber-400',
+        'w-6 sm:w-10 shrink-0 text-xl sm:text-4xl font-bold text-amber-600 dark:text-amber-400',
       name: 'text-xl sm:text-2xl font-semibold',
       count: 'text-xl sm:text-2xl',
       chip: 'text-base sm:text-xl',
@@ -51,7 +51,7 @@ function rankTier(index: number): RankTier {
   if (index < 10) {
     return {
       number:
-        'w-6 shrink-0 text-base sm:text-2xl text-violet-500 dark:text-violet-400',
+        'w-6 sm:w-10 shrink-0 text-base sm:text-2xl text-violet-500 dark:text-violet-400',
       name: 'text-base sm:text-xl',
       count: 'text-base sm:text-xl',
       chip: 'text-sm sm:text-base',
@@ -59,7 +59,7 @@ function rankTier(index: number): RankTier {
   }
   return {
     number:
-      'w-6 shrink-0 text-sm sm:text-base text-violet-500 dark:text-violet-400',
+      'w-6 sm:w-10 shrink-0 text-sm sm:text-base text-violet-500 dark:text-violet-400',
     name: 'text-sm sm:text-lg',
     count: 'text-sm sm:text-lg',
     chip: 'text-xs sm:text-base',
@@ -317,7 +317,7 @@ function MaterialRankRow({
         barClass={cn(
           //
           barClass,
-          // "bg-yellow-400/700",
+          // 'bg-yellow-400/700',
         )}
       />
       <span
