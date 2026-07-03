@@ -41,7 +41,7 @@ export const revalidate = 3600;
 export default function AlchemistsTablePage() {
   return (
     <>
-      <ObservatoryHeader colorScheme="green" />
+      <ObservatoryHeader colorScheme="alchemy" />
       <main className={scienceGothicFont.className}>
         <AlchemistsTableBackground />
         <AlchemistsTableContent />
