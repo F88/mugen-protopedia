@@ -27,9 +27,10 @@ import {
   type SectionCopy,
 } from './section-heading';
 import { cn } from '@/lib/utils';
-import { buildMaterialLink } from '@/lib/utils/prototype-utils';
-
-const PROTOTYPE_URL = 'https://protopedia.net/prototype/';
+import {
+  buildMaterialLink,
+  buildPrototypeLink,
+} from '@/lib/utils/prototype-utils';
 
 /** Class sets per ranking tier, so the 3 styles live in one place. */
 interface RankTier {
@@ -90,7 +91,7 @@ function KitchenSinkRow({
         </span>
         <div className="flex-1 min-w-0">
           <a
-            href={`${PROTOTYPE_URL}${work.id}`}
+            href={buildPrototypeLink(work.id)}
             target="_blank"
             rel="noopener noreferrer"
             className={`block wrap-break-word text-violet-950 hover:text-emerald-700 dark:text-violet-100 dark:hover:text-emerald-300 ${tier.name}`}
