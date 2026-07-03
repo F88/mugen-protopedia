@@ -52,7 +52,7 @@ function rankTier(index: number): RankTier {
   if (index < 10) {
     return {
       number:
-        'w-6 sm:w-10 shrink-0 text-base sm:text-2xl text-violet-500 dark:text-violet-400',
+        'w-6 sm:w-10 shrink-0 text-base sm:text-2xl text-red-500 dark:text-red-400',
       name: 'text-base sm:text-xl',
       count: 'text-base sm:text-xl',
       chip: 'text-sm sm:text-base',
@@ -468,7 +468,7 @@ export function PrimordialSection({
         rows={rows.map((entry) => (
           <MaterialRankRow
             key={entry.material}
-            metaClassName="text-amber-700 dark:text-amber-300"
+            metaClassName="text-emerald-700 dark:text-emerald-300"
             metaTitle={`${entry.firstYear}–${entry.latestYear}`}
             metaContent={
               <>
@@ -513,13 +513,13 @@ export function RisingVaporsSection({
         rows={rows.map((entry) => (
           <MaterialRankRow
             key={entry.material}
-            metaClassName="text-amber-700 dark:text-amber-300"
+            metaClassName="text-orange-700 dark:text-orange-300"
             metaContent={entry.firstYear}
             material={entry.material}
             series={entry.series}
             count={entry.count}
-            barClass="bg-amber-500/70 dark:bg-amber-400/70"
-            countClassName="text-amber-700 dark:text-amber-300"
+            barClass="bg-orange-500/70 dark:bg-orange-400/70"
+            countClassName="text-orange-700 dark:text-orange-300"
           />
         ))}
       />
