@@ -19,7 +19,11 @@ import type {
   MonumentalEntry,
 } from '@/lib/analysis/batch/build-material-insights';
 
-import { SectionHeading, type SectionCopy } from './section-heading';
+import {
+  SectionHeading,
+  SectionNotes,
+  type SectionCopy,
+} from './section-heading';
 
 const PROTOTYPE_URL = 'https://protopedia.net/prototype/';
 
@@ -168,10 +172,7 @@ export function LessIsMoreSection({
           </div>
         ))}
       </div>
-      <p className="mt-2 text-xs text-violet-700/70 dark:text-violet-300/60">
-        Median views and median likes per work (independent axes, each scaled to
-        its own maximum). Correlation, not causation.
-      </p>
+      <SectionNotes notes={copy.notes} />
     </section>
   );
 }
@@ -307,13 +308,7 @@ export function PrimordialSection({
           </li>
         ))}
       </ol>
-      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
-        <li>* 20+ total prototypes (💎)</li>
-        <li>* Debuted 5+ years ago</li>
-        <li>* Used every year since debut (no gaps)</li>
-        <li>* Ordered by oldest debut</li>
-        <li>* Bars = prototypes per year</li>
-      </ul>
+      <SectionNotes notes={copy.notes} />
     </section>
   );
 }
@@ -363,15 +358,7 @@ export function RisingVaporsSection({
           </li>
         ))}
       </ol>
-      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
-        <li>* No minimum count — even a handful qualifies (💎)</li>
-        <li>
-          * Found in {latestYear - 2}–{latestYear - 1} (the last two years)
-        </li>
-        <li>* Still used this year ({latestYear})</li>
-        <li>* Ordered by most prototypes</li>
-        <li>* Bars = prototypes per year</li>
-      </ul>
+      <SectionNotes notes={copy.notes} latestYear={latestYear} />
     </section>
   );
 }
@@ -427,12 +414,7 @@ export function NewfoundSection({
           );
         })}
       </ol>
-      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
-        <li>* No minimum count — even a single spark qualifies (💎)</li>
-        <li>* Found in the last 12 months</li>
-        <li>* Ordered by most prototypes</li>
-        <li>* Bars = prototypes per month (last 12 months)</li>
-      </ul>
+      <SectionNotes notes={copy.notes} />
     </section>
   );
 }
@@ -485,15 +467,7 @@ export function LostTechnologySection({
           </li>
         ))}
       </ol>
-      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
-        <li>* 20+ total prototypes (💎)</li>
-        <li>* Used across 3+ years</li>
-        <li>
-          * No use in {latestYear - 1} or {latestYear} (the 2 latest years)
-        </li>
-        <li>* Ordered by most prototypes</li>
-        <li>* Bars = prototypes per year (trailing empty = faded out)</li>
-      </ul>
+      <SectionNotes notes={copy.notes} latestYear={latestYear} />
     </section>
   );
 }
@@ -550,11 +524,7 @@ export function MonumentalSection({
           );
         })}
       </ol>
-      <ul className="mt-2 space-y-0.5 text-xs text-violet-700/70 dark:text-violet-300/60">
-        <li>* Every material qualifies — no time constraints at all</li>
-        <li>* Ranked purely by total prototypes of all time (💎)</li>
-        <li>* Bars = prototypes per year</li>
-      </ul>
+      <SectionNotes notes={copy.notes} />
     </section>
   );
 }

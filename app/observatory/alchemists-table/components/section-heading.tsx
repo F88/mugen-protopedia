@@ -13,10 +13,16 @@ export interface LocalizedText {
   ja: string;
 }
 
-/** Bilingual heading copy (title + description) for one section. */
+/** Bilingual copy for one section: heading plus its footnote list. */
 export interface SectionCopy {
   title: LocalizedText;
   description: LocalizedText;
+  /**
+   * Footnote items shown beneath the section (selection criteria, sort order,
+   * constraints). Strings may contain the tokens `{latestYear}`,
+   * `{latestYear-1}`, `{latestYear-2}`, filled in by {@link SectionNotes}.
+   */
+  notes?: LocalizedText[];
 }
 
 /**
@@ -52,5 +58,46 @@ export function SectionHeading({
         {copy.description.ja}
       </p>
     </div>
+  );
+}
+
+/**
+ * Replace the year tokens (`{latestYear}`, `{latestYear-1}`, `{latestYear-2}`)
+ * in a note with the actual latest year. Notes without tokens (or sections that
+ * pass no `latestYear`) are returned unchanged.
+ */
+function fillYears(text: string, latestYear?: number): string {
+  if (latestYear == null) return text;
+  return text
+    .replaceAll('{latestYear-2}', String(latestYear - 2))
+    .replaceAll('{latestYear-1}', String(latestYear - 1))
+    .replaceAll('{latestYear}', String(latestYear));
+}
+
+/**
+ * The footnote list beneath a section (selection criteria, sort order,
+ * constraints), rendered bilingually. `latestYear` fills the year tokens used by
+ * the time-based sections; omit it where the notes carry no tokens.
+ */
+export function SectionNotes({
+  notes,
+  latestYear,
+}: {
+  notes?: SectionCopy['notes'];
+  latestYear?: number;
+}) {
+  if (notes == null || notes.length === 0) return null;
+  return (
+    <ul className="mt-2 space-y-1 text-xs text-violet-700/70 dark:text-violet-300/60">
+      {notes.map((note, index) => (
+        <li key={index}>
+          <span className="block">* {fillYears(note.en, latestYear)}</span>
+          {/* JA notes intentionally not rendered; kept in the data only. */}
+          {/* <span className="block pl-2 text-violet-600/60 dark:text-violet-300/45">
+            {fillYears(note.ja, latestYear)}
+          </span> */}
+        </li>
+      ))}
+    </ul>
   );
 }
