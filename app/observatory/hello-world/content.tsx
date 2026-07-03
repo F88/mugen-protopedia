@@ -222,6 +222,8 @@ async function HelloWorldDashboard() {
 function DashboardSkeleton() {
   return (
     <div className="space-y-12 animate-pulse">
+      <p className="py-12 text-center">Distilling the elements...</p>
+
       {/* Newborns Section Skeleton */}
       <div className="bg-white/5 rounded-2xl p-8 h-64 w-full" />
 
