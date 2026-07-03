@@ -27,6 +27,7 @@ import {
   type SectionCopy,
 } from './section-heading';
 import { cn } from '@/lib/utils';
+import { buildMaterialLink } from '@/lib/utils/prototype-utils';
 
 const PROTOTYPE_URL = 'https://protopedia.net/prototype/';
 
@@ -301,17 +302,22 @@ function MaterialRankRow({
       >
         {metaContent}
       </span>
-      <span
+      <a
+        href={buildMaterialLink(material)}
+        target="_blank"
+        rel="noopener noreferrer"
         className={cn(
           //
           `flex-1 truncate text-violet-950 dark:text-violet-100`,
+          `transition hover:text-amber-600 dark:hover:text-amber-400`,
+          `hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)]`,
           'text-sm sm:text-lg',
           nameClassName,
           // 'bg-teal-700',
         )}
       >
         {material}
-      </span>
+      </a>
       <Sparkline
         series={series}
         barClass={cn(
