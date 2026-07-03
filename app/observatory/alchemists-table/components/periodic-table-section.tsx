@@ -60,17 +60,19 @@ export function PeriodicTableSection({
                 index >= mobileLimit ? 'max-sm:hidden' : ''
               }`}
             >
-              <span className="font-mono text-[10px] leading-none text-violet-700/70 dark:text-violet-300/60">
-                {atomicNumber}
-              </span>
-              <span className="text-center text-lg font-bold text-violet-950 transition-colors group-hover:text-emerald-700 dark:text-violet-50 dark:group-hover:text-emerald-300">
+              <div className="flex items-baseline justify-between font-mono text-[10px] leading-none">
+                <span className="text-violet-700/70 dark:text-violet-300/60">
+                  {atomicNumber}
+                </span>
+                <span className="text-emerald-700/80 dark:text-emerald-300/70">
+                  {el.count.toLocaleString()}
+                </span>
+              </div>
+              <span className="text-center text-2xl font-bold text-violet-950 transition-colors group-hover:text-emerald-700 dark:text-violet-50 dark:group-hover:text-emerald-300">
                 {toSymbol(el.material)}
               </span>
               <span className="truncate text-center text-[9px] leading-tight text-violet-800/80 dark:text-emerald-200/70">
                 {el.material}
-              </span>
-              <span className="font-mono text-right text-[10px] leading-none text-emerald-700/80 dark:text-emerald-300/70">
-                {el.count}
               </span>
             </li>
           );

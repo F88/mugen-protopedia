@@ -60,7 +60,11 @@ describe('buildMaterialInsights - The Monumental Elements', () => {
 
     const { monumental } = buildMaterialInsights(prototypes);
 
-    expect(monumental.map((m) => m.material)).toEqual(['Gap', 'Steady', 'Rare']);
+    expect(monumental.map((m) => m.material)).toEqual([
+      'Gap',
+      'Steady',
+      'Rare',
+    ]);
     expect(monumental[0]).toMatchObject({
       material: 'Gap',
       count: 6,

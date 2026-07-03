@@ -9,6 +9,8 @@
  * - Lost Technology (materials common among retired works)
  * - The Monumental Elements (most-used materials of all time)
  */
+import type { ReactNode } from 'react';
+
 import type {
   KitchenSinkEntry,
   MaterialCountBucket,
@@ -24,6 +26,7 @@ import {
   SectionNotes,
   type SectionCopy,
 } from './section-heading';
+import { cn } from '@/lib/utils';
 
 const PROTOTYPE_URL = 'https://protopedia.net/prototype/';
 
@@ -38,25 +41,28 @@ interface RankTier {
 function rankTier(index: number): RankTier {
   if (index < 3) {
     return {
-      number: 'text-xl font-bold text-amber-600 dark:text-amber-400',
-      name: 'text-xl font-semibold',
-      count: 'text-xl',
-      chip: 'text-xs',
+      number:
+        'w-6 shrink-0 text-xl sm:text-4xl font-bold text-amber-600 dark:text-amber-400',
+      name: 'text-xl sm:text-2xl font-semibold',
+      count: 'text-xl sm:text-2xl',
+      chip: 'text-base sm:text-xl',
     };
   }
   if (index < 10) {
     return {
-      number: 'text-base text-violet-500 dark:text-violet-400',
-      name: 'text-base',
-      count: 'text-base',
-      chip: 'text-[11px]',
+      number:
+        'w-6 shrink-0 text-base sm:text-2xl text-violet-500 dark:text-violet-400',
+      name: 'text-base sm:text-xl',
+      count: 'text-base sm:text-xl',
+      chip: 'text-sm sm:text-base',
     };
   }
   return {
-    number: 'text-sm text-violet-500 dark:text-violet-400',
-    name: 'text-sm',
-    count: 'text-sm',
-    chip: 'text-[10px]',
+    number:
+      'w-6 shrink-0 text-sm sm:text-base text-violet-500 dark:text-violet-400',
+    name: 'text-sm sm:text-lg',
+    count: 'text-sm sm:text-lg',
+    chip: 'text-xs sm:text-base',
   };
 }
 
@@ -218,19 +224,108 @@ function Sparkline({
   const max = Math.max(...series, 1);
   return (
     <div
+      // className="flex h-6 shrink-0 items-end gap-px sm:gap-0.5 bg-amber-400"
       className="flex h-6 shrink-0 items-end gap-px sm:gap-0.5"
       aria-hidden="true"
     >
       {series.map((value, index) => (
         <div
           key={index}
-          className={`w-1 rounded-sm sm:w-2 lg:w-3 ${value > 0 ? barClass : 'bg-transparent'}`}
+          className={cn(
+            //
+            `w-1 rounded-sm sm:w-2 lg:w-3`,
+            `${value > 0 ? barClass : 'bg-transparent'}`,
+          )}
           style={{
             height: `${Math.max((value / max) * 100, value > 0 ? 8 : 0)}%`,
           }}
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * One row of a material ranking: `[meta | material | sparkline | 💎count]`.
+ * Shared by the five sparkline-ranking sections; each supplies its own `meta`
+ * cell (a rank number or a year label) and its own accent classes, so the row
+ * structure lives in one place while the sections keep their distinct looks.
+ */
+function MaterialRankRow({
+  metaClassName,
+  metaTitle,
+  metaContent,
+  material,
+  series,
+  count,
+  barClass,
+  countClassName,
+  nameClassName = '',
+}: {
+  /** Section-specific classes for the left cell (width, size, color). */
+  metaClassName: string;
+  /** Optional tooltip for the left cell (only the year-label sections use it). */
+  metaTitle?: string;
+  /** The left cell's content: a rank number or a year label. */
+  metaContent: ReactNode;
+  material: string;
+  series: number[];
+  count: number;
+  /** Sparkline bar color. */
+  barClass: string;
+  /** Section-specific accent color for the 💎 count cell. */
+  countClassName: string;
+  /** Appended to the material name (e.g. a rank tier's font size). */
+  nameClassName?: string;
+}) {
+  return (
+    <li className="flex items-center gap-2 sm:gap-5 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40">
+      {/* metaContent */}
+      <span
+        className={cn(
+          //
+          `whitespace-nowrap font-mono`,
+          `text-center`,
+          'text-xs sm:text-lg',
+          `${metaClassName}`,
+          // 'bg-blue-700',
+        )}
+        title={metaTitle}
+      >
+        {metaContent}
+      </span>
+      <span
+        className={cn(
+          //
+          `flex-1 truncate text-violet-950 dark:text-violet-100`,
+          'text-sm sm:text-lg',
+          nameClassName,
+          // 'bg-teal-700',
+        )}
+      >
+        {material}
+      </span>
+      <Sparkline
+        series={series}
+        barClass={cn(
+          //
+          barClass,
+          // "bg-yellow-400/700",
+        )}
+      />
+      <span
+        title={`${count} prototypes`}
+        className={cn(
+          //
+          `w-16 shrink-0 whitespace-nowrap text-right font-mono`,
+          'text-sm sm:text-lg',
+          countClassName,
+          // 'bg-teal-700',
+        )}
+      >
+        💎 {count.toLocaleString()}
+      </span>
+    </li>
   );
 }
 
@@ -263,6 +358,78 @@ function competitionRanks<T>(items: T[], key: (item: T) => number): number[] {
 }
 
 /**
+ * Renders already-built row elements, showing the first `visible` up front and
+ * tucking the rest behind a native <details> toggle — no client JS, so the
+ * section stays a Server Component.
+ */
+function CollapsibleRows({
+  rows,
+  visible = 20,
+}: {
+  rows: ReactNode[];
+  visible?: number;
+}) {
+  return (
+    <>
+      <ol className="space-y-1">{rows.slice(0, visible)}</ol>
+      {rows.length > visible ? (
+        <details className="group">
+          <summary className="mt-1 inline-flex w-fit cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1 font-mono text-xs text-violet-700 hover:bg-violet-100/50 dark:text-violet-300 dark:hover:bg-violet-950/40 [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">▾ show all {rows.length}</span>
+            <span className="hidden group-open:inline">▴ show less</span>
+          </summary>
+          <ol className="mt-1 space-y-1">{rows.slice(visible)}</ol>
+        </details>
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * The Monumental Elements — the most-used materials of all time, ranked purely
+ * by total usage. A time-agnostic ranking that catches high-volume staples the
+ * temporal sections miss (still going with an early gap, faded, or just risen).
+ */
+export function MonumentalSection({
+  materials,
+  copy,
+  limit = 12,
+}: {
+  materials: MonumentalEntry[];
+  copy: SectionCopy;
+  limit?: number;
+}) {
+  if (materials.length === 0) return null;
+  const rows = topNWithTies(materials, limit, (e) => e.count);
+  const ranks = competitionRanks(rows, (e) => e.count);
+  const rendered = rows.map((entry, index) => {
+    // Style by the competition rank (not the row index), so tied ranks look
+    // identical — matching The Magnum Opus's rank tiers.
+    const tier = rankTier(ranks[index] - 1);
+    return (
+      <MaterialRankRow
+        key={entry.material}
+        metaClassName={`${tier.number}`}
+        metaContent={ranks[index]}
+        material={entry.material}
+        series={entry.series}
+        count={entry.count}
+        barClass="bg-violet-500/70 dark:bg-violet-400/70"
+        countClassName="text-amber-600 dark:text-amber-400"
+        nameClassName={tier.name}
+      />
+    );
+  });
+  return (
+    <section aria-labelledby="monumental-heading" className="mt-12">
+      <SectionHeading id="monumental-heading" copy={copy} />
+      <CollapsibleRows visible={20} rows={rendered} />
+      <SectionNotes notes={copy.notes} />
+    </section>
+  );
+}
+
+/**
  * The Primordial Element — old materials used every year since debut (still
  * going). Ranked oldest-first; the sparkline shows unbroken yearly use.
  */
@@ -280,34 +447,26 @@ export function PrimordialSection({
   return (
     <section aria-labelledby="primordial-heading" className="mt-12">
       <SectionHeading id="primordial-heading" copy={copy} />
-      <ol className="space-y-1">
-        {rows.map((entry) => (
-          <li
+      <CollapsibleRows
+        visible={20}
+        rows={rows.map((entry) => (
+          <MaterialRankRow
             key={entry.material}
-            className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
-          >
-            <span
-              className="w-24 shrink-0 whitespace-nowrap font-mono text-xs text-amber-700 dark:text-amber-300"
-              title={`${entry.firstYear}–${entry.latestYear}`}
-            >
-              {entry.firstYear}– ({entry.latestYear - entry.firstYear + 1}y)
-            </span>
-            <span className="flex-1 truncate text-violet-950 dark:text-violet-100">
-              {entry.material}
-            </span>
-            <Sparkline
-              series={entry.series}
-              barClass="bg-emerald-500/70 dark:bg-emerald-400/70"
-            />
-            <span
-              title={`${entry.count} prototypes`}
-              className="w-16 shrink-0 whitespace-nowrap text-right font-mono text-sm text-emerald-700 dark:text-emerald-300"
-            >
-              💎 {entry.count.toLocaleString()}
-            </span>
-          </li>
+            metaClassName="text-amber-700 dark:text-amber-300"
+            metaTitle={`${entry.firstYear}–${entry.latestYear}`}
+            metaContent={
+              <>
+                {entry.firstYear}– ({entry.latestYear - entry.firstYear + 1}y)
+              </>
+            }
+            material={entry.material}
+            series={entry.series}
+            count={entry.count}
+            barClass="bg-emerald-500/70 dark:bg-emerald-400/70"
+            countClassName="text-emerald-700 dark:text-emerald-300"
+          />
         ))}
-      </ol>
+      />
       <SectionNotes notes={copy.notes} />
     </section>
   );
@@ -333,88 +492,22 @@ export function RisingVaporsSection({
   return (
     <section aria-labelledby="rising-vapors-heading" className="mt-12">
       <SectionHeading id="rising-vapors-heading" copy={copy} />
-      <ol className="space-y-1">
-        {rows.map((entry) => (
-          <li
+      <CollapsibleRows
+        visible={20}
+        rows={rows.map((entry) => (
+          <MaterialRankRow
             key={entry.material}
-            className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
-          >
-            <span className="w-14 shrink-0 whitespace-nowrap font-mono text-xs text-amber-700 dark:text-amber-300">
-              {entry.firstYear}
-            </span>
-            <span className="flex-1 truncate text-violet-950 dark:text-violet-100">
-              {entry.material}
-            </span>
-            <Sparkline
-              series={entry.series}
-              barClass="bg-amber-500/70 dark:bg-amber-400/70"
-            />
-            <span
-              title={`${entry.count} prototypes`}
-              className="w-16 shrink-0 whitespace-nowrap text-right font-mono text-sm text-amber-700 dark:text-amber-300"
-            >
-              💎 {entry.count.toLocaleString()}
-            </span>
-          </li>
+            metaClassName="text-amber-700 dark:text-amber-300"
+            metaContent={entry.firstYear}
+            material={entry.material}
+            series={entry.series}
+            count={entry.count}
+            barClass="bg-amber-500/70 dark:bg-amber-400/70"
+            countClassName="text-amber-700 dark:text-amber-300"
+          />
         ))}
-      </ol>
+      />
       <SectionNotes notes={copy.notes} latestYear={latestYear} />
-    </section>
-  );
-}
-
-/**
- * The Newfound Element — materials first used THIS year. The sparkline is a lone
- * spark at the right edge: something that just came into being.
- */
-export function NewfoundSection({
-  materials,
-  copy,
-  limit = 12,
-}: {
-  materials: NewfoundEntry[];
-  copy: SectionCopy;
-  limit?: number;
-}) {
-  if (materials.length === 0) return null;
-  const rows = topNWithTies(materials, limit, (e) => e.count);
-  const ranks = competitionRanks(rows, (e) => e.count);
-  return (
-    <section aria-labelledby="newfound-heading" className="mt-12">
-      <SectionHeading id="newfound-heading" copy={copy} />
-      <ol className="space-y-1">
-        {rows.map((entry, index) => {
-          // Style by the competition rank (not the row index), so tied ranks
-          // look identical — matching The Magnum Opus's rank tiers.
-          const tier = rankTier(ranks[index] - 1);
-          return (
-            <li
-              key={entry.material}
-              className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
-            >
-              <span className={`w-8 shrink-0 font-mono ${tier.number}`}>
-                {ranks[index]}
-              </span>
-              <span
-                className={`flex-1 truncate text-violet-950 dark:text-violet-100 ${tier.name}`}
-              >
-                {entry.material}
-              </span>
-              <Sparkline
-                series={entry.series}
-                barClass="bg-sky-500/70 dark:bg-sky-400/70"
-              />
-              <span
-                title={`${entry.count} prototypes`}
-                className={`shrink-0 whitespace-nowrap text-right font-mono text-sky-700 dark:text-sky-300 ${tier.count}`}
-              >
-                💎 {entry.count.toLocaleString()}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-      <SectionNotes notes={copy.notes} />
     </section>
   );
 }
@@ -439,50 +532,41 @@ export function LostTechnologySection({
   return (
     <section aria-labelledby="lost-tech-heading" className="mt-12">
       <SectionHeading id="lost-tech-heading" copy={copy} />
-      <ol className="space-y-1">
-        {rows.map((entry) => (
-          <li
+      <CollapsibleRows
+        visible={20}
+        rows={rows.map((entry) => (
+          <MaterialRankRow
             key={entry.material}
-            className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
-          >
-            <span
-              className="w-24 shrink-0 whitespace-nowrap font-mono text-xs text-stone-500 dark:text-stone-400"
-              title={`${entry.firstYear}–${entry.lastYear}`}
-            >
-              {entry.firstYear}–{entry.lastYear}
-            </span>
-            <span className="flex-1 truncate text-violet-950 dark:text-violet-100">
-              {entry.material}
-            </span>
-            <Sparkline
-              series={entry.series}
-              barClass="bg-stone-400/70 dark:bg-stone-500/70"
-            />
-            <span
-              title={`${entry.count} prototypes`}
-              className="w-16 shrink-0 whitespace-nowrap text-right font-mono text-sm text-stone-600 dark:text-stone-300"
-            >
-              💎 {entry.count.toLocaleString()}
-            </span>
-          </li>
+            metaClassName="text-stone-500 dark:text-stone-400"
+            metaTitle={`${entry.firstYear}–${entry.lastYear}`}
+            metaContent={
+              <>
+                {entry.firstYear}–{entry.lastYear}
+              </>
+            }
+            material={entry.material}
+            series={entry.series}
+            count={entry.count}
+            barClass="bg-stone-400/70 dark:bg-stone-500/70"
+            countClassName="text-stone-600 dark:text-stone-300"
+          />
         ))}
-      </ol>
+      />
       <SectionNotes notes={copy.notes} latestYear={latestYear} />
     </section>
   );
 }
 
 /**
- * The Monumental Elements — the most-used materials of all time, ranked purely
- * by total usage. A time-agnostic ranking that catches high-volume staples the
- * temporal sections miss (still going with an early gap, faded, or just risen).
+ * The Newfound Element — materials first used THIS year. The sparkline is a lone
+ * spark at the right edge: something that just came into being.
  */
-export function MonumentalSection({
+export function NewfoundSection({
   materials,
   copy,
   limit = 12,
 }: {
-  materials: MonumentalEntry[];
+  materials: NewfoundEntry[];
   copy: SectionCopy;
   limit?: number;
 }) {
@@ -490,40 +574,29 @@ export function MonumentalSection({
   const rows = topNWithTies(materials, limit, (e) => e.count);
   const ranks = competitionRanks(rows, (e) => e.count);
   return (
-    <section aria-labelledby="monumental-heading" className="mt-12">
-      <SectionHeading id="monumental-heading" copy={copy} />
-      <ol className="space-y-1">
-        {rows.map((entry, index) => {
+    <section aria-labelledby="newfound-heading" className="mt-12">
+      <SectionHeading id="newfound-heading" copy={copy} />
+      <CollapsibleRows
+        visible={20}
+        rows={rows.map((entry, index) => {
           // Style by the competition rank (not the row index), so tied ranks
           // look identical — matching The Magnum Opus's rank tiers.
           const tier = rankTier(ranks[index] - 1);
           return (
-            <li
+            <MaterialRankRow
               key={entry.material}
-              className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-violet-100/50 dark:hover:bg-violet-950/40"
-            >
-              <span className={`w-8 shrink-0 font-mono ${tier.number}`}>
-                {ranks[index]}
-              </span>
-              <span
-                className={`flex-1 truncate text-violet-950 dark:text-violet-100 ${tier.name}`}
-              >
-                {entry.material}
-              </span>
-              <Sparkline
-                series={entry.series}
-                barClass="bg-violet-500/70 dark:bg-violet-400/70"
-              />
-              <span
-                title={`${entry.count} prototypes`}
-                className={`shrink-0 whitespace-nowrap text-right font-mono text-amber-600 dark:text-amber-400 ${tier.count}`}
-              >
-                💎 {entry.count.toLocaleString()}
-              </span>
-            </li>
+              metaClassName={`${tier.number}`}
+              metaContent={ranks[index]}
+              material={entry.material}
+              series={entry.series}
+              count={entry.count}
+              barClass="bg-sky-500/70 dark:bg-sky-400/70"
+              countClassName="text-sky-700 dark:text-sky-300"
+              nameClassName={tier.name}
+            />
           );
         })}
-      </ol>
+      />
       <SectionNotes notes={copy.notes} />
     </section>
   );

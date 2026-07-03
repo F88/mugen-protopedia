@@ -46,7 +46,6 @@ export interface MaterialCountBucket {
   medianViews: number;
 }
 
-
 /**
  * A material first used within the trailing 12 months (The Newfound Element) —
  * the freshest sparks. `series` is 12 MONTHLY counts (oldest -> newest).
@@ -57,7 +56,6 @@ export interface NewfoundEntry {
   /** Per-month usage counts for the trailing 12 months (oldest -> newest). */
   series: number[];
 }
-
 
 /**
  * A most-used material of all time (The Monumental Elements) — a pure usage
@@ -117,7 +115,6 @@ export interface RisingVaporsEntry {
   series: number[];
 }
 
-
 export interface MaterialInsights {
   /** Full material frequency histogram (all occurrences). */
   materialCounts: Record<string, number>;
@@ -132,8 +129,6 @@ export interface MaterialInsights {
   latestYear: number;
 }
 
-/** The Kitchen Sink is shown as a ranking, so it lists more entries. */
-const KITCHEN_SINK_LIMIT = 20;
 /** Minimum overall usage for a material to count as "primordial" (not a one-off). */
 const MIN_COUNT_FOR_PRIMORDIAL = 20;
 /** Minimum lifespan (years, inclusive) to count as "old" for The Primordial Element. */
@@ -144,8 +139,12 @@ const LOST_SILENT_YEARS = 2;
 const MIN_ACTIVE_YEARS_FOR_LOST = 3;
 /** Debut window (years back from latest) to count as a Rising Star newcomer. */
 const NEWCOMER_DEBUT_WINDOW = 2;
+
 /** How many most-used materials to keep for The Monumental Elements ranking. */
-const MONUMENTAL_LIMIT = 50;
+const MONUMENTAL_LIMIT = 100;
+
+/** The Kitchen Sink is shown as a ranking, so it lists more entries. */
+const KITCHEN_SINK_LIMIT = 20;
 
 function bucketLabel(materialCount: number): string {
   if (materialCount <= 3) return '1-3';
@@ -421,11 +420,11 @@ export function buildMaterialInsights(
         elapsedMs: Date.now() - startTime,
         totalSamples: prototypes.length,
         distinctMaterials: Object.keys(materialCounts).length,
+        monumental: monumental.length,
         primordial: primordial.length,
         risingVapors: risingVapors.length,
-        newfound: newfound.length,
         lostTech: lostTech.length,
-        monumental: monumental.length,
+        newfound: newfound.length,
       },
       '[ANALYSIS] Built material insights',
     );

@@ -175,7 +175,6 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
   },
 };
 
-
 /** How many materials to lay out on the table (a real periodic table has 118). */
 // const MAX_ELEMENTS = 9999;
 const MAX_ELEMENTS = 118;
@@ -221,39 +220,49 @@ async function AlchemistsTableDashboard() {
       <MonumentalSection
         materials={insights.monumental}
         copy={SECTION_DEFINITIONS.monumental}
-        limit={30}
+        limit={100}
+        // limit={5}
       />
       <PrimordialSection
         materials={insights.primordial}
         copy={SECTION_DEFINITIONS.primordial}
-        limit={30}
+        limit={50}
+        // limit={5}
       />
       <RisingVaporsSection
         materials={insights.risingVapors}
         copy={SECTION_DEFINITIONS.risingVapors}
         latestYear={insights.latestYear}
-        limit={30}
+        limit={50}
+        // limit={30}
+        // limit={5}
       />
       <LostTechnologySection
         materials={insights.lostTech}
         copy={SECTION_DEFINITIONS.lostTech}
         latestYear={insights.latestYear}
-        limit={30}
+        limit={50}
+        // limit={30}
+        // limit={5}
       />
 
       <NewfoundSection
         materials={insights.newfound}
         copy={SECTION_DEFINITIONS.newFound}
-        limit={30}
+        // limit={50}
+        // limit={30}
+        limit={20}
+        // limit={5}
+      />
+
+      <LessIsMoreSection
+        buckets={insights.countEngagement}
+        copy={SECTION_DEFINITIONS.lessIsMore}
       />
 
       <KitchenSinkSection
         works={insights.kitchenSink}
         copy={SECTION_DEFINITIONS.kitchenSink}
-      />
-      <LessIsMoreSection
-        buckets={insights.countEngagement}
-        copy={SECTION_DEFINITIONS.lessIsMore}
       />
     </>
   );
