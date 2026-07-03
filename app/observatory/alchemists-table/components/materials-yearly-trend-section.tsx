@@ -131,7 +131,7 @@ export function MaterialsYearlyTrendSection({
                 data={chartData}
                 margin={{ top: 8, right: 24, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis
                   dataKey="year"
                   stroke="#8b5cf6"

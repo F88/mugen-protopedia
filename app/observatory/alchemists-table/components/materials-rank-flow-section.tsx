@@ -93,7 +93,7 @@ function RankTooltip({ active, label, payload }: RankTooltipProps) {
 
 /** Truncate long material names used as end-of-line labels. */
 function shortLabel(material: string): string {
-  return material.length > 16 ? `${material.slice(0, 15)}…` : material;
+  return material.length > 10 ? `${material.slice(0, 9)}…` : material;
 }
 
 /** The Shifting Tides — leading materials trading ranks, by year or month. */
@@ -191,6 +191,10 @@ export function MaterialsRankFlowSection({
         : 'bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-950/60 dark:text-violet-300 dark:hover:bg-violet-900/60',
     );
 
+  // Give each rank room by scaling height with depth: 10 -> 480px (x1),
+  // 20 -> 720px (x1.5), 30 -> 960px (x2).
+  const chartHeight = 480 * (1 + (topN - 10) / 20);
+
   return (
     <section aria-labelledby="rank-flow-heading" className="mt-12">
       <SectionHeading id="rank-flow-heading" copy={copy} />
@@ -265,7 +269,10 @@ export function MaterialsRankFlowSection({
         </p>
       ) : (
         <>
-          <div className="h-[480px] w-full rounded-xl border border-violet-200/60 bg-white/40 p-3 dark:border-violet-400/15 dark:bg-violet-950/30">
+          <div
+            className="w-full rounded-xl border border-violet-200/60 bg-white/40 p-3 dark:border-violet-400/15 dark:bg-violet-950/30"
+            style={{ height: chartHeight }}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
@@ -273,7 +280,7 @@ export function MaterialsRankFlowSection({
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  opacity={0.2}
+                  opacity={0.3}
                   horizontal={false}
                 />
                 <XAxis
@@ -296,6 +303,7 @@ export function MaterialsRankFlowSection({
                     <Line
                       key={m}
                       type="monotone"
+                      // type="linear"
                       dataKey={m}
                       stroke={color}
                       strokeWidth={hovered === m ? 3.5 : 2}
@@ -318,7 +326,7 @@ export function MaterialsRankFlowSection({
                           if (px == null || py == null || dimmed) return null;
                           return (
                             <text
-                              x={Number(px) + 8}
+                              x={Number(px) + 12}
                               y={Number(py)}
                               dy={4}
                               fontSize={11}

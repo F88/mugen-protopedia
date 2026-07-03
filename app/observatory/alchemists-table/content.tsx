@@ -273,9 +273,9 @@ async function AlchemistsTableDashboard() {
         materials={insights.monumental}
         copy={SECTION_DEFINITIONS.risingCauldron}
         latestYear={insights.latestYear}
-        limit={20}
-        // limit={10}
-        // limit={8}
+        // limit={30}
+        // limit={20}
+        limit={10}
       />
 
       <MonumentalSection
