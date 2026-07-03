@@ -40,7 +40,7 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
       ja: '不朽の元素',
     },
     description: {
-      en: 'Indelible legacies. Carved into the history of our craft, these elements have been summoned more than any other. They stand as testaments to the ideas they manifested, whether their glory was a slow burn or a blinding flash.',
+      en: 'Indelible legacies. Carved into the history of our craft, these elements have been summoned more than any other, leaving an indelible mark on the ProtoPedia Universe. They stand as testaments to the ideas they manifested, whether their glory was a slow burn or a blinding flash.',
       ja: '不朽の記録。我々の創作の歴史そのものに刻まれし元素。他のどれよりも多く召喚され、ProtoPediaの宇宙に消えぬ刻印を残してきた者たち。その栄光がゆるやかな熾火であれ、まばゆい閃光であれ、それらはアイデアの証として在り続ける。',
     },
     notes: [
