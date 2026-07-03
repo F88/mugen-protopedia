@@ -115,6 +115,17 @@ export interface RisingVaporsEntry {
   series: number[];
 }
 
+/**
+ * The top materials of a single period (a year "YYYY" or a month "YYYY-MM"),
+ * ranked by that period's usage. Yearly and monthly are aggregated
+ * independently — a period's true ranking cannot be reconstructed from another
+ * granularity's top-N (the tail is dropped), so each is built from full counts.
+ */
+export interface PeriodTopMaterial {
+  material: string;
+  count: number;
+}
+
 export interface MaterialInsights {
   /** Full material frequency histogram (all occurrences). */
   materialCounts: Record<string, number>;
@@ -125,6 +136,10 @@ export interface MaterialInsights {
   newfound: NewfoundEntry[];
   lostTech: LostTechEntry[];
   monumental: MonumentalEntry[];
+  /** Each YEAR ("YYYY") -> that year's top materials by usage (ranked). */
+  yearlyTopMaterials: Record<string, PeriodTopMaterial[]>;
+  /** Each MONTH ("YYYY-MM") -> that month's top materials by usage (ranked). */
+  monthlyTopMaterials: Record<string, PeriodTopMaterial[]>;
   /** Latest release year present in the data. */
   latestYear: number;
 }
@@ -145,6 +160,12 @@ const MONUMENTAL_LIMIT = 100;
 
 /** The Kitchen Sink is shown as a ranking, so it lists more entries. */
 const KITCHEN_SINK_LIMIT = 20;
+
+/**
+ * How many top materials to keep per period (year / month) for the trend views.
+ * Kept at the widest UI option (top 10 / 20 / 30) so the client can slice down.
+ */
+const PERIOD_TOP_LIMIT = 30;
 
 function bucketLabel(materialCount: number): string {
   if (materialCount <= 3) return '1-3';
@@ -202,6 +223,9 @@ export function buildMaterialInsights(
   // Per-material monthly counts, kept only for the trailing 12 months window
   // (The Newfound Element uses month granularity, not year).
   const monthlyByMaterial: Record<string, Record<string, number>> = {};
+  // Full-history per-month material counts (month -> material -> count), the
+  // source for monthlyTopMaterials. Yearly is derived from yearlyByMaterial.
+  const monthCountsAll: Record<string, Record<string, number>> = {};
   const windowMonths = trailingMonths(12);
   const windowStart = windowMonths[0];
   const windowMonthsSet = new Set(windowMonths);
@@ -258,6 +282,9 @@ export function buildMaterialInsights(
         const prev = firstDateByMaterial[material];
         if (prev == null || dateStr < prev)
           firstDateByMaterial[material] = dateStr;
+        // Full-history monthly counts (source for monthlyTopMaterials).
+        if (monthCountsAll[ym] == null) monthCountsAll[ym] = {};
+        monthCountsAll[ym][material] = (monthCountsAll[ym][material] ?? 0) + 1;
         if (inWindow) {
           if (monthlyByMaterial[material] == null)
             monthlyByMaterial[material] = {};
@@ -414,6 +441,43 @@ export function buildMaterialInsights(
       series: s.series,
     }));
 
+  // Per-period true top-N rankings (year and month), aggregated independently.
+  // Tiebreak on equal counts: earliest debut date (fair), then name (stable).
+  const rankPeriod = (
+    byMaterial: Record<string, number>,
+  ): PeriodTopMaterial[] =>
+    Object.entries(byMaterial)
+      .map(([material, count]) => ({ material, count }))
+      .sort(
+        (a, b) =>
+          b.count - a.count ||
+          (firstDateByMaterial[a.material] ?? '').localeCompare(
+            firstDateByMaterial[b.material] ?? '',
+          ) ||
+          a.material.localeCompare(b.material),
+      )
+      .slice(0, PERIOD_TOP_LIMIT);
+
+  // Yearly: invert the per-material yearly map into per-year material counts.
+  const yearCounts: Record<number, Record<string, number>> = {};
+  for (const [material, byYear] of Object.entries(yearlyByMaterial)) {
+    for (const y of Object.keys(byYear)) {
+      const yr = Number(y);
+      if (yearCounts[yr] == null) yearCounts[yr] = {};
+      yearCounts[yr][material] = byYear[yr];
+    }
+  }
+  const yearlyTopMaterials: Record<string, PeriodTopMaterial[]> = {};
+  for (const [year, byMaterial] of Object.entries(yearCounts)) {
+    yearlyTopMaterials[year] = rankPeriod(byMaterial);
+  }
+
+  // Monthly: rank the full-history per-month counts.
+  const monthlyTopMaterials: Record<string, PeriodTopMaterial[]> = {};
+  for (const [ym, byMaterial] of Object.entries(monthCountsAll)) {
+    monthlyTopMaterials[ym] = rankPeriod(byMaterial);
+  }
+
   if (options?.logger) {
     options.logger.debug(
       {
@@ -425,6 +489,8 @@ export function buildMaterialInsights(
         risingVapors: risingVapors.length,
         lostTech: lostTech.length,
         newfound: newfound.length,
+        yearsCovered: Object.keys(yearlyTopMaterials).length,
+        monthsCovered: Object.keys(monthlyTopMaterials).length,
       },
       '[ANALYSIS] Built material insights',
     );
@@ -439,6 +505,8 @@ export function buildMaterialInsights(
     newfound,
     lostTech,
     monumental,
+    yearlyTopMaterials,
+    monthlyTopMaterials,
     latestYear: Number.isFinite(latestYear) ? latestYear : 0,
   };
 }
