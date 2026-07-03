@@ -64,7 +64,7 @@ function rankTier(index: number): RankTier {
       'w-6 sm:w-10 shrink-0 text-sm sm:text-base text-violet-500 dark:text-violet-400',
     name: 'text-sm sm:text-lg',
     count: 'text-sm sm:text-lg',
-    chip: 'text-xs sm:text-base',
+    chip: 'text-xs sm:text-sm',
   };
 }
 
@@ -115,11 +115,15 @@ function KitchenSinkRow({
       </div>
       <ul className="mt-1.5 flex flex-wrap gap-1 pl-9">
         {work.materials.map((material, idx) => (
-          <li
-            key={`${material}-${idx}`}
-            className={`rounded-full border border-violet-300/50 bg-violet-100/70 px-1.5 py-0.5 leading-tight text-violet-800 dark:border-violet-400/20 dark:bg-violet-950/60 dark:text-violet-200 ${tier.chip}`}
-          >
-            {material}
+          <li key={`${material}-${idx}`}>
+            <a
+              href={buildMaterialLink(material)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-block rounded-full border border-violet-300/50 bg-violet-100/70 px-1.5 py-0.5 leading-tight text-violet-800 transition hover:border-amber-400/80 hover:text-amber-600 hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:border-violet-400/20 dark:bg-violet-950/60 dark:text-violet-200 dark:hover:text-amber-400 ${tier.chip}`}
+            >
+              {material}
+            </a>
           </li>
         ))}
       </ul>
