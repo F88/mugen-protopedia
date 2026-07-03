@@ -296,9 +296,11 @@ export function AlchemistsTableContent() {
       <div className="mx-auto max-w-6xl">
         <Suspense
           fallback={
-            <p className="py-12 text-center text-violet-700 dark:text-violet-300">
-              Distilling the elements...
-            </p>
+            <div className="space-y-12 animate-pulse">
+              <p className="py-12 text-center text-violet-700 dark:text-violet-300">
+                Distilling the elements...
+              </p>
+            </div>
           }
         >
           <AlchemistsTableDashboard />
