@@ -1,13 +1,15 @@
 /**
- * @fileoverview Bilingual section heading for The Alchemist's Table.
+ * @fileoverview Section heading for The Alchemist's Table.
  *
- * Every section on the page shows its title and description in English and
- * Japanese together (no locale switch / i18n framework). The strings live in
- * `content.tsx` as `SECTION_DEFINITIONS`; this component only renders them.
+ * Copy is stored bilingually (en/ja) in `content.tsx` as `SECTION_DEFINITIONS`
+ * (no locale switch / i18n framework). Currently the description renders in both
+ * languages, while the title and footnotes render English only — the Japanese
+ * title and notes are kept in the data but their JSX is commented out. This
+ * component only renders the strings.
  */
 import { cinzelFont } from '@/app/observatory/shared/fonts';
 
-/** A piece of section copy carried in both languages (rendered together). */
+/** A piece of section copy carried in both languages (en/ja). */
 export interface LocalizedText {
   en: string;
   ja: string;
@@ -26,9 +28,10 @@ export interface SectionCopy {
 }
 
 /**
- * A section heading rendering its title (h2) and description in English with
- * the Japanese rendition stacked directly beneath each. `className` overrides
- * the wrapper spacing (some sections want more room below the heading).
+ * A section heading. The title (h2) renders in English; the description renders
+ * in English with the Japanese rendition stacked beneath it. The Japanese title
+ * is kept in the data but its JSX is currently commented out. `className`
+ * overrides the wrapper spacing (some sections want more room below the heading).
  */
 export function SectionHeading({
   id,
@@ -76,8 +79,9 @@ function fillYears(text: string, latestYear?: number): string {
 
 /**
  * The footnote list beneath a section (selection criteria, sort order,
- * constraints), rendered bilingually. `latestYear` fills the year tokens used by
- * the time-based sections; omit it where the notes carry no tokens.
+ * constraints), rendered in English (the Japanese note text is kept in the data
+ * but its JSX is currently commented out). `latestYear` fills the year tokens
+ * used by the time-based sections; omit it where the notes carry no tokens.
  */
 export function SectionNotes({
   notes,
