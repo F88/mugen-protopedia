@@ -382,9 +382,11 @@ function CollapsibleRows({
       <ol className="space-y-1">{rows.slice(0, visible)}</ol>
       {rows.length > visible ? (
         <details className="group">
-          <summary className="mt-1 inline-flex w-fit cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1 font-mono text-xs text-violet-700 hover:bg-violet-100/50 dark:text-violet-300 dark:hover:bg-violet-950/40 [&::-webkit-details-marker]:hidden">
-            <span className="group-open:hidden">▾ show all {rows.length}</span>
-            <span className="hidden group-open:inline">▴ show less</span>
+          <summary className="mt-1 inline-flex w-fit cursor-pointer list-none items-center gap-1 rounded-md px-2 py-1 font-mono text-xs font-medium text-orange-600 underline underline-offset-2 hover:bg-orange-100/50 hover:text-red-600 dark:text-orange-400 dark:hover:bg-orange-950/30 dark:hover:text-red-300 [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">
+              🔥 show all {rows.length} ▾
+            </span>
+            <span className="hidden group-open:inline">💧 show less ▴</span>
           </summary>
           <ol className="mt-1 space-y-1">{rows.slice(visible)}</ol>
         </details>
