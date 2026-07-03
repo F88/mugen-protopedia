@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.03]
+
 ### Added
 
 - Add a "ProtoPedia Summary" card to the Observatory top page, linking to the

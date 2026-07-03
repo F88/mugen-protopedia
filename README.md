@@ -91,6 +91,10 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ## Changelog
 
+### 2026-07-01
+
+- 🔭 [The Alchemist's Table \- ProtoPedia Observatory](https://mugen-pp.vercel.app/observatory/alchemists-table) を公開
+
 ### 2025-12-xx
 
 - 🎄 Happy Xmas 🤶🏼🧑🏽‍🎅
@@ -105,7 +109,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ### 2025-12-02
 
-- 🔭 Refined Hello World.
+- 🔭 [Hello World \- ProtoPedia Observatory](https://mugen-pp.vercel.app/observatory/hello-world) を更新
 
 ### 2025-12-01
 
@@ -113,7 +117,7 @@ This app leverages the ProtoPedia API to deliver an endless stream of inspiring 
 
 ### 2025-11-28
 
-- 🔭 ProtoPedia Observatory (beta) を追加
+- 🔭 [ProtoPedia Observatory](https://mugen-pp.vercel.app/observatory) (beta) 公開
 
 ### 2025-11-27
 
