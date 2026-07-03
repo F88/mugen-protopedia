@@ -70,7 +70,7 @@ export function PeriodicTableSection({
                   <span className="text-violet-700/70 dark:text-violet-300/60">
                     {atomicNumber}
                   </span>
-                  <span className="text-emerald-700/80 dark:text-emerald-300/70">
+                  <span className="text-amber-600 dark:text-amber-400">
                     {el.count.toLocaleString()}
                   </span>
                 </div>
