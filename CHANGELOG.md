@@ -21,12 +21,17 @@ and this project adheres to [CalVer](https://calver.org/).
   material-insights source, kept separate from the base analysis so it does not
   slow the top page.
     - The Elements — usage-ranked catalog of materials.
+    - The Monumental Elements — the most-used materials of all time.
     - The Magnum Opus — works using the most materials.
     - Less is More? — median views and likes by material count.
     - An alchemist's timeline of materials, with sparklines: The Primordial
       Element, The Rising Vapors, The Newfound Element (monthly), Lost Technology.
-    - New `alchemy` card color scheme; Cinzel Decorative + Science Gothic fonts.
-      Concept spec: `docs/observatory/content/the-alchemists-table.md`.
+    - Every material links to its ProtoPedia page (tiles, rankings, and recipe
+      chips); works link to their prototype page.
+    - Long ranking lists collapse behind a "show all / show less" toggle.
+    - New `alchemy` card and header color schemes; Cinzel Decorative + Science
+      Gothic fonts. Concept spec:
+      `docs/observatory/content/the-alchemists-table.md`.
 - Switch The Sci-Fi Lab card font to Science Gothic.
 
 ## [2026.07.01]
