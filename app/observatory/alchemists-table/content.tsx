@@ -16,6 +16,8 @@ import {
   LostTechnologySection,
   MonumentalSection,
 } from './components/insight-sections';
+import { MaterialsYearlyTrendSection } from './components/materials-yearly-trend-section';
+import { MaterialsRankFlowSection } from './components/materials-rank-flow-section';
 import type { SectionCopy } from './components/section-heading';
 
 /**
@@ -53,6 +55,50 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         ja: '全期間の累計プロトタイプ数のみで順位付け(💎)',
       },
       { en: 'Bars = prototypes per year', ja: 'バーは年ごとのプロトタイプ数' },
+    ],
+  },
+  risingCauldron: {
+    title: {
+      en: 'The Rising Cauldron',
+      ja: 'たぎる大釜',
+    },
+    description: {
+      en: "Volume made manifest. The raw yearly output of the leading reagents — how high each one's usage swelled and where it receded. Not who ranked first, but how much was truly forged, year upon year.",
+      ja: '顕現する熱量。主要な試薬たちが年ごとに生み出した、純然たる錬成量。どれほど高く沸き上がり、どこで引いていったか。相対的な順位ではなく、「どれだけの作品が鍛え上げられたか」を刻む絶対の記録。',
+    },
+    notes: [
+      {
+        en: "Each line tracks a material's prototype count per year — absolute volume, not relative rank",
+        ja: '各線はその年のプロトタイプ産出数(相対順位ではなく、絶対的な熱量を示す)',
+      },
+      {
+        en: 'Displays the top materials by all-time usage; hover or click a legend to isolate an element',
+        ja: '全期間の累計使用数トップ層を表示。ホバーまたは凡例クリックで、単一の元素を抽出して観測可能',
+      },
+    ],
+  },
+  prometheus: {
+    title: {
+      en: 'The Fire of Prometheus',
+      ja: 'プロメテウスの火',
+    },
+    description: {
+      en: 'A chronicle of an awakened era. Trace the crossing lines to witness the moment when reliance on massive, external foundations collapsed, eclipsed by a newly discovered spark. The visual story of heavy structures yielding their thrones, and the absolute power of creation returning directly to the hands of the solitary maker.',
+      ja: '覚醒した時代の年代記。線の交差を辿り、巨大な外部基盤への依存が崩れ去り、「新たなる火種」が頂点へと駆け上がる瞬間を目撃せよ。かつての重厚な構造物が王座を明け渡し、自らの手で万物を創り出す力が、再び一人の錬金術師へと解き放たれた歴史的転換点。',
+    },
+    notes: [
+      {
+        en: "Each line tracks a material's rank among the most-used (the final period dictates which elements are traced)",
+        ja: '各線はその期間における素材の順位(追跡対象の元素は、最終期間の上位陣から選出される)',
+      },
+      {
+        en: 'A crossing indicates an overtake; a line emerging mid-chart marks a newcomer entering the top ranks',
+        ja: '線の交差は順位の逆転を、途中から現れる線は上位に食い込んだ新顔を示す',
+      },
+      {
+        en: 'Toggle Year / Month, slide to set the observation window, and adjust the depth (Top 10 / 20 / 30)',
+        ja: '年 / 月を切り替え、スライダーで観測期間を絞り込み、深さ(上位10/20/30)を選択して観測する',
+      },
     ],
   },
   primordial: {
@@ -222,6 +268,19 @@ async function AlchemistsTableDashboard() {
         copy={SECTION_DEFINITIONS.monumental}
         limit={100}
         // limit={5}
+      />
+      <MaterialsYearlyTrendSection
+        materials={insights.monumental}
+        copy={SECTION_DEFINITIONS.risingCauldron}
+        latestYear={insights.latestYear}
+        limit={20}
+        // limit={10}
+        // limit={8}
+      />
+      <MaterialsRankFlowSection
+        yearly={insights.yearlyTopMaterials}
+        monthly={insights.monthlyTopMaterials}
+        copy={SECTION_DEFINITIONS.prometheus}
       />
       <PrimordialSection
         materials={insights.primordial}
