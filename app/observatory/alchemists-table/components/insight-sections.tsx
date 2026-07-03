@@ -78,7 +78,13 @@ function KitchenSinkRow({
   return (
     <li className="rounded-md px-2 py-1.5 hover:bg-violet-100/50 dark:hover:bg-violet-950/40">
       <div className="flex items-baseline gap-3">
-        <span className={`w-8 shrink-0 font-mono ${tier.number}`}>
+        <span
+          className={cn(
+            //
+            `w-6 shrink-0 font-mono`,
+            `${tier.number}`,
+          )}
+        >
           {index + 1}
         </span>
         <div className="flex-1 min-w-0">
@@ -284,7 +290,8 @@ function MaterialRankRow({
       <span
         className={cn(
           //
-          `whitespace-nowrap font-mono`,
+          // `font-mono`,
+          `whitespace-nowrap`,
           `text-center`,
           'text-xs sm:text-lg',
           `${metaClassName}`,
@@ -317,7 +324,8 @@ function MaterialRankRow({
         title={`${count} prototypes`}
         className={cn(
           //
-          `w-16 shrink-0 whitespace-nowrap text-right font-mono`,
+          `w-16 shrink-0 whitespace-nowrap text-right`,
+          `font-mono`,
           'text-sm sm:text-lg',
           countClassName,
           // 'bg-teal-700',
