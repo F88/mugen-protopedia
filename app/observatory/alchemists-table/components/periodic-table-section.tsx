@@ -5,6 +5,8 @@
  * pseudo-symbol, an atomic number (= frequency rank) and an atomic weight
  * (= usage count). The hero and navigation surface of The Alchemist's Table.
  */
+import { buildMaterialLink } from '@/lib/utils/prototype-utils';
+
 import { SectionHeading, type SectionCopy } from './section-heading';
 
 export interface MaterialElement {
@@ -55,25 +57,30 @@ export function PeriodicTableSection({
           return (
             <li
               key={el.material}
-              title={`${el.material} — used in ${el.count} works`}
-              className={`group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition-colors hover:border-emerald-400/70 dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50 ${
-                index >= mobileLimit ? 'max-sm:hidden' : ''
-              }`}
+              className={index >= mobileLimit ? 'max-sm:hidden' : undefined}
             >
-              <div className="flex items-baseline justify-between font-mono text-[10px] leading-none">
-                <span className="text-violet-700/70 dark:text-violet-300/60">
-                  {atomicNumber}
+              <a
+                href={buildMaterialLink(el.material)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`${el.material} — used in ${el.count} works`}
+                className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition hover:border-amber-400 hover:shadow-[0_0_10px_0_rgba(251,191,36,0.85),0_0_28px_2px_rgba(245,158,11,0.55)] dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50"
+              >
+                <div className="flex items-baseline justify-between font-mono text-[10px] leading-none">
+                  <span className="text-violet-700/70 dark:text-violet-300/60">
+                    {atomicNumber}
+                  </span>
+                  <span className="text-emerald-700/80 dark:text-emerald-300/70">
+                    {el.count.toLocaleString()}
+                  </span>
+                </div>
+                <span className="text-center text-2xl font-bold text-violet-950 transition-colors group-hover:text-amber-500 group-hover:[text-shadow:0_0_12px_rgba(251,191,36,0.85)] dark:text-violet-50 dark:group-hover:text-amber-300">
+                  {toSymbol(el.material)}
                 </span>
-                <span className="text-emerald-700/80 dark:text-emerald-300/70">
-                  {el.count.toLocaleString()}
+                <span className="truncate text-center text-[9px] leading-tight text-violet-800/80 dark:text-emerald-200/70">
+                  {el.material}
                 </span>
-              </div>
-              <span className="text-center text-2xl font-bold text-violet-950 transition-colors group-hover:text-emerald-700 dark:text-violet-50 dark:group-hover:text-emerald-300">
-                {toSymbol(el.material)}
-              </span>
-              <span className="truncate text-center text-[9px] leading-tight text-violet-800/80 dark:text-emerald-200/70">
-                {el.material}
-              </span>
+              </a>
             </li>
           );
         })}
