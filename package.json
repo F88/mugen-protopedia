@@ -61,6 +61,7 @@
     "promidas": "3.0.0",
     "promidas-utils": "3.0.0",
     "protopedia-api-v2-client": "3.0.0",
+    "radix-ui": "^1.6.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-icons": "^5.6.0",
