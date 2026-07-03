@@ -5,7 +5,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { audiowideFont } from '@/app/observatory/shared/fonts';
 
 export type ObservatoryHeaderColorScheme =
-  'blue' | 'pink' | 'gold' | 'green' | 'gray' | 'amber' | 'cyber';
+  'blue' | 'pink' | 'gold' | 'green' | 'gray' | 'amber' | 'cyber' | 'alchemy';
 
 interface ObservatoryHeaderProps {
   colorScheme?: ObservatoryHeaderColorScheme;
@@ -19,6 +19,10 @@ const colorSchemes = {
   gray: 'bg-gray-500/80 dark:bg-gray-900/50',
   amber: 'bg-amber-500/80 dark:bg-amber-900/50',
   cyber: 'bg-black/80 dark:bg-black/80',
+  // The Alchemist's Table — flames (red/orange) rising into violet smoke,
+  // mirroring the page's `alchemy` card palette on the Observatory top page.
+  alchemy:
+    'bg-linear-to-r from-red-600/80 via-orange-500/70 to-violet-700/80 dark:from-red-950/70 dark:via-orange-950/50 dark:to-violet-950/70',
 };
 
 export function ObservatoryHeader({

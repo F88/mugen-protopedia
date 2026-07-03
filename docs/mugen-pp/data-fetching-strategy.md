@@ -42,7 +42,7 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
 ## Current Behaviour
 
 - **Normalization**:
-    - `fetchPrototypes` maps upstream results into `NormalizedPrototype` objects.
+    - `fetchPrototypes` maps upstream results into `PrototypeForMpp` objects.
 
 - **Analysis**:
     - The canonical snapshot is refreshed when:

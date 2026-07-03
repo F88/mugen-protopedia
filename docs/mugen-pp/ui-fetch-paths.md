@@ -152,7 +152,7 @@ export function useRandomPrototype(): UseRandomPrototypeResult {
     const [error, setError] = useState<RandomPrototypeError>(null);
 
     const getRandomPrototype =
-        useCallback(async (): Promise<NormalizedPrototype | null> => {
+        useCallback(async (): Promise<PrototypeForMpp | null> => {
             setIsLoading(true);
             setError(null);
 
@@ -195,7 +195,7 @@ const FALLBACK_LIMIT = 500;
 const FALLBACK_OFFSET = 0;
 
 export const getRandomPrototypeData =
-    async (): Promise<NormalizedPrototype | null> => {
+    async (): Promise<PrototypeForMpp | null> => {
         const mapResult = await getRandomPrototypeFromMapOrFetch();
 
         if (mapResult.ok) {
@@ -449,7 +449,7 @@ import { fetchPrototypesViaNoStoreClient } from '@/app/actions/prototypes';
 
 export const getLatestPrototypeById = async (
     id: number,
-): Promise<NormalizedPrototype | undefined> => {
+): Promise<PrototypeForMpp | undefined> => {
     const result = await fetchPrototypesViaNoStoreClient({
         prototypeId: id,
         limit: 1,
@@ -472,7 +472,7 @@ Responsibilities:
 
 - Bridge client code to the server action `fetchPrototypesViaNoStoreClient`.
 - Convert a `FetchPrototypesResult` into either:
-    - a `NormalizedPrototype` on success (first element), or
+    - a `PrototypeForMpp` on success (first element), or
     - a thrown `Error(displayMessage)` with a technical, user-visible message on
       failure.
 
@@ -556,8 +556,8 @@ Responsibilities:
 
 - Call the ProtoPedia API (`protopedia.listPrototypes`) with `prototypeId`,
   `limit`, and `offset`.
-- Normalize results into `NormalizedPrototype[]` via `normalizePrototype`.
-- Return either `{ ok: true, data: NormalizedPrototype[] }` or an error result
+- Normalize results into `PrototypeForMpp[]` via `normalizePrototype`.
+- Return either `{ ok: true, data: PrototypeForMpp[] }` or an error result
   containing `status`, `error`, and optional diagnostics.
 
 ### Effective Network Path (SHOW Button)

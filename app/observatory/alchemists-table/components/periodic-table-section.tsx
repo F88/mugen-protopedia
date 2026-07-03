@@ -5,7 +5,10 @@
  * pseudo-symbol, an atomic number (= frequency rank) and an atomic weight
  * (= usage count). The hero and navigation surface of The Alchemist's Table.
  */
-import { cinzelFont } from '@/app/observatory/shared/fonts';
+import { cn } from '@/lib/utils';
+import { buildMaterialLink } from '@/lib/utils/prototype-utils';
+
+import { SectionHeading, type SectionCopy } from './section-heading';
 
 export interface MaterialElement {
   material: string;
@@ -27,6 +30,7 @@ function toSymbol(name: string): string {
 
 export interface PeriodicTableSectionProps {
   elements: MaterialElement[];
+  copy: SectionCopy;
   /**
    * How many tiles to show on small screens (the rest are hidden below `sm`).
    * This is a CSS-only responsive cap — SSR cannot know the viewport, so all
@@ -37,22 +41,16 @@ export interface PeriodicTableSectionProps {
 
 export function PeriodicTableSection({
   elements,
+  copy,
   mobileLimit = 28,
 }: PeriodicTableSectionProps) {
   return (
     <section aria-labelledby="periodic-table-heading" className="mt-4">
-      <div className="mb-6">
-        <h2
-          id="periodic-table-heading"
-          className={`${cinzelFont.className} text-2xl font-semibold text-violet-950 dark:text-violet-100 sm:text-3xl`}
-        >
-          The Elements
-        </h2>
-        <p className="mt-2 text-violet-900/80 dark:text-violet-200/80">
-          Every material as an element. Its atomic number is how common it is;
-          its weight is how many works are built on it.
-        </p>
-      </div>
+      <SectionHeading
+        id="periodic-table-heading"
+        copy={copy}
+        className="mb-6"
+      />
 
       <ol className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-2">
         {elements.map((el, index) => {
@@ -60,23 +58,39 @@ export function PeriodicTableSection({
           return (
             <li
               key={el.material}
-              title={`${el.material} — used in ${el.count} works`}
-              className={`group relative flex aspect-square flex-col justify-between overflow-hidden rounded-md border border-violet-300/50 bg-linear-to-br from-violet-100/80 to-emerald-100/60 p-1.5 transition-colors hover:border-emerald-400/70 dark:border-violet-400/20 dark:from-violet-950/70 dark:to-emerald-950/50 ${
-                index >= mobileLimit ? 'max-sm:hidden' : ''
-              }`}
+              className={index >= mobileLimit ? 'max-sm:hidden ' : undefined}
             >
-              <span className="font-mono text-[10px] leading-none text-violet-700/70 dark:text-violet-300/60">
-                {atomicNumber}
-              </span>
-              <span className="text-center text-lg font-bold text-violet-950 transition-colors group-hover:text-emerald-700 dark:text-violet-50 dark:group-hover:text-emerald-300">
-                {toSymbol(el.material)}
-              </span>
-              <span className="truncate text-center text-[9px] leading-tight text-violet-800/80 dark:text-emerald-200/70">
-                {el.material}
-              </span>
-              <span className="font-mono text-right text-[10px] leading-none text-emerald-700/80 dark:text-emerald-300/70">
-                {el.count}
-              </span>
+              <a
+                href={buildMaterialLink(el.material)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`${el.material} — used in ${el.count} works`}
+                className={cn(
+                  //
+                  `group relative flex aspect-square flex-col justify-between overflow-hidden`,
+                  `rounded-md border-2 p-1.5`,
+                  // `border-stone-600 dark:border-violet-400/20` /* no effect: overridden by the unlayered `* { border-color }` in globals.css (unlayered beats @layer utilities) */,
+                  `bg-linear-to-br from-stone-100 to-stone-50 dark:from-violet-950/70 dark:to-emerald-950/50`,
+                  // `hover:border-amber-400` /* no effect (same reason); gold hover comes from the shadow glow below */,
+                  `transition`,
+                  `hover:shadow-[0_0_10px_0_rgba(251,191,36,0.85),0_0_28px_2px_rgba(245,158,11,0.55)]`,
+                )}
+              >
+                <div className="flex items-baseline justify-between font-mono text-[10px] leading-none">
+                  <span className="text-violet-700/70 dark:text-violet-300/60">
+                    {atomicNumber}
+                  </span>
+                  <span className="text-amber-600 dark:text-amber-400">
+                    {el.count.toLocaleString()}
+                  </span>
+                </div>
+                <span className="text-center text-2xl font-bold text-violet-950 transition-colors group-hover:text-amber-500 group-hover:[text-shadow:0_0_12px_rgba(251,191,36,0.85)] dark:text-violet-50 dark:group-hover:text-amber-300">
+                  {toSymbol(el.material)}
+                </span>
+                <span className="truncate text-center text-[9px] leading-tight text-violet-800/80 dark:text-emerald-200/70">
+                  {el.material}
+                </span>
+              </a>
             </li>
           );
         })}

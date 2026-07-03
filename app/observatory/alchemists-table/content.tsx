@@ -14,7 +14,166 @@ import {
   RisingVaporsSection,
   NewfoundSection,
   LostTechnologySection,
+  MonumentalSection,
 } from './components/insight-sections';
+import type { SectionCopy } from './components/section-heading';
+
+/**
+ * Bilingual copy for every section on the page, keyed by section name. English
+ * and Japanese are rendered together (no locale switch / i18n framework) — these
+ * are literal bilingual strings colocated with the page.
+ */
+const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
+  periodicTable: {
+    title: {
+      en: 'The Elements',
+      ja: '元素の一覧',
+    },
+    description: {
+      en: 'The complete catalog. Atomic numbers rank by frequency, while atomic mass scales by the count of works forged.',
+      ja: '錬金術の全書。原子番号は使用頻度を、原子量はその素材で鍛えられた作品の数を表す。',
+    },
+  },
+  monumental: {
+    title: {
+      en: 'The Monumental Elements',
+      ja: '不朽の元素',
+    },
+    description: {
+      en: 'Indelible legacies. Carved into the history of our craft, these elements have been summoned more than any other, leaving an indelible mark on the ProtoPedia Universe. They stand as testaments to the ideas they manifested, whether their glory was a slow burn or a blinding flash.',
+      ja: '不朽の記録。我々の創作の歴史そのものに刻まれし元素。他のどれよりも多く召喚され、ProtoPediaの宇宙に消えぬ刻印を残してきた者たち。その栄光がゆるやかな熾火であれ、まばゆい閃光であれ、それらはアイデアの証として在り続ける。',
+    },
+    notes: [
+      {
+        en: 'Every material qualifies — no time constraints at all',
+        ja: 'すべての素材が対象。時間的な制約は一切なし',
+      },
+      {
+        en: 'Ranked purely by total prototypes of all time (💎)',
+        ja: '全期間の累計プロトタイプ数のみで順位付け(💎)',
+      },
+      { en: 'Bars = prototypes per year', ja: 'バーは年ごとのプロトタイプ数' },
+    ],
+  },
+  primordial: {
+    title: {
+      en: 'The Primordial Element',
+      ja: '原初の元素',
+    },
+    description: {
+      en: 'Eternal foundations. Ancient and unkillable, these elements from the days of old remain unbroken year after year. The immortal bedrock makers still build upon.',
+      ja: '不滅の基盤。古きにして不滅。幾星霜を超えて途切れることなく在り続ける、遠い始まりの時代の元素。作り手が今なお築く、不朽の岩盤。',
+    },
+    notes: [
+      { en: '20+ total prototypes (💎)', ja: '累計20個以上のプロトタイプ(💎)' },
+      { en: 'Debuted 5+ years ago', ja: '5年以上前にデビュー' },
+      {
+        en: 'Used every year since debut (no gaps)',
+        ja: 'デビュー以降、毎年使用(欠けなし)',
+      },
+      { en: 'Ordered by oldest debut', ja: 'デビューが古い順' },
+      { en: 'Bars = prototypes per year', ja: 'バーは年ごとのプロトタイプ数' },
+    ],
+  },
+  risingVapors: {
+    title: {
+      en: 'The Rising Vapors',
+      ja: '立ち昇る蒸気',
+    },
+    description: {
+      en: 'Cauldron currents. Reagents introduced within the last two years, currently rising with a momentum that is shaping the landscape of our alchemy, neither fresh nor yet forged into history.',
+      ja: 'るつぼの熱気。この2年以内に現れし試薬たち。熱気はそのままに、歴史へと刻まれゆく途上のもの。無視できぬ勢いで立ち昇り、今の錬金術の地形をかたちづくっている元素。',
+    },
+    notes: [
+      {
+        en: 'No minimum count — even a handful qualifies (💎)',
+        ja: '最小数の制限なし。ほんの数個でも該当(💎)',
+      },
+      {
+        en: 'Found in {latestYear-2}–{latestYear-1} (the last two years)',
+        ja: '{latestYear-2}年から{latestYear-1}年(直近2年)に登場',
+      },
+      {
+        en: 'Still used in the latest year ({latestYear})',
+        ja: '最新年({latestYear}年)も使用中',
+      },
+      { en: 'Ordered by most prototypes', ja: 'プロトタイプ数が多い順' },
+      { en: 'Bars = prototypes per year', ja: 'バーは年ごとのプロトタイプ数' },
+    ],
+  },
+  lostTech: {
+    title: {
+      en: 'Lost Technology',
+      ja: 'ロストテクノロジー',
+    },
+    description: {
+      en: 'Silent echoes. Ghosts of workshops past — elements that burned bright for years, then fell silent. Gathering dust, unused for two winters and counting.',
+      ja: '静かなる残響。過ぎ去りし工房の亡霊。幾年も輝いたのち、静かに黙した元素。2度の冬をこえて使われぬまま、埃をかぶってゆく。',
+    },
+    notes: [
+      { en: '20+ total prototypes (💎)', ja: '累計20個以上のプロトタイプ(💎)' },
+      { en: 'Used across 3+ years', ja: '3年以上にわたって使用' },
+      {
+        en: 'No use in {latestYear-1} or {latestYear} (the 2 latest years)',
+        ja: '{latestYear-1}年と{latestYear}年(直近2年)は未使用',
+      },
+      { en: 'Ordered by most prototypes', ja: 'プロトタイプ数が多い順' },
+      {
+        en: 'Bars = prototypes per year (trailing gap = the fading echo)',
+        ja: 'バーは年ごとのプロトタイプ数(末尾の空白は消えゆく残響)',
+      },
+    ],
+  },
+  newFound: {
+    title: {
+      en: 'The Newfound Element',
+      ja: '新発見の元素',
+    },
+    description: {
+      en: 'Uncharted sparks. Strange new matter, freshly discovered from the stars above or the trenches below. The newcomers the world just started using.',
+      ja: '未知の閃光。新たに発見された奇妙な新物質。天の星々から、あるいは地の底の塹壕から。世界がたった今使い始めたばかりの新参者たち。',
+    },
+    notes: [
+      {
+        en: 'No minimum count — even a single spark qualifies (💎)',
+        ja: '最小数の制限なし。たった1つの閃きでも該当(💎)',
+      },
+      { en: 'Found in the last 12 months', ja: '直近12か月に登場' },
+      { en: 'Ordered by most prototypes', ja: 'プロトタイプ数が多い順' },
+      {
+        en: 'Bars = prototypes per month (last 12 months)',
+        ja: 'バーは月ごとのプロトタイプ数(直近12か月)',
+      },
+    ],
+  },
+  kitchenSink: {
+    title: {
+      en: 'The Magnum Opus',
+      ja: '大いなる業',
+    },
+    description: {
+      en: 'Complexity unveiled. Creations forged from the vastest number of disparate materials. A testament to maximalist ambition.',
+      ja: '複雑性の頂点。最も多くの素材を融合させ、鍛え上げられた創造の結実。そのマキシマリストたる野心に捧ぐ。',
+    },
+    notes: [],
+  },
+  lessIsMore: {
+    title: {
+      en: 'Less is More?',
+      ja: '少ないほど豊かか?',
+    },
+    description: {
+      en: 'Focused resonances. Engagement measured against material complexity. Do lean, focused builds resonate more deeply than the maximalist giants?',
+      ja: '精緻な響き。素材の複雑さと、人々の心への響き。削ぎ落とされた作品は、豪奢な巨人たちよりも深く胸を打つのだろうか?',
+    },
+    notes: [
+      {
+        en: 'Median views and median likes per work (independent axes, each scaled to its own maximum). Correlation, not causation.',
+        ja: '作品あたりの views と likes の中央値(独立した2軸。各軸はそれぞれの最大値で正規化)。相関であって因果ではない。',
+      },
+    ],
+  },
+};
 
 /** How many materials to lay out on the table (a real periodic table has 118). */
 // const MAX_ELEMENTS = 9999;
@@ -53,32 +212,58 @@ async function AlchemistsTableDashboard() {
 
   return (
     <>
-      <PeriodicTableSection elements={elements} />
+      <PeriodicTableSection
+        elements={elements}
+        copy={SECTION_DEFINITIONS.periodicTable}
+      />
 
+      <MonumentalSection
+        materials={insights.monumental}
+        copy={SECTION_DEFINITIONS.monumental}
+        limit={100}
+        // limit={5}
+      />
       <PrimordialSection
         materials={insights.primordial}
-        //
-        limit={30}
+        copy={SECTION_DEFINITIONS.primordial}
+        limit={50}
+        // limit={5}
       />
       <RisingVaporsSection
         materials={insights.risingVapors}
+        copy={SECTION_DEFINITIONS.risingVapors}
         latestYear={insights.latestYear}
-        limit={30}
+        limit={50}
+        // limit={30}
+        // limit={5}
       />
       <LostTechnologySection
         materials={insights.lostTech}
+        copy={SECTION_DEFINITIONS.lostTech}
         latestYear={insights.latestYear}
-        limit={30}
+        limit={50}
+        // limit={30}
+        // limit={5}
       />
 
       <NewfoundSection
         materials={insights.newfound}
-        //
-        limit={30}
+        copy={SECTION_DEFINITIONS.newFound}
+        // limit={50}
+        // limit={30}
+        limit={20}
+        // limit={5}
       />
 
-      <KitchenSinkSection works={insights.kitchenSink} />
-      <LessIsMoreSection buckets={insights.countEngagement} />
+      <LessIsMoreSection
+        buckets={insights.countEngagement}
+        copy={SECTION_DEFINITIONS.lessIsMore}
+      />
+
+      <KitchenSinkSection
+        works={insights.kitchenSink}
+        copy={SECTION_DEFINITIONS.kitchenSink}
+      />
     </>
   );
 }

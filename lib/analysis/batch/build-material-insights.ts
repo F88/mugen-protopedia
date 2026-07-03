@@ -47,6 +47,31 @@ export interface MaterialCountBucket {
 }
 
 /**
+ * A material first used within the trailing 12 months (The Newfound Element) —
+ * the freshest sparks. `series` is 12 MONTHLY counts (oldest -> newest).
+ */
+export interface NewfoundEntry {
+  material: string;
+  count: number;
+  /** Per-month usage counts for the trailing 12 months (oldest -> newest). */
+  series: number[];
+}
+
+/**
+ * A most-used material of all time (The Monumental Elements) — a pure usage
+ * ranking with no temporal constraint, so high-volume staples that slip between
+ * the time-based sections (still going / faded / just risen) still get their due.
+ */
+export interface MonumentalEntry {
+  material: string;
+  firstYear: number;
+  lastYear: number;
+  count: number;
+  /** Per-year usage counts from the global earliest year to `latestYear`. */
+  series: number[];
+}
+
+/**
  * A material that debuted long ago and has been used EVERY year since, up to the
  * latest year in the data (The Primordial Element) — old but still going.
  */
@@ -90,17 +115,6 @@ export interface RisingVaporsEntry {
   series: number[];
 }
 
-/**
- * A material first used within the trailing 12 months (The Newfound Element) —
- * the freshest sparks. `series` is 12 MONTHLY counts (oldest -> newest).
- */
-export interface NewfoundEntry {
-  material: string;
-  count: number;
-  /** Per-month usage counts for the trailing 12 months (oldest -> newest). */
-  series: number[];
-}
-
 export interface MaterialInsights {
   /** Full material frequency histogram (all occurrences). */
   materialCounts: Record<string, number>;
@@ -110,12 +124,11 @@ export interface MaterialInsights {
   risingVapors: RisingVaporsEntry[];
   newfound: NewfoundEntry[];
   lostTech: LostTechEntry[];
+  monumental: MonumentalEntry[];
   /** Latest release year present in the data. */
   latestYear: number;
 }
 
-/** The Kitchen Sink is shown as a ranking, so it lists more entries. */
-const KITCHEN_SINK_LIMIT = 20;
 /** Minimum overall usage for a material to count as "primordial" (not a one-off). */
 const MIN_COUNT_FOR_PRIMORDIAL = 20;
 /** Minimum lifespan (years, inclusive) to count as "old" for The Primordial Element. */
@@ -126,6 +139,12 @@ const LOST_SILENT_YEARS = 2;
 const MIN_ACTIVE_YEARS_FOR_LOST = 3;
 /** Debut window (years back from latest) to count as a Rising Star newcomer. */
 const NEWCOMER_DEBUT_WINDOW = 2;
+
+/** How many most-used materials to keep for The Monumental Elements ranking. */
+const MONUMENTAL_LIMIT = 100;
+
+/** The Kitchen Sink is shown as a ranking, so it lists more entries. */
+const KITCHEN_SINK_LIMIT = 20;
 
 function bucketLabel(materialCount: number): string {
   if (materialCount <= 3) return '1-3';
@@ -379,16 +398,33 @@ export function buildMaterialInsights(
       series: s.series,
     }));
 
+  // The Monumental Elements: the most-used materials of all time, ranked purely
+  // by total usage with no temporal constraint. This is the catch-all for
+  // high-volume staples (e.g. M5Stack) that fall between the time-based sections
+  // — still going but with an early gap, faded, or freshly risen.
+  const monumental: MonumentalEntry[] = yearStats
+    .filter((s) => s.total > 0)
+    .sort((a, b) => b.total - a.total || byDate(a, b))
+    .slice(0, MONUMENTAL_LIMIT)
+    .map((s) => ({
+      material: s.material,
+      firstYear: s.firstYear,
+      lastYear: s.lastYear,
+      count: s.total,
+      series: s.series,
+    }));
+
   if (options?.logger) {
     options.logger.debug(
       {
         elapsedMs: Date.now() - startTime,
         totalSamples: prototypes.length,
         distinctMaterials: Object.keys(materialCounts).length,
+        monumental: monumental.length,
         primordial: primordial.length,
         risingVapors: risingVapors.length,
-        newfound: newfound.length,
         lostTech: lostTech.length,
+        newfound: newfound.length,
       },
       '[ANALYSIS] Built material insights',
     );
@@ -402,6 +438,7 @@ export function buildMaterialInsights(
     risingVapors,
     newfound,
     lostTech,
+    monumental,
     latestYear: Number.isFinite(latestYear) ? latestYear : 0,
   };
 }
