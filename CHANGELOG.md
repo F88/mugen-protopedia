@@ -9,6 +9,18 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Add two material-over-time charts to The Alchemist's Table:
+    - The Fire of Prometheus — a rank-flow (bump) chart of how the leading
+      materials trade places over the years, with year/month granularity, a
+      top 10 / 20 / 30 depth control (the chart grows taller with depth), and a
+      slider to set the first & last period.
+    - The Rising Cauldron — the yearly usage volume of the top materials
+      (absolute counts overlaid on one timeline).
+    - Backed by new per-period rankings (`yearlyTopMaterials` /
+      `monthlyTopMaterials`) computed alongside the existing material insights.
+
 ## [2026.07.03]
 
 ### Added
