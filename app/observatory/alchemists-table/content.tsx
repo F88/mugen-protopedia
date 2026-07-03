@@ -263,12 +263,12 @@ async function AlchemistsTableDashboard() {
         copy={SECTION_DEFINITIONS.periodicTable}
       />
 
-      <MonumentalSection
-        materials={insights.monumental}
-        copy={SECTION_DEFINITIONS.monumental}
-        limit={100}
-        // limit={5}
+      <MaterialsRankFlowSection
+        yearly={insights.yearlyTopMaterials}
+        monthly={insights.monthlyTopMaterials}
+        copy={SECTION_DEFINITIONS.prometheus}
       />
+
       <MaterialsYearlyTrendSection
         materials={insights.monumental}
         copy={SECTION_DEFINITIONS.risingCauldron}
@@ -277,11 +277,14 @@ async function AlchemistsTableDashboard() {
         // limit={10}
         // limit={8}
       />
-      <MaterialsRankFlowSection
-        yearly={insights.yearlyTopMaterials}
-        monthly={insights.monthlyTopMaterials}
-        copy={SECTION_DEFINITIONS.prometheus}
+
+      <MonumentalSection
+        materials={insights.monumental}
+        copy={SECTION_DEFINITIONS.monumental}
+        limit={100}
+        // limit={5}
       />
+
       <PrimordialSection
         materials={insights.primordial}
         copy={SECTION_DEFINITIONS.primordial}
