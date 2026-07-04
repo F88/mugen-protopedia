@@ -57,10 +57,10 @@ steps below exactly.
    too little. Write a short `## Highlights` list of the headline changes, with
    **major framework upgrades (e.g. Next.js 15 → 16) called out as their own bold
    top bullet**, then:
-   - `See [CHANGELOG.md](https://github.com/F88/mugen-protopedia/blob/<CalVer>/CHANGELOG.md#<anchor>) for the full list.`
-     — the anchor for `## [2026.07.03]` is `#20260703` (brackets and dots
-     stripped).
-   - `**Full Changelog**: https://github.com/F88/mugen-protopedia/compare/<prev>...<CalVer>`
+    - `See [CHANGELOG.md](https://github.com/F88/mugen-protopedia/blob/<CalVer>/CHANGELOG.md#<anchor>) for the full list.`
+      — the anchor for `## [2026.07.03]` is `#20260703` (brackets and dots
+      stripped).
+    - `**Full Changelog**: https://github.com/F88/mugen-protopedia/compare/<prev>...<CalVer>`
 
 ## Guardrails (do not skip)
 
