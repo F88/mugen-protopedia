@@ -254,12 +254,11 @@ async function AlchemistsTableDashboard() {
   }
 
   const insights = result.data;
-  const elements = toRankedElements(insights.materialCounts);
 
   return (
     <>
       <PeriodicTableSection
-        elements={elements}
+        elements={toRankedElements(insights.materialCounts)}
         copy={SECTION_DEFINITIONS.periodicTable}
       />
 

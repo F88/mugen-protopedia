@@ -15,7 +15,6 @@
 import { useMemo, useState } from 'react';
 import {
   CartesianGrid,
-  LabelList,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -26,6 +25,7 @@ import {
 
 import type { PeriodTopMaterial } from '@/lib/analysis/batch/build-material-insights';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { Slider } from '@/components/ui/slider';
 
 import { RANK_COLORS } from './rank-colors';
@@ -91,9 +91,9 @@ function RankTooltip({ active, label, payload }: RankTooltipProps) {
   );
 }
 
-/** Truncate long material names used as end-of-line labels. */
-function shortLabel(material: string): string {
-  return material.length > 10 ? `${material.slice(0, 9)}…` : material;
+/** Truncate long material names to `max` characters (…-suffixed) for labels. */
+function shortLabel(material: string, max = 10): string {
+  return material.length > max ? `${material.slice(0, max - 1)}…` : material;
 }
 
 /** The Shifting Tides — leading materials trading ranks, by year or month. */
@@ -109,6 +109,12 @@ export function MaterialsRankFlowSection({
   const [range, setRange] = useState<[number, number] | null>(null);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [hovered, setHovered] = useState<string | null>(null);
+
+  // Below Tailwind's `sm` breakpoint (< 640px): drop the right-side rank labels
+  // and reclaim their width; the bottom legend still identifies each line.
+  // (recharts `width`/`tick` are JS props, so this needs a media query rather
+  // than a Tailwind `sm:` class.)
+  const isNarrow = useMediaQuery('(max-width: 639.98px)');
 
   const allPeriods = useMemo(
     () => Object.keys(granularity === 'year' ? yearly : monthly).sort(),
@@ -129,7 +135,7 @@ export function MaterialsRankFlowSection({
     setRange(null); // year/month indices differ — reset the span to its default
   };
 
-  const { periods, lines, chartData, labelEnd, colorOf } = useMemo(() => {
+  const { periods, lines, chartData, colorOf } = useMemo(() => {
     const dataset = granularity === 'year' ? yearly : monthly;
     const periods = allPeriods.slice(startPos, endPos + 1);
 
@@ -153,16 +159,7 @@ export function MaterialsRankFlowSection({
       return point;
     });
 
-    const labelEnd: Record<string, number> = {};
-    for (const m of lines) {
-      let last = -1;
-      for (let i = 0; i < chartData.length; i++) {
-        if (chartData[i][m] != null) last = i;
-      }
-      labelEnd[m] = last;
-    }
-
-    return { periods, lines, chartData, labelEnd, colorOf };
+    return { periods, lines, chartData, colorOf };
   }, [
     yearly,
     monthly,
@@ -194,6 +191,45 @@ export function MaterialsRankFlowSection({
   // Give each rank room by scaling height with depth: 10 -> 480px (x1),
   // 20 -> 720px (x1.5), 30 -> 960px (x2).
   const chartHeight = 480 * (1 + (topN - 10) / 20);
+
+  // Right-side Y-axis ticks double as an interactive legend: the material at
+  // each rank (from the end period), coloured to match its line, hoverable and
+  // clickable. Replaces the per-line end labels; the bottom legend is kept
+  // (it stays visible on narrow screens where the axis labels are hidden).
+  const renderRankTick = (props: {
+    x?: number | string;
+    y?: number | string;
+    payload?: { value?: number };
+  }) => {
+    const rank = props.payload?.value;
+    const material = rank == null ? undefined : lines[rank - 1];
+    if (material == null) return <g />;
+    const color = colorOf.get(material) ?? RANK_COLORS[0];
+    const isHidden = hidden.has(material);
+    const dimmed = hovered != null && hovered !== material;
+    return (
+      <g transform={`translate(${props.x},${props.y})`}>
+        <text
+          x={8}
+          dy={4}
+          textAnchor="start"
+          fontSize={11}
+          fontWeight={hovered === material ? 700 : 500}
+          fill={color}
+          opacity={isHidden ? 0.35 : dimmed ? 0.3 : 1}
+          style={{
+            cursor: 'pointer',
+            textDecoration: isHidden ? 'line-through' : 'none',
+          }}
+          onMouseEnter={() => setHovered(material)}
+          onMouseLeave={() => setHovered(null)}
+          onClick={() => toggle(material)}
+        >
+          {shortLabel(material, isNarrow ? 10 : 20)}
+        </text>
+      </g>
+    );
+  };
 
   return (
     <section aria-labelledby="rank-flow-heading" className="mt-12">
@@ -276,7 +312,7 @@ export function MaterialsRankFlowSection({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
-                margin={{ top: 8, right: 104, left: 16, bottom: 0 }}
+                margin={{ top: 12, right: 4, left: 16, bottom: 0 }}
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
@@ -290,7 +326,17 @@ export function MaterialsRankFlowSection({
                   tickMargin={8}
                   minTickGap={24}
                 />
-                <YAxis reversed domain={[1, topN]} hide />
+                <YAxis
+                  reversed
+                  domain={[1, topN]}
+                  ticks={Array.from({ length: topN }, (_, i) => i + 1)}
+                  orientation="right"
+                  width={isNarrow ? 50 : 116}
+                  interval={0}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={renderRankTick}
+                />
                 <Tooltip
                   content={<RankTooltip />}
                   cursor={{ stroke: '#a78bfa', strokeWidth: 1 }}
@@ -313,32 +359,7 @@ export function MaterialsRankFlowSection({
                       dot={{ r: 2.5, strokeWidth: 0, fill: color }}
                       activeDot={{ r: 5 }}
                       isAnimationActive={false}
-                    >
-                      <LabelList
-                        dataKey={m}
-                        content={(props) => {
-                          const idx = Number(
-                            (props as { index?: number }).index,
-                          );
-                          if (idx !== labelEnd[m]) return null;
-                          const px = (props as { x?: number }).x;
-                          const py = (props as { y?: number }).y;
-                          if (px == null || py == null || dimmed) return null;
-                          return (
-                            <text
-                              x={Number(px) + 12}
-                              y={Number(py)}
-                              dy={4}
-                              fontSize={11}
-                              fill={color}
-                              fontWeight={hovered === m ? 700 : 500}
-                            >
-                              {shortLabel(m)}
-                            </text>
-                          );
-                        }}
-                      />
-                    </Line>
+                    />
                   );
                 })}
               </LineChart>
