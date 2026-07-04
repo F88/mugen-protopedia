@@ -18,6 +18,7 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
+  Text,
   Tooltip,
   XAxis,
   YAxis,
@@ -92,7 +93,7 @@ function RankTooltip({ active, label, payload }: RankTooltipProps) {
 }
 
 /** Truncate long material names to `max` characters (…-suffixed) for labels. */
-function shortLabel(material: string, max = 10): string {
+function shortLabel(material: string, max = 99): string {
   return material.length > max ? `${material.slice(0, max - 1)}…` : material;
 }
 
@@ -188,14 +189,19 @@ export function MaterialsRankFlowSection({
         : 'bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-950/60 dark:text-violet-300 dark:hover:bg-violet-900/60',
     );
 
-  // Give each rank room by scaling height with depth: 10 -> 480px (x1),
-  // 20 -> 720px (x1.5), 30 -> 960px (x2).
-  const chartHeight = 480 * (1 + (topN - 10) / 20);
+  // Give each rank room by scaling height with depth:
+  // 10 -> 400px (x1), 20 -> 600px (x1.5), 30 -> 800px (x2).
+  const chartHeight = 400 * (1 + (topN - 10) / 20);
+
+  // Right axis width (narrow / wide); the label wraps within it.
+  const yAxisWidth = isNarrow ? 60 : 160;
+  // const yAxisWidth = isNarrow ? 250 : 316;
+  const labelWidth = yAxisWidth - 12;
 
   // Right-side Y-axis ticks double as an interactive legend: the material at
   // each rank (from the end period), coloured to match its line, hoverable and
-  // clickable. Replaces the per-line end labels; the bottom legend is kept
-  // (it stays visible on narrow screens where the axis labels are hidden).
+  // clickable. Replaces the per-line end labels; the bottom legend is kept.
+  // The name wraps (recharts `<Text>`) to fit `labelWidth`.
   const renderRankTick = (props: {
     x?: number | string;
     y?: number | string;
@@ -209,12 +215,14 @@ export function MaterialsRankFlowSection({
     const dimmed = hovered != null && hovered !== material;
     return (
       <g transform={`translate(${props.x},${props.y})`}>
-        <text
-          x={8}
-          dy={4}
+        <Text
+          x={isNarrow ? 4 : 8}
+          y={0}
+          width={labelWidth}
+          verticalAnchor="middle"
           textAnchor="start"
-          fontSize={11}
-          fontWeight={hovered === material ? 700 : 500}
+          fontSize={isNarrow ? 10 : 12}
+          // fontWeight={hovered === material ? 700 : 500}
           fill={color}
           opacity={isHidden ? 0.35 : dimmed ? 0.3 : 1}
           style={{
@@ -225,8 +233,8 @@ export function MaterialsRankFlowSection({
           onMouseLeave={() => setHovered(null)}
           onClick={() => toggle(material)}
         >
-          {shortLabel(material, isNarrow ? 10 : 20)}
-        </text>
+          {shortLabel(material, isNarrow ? 999 : 999)}
+        </Text>
       </g>
     );
   };
@@ -331,7 +339,7 @@ export function MaterialsRankFlowSection({
                   domain={[1, topN]}
                   ticks={Array.from({ length: topN }, (_, i) => i + 1)}
                   orientation="right"
-                  width={isNarrow ? 50 : 116}
+                  width={yAxisWidth}
                   interval={0}
                   axisLine={false}
                   tickLine={false}
@@ -348,16 +356,21 @@ export function MaterialsRankFlowSection({
                   return (
                     <Line
                       key={m}
-                      type="monotone"
+                      // type="step"
                       // type="linear"
+                      type="monotone"
                       dataKey={m}
                       stroke={color}
                       strokeWidth={hovered === m ? 3.5 : 2}
                       strokeOpacity={dimmed ? 0.1 : 1}
                       connectNulls={false}
                       hide={isHidden}
-                      dot={{ r: 2.5, strokeWidth: 0, fill: color }}
-                      activeDot={{ r: 5 }}
+                      dot={{
+                        r: isNarrow ? 3 : 6,
+                        strokeWidth: 0,
+                        fill: color,
+                      }}
+                      activeDot={{ r: 6 }}
                       isAnimationActive={false}
                     />
                   );
