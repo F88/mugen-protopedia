@@ -94,3 +94,72 @@ describe('buildMaterialInsights - The Monumental Elements', () => {
     expect(monumental).toEqual([]);
   });
 });
+
+describe('buildMaterialInsights - yearly / monthly top materials', () => {
+  it('ranks each year independently of the all-time totals', () => {
+    const prototypes = [
+      // 2020: A x5, B x1  -> A leads 2020 (and is the all-time leader: A=6, B=4)
+      ...Array.from({ length: 5 }, () =>
+        createPrototype(['A'], '2020-05-01T00:00:00Z'),
+      ),
+      createPrototype(['B'], '2020-06-01T00:00:00Z'),
+      // 2021: B x3, A x1  -> B leads 2021 even though A leads overall
+      ...Array.from({ length: 3 }, () =>
+        createPrototype(['B'], '2021-05-01T00:00:00Z'),
+      ),
+      createPrototype(['A'], '2021-06-01T00:00:00Z'),
+    ];
+
+    const { yearlyTopMaterials } = buildMaterialInsights(prototypes);
+
+    expect(yearlyTopMaterials['2020'].map((m) => m.material)).toEqual([
+      'A',
+      'B',
+    ]);
+    expect(yearlyTopMaterials['2020'][0]).toEqual({ material: 'A', count: 5 });
+    // Independence: B tops 2021 despite A being the all-time leader.
+    expect(yearlyTopMaterials['2021'].map((m) => m.material)).toEqual([
+      'B',
+      'A',
+    ]);
+  });
+
+  it('ranks each month independently, keyed by YYYY-MM', () => {
+    const prototypes = [
+      ...Array.from({ length: 2 }, () =>
+        createPrototype(['A'], '2022-03-10T00:00:00Z'),
+      ),
+      createPrototype(['B'], '2022-03-20T00:00:00Z'),
+      createPrototype(['A'], '2022-04-05T00:00:00Z'),
+      ...Array.from({ length: 2 }, () =>
+        createPrototype(['B'], '2022-04-15T00:00:00Z'),
+      ),
+    ];
+
+    const { monthlyTopMaterials } = buildMaterialInsights(prototypes);
+
+    expect(monthlyTopMaterials['2022-03'].map((m) => m.material)).toEqual([
+      'A',
+      'B',
+    ]);
+    expect(monthlyTopMaterials['2022-04'].map((m) => m.material)).toEqual([
+      'B',
+      'A',
+    ]);
+  });
+
+  it('breaks per-period ties by earliest debut date, not material name', () => {
+    // Both have count 1 in 2023; "Zeta" debuted before "Alpha".
+    const prototypes = [
+      createPrototype(['Zeta'], '2023-01-01T00:00:00Z'),
+      createPrototype(['Alpha'], '2023-02-01T00:00:00Z'),
+    ];
+
+    const { yearlyTopMaterials } = buildMaterialInsights(prototypes);
+
+    expect(yearlyTopMaterials['2023'].map((m) => m.material)).toEqual([
+      'Zeta',
+      'Alpha',
+    ]);
+  });
+});
