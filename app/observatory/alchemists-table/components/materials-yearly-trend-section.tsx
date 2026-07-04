@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * @fileoverview The Shifting Tides — a comparative yearly (per-year) trend of
+ * @fileoverview The Rising Cauldron — a comparative yearly (per-year) trend of
  * the leading materials for The Alchemist's Table. A per-month counterpart would
  * live in a separate `materials-monthly-trend-section.tsx`.
  *

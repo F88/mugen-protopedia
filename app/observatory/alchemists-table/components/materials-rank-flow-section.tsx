@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * @fileoverview The Shifting Tides — a rank-flow (bump) chart of how the leading
+ * @fileoverview The Fire of Prometheus — a rank-flow (bump) chart of how the leading
  * materials trade places over time, with year / month granularity and a
  * top-10 / 20 / 30 depth control.
  *
