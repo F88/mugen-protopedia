@@ -125,7 +125,7 @@ export function MaterialsYearlyTrendSection({
         </p>
       ) : (
         <>
-          <div className="h-[420px] w-full rounded-xl border border-violet-200/60 bg-white/40 p-3 dark:border-violet-400/15 dark:bg-violet-950/30">
+          <div className="h-105 w-full rounded-xl border border-violet-200/60 bg-white/40 p-3 dark:border-violet-400/15 dark:bg-violet-950/30">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}

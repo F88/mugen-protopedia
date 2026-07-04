@@ -102,7 +102,7 @@ export function MaterialsRankFlowSection({
   monthly,
   copy,
   monthlyWindow = 36,
-  defaultTop = 20,
+  defaultTop = 10,
 }: MaterialsRankFlowSectionProps) {
   const [granularity, setGranularity] = useState<Granularity>('year');
   const [topN, setTopN] = useState<TopOption>(defaultTop);
@@ -234,7 +234,7 @@ export function MaterialsRankFlowSection({
             </button>
           ))}
         </div>
-        <div className="flex min-w-[220px] flex-1 items-center gap-2">
+        <div className="flex min-w-55 flex-1 items-center gap-2">
           <span className="w-14 shrink-0 text-right font-mono text-xs font-semibold text-violet-800 dark:text-violet-200">
             {startPeriod}
           </span>
@@ -250,11 +250,11 @@ export function MaterialsRankFlowSection({
               // Violet-theme the shadcn slider from the consumer side (track /
               // range are backgrounds; the thumb border needs `!` to beat the
               // global unlayered `* { border-color }` rule in globals.css).
-              '[&_[data-slot=slider-track]]:bg-violet-200/70',
-              'dark:[&_[data-slot=slider-track]]:bg-violet-900/50',
-              '[&_[data-slot=slider-range]]:bg-violet-500',
-              '[&_[data-slot=slider-thumb]]:border-violet-500!',
-              '[&_[data-slot=slider-thumb]]:ring-violet-400/40',
+              '**:data-[slot=slider-track]:bg-violet-200/70',
+              'dark:**:data-[slot=slider-track]:bg-violet-900/50',
+              '**:data-[slot=slider-range]:bg-violet-500',
+              '**:data-[slot=slider-thumb]:border-violet-500!',
+              '**:data-[slot=slider-thumb]:ring-violet-400/40',
             )}
           />
           <span className="w-14 shrink-0 font-mono text-xs font-semibold text-violet-800 dark:text-violet-200">

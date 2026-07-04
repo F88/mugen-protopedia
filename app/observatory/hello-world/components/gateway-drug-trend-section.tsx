@@ -114,7 +114,7 @@ export function GatewayDrugTrendSection({
       }}
       delay="delay-400"
     >
-      <div className="h-[400px] w-full bg-white/50 dark:bg-black/20 rounded-xl p-4 border border-lime-100 dark:border-lime-800/30 gateway-drug-chart-container">
+      <div className="h-100 w-full bg-white/50 dark:bg-black/20 rounded-xl p-4 border border-lime-100 dark:border-lime-800/30 gateway-drug-chart-container">
         <style jsx global>{`
           .gateway-drug-chart-container {
             --tooltip-bg: rgba(255, 255, 255, 0.95);
