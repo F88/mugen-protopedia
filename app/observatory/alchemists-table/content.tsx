@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
 
+import { getCircleOfMastersAnalysis } from '@/app/actions/observatory/circle-of-masters-analysis';
 import { getElementalChroniclesAnalysis } from '@/app/actions/observatory/elemental-chronicles-analysis';
 import { getMaterialAnalysis } from '@/app/actions/observatory/material-analysis';
 import { cinzelFont } from '@/app/observatory/shared/fonts';
 
 import { ElementChroniclesExplorer } from './components/chronicles-explorer';
+import { CircleOfMastersSection } from './components/circle-of-masters-section';
 
 import {
   PeriodicTableSection,
@@ -311,6 +313,20 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
       en: "The chosen few who sit at the Alchemist's Table. A directory of absolute mastery, categorizing the visionary creators by their distinct styles of forging.",
       ja: '錬金術のテーブルを囲む、選ばれし達人たち。彼らがどのような流派で作品を錬成してきたか、その特異な創造のスタイルを証明する絶対的な名簿。',
     },
+    notes: [
+      {
+        en: 'Fact-based only: every seat ranks makers on a materials fact (breadth, combination, focus, materials pioneered) — never views, likes, or status.',
+        ja: '事実ベースのみ。各席は素材に関する事実(幅・組み合わせ・偏愛・初採用した素材数)で席次を決め、閲覧数・いいね・ステータスは用いない。',
+      },
+      {
+        en: 'Only makers with 3 or more works are eligible; some seats add a higher floor. Each seat shows a podium of the top 10 (ties expand it).',
+        ja: '3作以上の作者のみ対象(席によってはさらに高い下限あり)。各席は上位10名(同率は拡張)を表彰する。',
+      },
+      {
+        en: 'The Grand Alchemist is anyone holding two or more seats at once.',
+        ja: '大錬金術師は、2つ以上の席を同時に得た者。',
+      },
+    ],
   },
 };
 
@@ -328,9 +344,10 @@ function toRankedElements(
 }
 
 async function AlchemistsTableDashboard() {
-  const [result, chroniclesResult] = await Promise.all([
+  const [result, chroniclesResult, circleResult] = await Promise.all([
     getMaterialAnalysis(),
     getElementalChroniclesAnalysis(),
+    getCircleOfMastersAnalysis(),
   ]);
 
   if (!result.ok) {
@@ -430,6 +447,13 @@ async function AlchemistsTableDashboard() {
         works={insights.kitchenSink}
         copy={SECTION_DEFINITIONS.kitchenSink}
       />
+
+      {circleResult.ok && (
+        <CircleOfMastersSection
+          insights={circleResult.data}
+          copy={SECTION_DEFINITIONS.circleOfMasters}
+        />
+      )}
     </>
   );
 }
