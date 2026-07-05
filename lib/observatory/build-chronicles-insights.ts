@@ -3,7 +3,7 @@
  *
  * Powers Direction 2 of The Alchemist's Table — The Elemental Chronicles (see
  * docs/observatory/content/the-alchemists-table/the-elemental-chronicles.md).
- * For each eligible material it derives two facets:
+ * For each material it derives two facets:
  *
  * - Facet 1, the key people: Pioneer / Grandmaster / Innovator (top-N, ties
  *   expand the list).
@@ -80,8 +80,6 @@ export interface ChroniclesInsights {
 
 export interface ChroniclesOptions {
   logger?: MinimalLogger;
-  /** A material needs at least this many uses to earn a Chronicle. */
-  minUsage?: number;
   /** Top-N per people/portrait list (ties at the boundary expand it). */
   listSize?: number;
   /** Uses-to-reach target for the Supernova. */
@@ -91,7 +89,6 @@ export interface ChroniclesOptions {
 }
 
 const DEFAULTS = {
-  minUsage: 20,
   listSize: 5,
   supernovaN: 50,
   addictiveFloor: 10,
@@ -135,7 +132,6 @@ export function buildChroniclesInsights(
   options: ChroniclesOptions = {},
 ): ChroniclesInsights {
   const startTime = Date.now();
-  const minUsage = options.minUsage ?? DEFAULTS.minUsage;
   const listSize = options.listSize ?? DEFAULTS.listSize;
   const supernovaN = options.supernovaN ?? DEFAULTS.supernovaN;
   const addictiveFloor = options.addictiveFloor ?? DEFAULTS.addictiveFloor;
@@ -226,11 +222,11 @@ export function buildChroniclesInsights(
     }
   }
 
-  const eligible = Object.keys(usage)
-    .filter((m) => usage[m] >= minUsage)
-    .sort((a, b) => usage[b] - usage[a]);
+  // Every material earns a Chronicle, sorted by usage desc. Any size or
+  // selection limit is the consumer's concern, not the builder's.
+  const rankedMaterials = Object.keys(usage).sort((a, b) => usage[b] - usage[a]);
 
-  const materials: MaterialChronicle[] = eligible.map((m) => {
+  const materials: MaterialChronicle[] = rankedMaterials.map((m) => {
     const pioneers = distinctMakerFirsts(works[m], listSize);
     const innovators = distinctMakerFirsts(awardWorks[m] ?? [], listSize);
 
@@ -295,7 +291,7 @@ export function buildChroniclesInsights(
       {
         elapsedMs: Date.now() - startTime,
         totalSamples: prototypes.length,
-        eligibleMaterials: materials.length,
+        totalMaterials: materials.length,
         distinctMaterials: Object.keys(usage).length,
       },
       '[ANALYSIS] Built chronicles insights',
