@@ -100,11 +100,21 @@ export const buildTagLink = (tag: string): string => {
 
 const PROTOPEDIA_MATERIAL_BASE_URL = 'https://protopedia.net/material';
 /**
- * ProtoPedia の素材ページのURLは以下のように /id であるが、文字列を渡しても動作する、ありがたい!!
- * https://protopedia.net/material/1863
+ * Link to a material page. ProtoPedia's canonical material URL is
+ * `/material/{id}` (numeric), e.g. https://protopedia.net/material/1863.
  *
- * @param material The material identifier or name to link to.
- * @returns URL to the material page.
+ * We only have the material NAME (prototype data carries no material id), so
+ * this links by name via `/material/{name}`. ProtoPedia resolves that to the id
+ * page for SOME materials (e.g. `Arduino` -> /material/558) but NOT all:
+ * long-tail names fall back to the home page (e.g. `SG-90`), and names
+ * containing `/` return 404 (an encoded slash is rejected in the path). Linking
+ * by name is therefore best-effort, not guaranteed.
+ *
+ * A reliable id-based link would need name -> id resolution via the material
+ * list API, which is not implemented yet (deferred).
+ *
+ * @param material The material name to link to.
+ * @returns Best-effort URL to the material page.
  */
 export const buildMaterialLink = (material: string): string => {
   return `${PROTOPEDIA_MATERIAL_BASE_URL}/${encodeURIComponent(material)}`;
