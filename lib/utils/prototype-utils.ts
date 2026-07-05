@@ -109,3 +109,63 @@ const PROTOPEDIA_MATERIAL_BASE_URL = 'https://protopedia.net/material';
 export const buildMaterialLink = (material: string): string => {
   return `${PROTOPEDIA_MATERIAL_BASE_URL}/${encodeURIComponent(material)}`;
 };
+
+/**
+ * Parse a ProtoPedia `users` element ("表示名@profileId") into its display name and
+ * string profileId. Per ProtoPedia's model:
+ * - **profileId** (the segment after the **last** `@`) is the stable string id used
+ *   in author-page URLs and cannot be changed. Display names may themselves
+ *   contain `@` (e.g. `げんろく@Karakuri-Musha@genroku` → profileId `genroku`).
+ * - **displayName** (before the last `@`) is mutable and may be **empty** — a
+ *   maker with no display name is stored as `@profileId` (e.g. `@yuukankin`).
+ *
+ * NOTE: ProtoPedia exposes no separate profileId field (see promidas
+ * `normalizePrototype`, which only pipe-splits `users`), so this split is the
+ * ONLY way to recover the profileId — inherently best-effort. The numeric `createId`
+ * is intentionally ignored: its link to the string profileId is not guaranteed.
+ *
+ * @param user A single `users` element.
+ * @returns `{ displayName, profileId }`; `displayName` may be `''`, `profileId` is
+ *   `null` when absent.
+ */
+export const parseUserString = (
+  user: string,
+): { displayName: string; profileId: string } => {
+  const at = user.lastIndexOf('@');
+  if (at < 0) return { displayName: user.trim(), profileId: '' };
+  return {
+    displayName: user.slice(0, at).trim(),
+    profileId: user.slice(at + 1).trim(),
+  };
+};
+
+/**
+ * The name ProtoPedia shows for a `users` element: the display name if set,
+ * otherwise the `profileId` (mirrors ProtoPedia, whose profile `<h1>` falls back to
+ * the id when no display name exists — e.g. `@yuukankin` renders as `yuukankin`).
+ * Falls back to the raw string only for fully malformed input.
+ */
+export const getUserDisplayName = (user: string): string => {
+  const { displayName, profileId } = parseUserString(user);
+  return displayName || profileId || user.trim();
+};
+
+const PROTOPEDIA_PROTOTYPER_BASE_URL = 'https://protopedia.net/prototyper';
+/**
+ * Best-effort ProtoPedia author-page URL for a `users` element. The page is
+ * `.../prototyper/{profileId}` — the numeric `createId` and mutable display names do
+ * NOT resolve — and the profileId is recovered from the string via
+ * {@link parseUserString}.
+ *
+ * ⚠️ NOT GUARANTEED: returns `null` when no profileId can be extracted, and even a
+ * non-null URL is only as correct as the embedded profileId. Callers should fall
+ * back to plain text when this is `null`.
+ *
+ * @param user A single `users` element ("表示名@profileId").
+ * @returns The author-page URL, or `null` when no profileId is available.
+ */
+export const buildUserLink = (user: string): string | null => {
+  const { profileId } = parseUserString(user);
+  if (profileId === '') return null;
+  return `${PROTOPEDIA_PROTOTYPER_BASE_URL}/${encodeURIComponent(profileId)}`;
+};

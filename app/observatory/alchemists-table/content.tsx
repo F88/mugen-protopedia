@@ -1,7 +1,13 @@
 import { Suspense } from 'react';
 
-import { getMaterialAnalysis } from '@/app/actions/material-analysis';
+import { getElementalChroniclesAnalysis } from '@/app/actions/observatory/elemental-chronicles-analysis';
+import { getMaterialAnalysis } from '@/app/actions/observatory/material-analysis';
 import { cinzelFont } from '@/app/observatory/shared/fonts';
+
+import {
+  ElementForgersSection,
+  ElementNatureSection,
+} from './components/elemental-chronicles-section';
 
 import {
   PeriodicTableSection,
@@ -219,6 +225,83 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
       },
     ],
   },
+
+  // The Elemental Chronicles
+  // The Elemental Chronicles — Facet 1: the people who forged with each material.
+  elementForgers: {
+    title: {
+      en: 'The Forgers of this Element',
+      ja: '元素を紡いだ術師たち',
+    },
+    description: {
+      en: 'The history of each element, told through the alchemists who wielded them. Discover the pioneers who first ignited a material, and the grandmasters who forged it to its absolute limits.',
+      ja: '素材を操った錬金術師たちを通して語られる、元素の歴史。誰が最初にその素材に火を灯し、誰がその真価を極限まで引き出したのかを記録する。',
+    },
+    notes: [
+      {
+        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
+        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
+      },
+      {
+        en: 'Pioneer — the first maker ever to use it',
+        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
+      },
+      {
+        en: 'Top user — the maker with the most works using it',
+        ja: 'Top user(第一人者) — その素材を最も多くの作品で使ったメイカー',
+      },
+      {
+        en: 'Innovator — the first maker to win an award with it',
+        ja: 'Innovator(革新の証明者) — その素材で初めて受賞したメイカー',
+      },
+    ],
+  },
+
+  // The Elemental Chronicles — Facet 2: the material's own nature (no individuals).
+  elementNature: {
+    title: {
+      en: 'The Nature of the Element',
+      ja: '元素の性質',
+    },
+    description: {
+      en: "Each material read on its own terms — the reagents it bonds with, the domains it serves, and how it spread through the makers' hands.",
+      ja: '素材そのものを読み解く。何と結びつき、どんな領域で使われ、どのように作り手たちへ広まっていったのか。',
+    },
+    notes: [
+      {
+        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
+        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
+      },
+      {
+        en: 'Pairs with — the materials it is most often combined with',
+        ja: 'Pairs with(相棒) — 最も一緒に使われる素材',
+      },
+      {
+        en: 'Used for — the genres / domains of its works (from tags)',
+        ja: 'Used for(用途) — その作品群のジャンル(タグ由来)',
+      },
+      {
+        en: '“% use it again” — how often a maker reaches for it again in later works',
+        ja: '「% use it again」 — 一度使ったメイカーが後の作品でも再び使う割合',
+      },
+      {
+        en: '“reached N uses in …” — how fast it spread after its debut',
+        ja: '「reached N uses in …」 — 登場後どれだけ速く広まったか',
+      },
+    ],
+  },
+
+  // The Circle of Masters
+  circleOfMasters: {
+    title: {
+      en: 'The Circle of Masters',
+      ja: '極めし者たちの円環', // または「巨匠たちの円卓」「達人たちの錬成陣」など
+    },
+    description: {
+      en: "The chosen few who sit at the Alchemist's Table. A directory of absolute mastery, categorizing the visionary creators by their distinct styles of forging.",
+      ja: '錬金術のテーブルを囲む、選ばれし達人たち。彼らがどのような流派で作品を錬成してきたか、その特異な創造のスタイルを証明する絶対的な名簿。',
+    },
+  },
 };
 
 /** How many materials to lay out on the table (a real periodic table has 118). */
@@ -235,7 +318,10 @@ function toRankedElements(
 }
 
 async function AlchemistsTableDashboard() {
-  const result = await getMaterialAnalysis();
+  const [result, chroniclesResult] = await Promise.all([
+    getMaterialAnalysis(),
+    getElementalChroniclesAnalysis(),
+  ]);
 
   if (!result.ok) {
     return (
@@ -261,6 +347,21 @@ async function AlchemistsTableDashboard() {
         elements={toRankedElements(insights.materialCounts)}
         copy={SECTION_DEFINITIONS.periodicTable}
       />
+
+      {chroniclesResult.ok && (
+        <>
+          <ElementNatureSection
+            chronicles={chroniclesResult.data.materials}
+            copy={SECTION_DEFINITIONS.elementNature}
+            limit={12}
+          />
+          <ElementForgersSection
+            chronicles={chroniclesResult.data.materials}
+            copy={SECTION_DEFINITIONS.elementForgers}
+            limit={12}
+          />
+        </>
+      )}
 
       <MaterialsRankFlowSection
         yearly={insights.yearlyTopMaterials}
