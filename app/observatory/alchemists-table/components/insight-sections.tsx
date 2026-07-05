@@ -2,7 +2,7 @@
  * @fileoverview Material insight sections for The Alchemist's Table.
  *
  * Data-light sections computed from a single pass over the prototype dataset
- * (see `lib/analysis/batch/build-material-insights.ts`):
+ * (see `lib/observatory/build-material-insights.ts`):
  * - The Kitchen Sink (most materials per work)
  * - Less is More? (engagement by material count)
  * - The Primordial Element (oldest materials still in use)
@@ -19,7 +19,7 @@ import type {
   NewfoundEntry,
   LostTechEntry,
   MonumentalEntry,
-} from '@/lib/analysis/batch/build-material-insights';
+} from '@/lib/observatory/build-material-insights';
 
 import {
   SectionHeading,
