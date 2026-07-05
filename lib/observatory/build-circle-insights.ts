@@ -27,6 +27,15 @@ export interface SeatEntry {
   detail: string;
 }
 
+/** The seat keys that carry a podium (everything except the meta-honour). */
+export type SeatKey = 'polymath' | 'weaver' | 'purist' | 'vanguard';
+
+/** The eligibility gate for one seat, surfaced so the UI can show it. */
+export interface SeatCriteria {
+  /** Effective minimum works to hold the seat (the base gate or a higher floor). */
+  minWorks: number;
+}
+
 export interface CircleInsights {
   /** Range. */
   polymath: SeatEntry[];
@@ -36,15 +45,28 @@ export interface CircleInsights {
   vanguard: SeatEntry[];
   /** Meta — makers who hold two or more seats (by title family). */
   grandAlchemists: { user: string; titles: string[] }[];
+  /** Per-seat eligibility, so the UI can show each seat's gate. */
+  criteria: Record<SeatKey, SeatCriteria>;
 }
 
 export interface CircleOptions {
   logger?: MinimalLogger;
-  /** Eligibility gate: minimum works to be an Alchemist at all. */
+  /**
+   * Eligibility gate: minimum works to be an Alchemist at all. This is the
+   * DOMINANT gate — it filters the whole pool up front (see `eligible`), so no
+   * seat can ever surface a maker below it, and the per-seat floors below only
+   * bite when they are HIGHER than this.
+   */
   minWorks?: number;
-  /** Extra floor for the Purist (single-material devotion). */
+  /**
+   * Extra floor for the Purist, layered ON TOP of `minWorks`. Effective only
+   * while > `minWorks`; at or below it, it is a no-op (the base gate dominates).
+   */
   puristFloor?: number;
-  /** Extra floor for rate/ratio seats (the Weaver). */
+  /**
+   * Extra floor for rate/ratio seats (the Weaver), layered on top of `minWorks`.
+   * Effective only while > `minWorks` (same no-op rule as `puristFloor`).
+   */
   rateFloor?: number;
   /** Podium size per seat (ties at the boundary expand it). */
   podium?: number;
@@ -52,15 +74,26 @@ export interface CircleOptions {
   pioneerCountByUser?: Record<string, number>;
 }
 
+// Tuning knobs. Two gotchas before editing these:
+//   1. `minWorks` is the base gate applied to EVERY seat (see `eligible`), so the
+//      per-seat floors (`puristFloor`, `rateFloor`) only have an effect while
+//      they stay ABOVE it. Raise `minWorks` to/above a floor and that floor
+//      becomes a no-op — every seat then shares the `minWorks` gate. Keep
+//      `minWorks` below the per-seat floors for them to mean anything.
+//   2. `podium` here is overridden by the caller: `circle-of-masters-analysis.ts`
+//      passes `podium: 10`, so changing this value alone does NOT change the UI.
 const DEFAULTS = {
-  minWorks: 3,
-  puristFloor: 8,
-  rateFloor: 6,
-  podium: 3,
+  minWorks: 5,
+  rateFloor: 5,
+  puristFloor: 10,
+  podium: 10,
 } as const;
 
 /** The maker's most-used material and how many of their works use it. */
-function dominantMaterial(u: UserInsightsEntry): { material: string; count: number } {
+export function dominantMaterial(u: UserInsightsEntry): {
+  material: string;
+  count: number;
+} {
   let material = '';
   let count = 0;
   for (const [m, c] of Object.entries(u.materialCounts)) {
@@ -83,6 +116,9 @@ export function buildCircleInsights(
   const podium = options.podium ?? DEFAULTS.podium;
   const pioneerCountByUser = options.pioneerCountByUser ?? {};
 
+  // The dominant gate: filter the whole pool by `minWorks` once, up front. Every
+  // seat derives from `eligible`, so this floor sits under all of them and no
+  // per-seat floor (rateFloor / puristFloor) can ever reach below it.
   const eligible = userInsights.users.filter((u) => u.workCount >= minWorks);
 
   // Take the top `podium` (ties at the boundary expand it) and pair each row
@@ -105,12 +141,20 @@ export function buildCircleInsights(
   const polymath = top(
     [...eligible].sort((a, b) => b.distinctMaterials - a.distinctMaterials),
     (u) => u.distinctMaterials,
-  ).map(({ row: u, rank }) => ({ user: u.user, rank, value: u.distinctMaterials, detail: `${u.distinctMaterials} materials / ${u.workCount} works` }));
+  ).map(({ row: u, rank }) => ({
+    user: u.user,
+    rank,
+    value: u.distinctMaterials,
+    detail: `${u.distinctMaterials} materials / ${u.workCount} works`,
+  }));
 
   const weaver = top(
     eligible
       .filter((u) => u.workCount >= rateFloor)
-      .sort((a, b) => b.distinctMaterials / b.workCount - a.distinctMaterials / a.workCount),
+      .sort(
+        (a, b) =>
+          b.distinctMaterials / b.workCount - a.distinctMaterials / a.workCount,
+      ),
     (u) => u.distinctMaterials / u.workCount,
   ).map(({ row: u, rank }) => ({
     user: u.user,
@@ -123,7 +167,9 @@ export function buildCircleInsights(
     eligible
       .filter((u) => u.workCount >= puristFloor && u.distinctMaterials >= 1)
       .map((u) => ({ u, dom: dominantMaterial(u) }))
-      .sort((a, b) => b.dom.count / b.u.workCount - a.dom.count / a.u.workCount),
+      .sort(
+        (a, b) => b.dom.count / b.u.workCount - a.dom.count / a.u.workCount,
+      ),
     (r) => r.dom.count / r.u.workCount,
   ).map(({ row: { u, dom }, rank }) => ({
     user: u.user,
@@ -139,7 +185,12 @@ export function buildCircleInsights(
       .filter((r) => r.count > 0)
       .sort((a, b) => b.count - a.count),
     (r) => r.count,
-  ).map(({ row: r, rank }) => ({ user: r.user, rank, value: r.count, detail: `${r.count} materials pioneered` }));
+  ).map(({ row: r, rank }) => ({
+    user: r.user,
+    rank,
+    value: r.count,
+    detail: `${r.count} materials pioneered`,
+  }));
 
   // Meta — Grand Alchemist: holds 2+ seats (counted by title FAMILY, so the two
   // Polymath twins count once).
@@ -163,11 +214,23 @@ export function buildCircleInsights(
     );
   }
 
+  // The effective works gate per seat. The per-seat floors are layered ON TOP of
+  // the base gate, so the real gate is max(minWorks, floor): when minWorks is the
+  // higher of the two it dominates and the floor is a no-op. Emitted so the UI
+  // shows each seat's true eligibility from a single source.
+  const criteria: Record<SeatKey, SeatCriteria> = {
+    polymath: { minWorks },
+    weaver: { minWorks: Math.max(minWorks, rateFloor) },
+    purist: { minWorks: Math.max(minWorks, puristFloor) },
+    vanguard: { minWorks },
+  };
+
   return {
     polymath,
     weaver,
     purist,
     vanguard,
     grandAlchemists,
+    criteria,
   };
 }

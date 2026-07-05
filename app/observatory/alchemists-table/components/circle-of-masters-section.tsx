@@ -14,6 +14,7 @@
  */
 import type {
   CircleInsights,
+  SeatCriteria,
   SeatEntry,
 } from '@/lib/observatory/build-circle-insights';
 import { buildUserLink, getUserDisplayName } from '@/lib/utils/prototype-utils';
@@ -140,8 +141,16 @@ function PodiumRow({ entry, rank }: { entry: SeatEntry; rank: number }) {
 const SEAT_CARD_CLASS =
   'group relative flex flex-col gap-2 rounded-2xl border border-violet-200/70 bg-white/70 p-4 text-sm shadow-sm transition hover:shadow-[0_0_10px_0_rgba(251,191,36,0.85),0_0_28px_2px_rgba(245,158,11,0.55)] dark:border-violet-800/50 dark:bg-violet-950/30';
 
-/** One seat: its title, the axis blurb, and the top-3 podium of makers. */
-function SeatCard({ seat, entries }: { seat: SeatDef; entries: SeatEntry[] }) {
+/** One seat: its title, the axis blurb, the podium of makers, and its gate. */
+function SeatCard({
+  seat,
+  entries,
+  criteria,
+}: {
+  seat: SeatDef;
+  entries: SeatEntry[];
+  criteria: SeatCriteria;
+}) {
   return (
     <div className={SEAT_CARD_CLASS}>
       <div>
@@ -163,6 +172,9 @@ function SeatCard({ seat, entries }: { seat: SeatDef; entries: SeatEntry[] }) {
           <PodiumRow key={entry.user} entry={entry} rank={entry.rank} />
         ))}
       </ol>
+      <p className="mt-auto border-t border-violet-100 pt-2 text-[11px] text-violet-500 dark:border-violet-900/60 dark:text-violet-400">
+        Eligibility: {criteria.minWorks}+ works
+      </p>
     </div>
   );
 }
@@ -232,7 +244,12 @@ export function CircleOfMastersSection({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {seats.map((seat) => (
-          <SeatCard key={seat.key} seat={seat} entries={insights[seat.key]} />
+          <SeatCard
+            key={seat.key}
+            seat={seat}
+            entries={insights[seat.key]}
+            criteria={insights.criteria[seat.key]}
+          />
         ))}
       </div>
 
