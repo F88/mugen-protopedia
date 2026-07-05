@@ -45,7 +45,7 @@ and this project adheres to [CalVer](https://calver.org/).
     - Long ranking lists collapse behind a "show all / show less" toggle.
     - New `alchemy` card and header color schemes; Cinzel Decorative + Science
       Gothic fonts. Concept spec:
-      `docs/observatory/content/the-alchemists-table.md`.
+      `docs/observatory/content/the-alchemists-table/the-alchemists-table.md`.
 - Switch The Sci-Fi Lab card font to Science Gothic.
 
 ## [2026.07.01]
