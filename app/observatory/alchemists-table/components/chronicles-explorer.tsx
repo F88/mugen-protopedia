@@ -26,9 +26,11 @@ import { SectionHeading, type SectionCopy } from './section-heading';
 
 /**
  * The counts the reader can pick from; the first is the initial selection.
- * Multiples of 6 so a full page fills evenly at both grid widths (2 and 3 cols).
+ * The default (3) is a compact preview that fills one row at the 3-col grid
+ * width; the larger (30, a multiple of 6) fills evenly at both grid widths
+ * (2 and 3 cols).
  */
-const PAGE_SIZES = [6, 30] as const;
+const PAGE_SIZES = [3, 30] as const;
 
 const INPUT_CLASS =
   'rounded-full border border-violet-300/70 bg-white/70 px-5 py-2.5 text-sm text-violet-900 shadow-sm outline-none transition placeholder:text-violet-400 focus:border-amber-400/80 focus:shadow-[0_0_18px_2px_rgba(245,158,11,0.35)] dark:border-violet-700/60 dark:bg-violet-950/40 dark:text-violet-100 dark:placeholder:text-violet-500';
