@@ -96,7 +96,8 @@ function CardHeader({ chronicle: c }: { chronicle: MaterialChronicle }) {
         {c.material}
       </a>
       <span className="shrink-0 text-xs text-violet-500 dark:text-violet-400">
-        used in {c.usageCount} works
+        {/* used in {c.usageCount} works */}
+        {c.usageCount} works
       </span>
     </div>
   );
@@ -196,20 +197,17 @@ function ForgersCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
 export function ElementForgersSection({
   chronicles,
   copy,
-  limit = 12,
 }: {
   chronicles: MaterialChronicle[];
   copy: SectionCopy;
-  limit?: number;
 }) {
-  const shown = chronicles.slice(0, limit);
-  if (shown.length === 0) return null;
+  if (chronicles.length === 0) return null;
 
   return (
     <section className="my-16">
       <SectionHeading id="element-forgers" copy={copy} />
       <div className={GRID_CLASS}>
-        {shown.map((c) => (
+        {chronicles.map((c) => (
           <ForgersCard key={c.material} chronicle={c} />
         ))}
       </div>
@@ -276,20 +274,17 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
 export function ElementNatureSection({
   chronicles,
   copy,
-  limit = 12,
 }: {
   chronicles: MaterialChronicle[];
   copy: SectionCopy;
-  limit?: number;
 }) {
-  const shown = chronicles.slice(0, limit);
-  if (shown.length === 0) return null;
+  if (chronicles.length === 0) return null;
 
   return (
     <section className="my-16">
       <SectionHeading id="element-nature" copy={copy} />
       <div className={GRID_CLASS}>
-        {shown.map((c) => (
+        {chronicles.map((c) => (
           <NatureCard key={c.material} chronicle={c} />
         ))}
       </div>

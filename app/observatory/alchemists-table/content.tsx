@@ -4,10 +4,7 @@ import { getElementalChroniclesAnalysis } from '@/app/actions/observatory/elemen
 import { getMaterialAnalysis } from '@/app/actions/observatory/material-analysis';
 import { cinzelFont } from '@/app/observatory/shared/fonts';
 
-import {
-  ElementForgersSection,
-  ElementNatureSection,
-} from './components/elemental-chronicles-section';
+import { ElementChroniclesExplorer } from './components/chronicles-explorer';
 
 import {
   PeriodicTableSection,
@@ -226,7 +223,20 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
     ],
   },
 
-  // The Elemental Chronicles
+  /** The Elemental Chronicles */
+
+  // The Elemental Chronicles — the parent heading over both facets (search box lives here).
+  elementalChronicles: {
+    title: {
+      en: 'The Elemental Chronicles',
+      ja: '元素の編年体',
+    },
+    description: {
+      en: 'Every element carries a history — the hands that forged with it, and the nature it revealed. The full catalog lies open here: search any element by name, or dwell on the most storied below.',
+      ja: 'すべての元素には歴史がある。それを鍛えた手と、そこに現れた性質。ここに全書が開かれている。名前で任意の元素を探すもよし、下に連なる最も物語られし元素を眺めるもよし。',
+    },
+  },
+
   // The Elemental Chronicles — Facet 1: the people who forged with each material.
   elementForgers: {
     title: {
@@ -349,18 +359,12 @@ async function AlchemistsTableDashboard() {
       />
 
       {chroniclesResult.ok && (
-        <>
-          <ElementNatureSection
-            chronicles={chroniclesResult.data.materials}
-            copy={SECTION_DEFINITIONS.elementNature}
-            limit={12}
-          />
-          <ElementForgersSection
-            chronicles={chroniclesResult.data.materials}
-            copy={SECTION_DEFINITIONS.elementForgers}
-            limit={12}
-          />
-        </>
+        <ElementChroniclesExplorer
+          materials={chroniclesResult.data.materials}
+          headerCopy={SECTION_DEFINITIONS.elementalChronicles}
+          natureCopy={SECTION_DEFINITIONS.elementNature}
+          forgersCopy={SECTION_DEFINITIONS.elementForgers}
+        />
       )}
 
       <MaterialsRankFlowSection
