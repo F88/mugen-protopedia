@@ -12,7 +12,7 @@
  * The Circle is a thin ranking layer over two builders:
  *
  * - {@link buildUserInsights} — the per-maker aggregate (breadth, tenure, ...).
- * - {@link buildChroniclesInsights} — reused only for its `pioneerCountByUser`
+ * - {@link buildChroniclesInsights} — reused only for its `pioneerMaterialsByUser`
  *   map, which powers the Vanguard seat (the Chronicles' Pioneer seen "by maker").
  *   The Chronicles doc calls the Vanguard and the Pioneer the same computation
  *   from two sides, so the map is derived here rather than re-invented.
@@ -66,10 +66,12 @@ export async function getCircleOfMastersAnalysis(): Promise<GetCircleOfMastersAn
   }
 
   const userInsights = buildUserInsights(result.data, { logger });
-  const { pioneerCountByUser } = buildChroniclesInsights(result.data, { logger });
+  const { pioneerMaterialsByUser } = buildChroniclesInsights(result.data, {
+    logger,
+  });
   const data = buildCircleInsights(userInsights, {
     logger,
-    pioneerCountByUser,
+    pioneerMaterialsByUser,
     minWorks: 5,
     rateFloor: 5,
     // Seat a full top-10 per title (ties at 10th place expand the podium).

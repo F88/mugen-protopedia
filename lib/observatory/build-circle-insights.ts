@@ -5,8 +5,8 @@
  * docs/observatory/content/the-alchemists-table/the-circle-of-masters.md). This is
  * a thin RANKING layer over the per-user aggregate ({@link UserInsights} from
  * `build-user-insights.ts`): every seat is a sort + threshold over facts already
- * gathered. The only external input is `pioneerCountByUser` (for the Vanguard),
- * which comes from the Chronicles' shared first-work-per-material map.
+ * gathered. The only external input is `pioneerMaterialsByUser` (for the
+ * Vanguard), which comes from the Chronicles' shared first-work-per-material map.
  *
  * Fact-based only — never engagement or `status`. Trophy Hunter (awards) is
  * intentionally NOT a seat.
@@ -42,6 +42,11 @@ export interface SeatEntry {
    * forcing one arbitrary pick. Omitted on the other seats.
    */
   crowns?: PuristCrown[];
+  /**
+   * Vanguard seat only: the materials this maker pioneered (was among the first
+   * ever to wield), sorted by name. Omitted on the other seats.
+   */
+  materials?: string[];
 }
 
 /** The seat keys that carry a podium (everything except the meta-honour). */
@@ -84,7 +89,7 @@ export interface CircleOptions {
   /** Podium size per seat (ties at the boundary expand it). */
   podium?: number;
   /** Materials pioneered per maker (from the Chronicles first-work map). */
-  pioneerCountByUser?: Record<string, number>;
+  pioneerMaterialsByUser?: Record<string, string[]>;
 }
 
 // Tuning knobs. Two gotchas before editing these:
@@ -160,7 +165,7 @@ export function buildCircleInsights(
   const minWorks = options.minWorks ?? DEFAULTS.minWorks;
   const rateFloor = options.rateFloor ?? DEFAULTS.rateFloor;
   const podium = options.podium ?? DEFAULTS.podium;
-  const pioneerCountByUser = options.pioneerCountByUser ?? {};
+  const pioneerMaterialsByUser = options.pioneerMaterialsByUser ?? {};
 
   // The dominant gate: filter the whole pool by `minWorks` once, up front. Every
   // seat derives from `eligible`, so this floor sits under all of them and no
@@ -245,15 +250,19 @@ export function buildCircleInsights(
   // Influence
   const vanguard = top(
     eligible
-      .map((u) => ({ user: u.user, count: pioneerCountByUser[u.user] ?? 0 }))
-      .filter((r) => r.count > 0)
-      .sort((a, b) => b.count - a.count),
-    (r) => r.count,
+      .map((u) => ({
+        user: u.user,
+        materials: pioneerMaterialsByUser[u.user] ?? [],
+      }))
+      .filter((r) => r.materials.length > 0)
+      .sort((a, b) => b.materials.length - a.materials.length),
+    (r) => r.materials.length,
   ).map(({ row: r, rank }) => ({
     user: r.user,
     rank,
-    value: r.count,
-    detail: `${r.count} materials pioneered`,
+    value: r.materials.length,
+    detail: `${r.materials.length} materials pioneered`,
+    materials: r.materials,
   }));
 
   // Meta — Grand Alchemist: holds 2+ seats. Each seat is its own distinct title

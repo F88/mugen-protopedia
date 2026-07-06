@@ -12,6 +12,8 @@
  * Influence); each seat is a small podium (top-3). The meta-honour — the Grand
  * Alchemist, who holds two or more seats — is called out in its own banner.
  */
+import type { ReactNode } from 'react';
+
 import type {
   CircleInsights,
   SeatCriteria,
@@ -23,6 +25,7 @@ import {
   getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
 
+import { CollapsibleChips } from './collapsible-chips';
 import {
   SectionHeading,
   SectionNotes,
@@ -66,19 +69,19 @@ const SEATS: SeatDef[] = [
     },
   },
   {
-    key: 'purist',
-    title: { en: 'The Purist', ja: '孤高の偏愛者' },
-    blurb: {
-      en: 'The specialist who draws absolute power from a single, deeply loved element.',
-      ja: '特定の素材に狂気的な愛を注ぎ、その限界と真価を極限まで引き出した専門職人。',
-    },
-  },
-  {
     key: 'vanguard',
     title: { en: 'The Vanguard', ja: '黎明の先導者' },
     blurb: {
       en: 'The first to touch the unknown, holding the most pioneer records across all elements.',
       ja: '未知の素材に誰よりも早く火を灯し、ProtoPediaの歴史を切り拓いてきた先駆者。',
+    },
+  },
+  {
+    key: 'purist',
+    title: { en: 'The Purist', ja: '孤高の偏愛者' },
+    blurb: {
+      en: 'The reigning master of an element — the maker most devoted to it, crowned on every material their obsession claims.',
+      ja: 'ある元素の頂点に立つ愛用者。狂気的な愛を注いだ素材ごとに戴冠し、値する者は複数の冠をも戴く。',
     },
   },
 ];
@@ -113,9 +116,39 @@ const RANK_TONES = [
 ];
 
 /**
+ * An amber pill linking to a material's ProtoPedia page (best-effort by name,
+ * like the Chronicles). `size` sets the font — Vanguard uses a smaller one since
+ * a maker can pioneer dozens of materials.
+ */
+function MaterialChip({
+  material,
+  title,
+  size = 'text-[10px]',
+  children,
+}: {
+  material: string;
+  title: string;
+  size?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <a
+      href={buildMaterialLink(material)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={title}
+      className={`relative z-10 rounded-full border border-amber-300/60 bg-amber-100/70 px-1.5 py-0.5 ${size} leading-tight text-amber-800 transition hover:border-amber-400/80 hover:text-amber-600 hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:border-amber-400/20 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:text-amber-300`}
+    >
+      {children ?? material}
+    </a>
+  );
+}
+
+/**
  * One podium row: rank badge, the seated maker, and the metric detail. `rank` is
  * a 1-based competition rank (makers tied on the metric share it), so a podium
- * expanded by ties at the boundary shows 10, 10, 10 — not 10, 11, 12.
+ * expanded by ties at the boundary shows 10, 10, 10 — not 10, 11, 12. The Purist
+ * and Vanguard rows list their materials as linked chips instead of plain text.
  */
 function PodiumRow({ entry, rank }: { entry: SeatEntry; rank: number }) {
   const tone = RANK_TONES[rank - 1] ?? 'bg-violet-200/80 text-violet-800';
@@ -133,22 +166,36 @@ function PodiumRow({ entry, rank }: { entry: SeatEntry; rank: number }) {
         {entry.crowns != null && entry.crowns.length > 0 ? (
           <span className="mt-0.5 flex flex-wrap gap-1">
             {entry.crowns.map((crown) => (
-              <a
+              <MaterialChip
                 key={crown.material}
-                href={buildMaterialLink(crown.material)}
-                target="_blank"
-                rel="noopener noreferrer"
+                material={crown.material}
                 title={`champion of ${crown.material} — used in ${crown.count} works (${Math.round(crown.rate * 100)}%), score ${crown.score.toFixed(1)} — open on ProtoPedia`}
-                className="relative z-10 rounded-full border border-amber-300/60 bg-amber-100/70 px-1.5 py-0.5 text-[10px] leading-tight text-amber-800 transition hover:border-amber-400/80 hover:text-amber-600 hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:border-amber-400/20 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:text-amber-300"
               >
                 {crown.material}
                 <span className="ml-1 opacity-70">
                   ×{crown.count} · {Math.round(crown.rate * 100)}% · score{' '}
                   {crown.score.toFixed(1)}
                 </span>
-              </a>
+              </MaterialChip>
             ))}
           </span>
+        ) : entry.materials != null && entry.materials.length > 0 ? (
+          <>
+            <span className="block text-xs text-violet-500 dark:text-violet-400">
+              {entry.detail}
+            </span>
+            <CollapsibleChips
+              visible={20}
+              chips={entry.materials.map((material) => (
+                <MaterialChip
+                  key={material}
+                  material={material}
+                  title={`pioneered ${material} — open on ProtoPedia`}
+                  size="text-[9px]"
+                />
+              ))}
+            />
+          </>
         ) : (
           <span className="block text-xs text-violet-500 dark:text-violet-400">
             {entry.detail}

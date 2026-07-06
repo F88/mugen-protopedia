@@ -69,13 +69,14 @@ export interface MaterialChronicle {
 export interface ChroniclesInsights {
   materials: MaterialChronicle[];
   /**
-   * Materials pioneered per maker — how many materials this maker was among the
-   * first ever to wield (rank-1 Pioneer), across ALL materials (no eligibility
-   * floor). This is the Chronicles' Pioneer map seen "by maker": it feeds
+   * Materials pioneered per maker — the materials this maker was among the first
+   * ever to wield (rank-1 Pioneer), across ALL materials (no eligibility floor),
+   * sorted by name. This is the Chronicles' Pioneer map seen "by maker": it feeds
    * {@link https://../the-circle-of-masters.md The Circle of Masters}' Vanguard
-   * seat, so both directions come from one computation.
+   * seat (which ranks by the list length), so both directions come from one
+   * computation.
    */
-  pioneerCountByUser: Record<string, number>;
+  pioneerMaterialsByUser: Record<string, string[]>;
 }
 
 export interface ChroniclesOptions {
@@ -206,8 +207,8 @@ export function buildChroniclesInsights(
   // Materials pioneered per maker (rank-1 Pioneer), across ALL materials — feeds
   // the Circle's Vanguard. A material's pioneer(s) are the maker(s) of its
   // earliest work (ties at the min date all count).
-  const pioneerCountByUser: Record<string, number> = {};
-  for (const list of Object.values(works)) {
+  const pioneerMaterialsByUser: Record<string, string[]> = {};
+  for (const [material, list] of Object.entries(works)) {
     let minDate = '';
     for (const w of list) {
       if (w.date !== '' && (minDate === '' || w.date < minDate)) minDate = w.date;
@@ -218,8 +219,12 @@ export function buildChroniclesInsights(
       if (w.date === minDate) for (const u of w.users) firstMakers.add(u);
     }
     for (const u of firstMakers) {
-      pioneerCountByUser[u] = (pioneerCountByUser[u] ?? 0) + 1;
+      (pioneerMaterialsByUser[u] ??= []).push(material);
     }
+  }
+  // Deterministic order per maker (independent of material iteration order).
+  for (const materials of Object.values(pioneerMaterialsByUser)) {
+    materials.sort((a, b) => a.localeCompare(b));
   }
 
   // Every material earns a Chronicle, sorted by usage desc. Any size or
@@ -298,5 +303,5 @@ export function buildChroniclesInsights(
     );
   }
 
-  return { materials, pioneerCountByUser };
+  return { materials, pioneerMaterialsByUser };
 }
