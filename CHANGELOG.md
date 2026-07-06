@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.06]
+
 ### Added
 
 - Add two material-over-time charts to The Alchemist's Table:

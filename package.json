@@ -1,7 +1,7 @@
 {
   "name": "mugen-protopedia",
   "private": true,
-  "version": "2026.07.03",
+  "version": "2026.07.06",
   "description": "'Mugen ProtoPedia' is a web application that securely connects to the ProtoPedia API (v2) to retrieve and display a single, randomly selected prototype whenever the user requests one.",
   "engines": {
     "node": "24.x"
