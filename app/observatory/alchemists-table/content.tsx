@@ -267,6 +267,10 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         ja: '「% use it again」 — 一度使ったメイカーが後の作品でも再び使う割合',
       },
       {
+        en: '“used across N days” — from its first use to its last (its lifespan)',
+        ja: '「used across N days」 — 初使用から最終使用までの期間(その素材の寿命)',
+      },
+      {
         en: '“reached N works in …” — days from its debut until it was used in N works',
         ja: '「reached N works in …」 — 登場から N 作品で使われるまでの日数',
       },
