@@ -122,6 +122,10 @@ const DEFAULTS = {
 function distinctMakerFirsts(works: WorkRef[], size: number): MakerFirst[] {
   const firstByUser = new Map<string, WorkRef>();
   for (const w of works) {
+    // Undated works can't rank on a date — an empty date would sort before every
+    // real one ('' < '2019-…') and falsely crown the maker. Skip them, like the
+    // pioneer-material map does.
+    if (w.date === '') continue;
     for (const u of w.users) {
       const current = firstByUser.get(u);
       if (current == null || w.date < current.date) firstByUser.set(u, w);
