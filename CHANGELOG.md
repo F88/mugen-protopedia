@@ -30,8 +30,8 @@ and this project adheres to [CalVer](https://calver.org/).
       "reached N works in D days" propagation milestones.
     - Materials link to their ProtoPedia page.
 - Add The Circle of Masters to The Alchemist's Table — a round table seating
-  makers by a fact-based, materials-grounded title, each a top-10 podium with an
-  eligibility gate:
+  makers by a fact-based, materials-grounded title, each a podium (ties expand
+  it) with a per-seat eligibility gate:
     - The Polymath (most distinct materials), The Weaver (materials per work),
       The Purist (the top devotee of each material — crownable on several), and
       The Vanguard (most materials pioneered).

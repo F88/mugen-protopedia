@@ -8,9 +8,10 @@
  * title.
  *
  * Pure presentation over {@link CircleInsights} (the ranking is done in the
- * builder). Seats are grouped into the doc's three trait families (Range / Time /
- * Influence); each seat is a small podium (top-3). The meta-honour — the Grand
- * Alchemist, who holds two or more seats — is called out in its own banner.
+ * builder). Seats are a flat list of materials-grounded titles — The Polymath,
+ * The Weaver, The Purist, The Vanguard — each rendered as a podium of its top
+ * makers (ties expand it). The meta-honour — the Grand Alchemist, who holds two
+ * or more seats — is called out in its own banner.
  */
 import type { ReactNode } from 'react';
 

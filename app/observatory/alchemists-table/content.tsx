@@ -327,8 +327,8 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         ja: '事実ベースのみ。各席は素材に関する事実(幅・組み合わせ・偏愛・初採用した素材数)で席次を決め、閲覧数・いいね・ステータスは用いない。',
       },
       {
-        en: 'Only makers with 3 or more works are eligible; some seats add a higher floor. Each seat shows a podium of the top 10 (ties expand it).',
-        ja: '3作以上の作者のみ対象(席によってはさらに高い下限あり)。各席は上位10名(同率は拡張)を表彰する。',
+        en: 'Each seat ranks the top qualifying makers as a podium (ties expand it); its minimum-works gate is shown on the card.',
+        ja: '各席は資格を満たす上位の作者を podium で表彰(同率は拡張)。最低作品数の下限は各席カードに表示。',
       },
       {
         en: 'The Grand Alchemist is anyone holding two or more seats at once.',
