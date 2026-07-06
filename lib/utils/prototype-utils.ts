@@ -135,8 +135,9 @@ export const buildMaterialLink = (material: string): string => {
  * is intentionally ignored: its link to the string profileId is not guaranteed.
  *
  * @param user A single `users` element.
- * @returns `{ displayName, profileId }`; `displayName` may be `''`, `profileId` is
- *   `null` when absent.
+ * @returns `{ displayName, profileId }` — both strings, and either may be `''`:
+ *   `displayName` is `''` for a maker with no display name (`@profileId`);
+ *   `profileId` is `''` when the input has no `@` (it cannot be recovered).
  */
 export const parseUserString = (
   user: string,
