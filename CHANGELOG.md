@@ -20,6 +20,22 @@ and this project adheres to [CalVer](https://calver.org/).
       (absolute counts overlaid on one timeline).
     - Backed by new per-period rankings (`yearlyTopMaterials` /
       `monthlyTopMaterials`) computed alongside the existing material insights.
+- Add The Elemental Chronicles to The Alchemist's Table — a per-material
+  chronicle with two facets, driven by one name search and a Show 3 / 30 toggle:
+    - The Forgers of this Element (the people) — each material's Pioneer (first
+      user), Top user, and Innovator (first to win an award with it), its
+      distinct-maker count, and "reached N makers in D days" adoption milestones.
+    - The Nature of the Element (the material) — Pairs with (co-used materials),
+      Used for (genre tags), repeat rate, usage lifespan (first → last use), and
+      "reached N works in D days" propagation milestones.
+    - Materials link to their ProtoPedia page.
+- Add The Circle of Masters to The Alchemist's Table — a round table seating
+  makers by a fact-based, materials-grounded title, each a top-10 podium with an
+  eligibility gate:
+    - The Polymath (most distinct materials), The Weaver (materials per work),
+      The Purist (the top devotee of each material — crownable on several), and
+      The Vanguard (most materials pioneered).
+    - The Grand Alchemist — makers who hold two or more seats at once.
 
 ## [2026.07.03]
 
