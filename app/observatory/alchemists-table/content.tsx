@@ -239,41 +239,7 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
     },
   },
 
-  // The Elemental Chronicles — Facet 1: the people who forged with each material.
-  elementForgers: {
-    title: {
-      en: 'The Forgers of this Element',
-      ja: '元素を紡いだ術師たち',
-    },
-    description: {
-      en: 'The history of each element, told through the alchemists who wielded them. Discover the pioneers who first ignited a material, and the grandmasters who forged it to its absolute limits.',
-      ja: '素材を操った錬金術師たちを通して語られる、元素の歴史。誰が最初にその素材に火を灯し、誰がその真価を極限まで引き出したのかを記録する。',
-    },
-    notes: [
-      {
-        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
-        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
-      },
-      {
-        en: 'Pioneer — the first maker ever to use it',
-        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
-      },
-      {
-        en: 'Top user — the maker with the most works using it',
-        ja: 'Top user(第一人者) — その素材を最も多くの作品で使ったメイカー',
-      },
-      {
-        en: 'Innovator — the first maker to win an award with it',
-        ja: 'Innovator(革新の証明者) — その素材で初めて受賞したメイカー',
-      },
-      {
-        en: '“reached N makers in …” — days from its debut until the N-th distinct maker used it',
-        ja: '「reached N makers in …」 — 登場から N 人目の作り手が使うまでの日数',
-      },
-    ],
-  },
-
-  // The Elemental Chronicles — Facet 2: the material's own nature (no individuals).
+  // The Elemental Chronicles — Facet 1: the material's own nature (no individuals).
   elementNature: {
     title: {
       en: 'The Nature of the Element',
@@ -303,6 +269,40 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
       {
         en: '“reached N works in …” — days from its debut until it was used in N works',
         ja: '「reached N works in …」 — 登場から N 作品で使われるまでの日数',
+      },
+    ],
+  },
+
+  // The Elemental Chronicles — Facet 2: the people who forged with each material.
+  elementForgers: {
+    title: {
+      en: 'The Forgers of this Element',
+      ja: '元素を紡いだ術師たち',
+    },
+    description: {
+      en: 'The history of each element, told through the alchemists who wielded them. Discover the pioneers who first ignited a material, and the grandmasters who forged it to its absolute limits.',
+      ja: '素材を操った錬金術師たちを通して語られる、元素の歴史。誰が最初にその素材に火を灯し、誰がその真価を極限まで引き出したのかを記録する。',
+    },
+    notes: [
+      {
+        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
+        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
+      },
+      {
+        en: 'Pioneer — the first maker ever to use it',
+        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
+      },
+      {
+        en: 'Top user — the maker with the most works using it',
+        ja: 'Top user(第一人者) — その素材を最も多くの作品で使ったメイカー',
+      },
+      {
+        en: 'Innovator — the first maker to win an award with it',
+        ja: 'Innovator(革新の証明者) — その素材で初めて受賞したメイカー',
+      },
+      {
+        en: '“reached N makers in …” — days from its debut until the N-th distinct maker used it',
+        ja: '「reached N makers in …」 — 登場から N 人目の作り手が使うまでの日数',
       },
     ],
   },

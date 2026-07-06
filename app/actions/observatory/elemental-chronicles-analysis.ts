@@ -55,7 +55,7 @@ export async function getElementalChroniclesAnalysis(): Promise<GetElementalChro
     ok: true,
     data: buildChroniclesInsights(result.data, {
       logger: logger,
-      supernovaMilestones: [1, 10, 50, 100, 500, 1000],
+      supernovaMilestones: [10, 50, 100, 300, 500],
     }),
   };
 }

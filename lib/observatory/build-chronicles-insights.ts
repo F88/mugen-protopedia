@@ -63,6 +63,11 @@ export interface MaterialChronicle {
   /** Repeat rate (0-1) and how many makers backed it, or null below the floor. */
   addictiveElixir: { rate: number; makers: number } | null;
   /**
+   * Usage lifespan: the material's first and last use dates and the days between
+   * them. Null if it has no dated works. Shown in The Nature of the Element.
+   */
+  lifespan: { firstUsed: string; lastUsed: string; days: number } | null;
+  /**
    * Propagation speed (WORKS) — the material facet: for each milestone in
    * `supernovaMilestones`, the days from the material's first use to its N-th USE
    * (work using it). Only milestones actually reached are included. Shown in The
@@ -102,7 +107,7 @@ export interface ChroniclesOptions {
 
 const DEFAULTS = {
   listSize: 10,
-  supernovaMilestones: [10, 50, 100, 200, 300, 400, 500],
+  supernovaMilestones: [10, 50, 100],
   addictiveFloor: 10,
 } as const;
 
@@ -354,6 +359,18 @@ export function buildChroniclesInsights(
       .filter((d) => d !== '')
       .sort();
     const supernova = reachMilestones(workDates, supernovaMilestones);
+    const lifespan =
+      workDates.length > 0
+        ? {
+            firstUsed: workDates[0],
+            lastUsed: workDates[workDates.length - 1],
+            days: Math.round(
+              (new Date(workDates[workDates.length - 1]).getTime() -
+                new Date(workDates[0]).getTime()) /
+                86_400_000,
+            ),
+          }
+        : null;
 
     // Adoption (PEOPLE): the date each DISTINCT maker first used the material,
     // sorted — so the k-th entry is when the k-th person started using it.
@@ -379,6 +396,7 @@ export function buildChroniclesInsights(
       symbiotes,
       domains,
       addictiveElixir,
+      lifespan,
       supernova,
       adoption,
     };

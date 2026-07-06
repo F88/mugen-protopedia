@@ -256,8 +256,11 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
           />
         </Row>
       )}
-      {(c.addictiveElixir != null || c.supernova.length > 0) && (
+      {(c.addictiveElixir != null ||
+        c.lifespan != null ||
+        c.supernova.length > 0) && (
         <div className="mt-1 flex flex-wrap gap-2 border-t border-violet-100 pt-2 text-xs dark:border-violet-900/60">
+          {/*  */}
           {c.addictiveElixir != null && (
             <span className="text-violet-700 dark:text-violet-300">
               <span className="font-semibold">
@@ -266,6 +269,17 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
               of its makers use it again
             </span>
           )}
+          {/*  */}
+          {c.lifespan != null && (
+            <span className="text-violet-700 dark:text-violet-300">
+              used across{' '}
+              <span className="font-semibold">{c.lifespan.days} days</span> (
+              {c.lifespan.firstUsed.slice(0, 10)} -{' '}
+              {c.lifespan.lastUsed.slice(0, 10)})
+            </span>
+          )}
+
+          {/*  */}
           {c.supernova.length > 0 && (
             <span className="text-violet-700 dark:text-violet-300">
               {c.supernova.map((milestone) => (
