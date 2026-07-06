@@ -266,6 +266,10 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         en: 'Innovator — the first maker to win an award with it',
         ja: 'Innovator(革新の証明者) — その素材で初めて受賞したメイカー',
       },
+      {
+        en: '“reached N makers in …” — days from its debut until the N-th distinct maker used it',
+        ja: '「reached N makers in …」 — 登場から N 人目の作り手が使うまでの日数',
+      },
     ],
   },
 
@@ -297,8 +301,8 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         ja: '「% use it again」 — 一度使ったメイカーが後の作品でも再び使う割合',
       },
       {
-        en: '“reached N uses in …” — how fast it spread after its debut',
-        ja: '「reached N uses in …」 — 登場後どれだけ速く広まったか',
+        en: '“reached N works in …” — days from its debut until it was used in N works',
+        ja: '「reached N works in …」 — 登場から N 作品で使われるまでの日数',
       },
     ],
   },

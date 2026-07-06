@@ -62,8 +62,19 @@ export interface MaterialChronicle {
   domains: NamedCount[];
   /** Repeat rate (0-1) and how many makers backed it, or null below the floor. */
   addictiveElixir: { rate: number; makers: number } | null;
-  /** Days from first use to the N-th, or null if it never reached N. */
-  supernova: { days: number; n: number } | null;
+  /**
+   * Propagation speed (WORKS) — the material facet: for each milestone in
+   * `supernovaMilestones`, the days from the material's first use to its N-th USE
+   * (work using it). Only milestones actually reached are included. Shown in The
+   * Nature of the Element.
+   */
+  supernova: { n: number; days: number }[];
+  /**
+   * Adoption speed (PEOPLE) — the maker facet: the same milestones measured over
+   * DISTINCT makers (days from first use to when the N-th person adopted it).
+   * Shown in The Forgers of this Element.
+   */
+  adoption: { n: number; days: number }[];
 }
 
 export interface ChroniclesInsights {
@@ -83,15 +94,15 @@ export interface ChroniclesOptions {
   logger?: MinimalLogger;
   /** Top-N per people/portrait list (ties at the boundary expand it). */
   listSize?: number;
-  /** Uses-to-reach target for the Supernova. */
-  supernovaN?: number;
+  /** Distinct-maker milestones for the Supernova (days to reach each), ascending. */
+  supernovaMilestones?: number[];
   /** Minimum qualifying makers for the Addictive Elixir to be reported. */
   addictiveFloor?: number;
 }
 
 const DEFAULTS = {
-  listSize: 5,
-  supernovaN: 50,
+  listSize: 10,
+  supernovaMilestones: [10, 50, 100, 200, 300, 400, 500],
   addictiveFloor: 10,
 } as const;
 
@@ -120,6 +131,27 @@ function distinctMakerFirsts(works: WorkRef[], size: number): MakerFirst[] {
   return takeWithTies(entries, size, (e) => e.date);
 }
 
+/**
+ * Given ASCENDING dates, the days from the first date to the k-th, for each
+ * milestone `k` actually reached. Used for both the works-based Supernova and the
+ * maker-based Adoption — only the date series differs.
+ */
+function reachMilestones(
+  sortedDates: string[],
+  thresholds: readonly number[],
+): { n: number; days: number }[] {
+  return thresholds
+    .filter((k) => sortedDates.length >= k)
+    .map((k) => ({
+      n: k,
+      days: Math.round(
+        (new Date(sortedDates[k - 1]).getTime() -
+          new Date(sortedDates[0]).getTime()) /
+          86_400_000,
+      ),
+    }));
+}
+
 /** A tag is noise for The Domain if it echoes a material or names an event. */
 function isNoiseTag(tag: string, material: string, materialVocabCI: Set<string>): boolean {
   const t = tag.toLowerCase();
@@ -128,13 +160,82 @@ function isNoiseTag(tag: string, material: string, materialVocabCI: Set<string>)
   return /contest|hackathon|hackason/i.test(tag); // event-pattern tag
 }
 
+/**
+ * Materials pioneered per maker, from a per-material works map: for each material
+ * the maker(s) of its earliest work (ties at the min date all count), returned
+ * per maker sorted by material name (deterministic). Shared by the full
+ * Chronicles and the lightweight {@link buildPioneerMaterialsByUser}.
+ */
+function pioneerMaterialsFromWorks(
+  works: Record<string, WorkRef[]>,
+): Record<string, string[]> {
+  const pioneerMaterialsByUser: Record<string, string[]> = {};
+  for (const [material, list] of Object.entries(works)) {
+    let minDate = '';
+    for (const w of list) {
+      if (w.date !== '' && (minDate === '' || w.date < minDate)) minDate = w.date;
+    }
+    if (minDate === '') continue;
+    const firstMakers = new Set<string>();
+    for (const w of list) {
+      if (w.date === minDate) for (const u of w.users) firstMakers.add(u);
+    }
+    for (const u of firstMakers) {
+      (pioneerMaterialsByUser[u] ??= []).push(material);
+    }
+  }
+  // Deterministic order per maker (independent of material iteration order).
+  for (const materials of Object.values(pioneerMaterialsByUser)) {
+    materials.sort((a, b) => a.localeCompare(b));
+  }
+  return pioneerMaterialsByUser;
+}
+
+/**
+ * Lightweight path for the Circle of Masters' Vanguard: JUST the per-maker
+ * pioneered-materials map, WITHOUT the full per-material Chronicles (symbiotes,
+ * domains, milestones, Addictive Elixir, ...). One pass collects each material's
+ * works (date + makers); everything else the full builder computes is skipped.
+ * Produces the SAME map as `buildChroniclesInsights(...).pioneerMaterialsByUser`.
+ */
+export function buildPioneerMaterialsByUser(
+  prototypes: PrototypeForMpp[],
+  options: { logger?: MinimalLogger } = {},
+): Record<string, string[]> {
+  const startTime = Date.now();
+  const works: Record<string, WorkRef[]> = {};
+  for (const prototype of prototypes) {
+    const mats = [...new Set(asArray(prototype.materials))];
+    if (mats.length === 0) continue;
+    const ref: WorkRef = {
+      prototypeId: prototype.id,
+      prototypeName: prototype.prototypeNm,
+      users: asArray(prototype.users),
+      date: activityDate(prototype),
+    };
+    for (const m of mats) (works[m] ??= []).push(ref);
+  }
+  const pioneerMaterialsByUser = pioneerMaterialsFromWorks(works);
+  options.logger?.debug(
+    {
+      elapsedMs: Date.now() - startTime,
+      totalSamples: prototypes.length,
+      distinctMaterials: Object.keys(works).length,
+      pioneers: Object.keys(pioneerMaterialsByUser).length,
+    },
+    '[CHRONICLES] Built pioneer-materials-by-user (lightweight)',
+  );
+  return pioneerMaterialsByUser;
+}
+
 export function buildChroniclesInsights(
   prototypes: PrototypeForMpp[],
   options: ChroniclesOptions = {},
 ): ChroniclesInsights {
   const startTime = Date.now();
   const listSize = options.listSize ?? DEFAULTS.listSize;
-  const supernovaN = options.supernovaN ?? DEFAULTS.supernovaN;
+  const supernovaMilestones =
+    options.supernovaMilestones ?? DEFAULTS.supernovaMilestones;
   const addictiveFloor = options.addictiveFloor ?? DEFAULTS.addictiveFloor;
 
   const usage: Record<string, number> = {};
@@ -205,27 +306,8 @@ export function buildChroniclesInsights(
   }
 
   // Materials pioneered per maker (rank-1 Pioneer), across ALL materials — feeds
-  // the Circle's Vanguard. A material's pioneer(s) are the maker(s) of its
-  // earliest work (ties at the min date all count).
-  const pioneerMaterialsByUser: Record<string, string[]> = {};
-  for (const [material, list] of Object.entries(works)) {
-    let minDate = '';
-    for (const w of list) {
-      if (w.date !== '' && (minDate === '' || w.date < minDate)) minDate = w.date;
-    }
-    if (minDate === '') continue;
-    const firstMakers = new Set<string>();
-    for (const w of list) {
-      if (w.date === minDate) for (const u of w.users) firstMakers.add(u);
-    }
-    for (const u of firstMakers) {
-      (pioneerMaterialsByUser[u] ??= []).push(material);
-    }
-  }
-  // Deterministic order per maker (independent of material iteration order).
-  for (const materials of Object.values(pioneerMaterialsByUser)) {
-    materials.sort((a, b) => a.localeCompare(b));
-  }
+  // the Circle's Vanguard. Shared with the lightweight buildPioneerMaterialsByUser.
+  const pioneerMaterialsByUser = pioneerMaterialsFromWorks(works);
 
   // Every material earns a Chronicle, sorted by usage desc. Any size or
   // selection limit is the consumer's concern, not the builder's.
@@ -266,17 +348,27 @@ export function buildChroniclesInsights(
         ? { rate: ret.sum / ret.makers, makers: ret.makers }
         : null;
 
-    const dates = works[m].map((w) => w.date).filter((d) => d !== '').sort();
-    const supernova =
-      dates.length >= supernovaN
-        ? {
-            days: Math.round(
-              (new Date(dates[supernovaN - 1]).getTime() - new Date(dates[0]).getTime()) /
-                86_400_000,
-            ),
-            n: supernovaN,
-          }
-        : null;
+    // Supernova (WORKS): how fast N works came to use the material.
+    const workDates = works[m]
+      .map((w) => w.date)
+      .filter((d) => d !== '')
+      .sort();
+    const supernova = reachMilestones(workDates, supernovaMilestones);
+
+    // Adoption (PEOPLE): the date each DISTINCT maker first used the material,
+    // sorted — so the k-th entry is when the k-th person started using it.
+    const firstAdoption = new Map<string, string>();
+    for (const w of works[m]) {
+      if (w.date === '') continue;
+      for (const u of w.users) {
+        const prev = firstAdoption.get(u);
+        if (prev == null || w.date < prev) firstAdoption.set(u, w.date);
+      }
+    }
+    const adoption = reachMilestones(
+      [...firstAdoption.values()].sort(),
+      supernovaMilestones,
+    );
 
     return {
       material: m,
@@ -288,6 +380,7 @@ export function buildChroniclesInsights(
       domains,
       addictiveElixir,
       supernova,
+      adoption,
     };
   });
 

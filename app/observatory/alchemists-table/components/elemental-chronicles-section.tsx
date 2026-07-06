@@ -73,7 +73,7 @@ function Chips({
           href={item.href}
           target="_blank"
           rel="noopener noreferrer"
-          className={`relative z-10 inline-block rounded-full border border-violet-300/50 bg-violet-100/70 px-2 py-0.5 text-xs leading-tight text-violet-800 transition dark:border-violet-400/20 dark:bg-violet-950/60 dark:text-violet-200 ${hover}`}
+          className={`relative z-10 inline-block rounded-full border border-violet-300/50 bg-violet-100/70 px-2 py-0.5 text-[10px] leading-tight text-violet-800 transition dark:border-violet-400/20 dark:bg-violet-950/60 dark:text-violet-200 ${hover}`}
         >
           {item.text}
         </a>
@@ -95,9 +95,10 @@ function CardHeader({ chronicle: c }: { chronicle: MaterialChronicle }) {
       >
         {c.material}
       </a>
-      <span className="shrink-0 text-xs text-violet-500 dark:text-violet-400">
+      <span className="shrink-0 text-sm text-violet-500 dark:text-violet-400">
         {/* used in {c.usageCount} works */}
-        {c.usageCount} works
+        {/* {c.usageCount} works */}
+        💎 {c.usageCount}
       </span>
     </div>
   );
@@ -186,6 +187,16 @@ function ForgersCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
           <MakerVia maker={innovator} what="first award" />
         </Row>
       )}
+      {c.adoption.length > 0 && (
+        <div className="mt-1 border-t border-violet-100 pt-2 text-xs text-violet-700 dark:border-violet-900/60 dark:text-violet-300">
+          {c.adoption.map((milestone) => (
+            <span key={milestone.n} className="block">
+              reached {milestone.n} makers in{' '}
+              <span className="font-semibold">{milestone.days} days</span>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -227,7 +238,7 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
         <Row label="Pairs with">
           <Chips
             tone="material"
-            items={c.symbiotes.slice(0, 3).map((s) => ({
+            items={c.symbiotes.slice(0, 10).map((s) => ({
               text: s.name,
               href: buildMaterialLink(s.name),
             }))}
@@ -238,14 +249,14 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
         <Row label="Used for">
           <Chips
             tone="tag"
-            items={c.domains.slice(0, 3).map((d) => ({
+            items={c.domains.slice(0, 10).map((d) => ({
               text: d.name,
               href: buildTagLink(d.name),
             }))}
           />
         </Row>
       )}
-      {(c.addictiveElixir != null || c.supernova != null) && (
+      {(c.addictiveElixir != null || c.supernova.length > 0) && (
         <div className="mt-1 flex flex-wrap gap-2 border-t border-violet-100 pt-2 text-xs dark:border-violet-900/60">
           {c.addictiveElixir != null && (
             <span className="text-violet-700 dark:text-violet-300">
@@ -255,10 +266,14 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
               of its makers use it again
             </span>
           )}
-          {c.supernova != null && (
+          {c.supernova.length > 0 && (
             <span className="text-violet-700 dark:text-violet-300">
-              reached {c.supernova.n} uses in{' '}
-              <span className="font-semibold">{c.supernova.days} days</span>
+              {c.supernova.map((milestone) => (
+                <span key={milestone.n} className="block">
+                  reached {milestone.n} works in{' '}
+                  <span className="font-semibold">{milestone.days} days</span>
+                </span>
+              ))}
             </span>
           )}
         </div>

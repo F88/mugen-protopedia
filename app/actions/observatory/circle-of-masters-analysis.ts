@@ -12,16 +12,14 @@
  * The Circle is a thin ranking layer over two builders:
  *
  * - {@link buildUserInsights} — the per-maker aggregate (breadth, tenure, ...).
- * - {@link buildChroniclesInsights} — reused only for its `pioneerMaterialsByUser`
- *   map, which powers the Vanguard seat (the Chronicles' Pioneer seen "by maker").
- *   The Chronicles doc calls the Vanguard and the Pioneer the same computation
- *   from two sides, so the map is derived here rather than re-invented.
+ * - {@link buildPioneerMaterialsByUser} — the Chronicles' pioneered-materials map,
+ *   which powers the Vanguard seat (the Chronicles' Pioneer seen "by maker"). This
+ *   is the lightweight path: the Vanguard needs only this map, so the full
+ *   per-material Chronicles is not computed here.
  */
 
 import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
-import {
-  buildChroniclesInsights,
-} from '@/lib/observatory/build-chronicles-insights';
+import { buildPioneerMaterialsByUser } from '@/lib/observatory/build-chronicles-insights';
 import {
   buildCircleInsights,
   type CircleInsights,
@@ -66,7 +64,10 @@ export async function getCircleOfMastersAnalysis(): Promise<GetCircleOfMastersAn
   }
 
   const userInsights = buildUserInsights(result.data, { logger });
-  const { pioneerMaterialsByUser } = buildChroniclesInsights(result.data, {
+  // The Vanguard only needs the pioneered-materials-per-maker map, so use the
+  // lightweight builder instead of the full per-material Chronicles (whose
+  // symbiotes / domains / milestones / Addictive Elixir would all be discarded).
+  const pioneerMaterialsByUser = buildPioneerMaterialsByUser(result.data, {
     logger,
   });
   const data = buildCircleInsights(userInsights, {
