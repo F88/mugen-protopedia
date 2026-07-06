@@ -1,7 +1,12 @@
 import { Suspense } from 'react';
 
-import { getMaterialAnalysis } from '@/app/actions/material-analysis';
+import { getCircleOfMastersAnalysis } from '@/app/actions/observatory/circle-of-masters-analysis';
+import { getElementalChroniclesAnalysis } from '@/app/actions/observatory/elemental-chronicles-analysis';
+import { getMaterialAnalysis } from '@/app/actions/observatory/material-analysis';
 import { cinzelFont } from '@/app/observatory/shared/fonts';
+
+import { ElementChroniclesExplorer } from './components/chronicles-explorer';
+import { CircleOfMastersSection } from './components/circle-of-masters-section';
 
 import {
   PeriodicTableSection,
@@ -219,6 +224,118 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
       },
     ],
   },
+
+  /** The Elemental Chronicles */
+
+  // The Elemental Chronicles — the parent heading over both facets (search box lives here).
+  elementalChronicles: {
+    title: {
+      en: 'The Elemental Chronicles',
+      ja: '元素の編年体',
+    },
+    description: {
+      en: 'Every element carries a history — the hands that forged with it, and the nature it revealed. The full catalog lies open here: search any element by name, or dwell on the most storied below.',
+      ja: 'すべての元素には歴史がある。それを鍛えた手と、そこに現れた性質。ここに全書が開かれている。名前で任意の元素を探すもよし、下に連なる最も物語られし元素を眺めるもよし。',
+    },
+  },
+
+  // The Elemental Chronicles — Facet 1: the material's own nature (no individuals).
+  elementNature: {
+    title: {
+      en: 'The Nature of the Element',
+      ja: '元素の性質',
+    },
+    description: {
+      en: "Each material read on its own terms — the reagents it bonds with, the domains it serves, and how it spread through the makers' hands.",
+      ja: '素材そのものを読み解く。何と結びつき、どんな領域で使われ、どのように作り手たちへ広まっていったのか。',
+    },
+    notes: [
+      {
+        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
+        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
+      },
+      {
+        en: 'Pairs with — the materials it is most often combined with',
+        ja: 'Pairs with(相棒) — 最も一緒に使われる素材',
+      },
+      {
+        en: 'Used for — the genres / domains of its works (from tags)',
+        ja: 'Used for(用途) — その作品群のジャンル(タグ由来)',
+      },
+      {
+        en: '“% use it again” — how often a maker reaches for it again in later works',
+        ja: '「% use it again」 — 一度使ったメイカーが後の作品でも再び使う割合',
+      },
+      {
+        en: '“used across N days” — from its first use to its last (its lifespan)',
+        ja: '「used across N days」 — 初使用から最終使用までの期間(その素材の寿命)',
+      },
+      {
+        en: '“reached N works in …” — days from its debut until it was used in N works',
+        ja: '「reached N works in …」 — 登場から N 作品で使われるまでの日数',
+      },
+    ],
+  },
+
+  // The Elemental Chronicles — Facet 2: the people who forged with each material.
+  elementForgers: {
+    title: {
+      en: 'The Forgers of this Element',
+      ja: '元素を紡いだ術師たち',
+    },
+    description: {
+      en: 'The history of each element, told through the alchemists who wielded them. Discover the pioneers who first ignited a material, and the grandmasters who forged it to its absolute limits.',
+      ja: '素材を操った錬金術師たちを通して語られる、元素の歴史。誰が最初にその素材に火を灯し、誰がその真価を極限まで引き出したのかを記録する。',
+    },
+    notes: [
+      {
+        en: 'One card per material; shows the most-used materials, ordered by total usage (most first)',
+        ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
+      },
+      {
+        en: 'Top user — the maker with the most works using it',
+        ja: 'Top user(第一人者) — その素材を最も多くの作品で使ったメイカー',
+      },
+      {
+        en: 'Pioneer — the first maker ever to use it',
+        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
+      },
+      {
+        en: 'Innovator — the first maker to win an award with it',
+        ja: 'Innovator(革新の証明者) — その素材で初めて受賞したメイカー',
+      },
+      {
+        en: '“reached N makers in …” — days from its debut until the N-th distinct maker used it',
+        ja: '「reached N makers in …」 — 登場から N 人目の作り手が使うまでの日数',
+      },
+    ],
+  },
+
+  // The Circle of Masters
+  circleOfMasters: {
+    title: {
+      en: 'The Circle of Masters',
+      ja: '極めし者たちの円環', // または「巨匠たちの円卓」「達人たちの錬成陣」など
+    },
+    description: {
+      en: "The chosen few who sit at the Alchemist's Table. A directory of absolute mastery, categorizing the visionary creators by their distinct styles of forging.",
+      ja: '錬金術のテーブルを囲む、選ばれし達人たち。彼らがどのような流派で作品を錬成してきたか、その特異な創造のスタイルを証明する絶対的な名簿。',
+    },
+    notes: [
+      {
+        en: 'Fact-based only: every seat ranks makers on a materials fact (breadth, combination, focus, materials pioneered) — never views, likes, or status.',
+        ja: '事実ベースのみ。各席は素材に関する事実(幅・組み合わせ・偏愛・初採用した素材数)で席次を決め、閲覧数・いいね・ステータスは用いない。',
+      },
+      {
+        en: 'Each seat ranks the top qualifying makers as a podium (ties expand it); its minimum-works gate is shown on the card.',
+        ja: '各席は資格を満たす上位の作者を podium で表彰(同率は拡張)。最低作品数の下限は各席カードに表示。',
+      },
+      {
+        en: 'The Grand Alchemist is anyone holding two or more seats at once.',
+        ja: '大錬金術師は、2つ以上の席を同時に得た者。',
+      },
+    ],
+  },
 };
 
 /** How many materials to lay out on the table (a real periodic table has 118). */
@@ -235,7 +352,11 @@ function toRankedElements(
 }
 
 async function AlchemistsTableDashboard() {
-  const result = await getMaterialAnalysis();
+  const [result, chroniclesResult, circleResult] = await Promise.all([
+    getMaterialAnalysis(),
+    getElementalChroniclesAnalysis(),
+    getCircleOfMastersAnalysis(),
+  ]);
 
   if (!result.ok) {
     return (
@@ -261,6 +382,15 @@ async function AlchemistsTableDashboard() {
         elements={toRankedElements(insights.materialCounts)}
         copy={SECTION_DEFINITIONS.periodicTable}
       />
+
+      {chroniclesResult.ok && (
+        <ElementChroniclesExplorer
+          materials={chroniclesResult.data.materials}
+          headerCopy={SECTION_DEFINITIONS.elementalChronicles}
+          natureCopy={SECTION_DEFINITIONS.elementNature}
+          forgersCopy={SECTION_DEFINITIONS.elementForgers}
+        />
+      )}
 
       <MaterialsRankFlowSection
         yearly={insights.yearlyTopMaterials}
@@ -325,6 +455,13 @@ async function AlchemistsTableDashboard() {
         works={insights.kitchenSink}
         copy={SECTION_DEFINITIONS.kitchenSink}
       />
+
+      {circleResult.ok && (
+        <CircleOfMastersSection
+          insights={circleResult.data}
+          copy={SECTION_DEFINITIONS.circleOfMasters}
+        />
+      )}
     </>
   );
 }

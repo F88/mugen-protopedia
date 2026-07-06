@@ -22,7 +22,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import type { MonumentalEntry } from '@/lib/analysis/batch/build-material-insights';
+import type { MonumentalEntry } from '@/lib/observatory/build-material-insights';
 import { cn } from '@/lib/utils';
 
 import { RANK_COLORS } from './rank-colors';

@@ -6,7 +6,6 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-
 # Icon must end with two \r
 Icon
 
@@ -126,3 +125,7 @@ coverage/
 
 # Tools
 cleanup-vercel-deployments.js
+
+# Local notes
+__LOCAL__/
+

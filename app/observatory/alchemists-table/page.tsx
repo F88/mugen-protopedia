@@ -4,7 +4,8 @@
  * Reframes prototypes through the lens of their materials. The first section is
  * the Periodic Table of Materials. Data comes from the Observatory-only
  * `getMaterialAnalysis` source, kept separate from the base analysis that the
- * 無限PP top page depends on (see docs/observatory/content/the-alchemists-table.md).
+ * 無限PP top page depends on (see
+ * docs/observatory/content/the-alchemists-table/the-alchemists-table.md).
  */
 import type { Metadata } from 'next';
 

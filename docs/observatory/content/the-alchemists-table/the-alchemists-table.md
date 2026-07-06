@@ -142,6 +142,130 @@ The heart of the theme: turning base metals into gold.
   everyday materials — proof that you do not need rare parts to make gold. An
   encouraging counter-story to Catalyst.
 
+### The Reagent in Context — materials × the rest of the record
+
+**Why this group exists.** The page as shipped reads materials against only two
+things: **time** (rise / fall / debut) and **materials themselves** (the
+Combinations group). But every prototype carries far more — the tags that say
+what it is _for_, the event it was born at, whether it won an award, who wielded
+it, whether it still lives or was laid to rest, and whether it turned to gold
+(engagement / a product link). Crossing materials with these opens whole axes
+the time-and-co-occurrence view cannot reach. Most of these are cheap
+single-field joins over data we already fetch — no new "combinations" matrix
+required (contrast the Combinations group, whose material×material matrix is the
+one heavy new building block).
+
+**Design north-star (from the ideation).** Favour the _human drama_ over a bare
+statistics dashboard: a Pioneer's courage, a Purist's devotion, a reagent that
+keeps winning trophies. The most powerful of these are **fact-based honours** a
+maker can find their own name in ("you are the Pioneer of this element") — the
+maker's story is what makes the observatory worth revisiting.
+
+> **Data reality check (measured on a ~6.3k-prototype sample, among works that
+> have materials — the page's population).** Numbers below are what actually shows
+> up in the data, not the API's presence-rate docs. Read the per-idea
+> **Feasibility** notes before committing to any of these.
+>
+> - **`tags` present: ~86%.** Strong coverage, but tags are _not_ a clean "intent"
+>   field — see The Element's Purpose. Average per-work overlap with materials is
+>   low (Jaccard ≈ 0.1), yet a real slice of tags are just the _same technology_
+>   spelled differently across fields (`Arduino`/`arduino`, `Unity`/`unity`,
+>   `3Dプリンター`/`3Dプリンタ`). Case-folding alone does **not** collapse them.
+> - **`events` present: ~60%.** Strong. Dominated by ヒーローズ・リーグ (per-year
+>   editions) and M5Stack contests — real "houses". Editions are year-suffixed, so
+>   decide whether to collapse `... 2023/2024/2025` into one guild.
+> - **`officialLink` present: ~54%.** Strong.
+> - **`users` present: ~100%** (`teamNm` only ~30%). Use `users` for any maker
+>   axis; treat `teamNm` as optional enrichment.
+> - **`awards` present: only ~12%, and 477 distinct free-text names** (`優秀賞`,
+>   `最優秀賞`, event-specific prizes...). Sparse and messy — see The Gold Standard.
+
+- **The Element's Purpose (元素の用途) — materials × `tags`:** each reagent gains a
+  "spectral signature" — the genre/intent tags its works carry. This one is
+  **empirically the most promising**: measured signatures are already legible —
+  `Unity` → AR / VR / ゲーム; a generative-AI reagent → 機械学習 / 生成AI; `Arduino`
+  → IoT / 電子工作 / LED. Read the other way, it answers "which reagents does this
+  domain reach for?" and turns an Element Inspector tile from a bare count into a
+  portrait.
+    - _Reframe from the first draft:_ "material = means, tag = intent" is only
+      **partly** true. Tags are a **mix** of (a) genuine domains/genres (IoT, AI,
+      AR, VR, 電子工作 — the payoff), (b) event tags (`M5Stack_contest_2021`), (c)
+      community memes (`MAID`, `オレトク`), and (d) technologies duplicated from the
+      material field with spelling drift. The signal is real but must be _mined_
+      out of that mix.
+    - _Feasibility:_ needs a normalization + noise-filter step **scoped to this
+      analysis only** (case-fold at minimum; strip event-pattern and material-echo
+      tags), deliberately separate from the page-wide "counted as written" policy.
+      Cheapest path: an allow-list of domain/genre tags rather than trying to clean
+      the whole tag vocabulary.
+
+- **The Alchemists' Ledger (術師たちの系譜) — materials × `users`
+  (× `createDate` / `awards`)** _(user idea 案1, expanded into two
+  complementary directions)_: the page's emotional centre and its "ecosystem map
+  of makers". A fact-and-behaviour axis (NOT engagement) — every title is provable
+  from public fields, so being named is an _earned honour_ a maker will hunt for.
+  It absorbs the earlier "First Alchemist / Signature / Evangelist" bullets. The
+  two directions are the two wheels of one cart: enter from a **maker**
+  (Direction 1) or from a **material** (Direction 2), letting the reader cross
+  between "great makers → the reagents they love" and "a beloved reagent → its
+  great forebears." Each direction has its own detailed spec:
+    - **Direction 1 — The Circle of Masters (巨匠たちの円環), user-centric.** A round
+      table / hall of fame that seats notable makers, each with a fact-based title
+      (Polymath, Purist, Trophy Hunter, Veteran, Perennial, Rising, Vanguard, and
+      the meta-honour Grand Alchemist). Full spec:
+      [`the-circle-of-masters.md`](./the-circle-of-masters.md).
+    - **Direction 2 — The Elemental Chronicles (元素が刻んだ人の歴史),
+      material-centric.** For each top reagent, name the key people who shaped its
+      story (Pioneer, Grandmaster, Innovator), surfaced in the Periodic Table as
+      "The Forgers of this Element". Full spec:
+      [`the-elemental-chronicles.md`](./the-elemental-chronicles.md).
+    - _Guardrail (both directions):_ aggregate and celebratory, public works only —
+      never individual profiling (heeds the Social Graph idea `analysis-ideas.md`
+      rejected on privacy grounds).
+- **The House Reagents (流派の秘薬) — materials × `events`:** every guild
+  (hackathon / contest) has a house style. Which materials over-index at each
+  event relative to the platform baseline — the signature reagents of one contest
+  versus another. This is the "Maternity Hospital" idea crossed with materials:
+  not just _where_ works are born, but _what they are forged from_ there.
+    - _Feasibility:_ **strong** (~60% coverage). Decide whether to fold per-year
+      editions (`ヒーローズ・リーグ 2023/2024/...`) into one guild; strip the
+      `@eventId` suffix on the raw token.
+- **The Royal Armory (王立の宝物庫 / 栄誉の証明) — materials × `awards`**
+  _(user idea 案3)_: not popularity (usage) but which reagents forge works the
+  _judges_ reward — the curated counterpart to the crowd. Since views/likes are
+  treated as low-trust here, this award signal is the more meaningful "quality"
+  read. Base award-rate among works-with-materials is **~11.8%**. Two facets:
+    - **The Trophy Forgers (栄光の錬成陣):** reagents with an above-base award-rate
+      — the repeat keys to victory. _Measured — viable with a floor:_ at n>=20 the
+      board is sensible and striking — `kintone` 26% (53/202), `Fusion360` 26%
+      (35/134), `Flutter` 29% (15/52), `KiCad` 29% (12/41).
+    - **The Dark Horses (奇跡の石):** rare reagents that punch far above their
+      weight in the winners' circle — the hidden secret ingredient. _Measured —
+      fragile:_ the naive rate is pure noise (dozens of 2/2 = 100% materials);
+      even a floor (5<=n<40, awards>=3) yields only shaky handfuls (ARCore 4/5,
+      MediaPipe Pose 7/12). Do NOT ship a raw ranking — use a statistical lower
+      bound (Wilson / Bayesian shrinkage toward the ~11.8% base) or curate it as a
+      hand-picked "surprising winner" spotlight.
+    - _Feasibility overall:_ **small-N** — only ~12% of works have awards, across
+      477 messy free-text names; use a binary "won any award", never specific
+      prize names.
+- **Transmutation to Gold (製品への変成) — materials × `officialLink`:** which
+  reagents most often accompany a work that graduated to a product or service (an
+  `officialLink` present)? The literal turning of an experiment into gold.
+    - _Caveat_ (from `analysis-ideas.md`): a missing link does not mean lesser —
+      hardware and physical works often need no web presence.
+    - _Feasibility:_ **strong** (~54% coverage); a simple
+      presence-rate-per-material.
+- **The Philosopher's Stone, Refined (賢者の石・精錬) — materials × engagement, per
+  material:** the shipped page only relates engagement to _how many_ materials a
+  work uses (Less is More?). Flip the axis: which _specific_ reagent's works carry
+  the highest median 💚 — the single element that most coincides with a work
+  resonating. The concrete, ranked form of the Philosopher's Stone.
+    - _Feasibility:_ data is 100% present, but **de-prioritized on purpose**: view
+      and like counts are treated as arbitrary / low-trust signals for this page,
+      so engagement-ranked ideas are not a priority. Prefer behaviour-and-fact
+      axes (first use, breadth, continuity, collaboration) over engagement.
+
 ## Experience and interaction
 
 The metaphor is strongest when the reader gets to _experiment_, not just read.

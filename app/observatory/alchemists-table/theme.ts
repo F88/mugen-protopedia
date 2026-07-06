@@ -4,7 +4,8 @@
  * For more details on the theme architecture, please refer to:
  * docs/observatory/observatory-architecture.md
  *
- * Concept notes: docs/observatory/content/the-alchemists-table.md
+ * Concept notes:
+ * docs/observatory/content/the-alchemists-table/the-alchemists-table.md
  */
 import type { ObservatoryThemeConfig } from '../shared/theme.types';
 

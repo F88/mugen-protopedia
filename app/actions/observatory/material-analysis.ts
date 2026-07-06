@@ -16,7 +16,7 @@ import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
 import {
   buildMaterialInsights,
   type MaterialInsights,
-} from '@/lib/analysis/batch/build-material-insights';
+} from '@/lib/observatory/build-material-insights';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /** Material frequency histogram plus all derived insights for the page. */
