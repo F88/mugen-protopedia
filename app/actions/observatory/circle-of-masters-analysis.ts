@@ -72,9 +72,9 @@ export async function getCircleOfMastersAnalysis(): Promise<GetCircleOfMastersAn
     pioneerCountByUser,
     minWorks: 5,
     rateFloor: 5,
-    puristFloor: 10,
     // Seat a full top-10 per title (ties at 10th place expand the podium).
-    podium: 10,
+    // podium: 10,
+    podium: 20,
   });
 
   return { ok: true, data };

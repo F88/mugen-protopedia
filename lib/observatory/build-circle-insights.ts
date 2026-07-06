@@ -14,6 +14,17 @@
 import type { UserInsights, UserInsightsEntry } from './build-user-insights';
 import { takeWithTies, type MinimalLogger } from './insights-shared';
 
+/** One material a maker is the top (most-devoted) user of — a Purist "crown". */
+export interface PuristCrown {
+  material: string;
+  /** How many of the maker's works use this material. */
+  count: number;
+  /** Usage rate = count / workCount (0..1): the share of works using it. */
+  rate: number;
+  /** Devotion score = count² / workCount (usage rate × works using it). */
+  score: number;
+}
+
 /** One seated maker: the metric `value`, plus a human-readable `detail`. */
 export interface SeatEntry {
   user: string;
@@ -25,6 +36,12 @@ export interface SeatEntry {
   rank: number;
   value: number;
   detail: string;
+  /**
+   * Purist seat only: the materials this maker is the champion of. Lets the UI
+   * crown a maker on several materials at once (e.g. M5Stack + AWS) instead of
+   * forcing one arbitrary pick. Omitted on the other seats.
+   */
+  crowns?: PuristCrown[];
 }
 
 /** The seat keys that carry a podium (everything except the meta-honour). */
@@ -59,13 +76,9 @@ export interface CircleOptions {
    */
   minWorks?: number;
   /**
-   * Extra floor for the Purist, layered ON TOP of `minWorks`. Effective only
-   * while > `minWorks`; at or below it, it is a no-op (the base gate dominates).
-   */
-  puristFloor?: number;
-  /**
    * Extra floor for rate/ratio seats (the Weaver), layered on top of `minWorks`.
-   * Effective only while > `minWorks` (same no-op rule as `puristFloor`).
+   * Effective only while > `minWorks`; at or below it, it is a no-op (the base
+   * gate dominates).
    */
   rateFloor?: number;
   /** Podium size per seat (ties at the boundary expand it). */
@@ -76,33 +89,67 @@ export interface CircleOptions {
 
 // Tuning knobs. Two gotchas before editing these:
 //   1. `minWorks` is the base gate applied to EVERY seat (see `eligible`), so the
-//      per-seat floors (`puristFloor`, `rateFloor`) only have an effect while
-//      they stay ABOVE it. Raise `minWorks` to/above a floor and that floor
-//      becomes a no-op — every seat then shares the `minWorks` gate. Keep
-//      `minWorks` below the per-seat floors for them to mean anything.
+//      per-seat floor `rateFloor` only has an effect while it stays ABOVE it.
+//      Raise `minWorks` to/above `rateFloor` and that floor becomes a no-op — the
+//      Weaver then shares the `minWorks` gate. Keep `minWorks` below `rateFloor`
+//      for it to mean anything.
 //   2. `podium` here is overridden by the caller: `circle-of-masters-analysis.ts`
 //      passes `podium: 10`, so changing this value alone does NOT change the UI.
 const DEFAULTS = {
   minWorks: 5,
   rateFloor: 5,
-  puristFloor: 10,
   podium: 10,
 } as const;
 
-/** The maker's most-used material and how many of their works use it. */
-export function dominantMaterial(u: UserInsightsEntry): {
-  material: string;
-  count: number;
-} {
-  let material = '';
-  let count = 0;
-  for (const [m, c] of Object.entries(u.materialCounts)) {
-    if (c > count) {
-      count = c;
-      material = m;
+/** Devotion score for a maker's material: usage rate x works with it. */
+const devotionScore = (count: number, workCount: number): number =>
+  workCount > 0 ? (count * count) / workCount : 0;
+
+/**
+ * The Purist fact, computed PER MATERIAL and independent of any single-material
+ * pick: for every material, the maker(s) most devoted to it — the highest
+ * {@link devotionScore} (`count^2 / workCount`, i.e. usage rate times the works
+ * using it). Each such win is a "crown"; a maker can win several materials (e.g.
+ * someone who always pairs M5Stack + AWS wins both), so ALL their crowns are
+ * kept — no maker is forced down to one material.
+ *
+ * Returns, per maker holding >= 1 crown, their crowns sorted by score then
+ * material name (deterministic, independent of `materialCounts` order).
+ */
+export function materialChampions(
+  makers: UserInsightsEntry[],
+): Map<string, PuristCrown[]> {
+  // Pass 1: the best devotion score reached for each material.
+  const bestByMaterial = new Map<string, number>();
+  for (const u of makers) {
+    for (const [m, c] of Object.entries(u.materialCounts)) {
+      const score = devotionScore(c, u.workCount);
+      if (score > (bestByMaterial.get(m) ?? -Infinity)) {
+        bestByMaterial.set(m, score);
+      }
     }
   }
-  return { material, count };
+
+  // Pass 2: every maker matching a material's best score wins its crown (ties
+  // give a material more than one champion — accepted as fact).
+  const crownsByUser = new Map<string, PuristCrown[]>();
+  for (const u of makers) {
+    for (const [m, c] of Object.entries(u.materialCounts)) {
+      const score = devotionScore(c, u.workCount);
+      if (score > 0 && score === bestByMaterial.get(m)) {
+        const crowns = crownsByUser.get(u.user) ?? [];
+        crowns.push({ material: m, count: c, rate: c / u.workCount, score });
+        crownsByUser.set(u.user, crowns);
+      }
+    }
+  }
+
+  for (const crowns of crownsByUser.values()) {
+    crowns.sort(
+      (a, b) => b.score - a.score || a.material.localeCompare(b.material),
+    );
+  }
+  return crownsByUser;
 }
 
 export function buildCircleInsights(
@@ -111,7 +158,6 @@ export function buildCircleInsights(
 ): CircleInsights {
   const startTime = Date.now();
   const minWorks = options.minWorks ?? DEFAULTS.minWorks;
-  const puristFloor = options.puristFloor ?? DEFAULTS.puristFloor;
   const rateFloor = options.rateFloor ?? DEFAULTS.rateFloor;
   const podium = options.podium ?? DEFAULTS.podium;
   const pioneerCountByUser = options.pioneerCountByUser ?? {};
@@ -163,20 +209,38 @@ export function buildCircleInsights(
     detail: `${(u.distinctMaterials / u.workCount).toFixed(1)}x (${u.distinctMaterials}/${u.workCount})`,
   }));
 
+  // Purist: rank the champion FACTS (maker + the material they top) by devotion
+  // score, take the podium, then merge facts by maker so one seat can wear several
+  // crowns (a maker keeps the best rank among their crowns).
+  const crownsByUser = materialChampions(eligible);
+  const championFacts = [...crownsByUser.entries()].flatMap(([user, crowns]) =>
+    crowns.map((crown) => ({ user, crown })),
+  );
   const purist = top(
-    eligible
-      .filter((u) => u.workCount >= puristFloor && u.distinctMaterials >= 1)
-      .map((u) => ({ u, dom: dominantMaterial(u) }))
-      .sort(
-        (a, b) => b.dom.count / b.u.workCount - a.dom.count / a.u.workCount,
-      ),
-    (r) => r.dom.count / r.u.workCount,
-  ).map(({ row: { u, dom }, rank }) => ({
-    user: u.user,
-    rank,
-    value: dom.count / u.workCount,
-    detail: `${((dom.count / u.workCount) * 100).toFixed(0)}% ${dom.material} (${dom.count}/${u.workCount})`,
-  }));
+    championFacts.sort(
+      (a, b) =>
+        b.crown.score - a.crown.score ||
+        a.crown.material.localeCompare(b.crown.material),
+    ),
+    (f) => f.crown.score,
+  ).reduce<SeatEntry[]>((seats, { row: { user, crown }, rank }) => {
+    const existing = seats.find((s) => s.user === user);
+    if (existing) {
+      existing.crowns!.push(crown);
+      existing.rank = Math.min(existing.rank, rank);
+    } else {
+      seats.push({ user, rank, value: crown.score, detail: '', crowns: [crown] });
+    }
+    return seats;
+  }, []);
+  for (const seat of purist) {
+    seat.crowns!.sort(
+      (a, b) => b.score - a.score || a.material.localeCompare(b.material),
+    );
+    seat.value = seat.crowns![0].score;
+    seat.detail = seat.crowns!.map((c) => c.material).join(', ');
+  }
+  purist.sort((a, b) => a.rank - b.rank);
 
   // Influence
   const vanguard = top(
@@ -192,14 +256,15 @@ export function buildCircleInsights(
     detail: `${r.count} materials pioneered`,
   }));
 
-  // Meta — Grand Alchemist: holds 2+ seats (counted by title FAMILY, so the two
-  // Polymath twins count once).
+  // Meta — Grand Alchemist: holds 2+ seats. Each seat is its own distinct title
+  // (Polymath, Weaver, Purist, Vanguard), so landing in two different seats'
+  // podiums earns the honour.
   const titlesByUser: Record<string, Set<string>> = {};
   const record = (entries: SeatEntry[], title: string) => {
     for (const e of entries) (titlesByUser[e.user] ??= new Set()).add(title);
   };
   record(polymath, 'Polymath');
-  record(weaver, 'Polymath');
+  record(weaver, 'Weaver');
   record(purist, 'Purist');
   record(vanguard, 'Vanguard');
   const grandAlchemists = Object.entries(titlesByUser)
@@ -214,14 +279,14 @@ export function buildCircleInsights(
     );
   }
 
-  // The effective works gate per seat. The per-seat floors are layered ON TOP of
-  // the base gate, so the real gate is max(minWorks, floor): when minWorks is the
-  // higher of the two it dominates and the floor is a no-op. Emitted so the UI
-  // shows each seat's true eligibility from a single source.
+  // The effective works gate per seat. The Weaver's `rateFloor` is layered ON TOP
+  // of the base gate, so its real gate is max(minWorks, rateFloor) (a no-op when
+  // minWorks is the higher of the two). Emitted so the UI shows each seat's true
+  // eligibility from a single source.
   const criteria: Record<SeatKey, SeatCriteria> = {
     polymath: { minWorks },
     weaver: { minWorks: Math.max(minWorks, rateFloor) },
-    purist: { minWorks: Math.max(minWorks, puristFloor) },
+    purist: { minWorks },
     vanguard: { minWorks },
   };
 

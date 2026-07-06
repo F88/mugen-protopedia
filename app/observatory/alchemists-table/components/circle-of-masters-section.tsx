@@ -17,7 +17,11 @@ import type {
   SeatCriteria,
   SeatEntry,
 } from '@/lib/observatory/build-circle-insights';
-import { buildUserLink, getUserDisplayName } from '@/lib/utils/prototype-utils';
+import {
+  buildMaterialLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 
 import {
   SectionHeading,
@@ -126,9 +130,30 @@ function PodiumRow({ entry, rank }: { entry: SeatEntry; rank: number }) {
         <span className="block">
           <MakerName user={entry.user} />
         </span>
-        <span className="block text-xs text-violet-500 dark:text-violet-400">
-          {entry.detail}
-        </span>
+        {entry.crowns != null && entry.crowns.length > 0 ? (
+          <span className="mt-0.5 flex flex-wrap gap-1">
+            {entry.crowns.map((crown) => (
+              <a
+                key={crown.material}
+                href={buildMaterialLink(crown.material)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`champion of ${crown.material} — used in ${crown.count} works (${Math.round(crown.rate * 100)}%), score ${crown.score.toFixed(1)} — open on ProtoPedia`}
+                className="relative z-10 rounded-full border border-amber-300/60 bg-amber-100/70 px-1.5 py-0.5 text-[10px] leading-tight text-amber-800 transition hover:border-amber-400/80 hover:text-amber-600 hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:border-amber-400/20 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:text-amber-300"
+              >
+                {crown.material}
+                <span className="ml-1 opacity-70">
+                  ×{crown.count} · {Math.round(crown.rate * 100)}% · score{' '}
+                  {crown.score.toFixed(1)}
+                </span>
+              </a>
+            ))}
+          </span>
+        ) : (
+          <span className="block text-xs text-violet-500 dark:text-violet-400">
+            {entry.detail}
+          </span>
+        )}
       </span>
     </li>
   );
