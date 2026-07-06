@@ -190,7 +190,11 @@ export function buildCircleInsights(
 
   // Range
   const polymath = top(
-    [...eligible].sort((a, b) => b.distinctMaterials - a.distinctMaterials),
+    [...eligible].sort(
+      (a, b) =>
+        b.distinctMaterials - a.distinctMaterials ||
+        a.user.localeCompare(b.user),
+    ),
     (u) => u.distinctMaterials,
   ).map(({ row: u, rank }) => ({
     user: u.user,
@@ -204,7 +208,8 @@ export function buildCircleInsights(
       .filter((u) => u.workCount >= rateFloor)
       .sort(
         (a, b) =>
-          b.distinctMaterials / b.workCount - a.distinctMaterials / a.workCount,
+          b.distinctMaterials / b.workCount -
+            a.distinctMaterials / a.workCount || a.user.localeCompare(b.user),
       ),
     (u) => u.distinctMaterials / u.workCount,
   ).map(({ row: u, rank }) => ({
@@ -225,7 +230,8 @@ export function buildCircleInsights(
     championFacts.sort(
       (a, b) =>
         b.crown.score - a.crown.score ||
-        a.crown.material.localeCompare(b.crown.material),
+        a.crown.material.localeCompare(b.crown.material) ||
+        a.user.localeCompare(b.user),
     ),
     (f) => f.crown.score,
   ).reduce<SeatEntry[]>((seats, { row: { user, crown }, rank }) => {
@@ -255,7 +261,11 @@ export function buildCircleInsights(
         materials: pioneerMaterialsByUser[u.user] ?? [],
       }))
       .filter((r) => r.materials.length > 0)
-      .sort((a, b) => b.materials.length - a.materials.length),
+      .sort(
+        (a, b) =>
+          b.materials.length - a.materials.length ||
+          a.user.localeCompare(b.user),
+      ),
     (r) => r.materials.length,
   ).map(({ row: r, rank }) => ({
     user: r.user,
@@ -279,7 +289,9 @@ export function buildCircleInsights(
   const grandAlchemists = Object.entries(titlesByUser)
     .filter(([, titles]) => titles.size >= 2)
     .map(([user, titles]) => ({ user, titles: [...titles] }))
-    .sort((a, b) => b.titles.length - a.titles.length);
+    .sort(
+      (a, b) => b.titles.length - a.titles.length || a.user.localeCompare(b.user),
+    );
 
   if (options.logger) {
     options.logger.debug(
