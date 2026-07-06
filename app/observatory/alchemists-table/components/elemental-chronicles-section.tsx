@@ -103,7 +103,7 @@ function CardHeader({
         target="_blank"
         rel="noopener noreferrer"
         title={`${c.material} — open on ProtoPedia`}
-        className="text-lg font-semibold text-violet-950 transition after:absolute after:inset-0 group-hover:text-amber-600 group-hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:text-violet-100 dark:group-hover:text-amber-400"
+        className="text-lg font-semibold text-violet-950 transition after:absolute after:inset-0 after:content-[''] group-hover:text-amber-600 group-hover:[text-shadow:0_0_14px_rgba(251,146,60,0.9)] dark:text-violet-100 dark:group-hover:text-amber-400"
       >
         {c.material}
       </a>
