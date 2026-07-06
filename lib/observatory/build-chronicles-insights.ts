@@ -217,7 +217,7 @@ export function buildPioneerMaterialsByUser(
     const ref: WorkRef = {
       prototypeId: prototype.id,
       prototypeName: prototype.prototypeNm,
-      users: asArray(prototype.users),
+      users: [...new Set(asArray(prototype.users))],
       date: activityDate(prototype),
     };
     for (const m of mats) (works[m] ??= []).push(ref);
@@ -261,7 +261,9 @@ export function buildChroniclesInsights(
     if (mats.length === 0) continue;
     for (const m of mats) materialVocabCI.add(m.toLowerCase());
 
-    const users = asArray(prototype.users);
+    // Dedupe so a maker listed twice on one work is credited once (grandmaster
+    // counts, retention), matching buildUserInsights.
+    const users = [...new Set(asArray(prototype.users))];
     const tags = new Set(asArray(prototype.tags));
     const wonAward = asArray(prototype.awards).length > 0;
     const date = activityDate(prototype);
