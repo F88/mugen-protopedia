@@ -293,12 +293,12 @@ const SECTION_DEFINITIONS: Record<string, SectionCopy> = {
         ja: '1カード＝1素材。使用数の多い素材を、総使用数の多い順に表示',
       },
       {
-        en: 'Pioneer — the first maker ever to use it',
-        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
-      },
-      {
         en: 'Top user — the maker with the most works using it',
         ja: 'Top user(第一人者) — その素材を最も多くの作品で使ったメイカー',
+      },
+      {
+        en: 'Pioneer — the first maker ever to use it',
+        ja: 'Pioneer(開拓者) — その素材を史上初めて使ったメイカー',
       },
       {
         en: 'Innovator — the first maker to win an award with it',

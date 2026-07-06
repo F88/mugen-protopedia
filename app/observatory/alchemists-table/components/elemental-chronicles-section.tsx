@@ -82,8 +82,20 @@ function Chips({
   );
 }
 
-/** The card header: the material name (linked) and its total usage. */
-function CardHeader({ chronicle: c }: { chronicle: MaterialChronicle }) {
+/**
+ * The card header: the material name (linked) plus headline stats. Each facet
+ * opts into its own lens — 💎 works (`showUsage`) on the Nature card, 👤 makers
+ * (`showMakers`) on the Forgers card; both may be shown at once.
+ */
+function CardHeader({
+  chronicle: c,
+  showUsage = false,
+  showMakers = false,
+}: {
+  chronicle: MaterialChronicle;
+  showUsage?: boolean;
+  showMakers?: boolean;
+}) {
   return (
     <div className="flex items-baseline justify-between gap-2">
       <a
@@ -95,10 +107,11 @@ function CardHeader({ chronicle: c }: { chronicle: MaterialChronicle }) {
       >
         {c.material}
       </a>
-      <span className="shrink-0 text-sm text-violet-500 dark:text-violet-400">
-        {/* used in {c.usageCount} works */}
-        {/* {c.usageCount} works */}
-        💎 {c.usageCount}
+      <span className="flex shrink-0 flex-col items-end text-sm leading-tight text-violet-500 dark:text-violet-400">
+        {showUsage && <span title="works using it">💎 {c.usageCount}</span>}
+        {showMakers && (
+          <span title="distinct makers who used it">👤 {c.uniqueMakers}</span>
+        )}
       </span>
     </div>
   );
@@ -168,12 +181,9 @@ function ForgersCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
 
   return (
     <div className={CARD_CLASS}>
-      <CardHeader chronicle={c} />
-      {pioneer != null && (
-        <Row label="Pioneer">
-          <MakerVia maker={pioneer} what="first used it" />
-        </Row>
-      )}
+      <CardHeader chronicle={c} showUsage showMakers />
+
+      {/* Top user */}
       {grandmaster != null && (
         <Row label="Top user">
           <MakerName user={grandmaster.name} />{' '}
@@ -182,11 +192,19 @@ function ForgersCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
           </span>
         </Row>
       )}
+      {/* Pioneer */}
+      {pioneer != null && (
+        <Row label="Pioneer">
+          <MakerVia maker={pioneer} what="first used it" />
+        </Row>
+      )}
+      {/* Innovator */}
       {innovator != null && (
         <Row label="Innovator">
           <MakerVia maker={innovator} what="first award" />
         </Row>
       )}
+      {/* Adoption */}
       {c.adoption.length > 0 && (
         <div className="mt-1 border-t border-violet-100 pt-2 text-xs text-violet-700 dark:border-violet-900/60 dark:text-violet-300">
           {c.adoption.map((milestone) => (
@@ -233,7 +251,7 @@ export function ElementForgersSection({
 function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
   return (
     <div className={CARD_CLASS}>
-      <CardHeader chronicle={c} />
+      <CardHeader chronicle={c} showUsage />
       {c.symbiotes.length > 0 && (
         <Row label="Pairs with">
           <Chips

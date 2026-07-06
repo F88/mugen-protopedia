@@ -53,6 +53,8 @@ export interface NamedCount {
 export interface MaterialChronicle {
   material: string;
   usageCount: number;
+  /** Distinct makers who have used this material (across any number of works). */
+  uniqueMakers: number;
   /** Facet 1 — the key people (distinct makers, earliest first; ties expand). */
   pioneers: MakerFirst[];
   grandmasters: NamedCount[];
@@ -322,6 +324,8 @@ export function buildChroniclesInsights(
     const pioneers = distinctMakerFirsts(works[m], listSize);
     const innovators = distinctMakerFirsts(awardWorks[m] ?? [], listSize);
 
+    // Distinct makers = the keys of the per-maker work-count map for this material.
+    const uniqueMakers = Object.keys(grandmaster[m]).length;
     const grandmasters = takeWithTies(
       Object.entries(grandmaster[m])
         .map(([name, count]) => ({ name, count }))
@@ -390,6 +394,7 @@ export function buildChroniclesInsights(
     return {
       material: m,
       usageCount: usage[m],
+      uniqueMakers,
       pioneers,
       grandmasters,
       innovators,
