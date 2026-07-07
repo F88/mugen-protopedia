@@ -5,7 +5,7 @@
       "prototypeNm": "Test Prototype 1",
       "tags": "tag1|tag2",
       "teamNm": "Test Team",
-      "users": "user1|user2",
+      "users": "user1@id1|user2@id2",
       "summary": "This is a test prototype summary.",
       "status": 1,
       "releaseFlg": 1,

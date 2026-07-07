@@ -47,7 +47,7 @@ describe('fetchPrototypesNoStore Integration Test (MSW)', () => {
     expect(first.teamNm).toBe('Test Team');
 
     // promidas normalization: pipe-separated strings -> trimmed arrays
-    expect(first.users).toEqual(['user1', 'user2']);
+    expect(first.users).toEqual(['user1@id1', 'user2@id2']);
     expect(first.tags).toEqual(['tag1', 'tag2']);
   });
 

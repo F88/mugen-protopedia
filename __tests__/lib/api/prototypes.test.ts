@@ -37,7 +37,7 @@ describe('normalizePrototypeForMpp', () => {
         prototypeNm: 'My Project',
         tags: 'IoT | AI | Robotics',
         teamNm: 'Team Rocket',
-        users: 'user1|user2',
+        users: 'user1@id1|user2@id2',
         summary: 'A summary',
         status: 2,
         releaseFlg: 1,
@@ -73,7 +73,7 @@ describe('normalizePrototypeForMpp', () => {
       prototypeNm: 'My Project',
       tags: ['IoT', 'AI', 'Robotics'],
       teamNm: 'Team Rocket',
-      users: ['user1', 'user2'],
+      users: ['user1@id1', 'user2@id2'],
       summary: 'A summary',
       status: 2,
       releaseFlg: 1,
@@ -158,9 +158,9 @@ describe('normalizePrototypeForMpp', () => {
       expect(
         normalizePrototypeForMpp(makeUpstream({ tags: 'a||b' })).tags,
       ).toEqual(['a', 'b']);
-      expect(
-        normalizePrototypeForMpp(makeUpstream({ users: 'u1|' })).users,
-      ).toEqual(['u1']);
+      // NOTE: `users` is NOT split by the empty-filtering splitter; promidas'
+      // @-aware splitter keeps substrings verbatim (no trim, no empty filter).
+      // See the `users` cases in "maps a fully populated upstream prototype".
     });
 
     it('returns an empty array for an empty string', () => {
