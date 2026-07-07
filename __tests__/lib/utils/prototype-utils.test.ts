@@ -7,6 +7,8 @@ import {
   sortPrototypesById,
   buildTagLink,
   buildMaterialLink,
+  buildUserLink,
+  getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
 
 const createPrototype = (id: unknown): ResultOfListPrototypesApiResponse =>
@@ -236,5 +238,63 @@ describe('buildMaterialLink', () => {
     expect(buildMaterialLink('line1\nline2\tend')).toBe(
       'https://protopedia.net/material/line1%0Aline2%09end',
     );
+  });
+});
+
+describe('getUserDisplayName', () => {
+  it('returns the display name for a normal `displayName@profileId`', () => {
+    expect(getUserDisplayName('Alice@alice')).toBe('Alice');
+  });
+
+  it('returns `@profileId` when the display name is empty', () => {
+    expect(getUserDisplayName('@yuukankin')).toBe('@yuukankin');
+  });
+
+  it('keeps a display name that itself contains `@` (splits on the last `@`)', () => {
+    expect(getUserDisplayName('げんろく@Karakuri-Musha@genroku')).toBe(
+      'げんろく@Karakuri-Musha',
+    );
+  });
+
+  it('falls back to the raw string when there is no `@` (no profileId)', () => {
+    expect(getUserDisplayName('Alice')).toBe('Alice');
+  });
+
+  it('returns the display name for a trailing `@` (empty profileId)', () => {
+    expect(getUserDisplayName('Alice@')).toBe('Alice');
+  });
+});
+
+describe('buildUserLink', () => {
+  it('builds a profile link from the profileId after the last `@`', () => {
+    expect(buildUserLink('Alice@alice')).toBe(
+      'https://protopedia.net/prototyper/alice',
+    );
+  });
+
+  it('builds a link for an empty display name (`@profileId`)', () => {
+    expect(buildUserLink('@yuukankin')).toBe(
+      'https://protopedia.net/prototyper/yuukankin',
+    );
+  });
+
+  it('uses only the segment after the last `@` for a multi-`@` string', () => {
+    expect(buildUserLink('げんろく@Karakuri-Musha@genroku')).toBe(
+      'https://protopedia.net/prototyper/genroku',
+    );
+  });
+
+  it('encodes reserved characters in the profileId', () => {
+    expect(buildUserLink('name@a/b')).toBe(
+      'https://protopedia.net/prototyper/a%2Fb',
+    );
+  });
+
+  it('returns null when there is no `@` (no recoverable profileId)', () => {
+    expect(buildUserLink('Alice')).toBeNull();
+  });
+
+  it('returns null for a trailing `@` (empty profileId)', () => {
+    expect(buildUserLink('Alice@')).toBeNull();
   });
 });

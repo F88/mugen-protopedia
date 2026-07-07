@@ -138,7 +138,9 @@ function distinctMakerFirsts(works: WorkRef[], size: number): MakerFirst[] {
       prototypeName: w.prototypeName,
       date: w.date,
     }))
-    .sort((a, b) => a.date.localeCompare(b.date) || a.user.localeCompare(b.user));
+    .sort(
+      (a, b) => a.date.localeCompare(b.date) || a.user.localeCompare(b.user),
+    );
   return takeWithTies(entries, size, (e) => e.date);
 }
 
@@ -164,7 +166,11 @@ function reachMilestones(
 }
 
 /** A tag is noise for The Domain if it echoes a material or names an event. */
-function isNoiseTag(tag: string, material: string, materialVocabCI: Set<string>): boolean {
+function isNoiseTag(
+  tag: string,
+  material: string,
+  materialVocabCI: Set<string>,
+): boolean {
   const t = tag.toLowerCase();
   if (t === material.toLowerCase()) return true; // self-name echo
   if (materialVocabCI.has(t)) return true; // any material's name in the tag field
@@ -184,7 +190,8 @@ function pioneerMaterialsFromWorks(
   for (const [material, list] of Object.entries(works)) {
     let minDate = '';
     for (const w of list) {
-      if (w.date !== '' && (minDate === '' || w.date < minDate)) minDate = w.date;
+      if (w.date !== '' && (minDate === '' || w.date < minDate))
+        minDate = w.date;
     }
     if (minDate === '') continue;
     const firstMakers = new Set<string>();
@@ -287,7 +294,8 @@ export function buildChroniclesInsights(
       for (const u of users) gm[u] = (gm[u] ?? 0) + 1;
       // Symbiote: co-occurring materials.
       const sy = (symbiote[m] ??= {});
-      for (const other of mats) if (other !== m) sy[other] = (sy[other] ?? 0) + 1;
+      for (const other of mats)
+        if (other !== m) sy[other] = (sy[other] ?? 0) + 1;
       // Domain: tags on works using this material (filtered later).
       const dm = (domain[m] ??= {});
       for (const t of tags) dm[t] = (dm[t] ?? 0) + 1;
@@ -301,7 +309,8 @@ export function buildChroniclesInsights(
 
   // Addictive Elixir: per material, average share of a maker's LATER works that
   // reuse it (among makers with at least one work after their first use).
-  for (const list of Object.values(byUser)) list.sort((a, b) => a.date.localeCompare(b.date));
+  for (const list of Object.values(byUser))
+    list.sort((a, b) => a.date.localeCompare(b.date));
   const retention: Record<string, { sum: number; makers: number }> = {};
   for (const list of Object.values(byUser)) {
     const firstIdx: Record<string, number> = {};
@@ -324,7 +333,9 @@ export function buildChroniclesInsights(
 
   // Every material earns a Chronicle, sorted by usage desc. Any size or
   // selection limit is the consumer's concern, not the builder's.
-  const rankedMaterials = Object.keys(usage).sort((a, b) => usage[b] - usage[a]);
+  const rankedMaterials = Object.keys(usage).sort(
+    (a, b) => usage[b] - usage[a],
+  );
 
   const materials: MaterialChronicle[] = rankedMaterials.map((m) => {
     const pioneers = distinctMakerFirsts(works[m], listSize);

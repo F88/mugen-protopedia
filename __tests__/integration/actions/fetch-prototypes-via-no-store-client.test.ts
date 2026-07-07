@@ -28,7 +28,7 @@ describe('fetchPrototypesViaNoStoreClient Integration Test', () => {
     // Verify normalization (e.g. camelCase keys, parsed dates if applicable)
     // The snapshot has "prototypeNm", "teamNm" which match the normalized type
     // Check a field that might be transformed or just passed through
-    expect(firstPrototype.users).toEqual(['user1', 'user2']); // "user1|user2" -> ['user1', 'user2']
-    expect(firstPrototype.tags).toEqual(['tag1', 'tag2']); // "user1|user2" -> ['user1', 'user2']
+    expect(firstPrototype.users).toEqual(['user1@id1', 'user2@id2']); // "user1@id1|user2@id2" -> ['user1@id1', 'user2@id2']
+    expect(firstPrototype.tags).toEqual(['tag1', 'tag2']); // "tag1|tag2" -> ['tag1', 'tag2']
   });
 });

@@ -240,7 +240,13 @@ export function buildCircleInsights(
       existing.crowns!.push(crown);
       existing.rank = Math.min(existing.rank, rank);
     } else {
-      seats.push({ user, rank, value: crown.score, detail: '', crowns: [crown] });
+      seats.push({
+        user,
+        rank,
+        value: crown.score,
+        detail: '',
+        crowns: [crown],
+      });
     }
     return seats;
   }, []);
@@ -290,7 +296,8 @@ export function buildCircleInsights(
     .filter(([, titles]) => titles.size >= 2)
     .map(([user, titles]) => ({ user, titles: [...titles] }))
     .sort(
-      (a, b) => b.titles.length - a.titles.length || a.user.localeCompare(b.user),
+      (a, b) =>
+        b.titles.length - a.titles.length || a.user.localeCompare(b.user),
     );
 
   if (options.logger) {

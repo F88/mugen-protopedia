@@ -20,6 +20,6 @@ describe('Snapshot Integration Test', () => {
     expect(firstPrototype.id).toBe(1001);
     expect(firstPrototype.prototypeNm).toBe('Test Prototype 1');
     expect(firstPrototype.teamNm).toBe('Test Team');
-    expect(firstPrototype.users).toEqual('user1|user2');
+    expect(firstPrototype.users).toEqual('user1@id1|user2@id2');
   });
 });

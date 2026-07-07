@@ -11,6 +11,8 @@ import {
   buildMaterialLink,
   buildPrototypeLink,
   buildTagLink,
+  buildUserLink,
+  getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
 
 import { Castle, SquarePlay, UserRound } from 'lucide-react';
@@ -125,7 +127,8 @@ export const PrototypeCard = ({
     <ValueBadge
       key={`user-${user}-${index}`}
       icon={<UserRound aria-hidden className="h-4 w-4" />}
-      value={user}
+      value={getUserDisplayName(user)}
+      href={buildUserLink(user) ?? undefined}
       size="responsive"
     />
   ));
