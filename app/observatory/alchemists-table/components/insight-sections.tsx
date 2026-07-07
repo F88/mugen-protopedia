@@ -30,6 +30,8 @@ import { cn } from '@/lib/utils';
 import {
   buildMaterialLink,
   buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
 
 /** Class sets per ranking tier, so the 3 styles live in one place. */
@@ -68,6 +70,28 @@ function rankTier(index: number): RankTier {
   };
 }
 
+/**
+ * A maker's name linked to their ProtoPedia profile (profileId after the last
+ * `@` in the user string). Falls back to plain text for the rare user with no
+ * profileId. Mirrors the Chronicles/Circle `MakerName` so a person reads the
+ * same across the page.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-emerald-600 dark:hover:text-emerald-400"
+    >
+      {name}
+    </a>
+  );
+}
+
 /** One ranked row of The Kitchen Sink, styled by its rank tier. */
 function KitchenSinkRow({
   work,
@@ -98,12 +122,21 @@ function KitchenSinkRow({
           >
             {work.name}
           </a>
-          {work.author !== '' ? (
-            <>
-              <span className="mt-0.5 block wrap-break-word text-xs font-medium text-amber-500 [text-shadow:0_0_6px_rgba(251,191,36,0.55)] dark:text-amber-300 dark:[text-shadow:0_0_8px_rgba(251,191,36,0.7)]">
-                🥼 {work.author}
-              </span>
-            </>
+          {work.teamNm !== '' ? (
+            <span className="mt-0.5 block wrap-break-word text-xs font-medium text-amber-500 [text-shadow:0_0_6px_rgba(251,191,36,0.55)] dark:text-amber-300 dark:[text-shadow:0_0_8px_rgba(251,191,36,0.7)]">
+              🏛️ {work.teamNm}
+            </span>
+          ) : null}
+          {work.users.length > 0 ? (
+            <span className="mt-0.5 block wrap-break-word text-xs font-medium text-amber-500 [text-shadow:0_0_6px_rgba(251,191,36,0.55)] dark:text-amber-300 dark:[text-shadow:0_0_8px_rgba(251,191,36,0.7)]">
+              🥼{' '}
+              {work.users.map((user, idx) => (
+                <span key={`${user}-${idx}`}>
+                  {idx > 0 ? ', ' : ''}
+                  <MakerName user={user} />
+                </span>
+              ))}
+            </span>
           ) : null}
         </div>
         <span

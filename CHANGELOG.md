@@ -15,6 +15,13 @@ and this project adheres to [CalVer](https://calver.org/).
     - `promidas` 3.0.1 fixes user-field splitting so `@`-containing names are
       parsed correctly (e.g. `nisshi.dev | にっし@nishida24` now stays two
       distinct users).
+    - Delegate username decoding to `promidas-utils`' `parseUsername`.
+
+### Fixed
+
+- The Magnum Opus (The Alchemist's Table) now shows maker display names instead
+  of the raw `displayName@profileId` strings, and lists team and makers
+  separately (makers link to their ProtoPedia profile).
 
 ## [2026.07.06]
 

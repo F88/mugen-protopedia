@@ -18,17 +18,12 @@ type MinimalLogger = {
 export interface KitchenSinkEntry {
   id: number;
   name: string;
-  author: string;
+  /** Plain team name ('' if the work has no team). */
+  teamNm: string;
+  /** Raw `displayName@profileId` maker elements (decode with getUserDisplayName). */
+  users: string[];
   materialCount: number;
   materials: string[];
-}
-
-/** Team name if present, otherwise the joined maker names ('' if neither). */
-function resolveAuthor(prototype: PrototypeForMpp): string {
-  const team = prototype.teamNm?.trim();
-  if (team != null && team !== '') return team;
-  const users = Array.isArray(prototype.users) ? prototype.users : [];
-  return users.join(', ');
 }
 
 /**
@@ -245,7 +240,8 @@ export function buildMaterialInsights(
     kitchenSink.push({
       id: prototype.id,
       name: prototype.prototypeNm,
-      author: resolveAuthor(prototype),
+      teamNm: prototype.teamNm?.trim() ?? '',
+      users: Array.isArray(prototype.users) ? prototype.users : [],
       materialCount: materials.length,
       materials,
     });
