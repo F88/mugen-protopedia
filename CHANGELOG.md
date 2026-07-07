@@ -19,6 +19,9 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Fixed
 
+- The prototype card now shows maker display names (not the raw
+  `displayName@profileId` strings) and links each maker to their ProtoPedia
+  profile.
 - The Magnum Opus (The Alchemist's Table) now shows maker display names instead
   of the raw `displayName@profileId` strings, and lists team and makers
   separately (makers link to their ProtoPedia profile).
