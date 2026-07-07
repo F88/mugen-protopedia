@@ -9,6 +9,13 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Update `promidas` to 3.0.1 and `promidas-utils` to 3.2.1.
+    - `promidas` 3.0.1 fixes user-field splitting so `@`-containing names are
+      parsed correctly (e.g. `nisshi.dev | にっし@nishida24` now stays two
+      distinct users).
+
 ## [2026.07.06]
 
 ### Added
