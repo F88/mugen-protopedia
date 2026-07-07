@@ -40,8 +40,7 @@ export interface GetCircleOfMastersAnalysisFailure {
 }
 
 export type GetCircleOfMastersAnalysisResult =
-  | GetCircleOfMastersAnalysisSuccess
-  | GetCircleOfMastersAnalysisFailure;
+  GetCircleOfMastersAnalysisSuccess | GetCircleOfMastersAnalysisFailure;
 
 /**
  * Compute the Circle of Masters for The Alchemist's Table.

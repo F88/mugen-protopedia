@@ -1,6 +1,6 @@
 ---
 lang: en
-title: "The Circle of Masters - Content Spec"
+title: 'The Circle of Masters - Content Spec'
 status: draft
 related:
     - docs/observatory/content/the-alchemists-table/the-alchemists-table.md
@@ -79,12 +79,12 @@ Keep the axes _orthogonal_ so each seats a different kind of maker (a measured
 check confirms it: across the four original titles' top-5s only 1 maker was shared
 — 19 distinct people in 20 seats). The families:
 
-| Family | 観点 | Seats |
-| --- | --- | --- |
-| **Range** | 幅と深さ | Polymath (breadth) ↔ Purist (devotion) |
-| **Output & Craft** | 栄誉 | Trophy Hunter (awards) |
-| **Time** | 時間 | Veteran (origin) · Perennial (persistence) · Rising (momentum) |
-| **Influence** | 影響 | Vanguard (materials pioneered) |
+| Family             | 観点     | Seats                                                          |
+| ------------------ | -------- | -------------------------------------------------------------- |
+| **Range**          | 幅と深さ | Polymath (breadth) ↔ Purist (devotion)                         |
+| **Output & Craft** | 栄誉     | Trophy Hunter (awards)                                         |
+| **Time**           | 時間     | Veteran (origin) · Perennial (persistence) · Rising (momentum) |
+| **Influence**      | 影響     | Vanguard (materials pioneered)                                 |
 
 Pure output (量) is intentionally absent as a seat — see Principle 1; it survives
 only as a supporting column.
@@ -126,7 +126,7 @@ their own works ("I only ever use M5Stack"). Show the reagent they are married t
     - **Require materials to be present.** A raw "fewest distinct types" ranking is
       broken by makers who simply leave the materials field empty: the measured top
       was makers with **0 materials across 20-36 works** (`Atelier of Aether
-      Fantasia` 36, `labubu188` 24). Measure devotion as single-material
+Fantasia` 36, `labubu188` 24). Measure devotion as single-material
       _containment among works that list materials_, not bare distinct-count.
 - With both guards, real specialists surface — `教材自作部@kyouzai` 30/30 on one
   switch; makers 11/11 on Unity or M5Stack. This is the specialisation reading and

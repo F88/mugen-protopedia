@@ -24,7 +24,9 @@ export function CollapsibleChips({
       </span>
       <details className="group">
         <summary className="mt-0.5 inline-flex w-fit cursor-pointer list-none items-center gap-1 rounded-full border border-violet-300/60 bg-violet-100/70 px-1.5 py-0.5 text-[9px] font-medium text-violet-700 transition hover:border-violet-400/80 hover:text-violet-900 dark:border-violet-400/20 dark:bg-violet-900/40 dark:text-violet-300 dark:hover:text-violet-100 [&::-webkit-details-marker]:hidden">
-          <span className="group-open:hidden">+{chips.length - visible} more ▾</span>
+          <span className="group-open:hidden">
+            +{chips.length - visible} more ▾
+          </span>
           <span className="hidden group-open:inline">show less ▴</span>
         </summary>
         <span className="mt-0.5 flex flex-wrap gap-0.5">

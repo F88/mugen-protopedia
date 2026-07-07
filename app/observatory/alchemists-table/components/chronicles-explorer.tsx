@@ -141,7 +141,8 @@ export function ElementChroniclesExplorer({
           ) : (
             <>
               Showing the <Count>{shown.length}</Count> most-used of{' '}
-              <Count>{totalMatches}</Count> elements — search to explore them all
+              <Count>{totalMatches}</Count> elements — search to explore them
+              all
             </>
           )}
         </p>

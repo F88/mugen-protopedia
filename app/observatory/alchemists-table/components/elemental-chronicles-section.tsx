@@ -31,20 +31,27 @@ import {
   type SectionCopy,
 } from './section-heading';
 
-
 /** The 4-digit year from an ISO/JST date string. */
 function yearOf(date: string): string {
   return date.slice(0, 4);
 }
 
 /** A labelled row inside a card: a fixed-width label plus its value. */
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex gap-2">
       <span className="w-18 shrink-0 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
         {label}
       </span>
-      <span className="text-violet-900/90 dark:text-violet-200/90">{children}</span>
+      <span className="text-violet-900/90 dark:text-violet-200/90">
+        {children}
+      </span>
     </div>
   );
 }

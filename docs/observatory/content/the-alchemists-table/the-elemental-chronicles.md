@@ -1,6 +1,6 @@
 ---
 lang: en
-title: "The Elemental Chronicles - Content Spec"
+title: 'The Elemental Chronicles - Content Spec'
 status: draft
 related:
     - docs/observatory/content/the-alchemists-table/the-alchemists-table.md
@@ -176,7 +176,7 @@ its `SUPERNOVA_N`-th use**. The shortest wins — the reagent everyone piled ont
 moment it appeared. The instant history moved (e.g. a disruptive API's arrival).
 
 - _Measured (N=50; 52 reagents qualify):_ `toio Do` 84 days, `toio` 230, `Arduino
-  IDE` 347, `ChatGPT API` 716 — versus slow burns that took 2,500-2,900 days
+IDE` 347, `ChatGPT API` 716 — versus slow burns that took 2,500-2,900 days
   (`IFTTT`, `TensorFlow`).
 - More a **leaderboard** (the fastest supernovae) than a per-tile badge; a temporal
   axis that pairs with the shipped Rising Cauldron / Fire of Prometheus.
@@ -238,8 +238,8 @@ Knobs, not fixed values:
        Circle's Vanguard);
     2. a per-**(material, user)** usage tally for the Grandmaster;
     3. the per-material **first award-winning work** for the Innovator.
-  Fold these into the material insights builder (or a sibling), kept separate from
-  the base analysis like the existing material source.
+       Fold these into the material insights builder (or a sibling), kept separate from
+       the base analysis like the existing material source.
 - **Portrait (Facet 2) — extra material-keyed data:** the **Symbiote** needs the
   material×material **co-occurrence** count (the one heavier building block — a
   symmetric matrix; only top-K partners are surfaced); the **Domain** needs
