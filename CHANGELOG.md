@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.07]
+
 ### Changed
 
 - Update `promidas` to 3.0.1 and `promidas-utils` to 3.2.1.
