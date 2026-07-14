@@ -12,11 +12,11 @@ import { logger as clientLogger } from '@/lib/logger.client';
 
 import {
   getAllAnalyses,
-  getLatestAnalysis,
+  getAnalysisOverview,
   type GetAllAnalysesResult,
 } from '@/app/actions/analysis';
 
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnalysisOverview } from '@/lib/analysis/types';
 
 /**
  * Shared state shape returned by analysis hooks.
@@ -45,14 +45,14 @@ type AnalysisHookState<T> = {
  *   the latest analysis.
  * - Analysis data is large and infrequently updated, so we intentionally
  *   avoid SWR caching and instead fetch explicitly when needed.
- * - The returned analysis data is of type `ServerPrototypeAnalysis` and
+ * - The returned analysis data is of type `AnalysisOverview` and
  *   does not include the `anniversaries` field. When anniversaries are
  *   required on the client, use `useClientAnniversaries` together with
  *   this hook.
  */
-export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> {
+export function useAnalysisOverview(): AnalysisHookState<AnalysisOverview> {
   const [state, setState] = useState<{
-    data: ServerPrototypeAnalysis | null;
+    data: AnalysisOverview | null;
     isLoading: boolean;
     error: string | null;
   }>({
@@ -70,14 +70,14 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
       const fetchStart = performance.now();
       clientLogger.debug(
         { options },
-        '[ANALYSIS] useLatestAnalysis - starting fetchLatest',
+        '[ANALYSIS] useAnalysisOverview - starting fetchLatest',
       );
       // Keep the try narrow: it wraps only the awaited call that can throw, so
       // a failure in result handling / setState is not miscaught as a fetch
       // error. Result handling lives outside the try/catch.
-      let result: Awaited<ReturnType<typeof getLatestAnalysis>>;
+      let result: Awaited<ReturnType<typeof getAnalysisOverview>>;
       try {
-        result = await getLatestAnalysis(options);
+        result = await getAnalysisOverview(options);
       } catch (error) {
         if (signal?.aborted) {
           return;
@@ -95,7 +95,7 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
         Math.round((performance.now() - fetchStart) * 100) / 100;
       clientLogger.debug(
         { fetchElapsedMs, resultOk: result.ok },
-        '[ANALYSIS] useLatestAnalysis - fetchLatest completed',
+        '[ANALYSIS] useAnalysisOverview - fetchLatest completed',
       );
 
       if (signal?.aborted) {
@@ -121,7 +121,7 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
 
   useEffect(() => {
     clientLogger.debug(
-      '[ANALYSIS] useLatestAnalysis - Fetching latest analysis',
+      '[ANALYSIS] useAnalysisOverview - Fetching latest analysis',
     );
     const controller = new AbortController();
 
@@ -141,7 +141,7 @@ export function useLatestAnalysis(): AnalysisHookState<ServerPrototypeAnalysis> 
     (options?: { forceRecompute?: boolean }) => {
       clientLogger.debug(
         options ?? {},
-        '[ANALYSIS] useLatestAnalysis - Refreshing latest analysis',
+        '[ANALYSIS] useAnalysisOverview - Refreshing latest analysis',
       );
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       void performFetchLatest(undefined, options);

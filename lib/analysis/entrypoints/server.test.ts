@@ -84,20 +84,20 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe('analyzePrototypesForServer', () => {
+describe('buildAnalysisOverview', () => {
   it('returns default analysis for empty prototypes', async () => {
     const { baseLogger, childLogger } = createLoggerPair();
     vi.doMock('@/lib/logger.server', () => ({ logger: baseLogger }));
-    const { analyzePrototypesForServer } = await import('./server');
+    const { buildAnalysisOverview } = await import('./server');
 
     const referenceDate = new Date('2024-01-15T03:00:00Z');
-    const result = analyzePrototypesForServer([], {
+    const result = buildAnalysisOverview([], {
       logger: baseLogger,
       referenceDate,
     });
 
     expect(baseLogger.child).toHaveBeenCalledWith({
-      action: 'analyzePrototypesForServer',
+      action: 'buildAnalysisOverview',
     });
     expect(childLogger.debug).toHaveBeenCalledWith(
       'No prototypes to analyze, returning empty analysis',
@@ -201,7 +201,7 @@ describe('analyzePrototypesForServer', () => {
     vi.spyOn(performance, 'now').mockReturnValue(0);
 
     const serverModule = await import('./server');
-    const { analyzePrototypesForServer } = serverModule;
+    const { buildAnalysisOverview } = serverModule;
     const candidatesResult = {
       metadata: {
         computedAt: '2024-01-15T03:00:00.000Z',
@@ -235,7 +235,7 @@ describe('analyzePrototypesForServer', () => {
       }),
     ];
 
-    const result = analyzePrototypesForServer(prototypes, {
+    const result = buildAnalysisOverview(prototypes, {
       logger: baseLogger,
       referenceDate,
       overrides: {
@@ -244,7 +244,7 @@ describe('analyzePrototypesForServer', () => {
     });
 
     expect(baseLogger.child).toHaveBeenCalledWith({
-      action: 'analyzePrototypesForServer',
+      action: 'buildAnalysisOverview',
     });
     expect(buildCoreSummariesMock).toHaveBeenCalledWith(prototypes, {
       logger: childLogger,

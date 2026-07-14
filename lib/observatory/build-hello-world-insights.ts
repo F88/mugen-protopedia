@@ -2,7 +2,7 @@
  * @fileoverview Observatory-only analysis for the "Hello World" page.
  *
  * This is intentionally SEPARATE from the base analysis
- * (`analyzePrototypesForServer` / `getLatestAnalysis`) that the 無限PP top page
+ * (`buildAnalysisOverview` / `getAnalysisOverview`) that the 無限PP top page
  * depends on: the home page must not pay to compute Hello-World-only metrics
  * (chiefly the heavy `buildAdvancedAnalysis` pass). Like the other Observatory
  * builders, this shares only the raw dataset via `getAllPrototypes()` and runs

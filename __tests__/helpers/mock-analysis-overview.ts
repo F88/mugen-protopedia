@@ -1,18 +1,18 @@
-// Shared test helper that builds a complete `ServerPrototypeAnalysis` object.
+// Shared test helper that builds a complete `AnalysisOverview` object.
 //
 // The analysis type carries many fields, so individual tests should not
 // hand-build the whole shape. Use this factory and override only the fields
 // that matter for the test under inspection.
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnalysisOverview } from '@/lib/analysis/types';
 
 /**
- * Create a fully-populated `ServerPrototypeAnalysis` with neutral defaults.
+ * Create a fully-populated `AnalysisOverview` with neutral defaults.
  *
  * @param overrides - Partial fields to merge over the defaults.
  */
-export function createMockServerAnalysis(
-  overrides: Partial<ServerPrototypeAnalysis> = {},
-): ServerPrototypeAnalysis {
+export function createMockAnalysisOverview(
+  overrides: Partial<AnalysisOverview> = {},
+): AnalysisOverview {
   return {
     totalCount: 0,
     statusDistribution: {},

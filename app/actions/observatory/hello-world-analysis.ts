@@ -4,7 +4,7 @@
  * @fileoverview Observatory-only analysis data source for the "Hello World" page.
  *
  * This is intentionally SEPARATE from the base analysis
- * (`analyzePrototypesForServer` / `getLatestAnalysis`) that the 無限PP top page
+ * (`buildAnalysisOverview` / `getAnalysisOverview`) that the 無限PP top page
  * depends on: the home page must not pay to compute Hello-World-only metrics.
  * The composition + caching live in the {@link analysisRepository}; this action
  * is a thin server entry point the page calls.

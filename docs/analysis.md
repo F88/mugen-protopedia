@@ -49,54 +49,79 @@ timezone. It also consolidates the previously standalone anniversary rules.
 
 ## Screen Outputs (Current UI)
 
-The Analysis Dashboard consumes the analysis payload and renders the following
-sections. Each item notes whether the value is taken directly from the server
-payload or recomputed on the client when timezone fidelity is requested, and
-where the final value is generated.
+The Analysis Dashboard is the main 無限ProtoPedia app's OVERVIEW of the analysis:
+an always-visible compact **Summary Bar** plus an expandable dialog with the
+sections below. (Deeper, per-topic analysis lives in Observatory pages, which use
+their own data — see `docs/observatory/observatory-architecture.md`.) Each item
+notes whether the value is taken directly from the server payload or recomputed
+on the client when timezone fidelity is requested, and where it is generated.
 
-| UI Region               | Data Shown                                                                                                                    | Source                                                                             | Generated Where                                                                                                |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Summary Bar**         | Total prototypes, prototypes with awards, birthday count, newborn count                                                       | `totalCount`, `prototypesWithAwards`, `anniversaries.{birthdayCount,newbornCount}` | Server, except birthday/newborn counts which switch to client when `preferClientTimezoneAnniversaries` is true |
-| **Stat Grid**           | Total prototypes, prototypes with awards (+percentage), average age in days (and approx years), number of top tags categories | `totalCount`, `prototypesWithAwards`, `averageAgeInDays`, `topTags.length`         | Server                                                                                                         |
-| **Birthday Section**    | Up to 5 birthday prototypes with ID, title, 🎂 age badge                                                                      | `anniversaries.birthdayPrototypes`                                                 | Client handles final filtering/age badge when TZ override enabled; otherwise server snapshot                   |
-| **Newborn Section**     | All newborn prototypes with ID, title, localized publish time                                                                 | `anniversaries.newbornPrototypes`                                                  | Client recomputes when TZ override enabled; otherwise server snapshot                                          |
-| **Status Distribution** | Cards grouped by status code with counts                                                                                      | `statusDistribution`                                                               | Server                                                                                                         |
-| **Popular Tags**        | Up to 6 top tags with counts                                                                                                  | `topTags`                                                                          | Server                                                                                                         |
-| **Active Teams**        | Up to 6 teams with counts (hidden when no teams)                                                                              | `topTeams`                                                                         | Server                                                                                                         |
+| UI Region                    | Data Shown                                                                                     | Source                                                                             | Generated Where                                                                           |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Summary Bar** (compact)    | Total prototypes, prototypes with awards, birthday count, newborn count                        | `totalCount`, `prototypesWithAwards`, `anniversaries.{birthdayCount,newbornCount}` | Server, except birthday/newborn counts which switch to client when TZ override is enabled |
+| **Overview** (dialog)        | Total prototypes, days-with-releases, with-awards (+%), average age, current & longest streak  | `totalCount`, `creationStreak`, `prototypesWithAwards`, `averageAgeInDays`         | Server                                                                                    |
+| **Today's Highlights**       | Up to 5 birthday prototypes (🎂 age badge) and all newborn prototypes (localized publish time) | `anniversaries.{birthdayPrototypes,newbornPrototypes}`                             | Client when TZ override enabled; otherwise server snapshot                                |
+| **Prototype Status**         | Distribution bar + cards grouped by status code                                                | `statusDistribution`                                                               | Server                                                                                    |
+| **Maker's Rhythm**           | Weekly release & update activity heatmaps (JST)                                                | `releaseTimeDistribution.heatmap`, `updateTimeDistribution.heatmap`                | Server                                                                                    |
+| **Community Trends**         | Top Events, Top Tags, Top Materials (up to 20 each)                                            | `maternityHospital.topEvents`, `topTags`, `topMaterials`                           | Server                                                                                    |
+| **Debug Metrics** (dev only) | Per-analysis-step timings                                                                      | `_debugMetrics`                                                                    | Server                                                                                    |
 
 Any future UI module that relies on analysis data must be documented here with
 its required fields so that payload pruning can be evaluated.
 
 ## Data Flow Overview
 
-1. `app/actions/prototypes.ts` fetches up to 10,000 prototypes and normalizes
-   them via `normalizePrototype` (dates become ISO UTC strings).
-2. `analyzePrototypesForServer` in `lib/analysis/entrypoints/server.ts` consumes the
-   normalized array and returns a `ServerPrototypeAnalysis` snapshot.
+1. The shared prototype dataset (up to 10,000, normalized to ISO UTC strings) is
+   fetched once via `getAllPrototypes()` (`app/actions/prototypes-gateway.ts`,
+   snapshot-cached).
+2. All analysis is obtained through the **`AnalysisRepository`**
+   (`lib/repositories/analysis-repository.ts`), which owns the fetch + builder
+   composition + caching. Its `getAnalysisOverview()` runs
+   `buildAnalysisOverview` (`lib/analysis/entrypoints/server.ts`) to produce
+   the `AnalysisOverview` snapshot for the home app. The `getAnalysisOverview`
+   server action is a thin wrapper that delegates to it.
 3. `analyzeCandidates` in `lib/analysis/entrypoints/client.ts` recomputes the
    anniversary slice on the client when a timezone override is enabled.
-4. The result is stored in `analysisCache` alongside metadata
+4. The home snapshot is stored in `analysisCache` alongside metadata
    (`limit`,`offset`,`totalCount`).
 5. `components/analysis-dashboard.tsx` (and related hooks) render the cached
    snapshot. Optional client recomputation only reprocesses the lightweight
    subset needed for timezone-aware anniversaries.
+6. Observatory pages do NOT use this snapshot: each builds its own per-surface
+   analysis on demand via a dedicated repository method (e.g.
+   `getHelloWorldAnalysis`, `getMaterialAnalysis`), independent of the home
+   `AnalysisOverview`.
 
 ## Output Schema (Server)
 
-`PrototypeAnalysis` contains the following top-level fields. All dates are ISO
-8601 UTC strings. For implementation specifics and batch-module policies see
-`lib/analysis/batch/README.md`.
+The server type is **`AnalysisOverview`** (timezone-independent; excludes
+anniversaries). The client-facing `PrototypeAnalysis` is
+`AnalysisOverview & { anniversaries }`, where `anniversaries` is computed in the
+browser's timezone. `AnalysisOverview` is the home app's OVERVIEW only — do NOT
+add Observatory-only metrics to it (they have their own per-surface types). All
+dates are ISO 8601 UTC strings. For implementation specifics and batch-module
+policies see `lib/analysis/batch/README.md`.
+
+`AnalysisOverview` top-level fields:
 
 - `totalCount`: total prototypes analyzed.
 - `statusDistribution`: map of status code to count.
 - `prototypesWithAwards`: count of entries whose `awards[].length > 0`.
 - `topTags`: top 10 `{ tag, count }` pairs.
+- `topMaterials`: top 10 `{ material, count }` pairs.
 - `averageAgeInDays`: mean days since `releaseDate`.
-- `topTeams`: top 10 `{ team, count }` entries using `teamNm`.
-- `anniversaries`: birthday/newborn slices (detailed later).
-- `anniversaryCandidates` (optional): UTC helper windows for client TZ reruns.
-- `tzContext`: execution timezone diagnostics (`runtime`, IANA tz, offset).
 - `analyzedAt`: ISO timestamp indicating when the snapshot was produced.
+- `anniversaryCandidates`: UTC window + minimal candidate prototypes for
+  client-side TZ reruns.
+- `releaseTimeDistribution` / `updateTimeDistribution`: JST hour/day-of-week +
+  heatmap (Maker's Rhythm).
+- `creationStreak`: current/longest streak and total active days.
+- `maternityHospital`: `{ topEvents, independentRatio }` (Community Trends "Top
+  Events").
+- `_debugMetrics` (optional, dev): per-analysis-step timings in ms.
+
+`anniversaries` (birthday/newborn slices) is present only on the client
+`PrototypeAnalysis`, never on the server `AnalysisOverview`.
 
 ### Payload Minimization Strategy
 
@@ -118,7 +143,7 @@ its required fields so that payload pruning can be evaluated.
 | `anniversaryCandidates.birthday.monthDaysUTC` | `releaseDate` | List of UTC MM-DD strings to avoid gaps. |
 | `datasetMin/datasetMax` (logs only)           | `releaseDate` | Debug info, not sent to UI.              |
 
-All other metrics (status, tags, teams, awards) are timezone-agnostic.
+All other metrics (status, tags, materials, awards) are timezone-agnostic.
 
 ## Client Timezone Recalculation
 
@@ -236,12 +261,12 @@ type PrototypeAnalysis = {
 
 ```tsx
 import { AnalysisDashboard } from '@/components/analysis-dashboard';
-import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
+import { useAnalysisOverview } from '@/lib/hooks/use-analysis';
 
 export function Page() {
     return (
         <AnalysisDashboard
-            useLatestAnalysisHook={useLatestAnalysis}
+            useLatestAnalysisHook={useAnalysisOverview}
             preferClientTimezoneAnniversaries
         />
     );

@@ -13,15 +13,12 @@ import './analysis-dashboard.css';
 
 // This component is intentionally presentational: it receives the already
 // resolved analysis state via the `analysisState` prop instead of calling the
-// real `useLatestAnalysis` hook itself. The real hook imports server actions,
+// real `useAnalysisOverview` hook itself. The real hook imports server actions,
 // so keeping it out of this module avoids pulling those into the Storybook
 // bundle, and not passing a hook around as a value lets the React Compiler
 // memoize this component (and its parents). The hook is owned by
 // `AnalysisDashboardContainer`. Do NOT import the real hook here.
-import type {
-  PrototypeAnalysis,
-  ServerPrototypeAnalysis,
-} from '@/lib/analysis/types';
+import type { PrototypeAnalysis, AnalysisOverview } from '@/lib/analysis/types';
 
 import { RefreshCw } from 'lucide-react';
 
@@ -518,7 +515,7 @@ function TrendList({
 }
 
 export type AnalysisState = {
-  data: ServerPrototypeAnalysis | null;
+  data: AnalysisOverview | null;
   isLoading: boolean;
   error: string | null;
   refresh: (options?: { forceRecompute?: boolean }) => void;
@@ -528,7 +525,7 @@ type AnalysisDashboardProps = {
   defaultExpanded?: boolean;
   /**
    * Already resolved analysis state. The parent container owns the real hook
-   * (`useLatestAnalysis`) and passes its result here so this component stays
+   * (`useAnalysisOverview`) and passes its result here so this component stays
    * presentational. See the module-level note above for why the hook is not
    * called here.
    */

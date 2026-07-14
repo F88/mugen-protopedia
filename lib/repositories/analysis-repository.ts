@@ -2,15 +2,15 @@
  * @fileoverview Analysis Repository — the single place that owns building and
  * caching per-surface analysis data from the shared prototype dataset.
  *
- * Motivation: the home page's base analysis (`analyzePrototypesForServer` /
- * `getLatestAnalysis`) must stay minimal so main-page-only visitors never pay to
+ * Motivation: the home page's base analysis (`buildAnalysisOverview` /
+ * `getAnalysisOverview`) must stay minimal so main-page-only visitors never pay to
  * compute Observatory-only metrics. Each Observatory page instead asks this
  * repository for exactly the data it renders; the repo owns the fetch (shared,
  * via `getAllPrototypes()`), the builder composition, dependency wiring, and
  * caching. Consumers just call a method and get a result.
  *
  * Scope: this repository owns every analysis surface — the home page
- * (`getHomeAnalysis`, cached + minimal), Hello World, and The Alchemist's Table
+ * (`getAnalysisOverview`, cached + minimal), Hello World, and The Alchemist's Table
  * (material insights, Elemental Chronicles, Circle of Masters). All analysis-data
  * consumers go through here; the thin `app/actions/*` server actions just
  * delegate. See docs/observatory/observatory-architecture.md.
@@ -37,9 +37,9 @@ import {
   type CircleInsights,
 } from '@/lib/observatory/build-circle-insights';
 import { buildUserInsights } from '@/lib/observatory/build-user-insights';
-import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 import { analysisCache } from '@/lib/stores/analysis-cache';
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnalysisOverview } from '@/lib/analysis/types';
 
 type RepoLogger = ReturnType<typeof baseLogger.child>;
 
@@ -48,10 +48,10 @@ export type AnalysisResult<T> =
   { ok: true; data: T } | { ok: false; error: string };
 
 /** Result of the home (base) analysis, carrying cache metadata. */
-export type HomeAnalysisResult =
+export type AnalysisOverviewResult =
   | {
       ok: true;
-      data: ServerPrototypeAnalysis;
+      data: AnalysisOverview;
       cachedAt: string;
       params: { limit: number; offset: number; totalCount: number };
     }
@@ -86,7 +86,7 @@ const buildTimezoneSnapshot = (now: Date) => {
 };
 
 const buildAnalysisSummary = (
-  analysis: ServerPrototypeAnalysis,
+  analysis: AnalysisOverview,
   elapsedMs: number,
 ) => ({
   totalCount: analysis.totalCount,
@@ -106,14 +106,14 @@ class AnalysisRepository {
 
   /**
    * The base/home analysis for the main app page `/`. Returns the most recent
-   * cached snapshot, hydrating + computing it via {@link analyzePrototypesForServer}
+   * cached snapshot, hydrating + computing it via {@link buildAnalysisOverview}
    * on a miss (or when `forceRecompute` is set). This is the ONLY analysis the
    * home page needs; it must stay minimal (no Observatory-only metrics).
    */
-  async getHomeAnalysis(options?: {
+  async getAnalysisOverview(options?: {
     forceRecompute?: boolean;
-  }): Promise<HomeAnalysisResult> {
-    const logger = baseLogger.child({ action: 'getHomeAnalysis' });
+  }): Promise<AnalysisOverviewResult> {
+    const logger = baseLogger.child({ action: 'getAnalysisOverview' });
     const startTime = performance.now();
 
     const forceRecompute = options?.forceRecompute === true;
@@ -129,7 +129,7 @@ class AnalysisRepository {
           '[ANALYSIS-REPO] Failed to hydrate home analysis from prototypes',
         );
       } else if (hydrateResult.data.length > 0) {
-        const analysis = analyzePrototypesForServer(hydrateResult.data, {
+        const analysis = buildAnalysisOverview(hydrateResult.data, {
           logger,
         });
         analysisCache.set(analysis, {

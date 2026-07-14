@@ -18,7 +18,7 @@ import {
 import type {
   AnniversaryCandidates,
   MinimalLogger,
-  ServerPrototypeAnalysis,
+  AnalysisOverview,
 } from '@/lib/analysis/types';
 
 export { extractMonthDay } from '@/lib/utils/anniversary-candidate-metrics';
@@ -28,7 +28,7 @@ function isValidMMDD(mmdd: string | null): mmdd is string {
 }
 
 type AnalysisPipelineResult = Pick<
-  ServerPrototypeAnalysis,
+  AnalysisOverview,
   | 'statusDistribution'
   | 'prototypesWithAwards'
   | 'averageAgeInDays'
@@ -45,12 +45,12 @@ type AnalysisPipelineResult = Pick<
   tagCounts: Record<string, number>;
 };
 
-function buildEmptyServerAnalysis(
+function buildEmptyAnalysisOverview(
   prototypes: PrototypeForMpp[],
   now: Date,
   logger: MinimalLogger,
   buildAnniversaryCandidatesFn: typeof buildAnniversaryCandidates,
-): ServerPrototypeAnalysis {
+): AnalysisOverview {
   const anniversaryCandidates = buildAnniversaryCandidatesFn(
     prototypes,
     now,
@@ -297,11 +297,11 @@ export function buildAnniversaryCandidates(
  * @example
  * ```typescript
  * // Server-side (in Server Actions)
- * const serverAnalysis = analyzePrototypesForServer(prototypes.data);
+ * const serverAnalysis = buildAnalysisOverview(prototypes.data);
  * // serverAnalysis does NOT include anniversaries field
  * ```
  */
-export function analyzePrototypesForServer(
+export function buildAnalysisOverview(
   prototypes: PrototypeForMpp[],
   options?: {
     logger?: MinimalLogger;
@@ -310,9 +310,9 @@ export function analyzePrototypesForServer(
       buildAnniversaryCandidates?: typeof buildAnniversaryCandidates;
     };
   },
-): ServerPrototypeAnalysis {
+): AnalysisOverview {
   const base: MinimalLogger = options?.logger ?? serverLogger;
-  const logger = base.child({ action: 'analyzePrototypesForServer' });
+  const logger = base.child({ action: 'buildAnalysisOverview' });
   const startTime = performance.now();
 
   const now = options?.referenceDate ?? new Date();
@@ -322,7 +322,7 @@ export function analyzePrototypesForServer(
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
-    return buildEmptyServerAnalysis(
+    return buildEmptyAnalysisOverview(
       prototypes,
       now,
       logger,

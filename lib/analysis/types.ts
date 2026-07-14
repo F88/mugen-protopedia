@@ -112,26 +112,23 @@ export type AnniversaryCandidates = {
 };
 
 /**
- * Server-side analysis result (timezone-independent data only).
+ * The main 無限ProtoPedia app's analysis — an OVERVIEW-level snapshot.
  *
- * TODO(rename): this is now the HOME page's analysis only (Observatory surfaces
- * have their own types). Rename `ServerPrototypeAnalysis` -> `HomeAnalysis`
- * (and reconsider `PrototypeAnalysis`) in a follow-up so the name reflects its
- * home-only scope. Deferred: rename touches types.ts, analysis-cache, server,
- * analysis action, analysis-repository, mock helper, hooks, and the dashboard.
+ * Scope: this is what the home app (`/`) renders — a curated summary (basic
+ * counts, awards, status distribution, Maker's Rhythm, birthday/newborn
+ * candidates, and a small Community Trends set). It is deliberately NOT the whole
+ * analysis: Observatory pages compute their own deeper, per-topic analyses, each
+ * with its own type (e.g. `HelloWorldInsights`, `MaterialInsights`,
+ * `ChroniclesInsights`, `CircleInsights`). Do NOT add Observatory-only metrics
+ * here — see docs/observatory/observatory-architecture.md.
  *
- * This type represents analysis data computed on the server, which excludes
- * timezone-sensitive fields like anniversaries. The server provides a baseline
- * snapshot of TZ-independent statistics.
- *
- * The `anniversaryCandidates` field provides UTC-based metadata that clients
- * can use to pre-filter prototypes before performing timezone-aware anniversary
- * detection in the user's local timezone.
- *
- * Anniversary data MUST be computed client-side using the user's timezone
- * via `useClientAnniversaries` hook or `analyzePrototypes` executed in browser.
+ * Timezone: this carries timezone-INDEPENDENT data only. It excludes anniversaries
+ * (birthdays/newborns), whose "today" is timezone-sensitive and MUST be computed
+ * client-side via the `useClientAnniversaries` hook / `analyzePrototypes`. The
+ * `anniversaryCandidates` field provides the UTC window the client uses to
+ * pre-filter candidates before that local-timezone detection.
  */
-export type ServerPrototypeAnalysis = {
+export type AnalysisOverview = {
   /** Total number of prototypes analyzed */
   totalCount: number;
   /** Distribution of prototypes by status */
@@ -200,13 +197,13 @@ export type ServerPrototypeAnalysis = {
 /**
  * Complete analysis result including timezone-sensitive anniversary data.
  *
- * This type extends ServerPrototypeAnalysis with anniversary fields that MUST
+ * This type extends AnalysisOverview with anniversary fields that MUST
  * be computed in the client's timezone for UI-authoritative "today" semantics.
  *
  * Use this type for client-side analysis results where anniversaries reflect
  * the user's local timezone.
  */
-export type PrototypeAnalysis = ServerPrototypeAnalysis & {
+export type PrototypeAnalysis = AnalysisOverview & {
   /** Anniversary analysis (MUST be computed in client timezone) */
   anniversaries: AnniversariesSlice;
 };

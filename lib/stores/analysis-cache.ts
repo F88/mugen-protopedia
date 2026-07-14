@@ -1,4 +1,4 @@
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnalysisOverview } from '@/lib/analysis/types';
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /**
@@ -6,7 +6,7 @@ import { logger as baseLogger } from '@/lib/logger.server';
  */
 export type CachedAnalysis = {
   /** The cached analysis data (server-side, no anniversaries) */
-  analysis: ServerPrototypeAnalysis;
+  analysis: AnalysisOverview;
   /** When this analysis was cached */
   cachedAt: Date;
   /** Parameters used to generate this analysis */
@@ -116,7 +116,7 @@ class AnalysisCache {
    * Store an analysis result in cache
    */
   set(
-    analysis: ServerPrototypeAnalysis,
+    analysis: AnalysisOverview,
     params: { limit: number; offset: number; totalCount: number },
   ): void {
     const key = this.generateKey(params);

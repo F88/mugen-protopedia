@@ -245,8 +245,8 @@ a sibling of `promidas-repository.ts`).
 
 **Ownership rule (do not break this):**
 
-- The **base/home analysis** (`analyzePrototypesForServer` via the repository's
-  `getHomeAnalysis`, cached in `lib/stores/analysis-cache.ts`; `getLatestAnalysis`
+- The **base/home analysis** (`buildAnalysisOverview` via the repository's
+  `getAnalysisOverview`, cached in `lib/stores/analysis-cache.ts`; `getAnalysisOverview`
   is a thin action wrapper) is owned by and scoped to the home page `/`. It must
   contain only the metrics the home dashboard renders
   (Newborns/Birthdays candidates, basic counts, Prototype Status, Maker's Rhythm,
@@ -257,8 +257,8 @@ a sibling of `promidas-repository.ts`).
   `app/actions/observatory/<page>-analysis.ts` action that delegates to a builder
   in `lib/observatory/` (or, going forward, to an `AnalysisRepository` method).
   It shares only the raw dataset via `getAllPrototypes()` (the expensive fetch is
-  already cached) and must **not** read `getLatestAnalysis` or extend
-  `ServerPrototypeAnalysis`.
+  already cached) and must **not** read `getAnalysisOverview` or extend
+  `AnalysisOverview`.
 - **Reuse is fine when rational.** Data genuinely shared across surfaces should
   live as a single repository accessor (owned by the repo, not a page), so the
   first caller computes it and the rest reuse it — no page bears another page's
@@ -278,7 +278,7 @@ renders is allowed, but must never run on the home render path. See also the
 `create-observatory-page` skill.
 
 > Note: the Analysis Repository owns every analysis surface — the home page
-> (`getHomeAnalysis`), Hello World, and The Alchemist's Table. The `app/actions/*`
+> (`getAnalysisOverview`), Hello World, and The Alchemist's Table. The `app/actions/*`
 > functions are thin wrappers that delegate to it, so all analysis-data access is
 > uniform.
 

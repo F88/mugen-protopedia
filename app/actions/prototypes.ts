@@ -25,7 +25,7 @@ import {
 } from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
-import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 
 import type {
   FetchPrototypeByIdResult,
@@ -459,7 +459,7 @@ const populatePrototypeMap = async (
   }
 
   const analysisStart = performance.now();
-  const analysis = analyzePrototypesForServer(result.data);
+  const analysis = buildAnalysisOverview(result.data);
   const analysisElapsedMs =
     Math.round((performance.now() - analysisStart) * 100) / 100;
 

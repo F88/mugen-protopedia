@@ -13,14 +13,14 @@ import {
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
 import { analysisRepository } from '@/lib/repositories/analysis-repository';
-import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
+import type { AnalysisOverview } from '@/lib/analysis/types';
 
 /**
  * Successful response containing analysis data
  */
 type GetAnalysisSuccess = {
   ok: true;
-  data: ServerPrototypeAnalysis;
+  data: AnalysisOverview;
   cachedAt: string;
   params: {
     limit: number;
@@ -48,7 +48,7 @@ export type GetAnalysisResult = GetAnalysisSuccess | GetAnalysisFailure;
 type GetAllAnalysesSuccess = {
   ok: true;
   data: Array<{
-    analysis: ServerPrototypeAnalysis;
+    analysis: AnalysisOverview;
     cachedAt: string;
     params: {
       limit: number;
@@ -81,7 +81,7 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
   key: cached.key,
 });
 
-const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
+const buildAnalysisDebugSample = (analysis: AnalysisOverview) => ({
   overview: {
     totalCount: analysis.totalCount,
     analyzedAt: analysis.analyzedAt,
@@ -109,7 +109,7 @@ const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
 
 const logAnalysisDebugSample = (
   logger: Pick<typeof baseLogger, 'debug'>,
-  analysis: ServerPrototypeAnalysis,
+  analysis: AnalysisOverview,
   message: string,
   failureMessage: string,
 ) => {
@@ -130,20 +130,20 @@ const logAnalysisDebugSample = (
  *
  * @example
  * ```typescript
- * const result = await getLatestAnalysis();
+ * const result = await getAnalysisOverview();
  * if (result.ok) {
  *   console.log('Latest analysis:', result.data);
  *   console.log('Cached at:', result.cachedAt);
  * }
  * ```
  */
-export async function getLatestAnalysis(options?: {
+export async function getAnalysisOverview(options?: {
   forceRecompute?: boolean;
 }): Promise<GetAnalysisResult> {
   // Delegates to the Analysis Repository, which owns the home fetch + compute +
   // cache. Kept as a server action so existing consumers (the dashboard hook)
   // and the API surface are unchanged.
-  return analysisRepository.getHomeAnalysis(options);
+  return analysisRepository.getAnalysisOverview(options);
 }
 
 /**

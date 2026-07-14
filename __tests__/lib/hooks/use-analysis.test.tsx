@@ -2,21 +2,21 @@ import { renderHook, waitFor } from '@testing-library/react';
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-import { useAllAnalyses, useLatestAnalysis } from '@/lib/hooks/use-analysis';
+import { useAllAnalyses, useAnalysisOverview } from '@/lib/hooks/use-analysis';
 import type {
   GetAllAnalysesResult,
   GetAnalysisResult,
 } from '@/app/actions/analysis';
 import * as analysisActions from '@/app/actions/analysis';
-import { createMockServerAnalysis } from '@/__tests__/helpers/mock-server-analysis';
+import { createMockAnalysisOverview } from '@/__tests__/helpers/mock-analysis-overview';
 
-describe('useLatestAnalysis', () => {
+describe('useAnalysisOverview', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
   it('loads latest analysis successfully and exposes refresh', async () => {
-    const mockAnalysis = createMockServerAnalysis({ totalCount: 1 });
+    const mockAnalysis = createMockAnalysisOverview({ totalCount: 1 });
     const mockResult: GetAnalysisResult = {
       ok: true,
       data: mockAnalysis,
@@ -28,10 +28,10 @@ describe('useLatestAnalysis', () => {
       },
     };
     const spy = vi
-      .spyOn(analysisActions, 'getLatestAnalysis')
+      .spyOn(analysisActions, 'getAnalysisOverview')
       .mockResolvedValue(mockResult);
 
-    const { result } = renderHook(() => useLatestAnalysis());
+    const { result } = renderHook(() => useAnalysisOverview());
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -54,11 +54,11 @@ describe('useLatestAnalysis', () => {
       ok: false,
       error: 'analysis failed',
     };
-    vi.spyOn(analysisActions, 'getLatestAnalysis').mockResolvedValue(
+    vi.spyOn(analysisActions, 'getAnalysisOverview').mockResolvedValue(
       mockResult,
     );
 
-    const { result } = renderHook(() => useLatestAnalysis());
+    const { result } = renderHook(() => useAnalysisOverview());
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.data).toBeNull();
@@ -67,11 +67,11 @@ describe('useLatestAnalysis', () => {
   });
 
   it('sets error state when latest analysis fetch throws', async () => {
-    vi.spyOn(analysisActions, 'getLatestAnalysis').mockRejectedValue(
+    vi.spyOn(analysisActions, 'getAnalysisOverview').mockRejectedValue(
       new Error('boom'),
     );
 
-    const { result } = renderHook(() => useLatestAnalysis());
+    const { result } = renderHook(() => useAnalysisOverview());
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -87,7 +87,7 @@ describe('useAllAnalyses', () => {
   });
 
   it('loads all analyses successfully and exposes refresh', async () => {
-    const mockAnalysis = createMockServerAnalysis({ totalCount: 1 });
+    const mockAnalysis = createMockAnalysisOverview({ totalCount: 1 });
     const mockResult: GetAllAnalysesResult = {
       ok: true,
       data: [

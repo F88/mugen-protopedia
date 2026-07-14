@@ -4,7 +4,7 @@
  * @fileoverview Observatory-only material analytics data source.
  *
  * This is intentionally SEPARATE from the base analysis
- * (`analyzePrototypesForServer` / `getLatestAnalysis`) that the 無限PP top page
+ * (`buildAnalysisOverview` / `getAnalysisOverview`) that the 無限PP top page
  * depends on: growing that pipeline with Observatory-specific work would bloat it
  * and slow the top page. Here we share only the raw dataset via
  * `getAllPrototypes()` and run the material batch builder on demand, so The
