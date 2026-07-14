@@ -30,13 +30,11 @@ import {
 import {
   buildChroniclesInsights,
   type ChroniclesInsights,
-  buildPioneerMaterialsByUser,
 } from '@/lib/observatory/build-chronicles-insights';
 import {
-  buildCircleInsights,
+  buildCircleOfMastersInsights,
   type CircleInsights,
-} from '@/lib/observatory/build-circle-insights';
-import { buildUserInsights } from '@/lib/observatory/build-user-insights';
+} from '@/lib/observatory/build-circle-of-masters-insights';
 import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import type { AnalysisOverview } from '@/lib/analysis/types';
@@ -248,27 +246,14 @@ class AnalysisRepository {
   }
 
   /**
-   * The Circle of Masters (per-maker seating) for The Alchemist's Table. The
-   * Vanguard seat needs only the pioneered-materials-per-maker map, so the
-   * lightweight {@link buildPioneerMaterialsByUser} is used rather than the full
-   * per-material Chronicles.
+   * The Circle of Masters (per-maker seating) for The Alchemist's Table.
+   * Composition and seat tuning live in the facade.
    */
   async getCircleOfMastersAnalysis(): Promise<AnalysisResult<CircleInsights>> {
     return this.withPrototypes(
       'getCircleOfMastersAnalysis',
-      (prototypes, logger) => {
-        const userInsights = buildUserInsights(prototypes, { logger });
-        const pioneerMaterialsByUser = buildPioneerMaterialsByUser(prototypes, {
-          logger,
-        });
-        return buildCircleInsights(userInsights, {
-          logger,
-          pioneerMaterialsByUser,
-          minWorks: 5,
-          rateFloor: 5,
-          podium: 20,
-        });
-      },
+      (prototypes, logger) =>
+        buildCircleOfMastersInsights(prototypes, { logger }),
     );
   }
 }
