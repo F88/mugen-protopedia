@@ -17,6 +17,8 @@ and this project adheres to [CalVer](https://calver.org/).
 - `FetchPrototypesSuccess` now carries a required `lastFetchedAt: Date` (the
   dataset generation's fetch time). Any code constructing this result must supply
   it.
+- Internal refactor (no behavior change): extract the analysis dashboard's
+  details dialog into its own `AnalysisDetailsDialogContent` component.
 
 ## [2026.07.14]
 
