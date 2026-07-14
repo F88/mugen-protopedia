@@ -6,8 +6,10 @@
  * This is the ONE advanced-analysis metric the home dashboard consumes (Community
  * Trends "Top Events"). Keeping it independent lets the home path compute it
  * cheaply without running the full {@link buildAdvancedAnalysis} pass (which is
- * otherwise Hello-World-only). {@link buildAdvancedAnalysis} delegates to this so
- * there is a single source of truth.
+ * otherwise Hello-World-only). {@link buildAdvancedAnalysis} keeps its own inline
+ * copy of this metric (it shares a single aggregation pass), so this is NOT a
+ * delegation; a drift-guard test in `build-maternity-hospital.test.ts` asserts the
+ * two implementations stay identical.
  */
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';

@@ -135,9 +135,9 @@ export type AnalysisOverview = {
   statusDistribution: Record<string, number>;
   /** Number of prototypes with awards */
   prototypesWithAwards: number;
-  /** Most common tags (top 10) */
+  /** Most common tags (top 30) */
   topTags: Array<{ tag: string; count: number }>;
-  /** Most frequently used materials/tools (top 10) */
+  /** Most frequently used materials/tools (top 30) */
   topMaterials: Array<{ material: string; count: number }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
