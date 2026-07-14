@@ -16,7 +16,7 @@
  */
 import { useId, useMemo, useState } from 'react';
 
-import type { MaterialChronicle } from '@/lib/observatory/build-chronicles-insights';
+import type { MaterialChronicle } from '@/lib/observatory/alchemists-table/build-chronicles-insights';
 
 import {
   ElementForgersSection,

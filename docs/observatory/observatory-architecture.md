@@ -33,7 +33,7 @@ Observatory is a distinct subsystem within mugen-protopedia that provides analyt
 
 ## Directory Structure
 
-```
+```text
 app/observatory/
 ├── page.tsx                    # Observatory landing page
 ├── layout.tsx                  # Observatory-wide layout wrapper
@@ -235,6 +235,73 @@ defines `gradient`, `cardBg`, `iconBg`, `iconText`, `hoverText`, `linkText`,
 `textColor`, and `descriptionColor` (with light/dark variants). The `hoverText`
 color must differ from `textColor`, or the hover state has no visible effect.
 
+### 7. Analysis Data Ownership & the Analysis Repository
+
+Observatory pages are data-heavy: each renders analysis computed from the full
+prototype dataset (up to ~10k). To keep the main app home page (`/`) fast, that
+analysis work is deliberately partitioned by **who renders it**, and accessed
+through the **Analysis Repository** (`lib/repositories/analysis-repository.ts`,
+a sibling of `promidas-repository.ts`).
+
+**Ownership rule (do not break this):**
+
+- The **base/home analysis** (`buildAnalysisOverview` via the repository's
+  `getAnalysisOverview`, cached in `lib/stores/analysis-cache.ts`; `getAnalysisOverview`
+  is a thin action wrapper) is owned by and scoped to the home page `/`. It must
+  contain only the metrics the home dashboard renders
+  (Newborns/Birthdays candidates, basic counts, Prototype Status, Maker's Rhythm,
+  and — pending review — Community Trends). **Do not add Observatory-specific
+  fields to it**; doing so makes every main-page-only visitor pay to compute data
+  they never see.
+- Each **Observatory page builds its own analysis on demand** through an
+  `app/actions/observatory/<page>-analysis.ts` action that delegates to an
+  `AnalysisRepository` method, which composes builders under
+  `lib/observatory/<page>/`. It shares only the raw dataset via
+  `getAllPrototypes()` (the expensive fetch is already cached) and must **not**
+  read `getAnalysisOverview` or extend `AnalysisOverview`.
+- **Reuse is fine when rational.** Data genuinely shared across surfaces should
+  live as a single repository accessor (owned by the repo, not a page), so the
+  first caller computes it and the rest reuse it — no page bears another page's
+  cost, and there is no page-to-page dependency.
+
+**Pattern to follow:** each Observatory action (`app/actions/observatory/*-analysis.ts`)
+is a thin wrapper over an `AnalysisRepository` method, and the per-page insight
+builders live under `lib/observatory/<page>/` (with building blocks shared across a
+page's surfaces in `<page>/blocks/`). The Alchemist's Table
+(`material-analysis.ts` / `elemental-chronicles-analysis.ts` /
+`circle-of-masters-analysis.ts` → `analysisRepository.get*()` →
+`lib/observatory/alchemists-table/build-{material,chronicles,circle-of-masters}-insights.ts`,
+composing shared blocks in `alchemists-table/blocks/`) and Hello World
+(`hello-world-analysis.ts` → `analysisRepository.getHelloWorldAnalysis()` →
+`lib/observatory/hello-world/build-hello-world-insights.ts`) both follow this.
+Independent builders duplicate
+CPU but not the fetch — an acceptable trade that is strongly preferred over
+coupling the home render path. Optional background pre-generation after `/`
+renders is allowed, but must never run on the home render path. See also the
+`create-observatory-page` skill.
+
+> Note: the Analysis Repository owns every analysis surface — the home page
+> (`getAnalysisOverview`), Hello World, and The Alchemist's Table. The `app/actions/*`
+> functions are thin wrappers that delegate to it, so all analysis-data access is
+> uniform.
+
+**Caching / memoization.** Repository methods recompute per call by default, and
+that is fine: the expensive part (`getAllPrototypes()`) is already snapshot-cached,
+so re-running a builder over the same in-memory dataset is cheap. Add an in-memory
+memo **only** when a surface's build is genuinely expensive _and_ re-requested
+within a fetch window (Hello World is the only one that does today). When you do
+memoize:
+
+- Key on the **dataset generation** (`lastFetchedAt`, handed to builders by the
+  repository's `withPrototypes` wrapper), **not** `data.length`. A same-count
+  content change (an edit, or +1 / -1) advances the generation and must invalidate
+  the memo — a length proxy silently serves stale insights.
+- Also include the **JST calendar day of `now`** when the output is date-relative
+  (creation streaks, anniversary-candidate windows). Otherwise the memo serves
+  yesterday's daily metrics across a midnight rollover. Derive the day via the
+  shared analysis "today" logic (`createLifecycleMomentContext(...).yyyymmdd`), not
+  a raw UTC/local slice — the analysis subsystem's "today" is JST.
+
 ## Key Differences from Main App
 
 | Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |
@@ -254,7 +321,7 @@ color must differ from `textColor`, or the hover state has no visible effect.
 
 1. **Create directory structure:**
 
-    ```
+    ```text
     app/observatory/[page-name]/
     ├── page.tsx
     ├── background.tsx
@@ -283,6 +350,16 @@ color must differ from `textColor`, or the hover state has no visible effect.
     - Use appropriate font and color scheme
     - Cards can also link to external sites (absolute URL) — see
       [Observatory Top Page Cards](#6-observatory-top-page-cards-observatorycard)
+
+6. **Wire the page's analysis (if it is data-heavy):**
+    - Add `app/actions/observatory/<page>-analysis.ts` returning
+      `AnalysisResult<T>`, delegating to a new `AnalysisRepository` method.
+    - Put the page's insight builders under `lib/observatory/<page>/`, with any
+      blocks shared across the page's surfaces in `<page>/blocks/`.
+    - Do **not** extend `AnalysisOverview` or read the home analysis. See
+      [Analysis Data Ownership & the Analysis Repository](#7-analysis-data-ownership--the-analysis-repository)
+      (including the caching / memoization rules) and the `create-observatory-page`
+      skill.
 
 ### Naming Conventions
 

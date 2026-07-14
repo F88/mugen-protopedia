@@ -11,8 +11,11 @@
  * Fact-based only — never engagement or `status`. Trophy Hunter (awards) is
  * intentionally NOT a seat.
  */
-import type { UserInsights, UserInsightsEntry } from './build-user-insights';
-import { takeWithTies, type MinimalLogger } from './insights-shared';
+import type {
+  UserInsights,
+  UserInsightsEntry,
+} from './blocks/build-user-insights';
+import { takeWithTies, type MinimalLogger } from './blocks/insights-shared';
 
 /** One material a maker is the top (most-devoted) user of — a Purist "crown". */
 export interface PuristCrown {

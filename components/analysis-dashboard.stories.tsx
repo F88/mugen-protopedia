@@ -7,7 +7,6 @@ import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import {
   buildTagAnalytics,
   buildCoreSummaries,
-  buildUserTeamAnalytics,
   buildMaterialAnalytics,
   buildTimeDistributions,
   buildDateBasedPrototypeInsights,
@@ -34,15 +33,9 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
     averageAgeInDays: rawAverageAgeInDays,
   } = buildCoreSummaries(prototypes, { referenceDate });
   const { topTags } = buildTagAnalytics(prototypes);
-  const { teams } = buildUserTeamAnalytics(prototypes);
-  const { topMaterials, yearlyTopMaterials } =
-    buildMaterialAnalytics(prototypes);
-  const {
-    releaseTimeDistribution,
-    releaseDateDistribution,
-    updateTimeDistribution,
-    updateDateDistribution,
-  } = buildTimeDistributions(prototypes);
+  const { topMaterials } = buildMaterialAnalytics(prototypes);
+  const { releaseTimeDistribution, updateTimeDistribution } =
+    buildTimeDistributions(prototypes);
   const { uniqueReleaseDates } = buildDateBasedPrototypeInsights(prototypes);
   const creationStreak = calculateCreationStreak(
     uniqueReleaseDates,
@@ -89,18 +82,12 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
       prototypesWithAwards,
       topTags,
       topMaterials,
-      yearlyTopMaterials,
       averageAgeInDays,
-      topTeams: teams.topTeams,
       analyzedAt: referenceDate.toISOString(),
       anniversaryCandidates,
       anniversaries,
-      createTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-      createDateDistribution: { month: [], year: {}, daily: {} },
       releaseTimeDistribution,
-      releaseDateDistribution,
       updateTimeDistribution,
-      updateDateDistribution,
       creationStreak,
       ...advancedAnalysis,
     };
@@ -112,26 +99,12 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
     prototypesWithAwards,
     topTags,
     topMaterials,
-    yearlyTopMaterials,
     averageAgeInDays,
-    topTeams: teams.topTeams,
     analyzedAt: referenceDate.toISOString(),
     anniversaryCandidates,
     anniversaries,
-    createTimeDistribution: {
-      dayOfWeek: new Array(7).fill(0),
-      hour: new Array(24).fill(0),
-      heatmap: Array.from({ length: 7 }, () => new Array(24).fill(0)),
-    },
-    createDateDistribution: {
-      month: new Array(12).fill(0),
-      year: {},
-      daily: {},
-    },
     releaseTimeDistribution,
-    releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
     creationStreak,
     ...advancedAnalysis,
   };
@@ -511,36 +484,7 @@ export const NoBirthdaysAndNoNewborns: Story = {
   },
 };
 
-export const LongTeamNames: Story = {
-  render: renderStory,
-  parameters: {
-    mockState: {
-      data: makeAnalysis((draft) => {
-        draft.topTeams = [
-          { team: 'クラッピーチャレンジ', count: 40 },
-          { team: '1000円あったら電子工作 ThousanDIY', count: 21 },
-          {
-            team: 'Some Extremely Verbose Open Source Collective With An Incredibly Long Team Name',
-            count: 12,
-          },
-          { team: 'kirinsan.org', count: 8 },
-        ];
-      }),
-    },
-    docs: {
-      description: {
-        story:
-          'Use long team labels to ensure the Active Teams list wraps correctly.',
-      },
-    },
-  },
-};
-
 const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
-  const teams = faker.helpers.multiple(() => faker.company.name(), {
-    count: 50,
-  });
-
   const birthdays = faker.helpers.multiple(
     (_value, index) => {
       const years = faker.number.int({ min: 1, max: 15 });
@@ -600,19 +544,6 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
     ),
   };
 
-  const releaseDateDistribution = {
-    month: Array.from({ length: 12 }).map(() =>
-      faker.number.int({ min: 50, max: 150 }),
-    ),
-    year: Object.fromEntries(
-      Array.from({ length: 10 }).map((_, index) => {
-        const year = 2015 + index;
-        return [year, faker.number.int({ min: 5, max: 150 })];
-      }),
-    ),
-    daily: {},
-  };
-
   const updateTimeDistribution = {
     dayOfWeek: Array.from({ length: 7 }).map(() =>
       faker.number.int({ min: 0, max: 100 }),
@@ -625,19 +556,6 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
         faker.number.int({ min: 0, max: 10 }),
       ),
     ),
-  };
-
-  const updateDateDistribution = {
-    month: Array.from({ length: 12 }).map(() =>
-      faker.number.int({ min: 30, max: 120 }),
-    ),
-    year: Object.fromEntries(
-      Array.from({ length: 10 }).map((_, index) => {
-        const year = 2015 + index;
-        return [year, faker.number.int({ min: 3, max: 100 })];
-      }),
-    ),
-    daily: {},
   };
 
   const creationStreak = {
@@ -713,11 +631,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       { count: 10 },
     ),
     topMaterials,
-    yearlyTopMaterials: {},
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
-    topTeams: teams
-      .slice(0, 6)
-      .map((team) => ({ team, count: faker.number.int({ min: 5, max: 80 }) })),
     anniversaries: {
       birthdayCount: birthdays.length,
       birthdayPrototypes: birthdays,
@@ -735,20 +649,8 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       },
       mmdd: [],
     },
-    createTimeDistribution: {
-      dayOfWeek: new Array(7).fill(0),
-      hour: new Array(24).fill(0),
-      heatmap: Array.from({ length: 7 }, () => new Array(24).fill(0)),
-    },
-    createDateDistribution: {
-      month: new Array(12).fill(0),
-      year: {},
-      daily: {},
-    },
     releaseTimeDistribution,
-    releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
     creationStreak,
     ...advancedAnalysis,
   } satisfies PrototypeAnalysis;

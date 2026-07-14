@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { analyzeCandidates } from '@/lib/analysis/entrypoints/client';
-import type {
-  PrototypeAnalysis,
-  ServerPrototypeAnalysis,
-} from '@/lib/analysis/types';
+import type { PrototypeAnalysis, AnalysisOverview } from '@/lib/analysis/types';
 
 export type ClientAnniversariesState = {
   anniversaries: PrototypeAnalysis['anniversaries'] | null;
@@ -25,7 +22,7 @@ export type ClientAnniversariesState = {
  * @param options - Optional configuration (enabled flag)
  */
 export function useClientAnniversaries(
-  serverAnalysis: ServerPrototypeAnalysis | null,
+  serverAnalysis: AnalysisOverview | null,
   options?: {
     enabled?: boolean;
   },

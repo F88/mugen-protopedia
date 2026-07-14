@@ -1,4 +1,4 @@
-import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import {
   buildAnniversaries,
@@ -13,7 +13,7 @@ import {
 
 // Helper function for fixture
 function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
-  const serverAnalysis = analyzePrototypesForServer(prototypes);
+  const serverAnalysis = buildAnalysisOverview(prototypes);
 
   if (prototypes.length === 0) {
     return {

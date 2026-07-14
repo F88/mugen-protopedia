@@ -124,8 +124,8 @@ Steps:
 ## Data sourcing — keep the base analysis lean
 
 Observatory is **sub-content at its own URL**, not part of the 無限PP top page.
-The top page depends on the base analysis (`analyzePrototypesForServer` /
-`getLatestAnalysis`), so **do NOT bolt Observatory-specific analytics onto it** —
+The top page depends on the base analysis (`buildAnalysisOverview` /
+`getAnalysisOverview`), so **do NOT bolt Observatory-specific analytics onto it** —
 growing that pipeline bloats it and slows the top page. This is a real
 performance boundary, not a style preference.
 
@@ -136,13 +136,19 @@ Instead:
   base analysis uses — and compute your page's own metrics in a **dedicated**
   server module/action (e.g. `app/actions/<page>-analysis.ts`). Reuse existing
   batch builders in `lib/analysis/batch/` (e.g. `buildMaterialAnalytics`) rather
-  than duplicating logic or extending the shared `ServerPrototypeAnalysis` type.
+  than duplicating logic or extending the shared `AnalysisOverview` type.
 - **Compute lazily.** Observatory data need not exist at app startup; build it at
   access time and cache with the page's `revalidate` (ISR), plus a page-specific
   cache if the computation is expensive. Do not warm it on the top-page path.
-- **Only reach for `getLatestAnalysis()`** when your page genuinely wants the
+- **Only reach for `getAnalysisOverview()`** when your page genuinely wants the
   base analysis that the top page already computes — not as a convenient bag to
   extend.
+- **If you memoize a repository build, key on the dataset generation
+  (`lastFetchedAt`), not `data.length`** — a same-count content change must
+  invalidate it. Include the JST day of `now`
+  (`createLifecycleMomentContext(...).yyyymmdd`) when the output is date-relative
+  (streaks, anniversary windows), or it goes stale at midnight. See the
+  "Caching / memoization" note in `docs/observatory/observatory-architecture.md`.
 
 ## Repo conventions (do not skip)
 

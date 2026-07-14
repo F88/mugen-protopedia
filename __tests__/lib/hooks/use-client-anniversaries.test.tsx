@@ -5,14 +5,14 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import * as analysisClient from '@/lib/analysis/entrypoints/client';
 import type { AnniversariesSlice } from '@/lib/analysis/types';
-import { createMockServerAnalysis } from '@/__tests__/helpers/mock-server-analysis';
+import { createMockAnalysisOverview } from '@/__tests__/helpers/mock-analysis-overview';
 
 describe('useClientAnniversaries', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  const baseServerAnalysis = createMockServerAnalysis({
+  const baseServerAnalysis = createMockAnalysisOverview({
     totalCount: 2,
     anniversaryCandidates: {
       metadata: {

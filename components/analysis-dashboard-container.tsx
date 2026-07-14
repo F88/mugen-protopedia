@@ -1,6 +1,6 @@
 'use client';
 
-import { useLatestAnalysis } from '@/lib/hooks/use-analysis';
+import { useAnalysisOverview } from '@/lib/hooks/use-analysis';
 
 import { AnalysisDashboard } from './analysis-dashboard';
 
@@ -11,7 +11,7 @@ type AnalysisDashboardContainerProps = {
 };
 
 /**
- * Container that owns the real `useLatestAnalysis` hook and feeds its resolved
+ * Container that owns the real `useAnalysisOverview` hook and feeds its resolved
  * state into the presentational `AnalysisDashboard`.
  *
  * This thin wrapper exists for two reasons:
@@ -28,6 +28,6 @@ type AnalysisDashboardContainerProps = {
 export function AnalysisDashboardContainer(
   props: AnalysisDashboardContainerProps,
 ) {
-  const analysisState = useLatestAnalysis();
+  const analysisState = useAnalysisOverview();
   return <AnalysisDashboard {...props} analysisState={analysisState} />;
 }

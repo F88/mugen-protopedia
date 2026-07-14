@@ -9,6 +9,15 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Internal refactor (no behavior change): route all analysis through a single
+  `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
+  group Observatory insight builders by page under `lib/observatory/<page>/`.
+- `FetchPrototypesSuccess` now carries a required `lastFetchedAt: Date` (the
+  dataset generation's fetch time). Any code constructing this result must supply
+  it.
+
 ## [2026.07.14]
 
 ### Changed

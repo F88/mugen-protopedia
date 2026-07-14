@@ -19,7 +19,7 @@ import type {
   CircleInsights,
   SeatCriteria,
   SeatEntry,
-} from '@/lib/observatory/build-circle-insights';
+} from '@/lib/observatory/alchemists-table/build-circle-insights';
 import {
   buildMaterialLink,
   buildUserLink,

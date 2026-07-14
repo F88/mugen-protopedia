@@ -5,7 +5,6 @@ import {
   extractMonthDay,
 } from '@/lib/utils/anniversary-candidate-metrics';
 import {
-  buildAdvancedAnalysis,
   buildTimeDistributions,
   buildDateBasedPrototypeInsights,
   calculateCreationStreak,
@@ -13,13 +12,13 @@ import {
 import {
   buildMaterialAnalytics,
   buildTagAnalytics,
-  buildUserTeamAnalytics,
   buildCoreSummaries,
+  buildMaternityHospital,
 } from '../batch';
 import type {
   AnniversaryCandidates,
   MinimalLogger,
-  ServerPrototypeAnalysis,
+  AnalysisOverview,
 } from '@/lib/analysis/types';
 
 export { extractMonthDay } from '@/lib/utils/anniversary-candidate-metrics';
@@ -29,46 +28,29 @@ function isValidMMDD(mmdd: string | null): mmdd is string {
 }
 
 type AnalysisPipelineResult = Pick<
-  ServerPrototypeAnalysis,
+  AnalysisOverview,
   | 'statusDistribution'
   | 'prototypesWithAwards'
   | 'averageAgeInDays'
   | 'topTags'
-  | 'topTeams'
   | 'topMaterials'
-  | 'yearlyTopMaterials'
   | 'anniversaryCandidates'
-  | 'createTimeDistribution'
-  | 'createDateDistribution'
   | 'releaseTimeDistribution'
-  | 'releaseDateDistribution'
   | 'updateTimeDistribution'
-  | 'updateDateDistribution'
   | 'creationStreak'
-  | 'earlyAdopters'
-  | 'firstPenguins'
-  | 'starAlignments'
-  | 'anniversaryEffect'
-  | 'laborOfLove'
   | 'maternityHospital'
-  | 'powerOfDeadlines'
-  | 'weekendWarrior'
-  | 'holyDay'
-  | 'longTermEvolution'
-  | 'evolutionSpan'
 > & {
   materialCounts: Record<string, number>;
   metrics: Record<string, number>;
   tagCounts: Record<string, number>;
-  teamCounts: Record<string, number>;
 };
 
-function buildEmptyServerAnalysis(
+function buildEmptyAnalysisOverview(
   prototypes: PrototypeForMpp[],
   now: Date,
   logger: MinimalLogger,
   buildAnniversaryCandidatesFn: typeof buildAnniversaryCandidates,
-): ServerPrototypeAnalysis {
+): AnalysisOverview {
   const anniversaryCandidates = buildAnniversaryCandidatesFn(
     prototypes,
     now,
@@ -81,55 +63,18 @@ function buildEmptyServerAnalysis(
     prototypesWithAwards: 0,
     topTags: [],
     topMaterials: [],
-    yearlyTopMaterials: {},
     averageAgeInDays: 0,
-    topTeams: [],
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
-    createTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    createDateDistribution: { month: [], year: {}, daily: {} },
     releaseTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    releaseDateDistribution: { month: [], year: {}, daily: {} },
     updateTimeDistribution: { dayOfWeek: [], hour: [], heatmap: [] },
-    updateDateDistribution: { month: [], year: {}, daily: {} },
     creationStreak: {
       currentStreak: 0,
       longestStreak: 0,
       longestStreakEndDate: null,
       totalActiveDays: 0,
     },
-    earlyAdopters: [],
-    firstPenguins: [],
-    starAlignments: [],
-    anniversaryEffect: [],
-    laborOfLove: { longestGestation: [], distribution: {} },
     maternityHospital: { topEvents: [], independentRatio: 0 },
-    powerOfDeadlines: { spikes: [] },
-    weekendWarrior: {
-      weekendHourlyCounts: [],
-      totalWeekendCount: 0,
-    },
-    holyDay: { topDays: [] },
-    longTermEvolution: {
-      longestMaintenance: [],
-      averageMaintenanceDays: 0,
-      maintenanceRatio: 0,
-    },
-    evolutionSpan: {
-      distribution: {
-        noUpdates: 0,
-        sameDayUpdate: 0,
-        within3Days: 0,
-        within7Days: 0,
-        within14Days: 0,
-        within30Days: 0,
-        within90Days: 0,
-        within180Days: 0,
-        within1Year: 0,
-        within3Years: 0,
-        over3Years: 0,
-      },
-    },
     _debugMetrics: {},
   };
 }
@@ -157,17 +102,10 @@ function runAnalysisPipelines(
   const { topTags, tagCounts } = buildTagAnalytics(prototypes, { logger });
   metrics.topTags = performance.now() - stepStartTags;
 
-  const stepStartTeams = performance.now();
-  const {
-    teams: { topTeams, teamCounts },
-  } = buildUserTeamAnalytics(prototypes, { logger });
-  metrics.topTeams = performance.now() - stepStartTeams;
-
   const stepStartMaterials = performance.now();
-  const { topMaterials, materialCounts, yearlyTopMaterials } =
-    buildMaterialAnalytics(prototypes, {
-      logger,
-    });
+  const { topMaterials, materialCounts } = buildMaterialAnalytics(prototypes, {
+    logger,
+  });
   metrics.topMaterials = performance.now() - stepStartMaterials;
 
   const stepStartAnniversaries = performance.now();
@@ -179,13 +117,13 @@ function runAnalysisPipelines(
   metrics.anniversaryCandidates = performance.now() - stepStartAnniversaries;
 
   const stepStartRhythm = performance.now();
+  // Home renders only the release/update time heatmaps; releaseDateDistribution
+  // is kept locally to feed the creation streak (daily counts). The create/date
+  // distributions the home page never renders are not threaded out.
   const {
-    createTimeDistribution,
-    createDateDistribution,
     releaseTimeDistribution,
     releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
   } = buildTimeDistributions(prototypes, { logger });
   metrics.makerRhythm = performance.now() - stepStartRhythm;
 
@@ -210,51 +148,25 @@ function runAnalysisPipelines(
   );
   metrics.creationStreak = performance.now() - stepStartStreak;
 
-  const stepStartAdvanced = performance.now();
-  const {
-    firstPenguins,
-    starAlignments,
-    anniversaryEffect,
-    earlyAdopters,
-    laborOfLove,
-    maternityHospital,
-    powerOfDeadlines,
-    weekendWarrior,
-    holyDay,
-    longTermEvolution,
-    evolutionSpan,
-  } = buildAdvancedAnalysis(prototypes, topTags, { logger });
-  metrics.advancedAnalysis = performance.now() - stepStartAdvanced;
+  // The Maternity Hospital "Top Events" is the one advanced metric the home
+  // dashboard renders; compute it standalone instead of the full (Hello-World
+  // only) buildAdvancedAnalysis pass.
+  const stepStartMaternity = performance.now();
+  const maternityHospital = buildMaternityHospital(prototypes, { logger });
+  metrics.maternityHospital = performance.now() - stepStartMaternity;
 
   return {
     statusDistribution: summaries.statusDistribution,
     prototypesWithAwards: summaries.prototypesWithAwards,
     averageAgeInDays: summaries.averageAgeInDays,
     topTags,
-    topTeams,
     topMaterials,
-    yearlyTopMaterials,
     anniversaryCandidates,
-    createTimeDistribution,
-    createDateDistribution,
     releaseTimeDistribution,
-    releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
     creationStreak,
-    earlyAdopters,
-    firstPenguins,
-    starAlignments,
-    anniversaryEffect,
-    laborOfLove,
     maternityHospital,
-    powerOfDeadlines,
-    weekendWarrior,
-    holyDay,
-    longTermEvolution,
-    evolutionSpan,
     tagCounts,
-    teamCounts,
     materialCounts,
     metrics,
   };
@@ -385,11 +297,11 @@ export function buildAnniversaryCandidates(
  * @example
  * ```typescript
  * // Server-side (in Server Actions)
- * const serverAnalysis = analyzePrototypesForServer(prototypes.data);
+ * const serverAnalysis = buildAnalysisOverview(prototypes.data);
  * // serverAnalysis does NOT include anniversaries field
  * ```
  */
-export function analyzePrototypesForServer(
+export function buildAnalysisOverview(
   prototypes: PrototypeForMpp[],
   options?: {
     logger?: MinimalLogger;
@@ -398,9 +310,9 @@ export function analyzePrototypesForServer(
       buildAnniversaryCandidates?: typeof buildAnniversaryCandidates;
     };
   },
-): ServerPrototypeAnalysis {
+): AnalysisOverview {
   const base: MinimalLogger = options?.logger ?? serverLogger;
-  const logger = base.child({ action: 'analyzePrototypesForServer' });
+  const logger = base.child({ action: 'buildAnalysisOverview' });
   const startTime = performance.now();
 
   const now = options?.referenceDate ?? new Date();
@@ -410,7 +322,7 @@ export function analyzePrototypesForServer(
 
   if (prototypes.length === 0) {
     logger.debug('No prototypes to analyze, returning empty analysis');
-    return buildEmptyServerAnalysis(
+    return buildEmptyAnalysisOverview(
       prototypes,
       now,
       logger,
@@ -423,30 +335,13 @@ export function analyzePrototypesForServer(
     prototypesWithAwards,
     averageAgeInDays,
     topTags,
-    topTeams,
     topMaterials,
-    yearlyTopMaterials,
     anniversaryCandidates,
-    createTimeDistribution,
-    createDateDistribution,
     releaseTimeDistribution,
-    releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
     creationStreak,
-    earlyAdopters,
-    firstPenguins,
-    starAlignments,
-    anniversaryEffect,
-    laborOfLove,
     maternityHospital,
-    powerOfDeadlines,
-    weekendWarrior,
-    holyDay,
-    longTermEvolution,
-    evolutionSpan,
     tagCounts,
-    teamCounts,
     materialCounts,
     metrics,
   } = runAnalysisPipelines(
@@ -480,7 +375,6 @@ export function analyzePrototypesForServer(
         totalCount: prototypes.length,
         statusKinds: Object.keys(statusDistribution).length,
         uniqueTags: Object.keys(tagCounts).length,
-        uniqueTeams: Object.keys(teamCounts).length,
         uniqueMaterials: Object.keys(materialCounts).length,
         averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
         datasetMinISO: datasetMin,
@@ -498,29 +392,13 @@ export function analyzePrototypesForServer(
     prototypesWithAwards,
     topTags,
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
-    topTeams,
     topMaterials,
-    yearlyTopMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
-    createTimeDistribution,
-    createDateDistribution,
     releaseTimeDistribution,
-    releaseDateDistribution,
     updateTimeDistribution,
-    updateDateDistribution,
     creationStreak,
-    earlyAdopters,
-    firstPenguins,
-    starAlignments,
-    anniversaryEffect,
-    laborOfLove,
     maternityHospital,
-    powerOfDeadlines,
-    weekendWarrior,
-    holyDay,
-    longTermEvolution,
-    evolutionSpan,
     _debugMetrics: metrics, // Include metrics in the returned object
   };
 }

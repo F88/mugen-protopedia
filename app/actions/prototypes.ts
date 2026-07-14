@@ -25,7 +25,7 @@ import {
 } from '@/lib/protopedia-client';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import { prototypeMapStore } from '@/lib/stores/prototype-map-store';
-import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 
 import type {
   FetchPrototypeByIdResult,
@@ -263,6 +263,8 @@ const fetchPrototypesInternal = async (
     return {
       ok: true,
       data: normalized,
+      // Raw upstream fetch: this IS the fetch, so the generation time is now.
+      lastFetchedAt: new Date(),
     };
   } catch (error) {
     const totalElapsedMs =
@@ -459,7 +461,7 @@ const populatePrototypeMap = async (
   }
 
   const analysisStart = performance.now();
-  const analysis = analyzePrototypesForServer(result.data);
+  const analysis = buildAnalysisOverview(result.data);
   const analysisElapsedMs =
     Math.round((performance.now() - analysisStart) * 100) / 100;
 
@@ -827,6 +829,7 @@ export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesR
     return {
       ok: true,
       data: snapshot.data,
+      lastFetchedAt: snapshot.cachedAt ?? new Date(),
     };
   }
 
@@ -849,7 +852,13 @@ export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesR
       },
       'Returning prototype list from refresh result',
     );
-    return refreshResult;
+    // The refresh just populated the store; report the store's generation time
+    // (consistent with the snapshot returns above/below) rather than the raw
+    // fetch's own timestamp.
+    return {
+      ...refreshResult,
+      lastFetchedAt: prototypeMapStore.getSnapshot().cachedAt ?? new Date(),
+    };
   }
 
   const refreshedSnapshot = prototypeMapStore.getSnapshot();
@@ -867,6 +876,7 @@ export async function getAllPrototypesFromMapOrFetch(): Promise<FetchPrototypesR
     return {
       ok: true,
       data: refreshedSnapshot.data,
+      lastFetchedAt: refreshedSnapshot.cachedAt ?? new Date(),
     };
   }
 
