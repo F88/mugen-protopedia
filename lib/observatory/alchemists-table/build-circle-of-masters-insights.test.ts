@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildCircleOfMastersInsights } from './build-circle-of-masters-insights';
 import { buildCircleInsights } from './build-circle-insights';
-import { buildUserInsights } from './build-user-insights';
+import { buildUserInsights } from './blocks/build-user-insights';
 import { buildPioneerMaterialsByUser } from './build-chronicles-insights';
 
 const createPrototype = (

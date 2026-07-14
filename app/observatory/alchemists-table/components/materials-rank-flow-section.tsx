@@ -24,7 +24,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import type { PeriodTopMaterial } from '@/lib/observatory/build-material-insights';
+import type { PeriodTopMaterial } from '@/lib/observatory/alchemists-table/build-material-insights';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { Slider } from '@/components/ui/slider';

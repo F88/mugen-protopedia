@@ -11,7 +11,7 @@
  */
 
 import { analysisRepository } from '@/lib/repositories/analysis-repository';
-import type { ChroniclesInsights } from '@/lib/observatory/build-chronicles-insights';
+import type { ChroniclesInsights } from '@/lib/observatory/alchemists-table/build-chronicles-insights';
 
 /** Successful response containing the per-material Chronicles. */
 export interface GetElementalChroniclesAnalysisSuccess {

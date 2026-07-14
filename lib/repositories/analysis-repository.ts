@@ -22,19 +22,19 @@ import { logger as baseLogger } from '@/lib/logger.server';
 import {
   buildHelloWorldInsights,
   type HelloWorldInsights,
-} from '@/lib/observatory/build-hello-world-insights';
+} from '@/lib/observatory/hello-world/build-hello-world-insights';
 import {
   buildMaterialInsights,
   type MaterialInsights,
-} from '@/lib/observatory/build-material-insights';
+} from '@/lib/observatory/alchemists-table/build-material-insights';
 import {
   buildChroniclesInsights,
   type ChroniclesInsights,
-} from '@/lib/observatory/build-chronicles-insights';
+} from '@/lib/observatory/alchemists-table/build-chronicles-insights';
 import {
   buildCircleOfMastersInsights,
   type CircleInsights,
-} from '@/lib/observatory/build-circle-of-masters-insights';
+} from '@/lib/observatory/alchemists-table/build-circle-of-masters-insights';
 import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import type { AnalysisOverview } from '@/lib/analysis/types';

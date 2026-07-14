@@ -26,7 +26,7 @@ import {
   asArray,
   takeWithTies,
   type MinimalLogger,
-} from './insights-shared';
+} from './blocks/insights-shared';
 
 /** An internal work reference (carries the whole team). */
 interface WorkRef {

@@ -19,7 +19,7 @@
  */
 
 import { analysisRepository } from '@/lib/repositories/analysis-repository';
-import type { CircleInsights } from '@/lib/observatory/build-circle-insights';
+import type { CircleInsights } from '@/lib/observatory/alchemists-table/build-circle-insights';
 
 /** Successful response containing the seated makers. */
 export interface GetCircleOfMastersAnalysisSuccess {

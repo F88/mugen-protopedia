@@ -13,7 +13,7 @@
  */
 
 import { analysisRepository } from '@/lib/repositories/analysis-repository';
-import type { MaterialInsights } from '@/lib/observatory/build-material-insights';
+import type { MaterialInsights } from '@/lib/observatory/alchemists-table/build-material-insights';
 
 /** Material frequency histogram plus all derived insights for the page. */
 export type MaterialAnalysisData = MaterialInsights;

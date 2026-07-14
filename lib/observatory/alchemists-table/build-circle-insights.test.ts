@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { materialChampions } from './build-circle-insights';
-import type { UserInsightsEntry } from './build-user-insights';
+import type { UserInsightsEntry } from './blocks/build-user-insights';
 
 /** A minimal maker fixture — only the fields `materialChampions` reads matter. */
 const maker = (

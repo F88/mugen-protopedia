@@ -19,7 +19,7 @@ import type {
   NewfoundEntry,
   LostTechEntry,
   MonumentalEntry,
-} from '@/lib/observatory/build-material-insights';
+} from '@/lib/observatory/alchemists-table/build-material-insights';
 
 import {
   SectionHeading,

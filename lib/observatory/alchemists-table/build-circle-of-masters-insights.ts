@@ -18,9 +18,9 @@
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { buildCircleInsights } from './build-circle-insights';
 import type { CircleInsights } from './build-circle-insights';
-import { buildUserInsights } from './build-user-insights';
+import { buildUserInsights } from './blocks/build-user-insights';
 import { buildPioneerMaterialsByUser } from './build-chronicles-insights';
-import type { MinimalLogger } from './insights-shared';
+import type { MinimalLogger } from './blocks/insights-shared';
 
 export type { CircleInsights } from './build-circle-insights';
 

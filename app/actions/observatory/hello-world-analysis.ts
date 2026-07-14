@@ -14,7 +14,7 @@ import {
   analysisRepository,
   type AnalysisResult,
 } from '@/lib/repositories/analysis-repository';
-import type { HelloWorldInsights } from '@/lib/observatory/build-hello-world-insights';
+import type { HelloWorldInsights } from '@/lib/observatory/hello-world/build-hello-world-insights';
 
 export type GetHelloWorldAnalysisResult = AnalysisResult<HelloWorldInsights>;
 

@@ -16,7 +16,7 @@
 import type {
   MakerFirst,
   MaterialChronicle,
-} from '@/lib/observatory/build-chronicles-insights';
+} from '@/lib/observatory/alchemists-table/build-chronicles-insights';
 import {
   buildMaterialLink,
   buildPrototypeLink,
