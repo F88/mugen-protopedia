@@ -36,6 +36,7 @@ import {
   type CircleInsights,
 } from '@/lib/observatory/alchemists-table/build-circle-of-masters-insights';
 import { buildAnalysisOverview } from '@/lib/analysis/entrypoints/server';
+import { createLifecycleMomentContext } from '@/lib/analysis/lifecycle';
 import { analysisCache } from '@/lib/stores/analysis-cache';
 import type { AnalysisOverview } from '@/lib/analysis/types';
 
@@ -89,7 +90,8 @@ const buildAnalysisSummary = (
 ) => ({
   totalCount: analysis.totalCount,
   statusKinds: Object.keys(analysis.statusDistribution).length,
-  uniqueTags: analysis.topTags.length,
+  // Size of the capped top-N list, not the dataset's true distinct-tag count.
+  topTagsCount: analysis.topTags.length,
   averageAgeInDays: analysis.averageAgeInDays,
   elapsedMs,
 });
@@ -212,11 +214,17 @@ class AnalysisRepository {
     return this.withPrototypes(
       'getHelloWorldAnalysis',
       (prototypes, logger, { lastFetchedAt }) => {
-        // Reuse the last computed insights only while the dataset generation is
-        // unchanged. Key on the fetch generation (`lastFetchedAt`), NOT the count:
-        // a same-count content change (edit, or +1/-1) advances the generation and
-        // must invalidate the memo, which a length proxy would miss.
-        const key = `hello-world:${lastFetchedAt.getTime()}`;
+        // Reuse the last computed insights only while BOTH are unchanged:
+        // - the fetch generation (`lastFetchedAt`), NOT the count: a same-count
+        //   content change (edit, or +1/-1) advances the generation and must
+        //   invalidate the memo, which a length proxy would miss; and
+        // - the JST calendar day of `now`: streak / anniversary-candidate windows
+        //   are date-relative, so a day rollover must recompute even when the
+        //   dataset generation is unchanged. JST because the analysis "today" is
+        //   JST (see createLifecycleMomentContext).
+        const jstToday =
+          createLifecycleMomentContext(now.toISOString())?.yyyymmdd ?? '';
+        const key = `hello-world:${lastFetchedAt.getTime()}:${jstToday}`;
         if (this.helloWorldMemo?.key === key) {
           return this.helloWorldMemo.data;
         }

@@ -72,4 +72,23 @@ describe('AnalysisRepository.getHelloWorldAnalysis memoization', () => {
       callsAfterPrime + 1,
     );
   });
+
+  it('recomputes when the JST day changes even if the generation is unchanged', async () => {
+    // Same dataset generation on both calls, but `now` rolls over to the next
+    // JST day. Streak / anniversary-candidate windows are date-relative, so the
+    // memo must recompute rather than serve yesterday's daily metrics.
+    const gen = new Date('2026-07-20T00:00:00Z');
+    mocks.getAllPrototypes.mockResolvedValue(okResult(dataset(3), gen));
+
+    const day1 = new Date('2026-07-20T03:00:00Z'); // JST 2026-07-20 12:00
+    const day2 = new Date('2026-07-21T03:00:00Z'); // JST 2026-07-21 12:00
+
+    await analysisRepository.getHelloWorldAnalysis(day1);
+    const callsAfterDay1 = mocks.buildHelloWorldInsights.mock.calls.length;
+    await analysisRepository.getHelloWorldAnalysis(day2);
+
+    expect(mocks.buildHelloWorldInsights.mock.calls.length).toBe(
+      callsAfterDay1 + 1,
+    );
+  });
 });
