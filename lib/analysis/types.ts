@@ -71,6 +71,10 @@ export type AnniversaryCandidatePrototype = {
   title: string;
   /** Release date in ISO 8601 format */
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**

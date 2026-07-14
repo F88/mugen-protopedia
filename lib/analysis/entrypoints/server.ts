@@ -330,6 +330,8 @@ export function buildAnniversaryCandidates(
       id: p.id,
       title: p.prototypeNm,
       releaseDate: p.releaseDate,
+      teamNm: p.teamNm,
+      users: p.users,
     }));
   const metadata = {
     computedAt: referenceDate.toISOString(),

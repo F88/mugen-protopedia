@@ -237,7 +237,15 @@ describe('analyzePrototypesForServer', () => {
           toISO: '2024-01-16T23:59:59.999Z',
         },
       },
-      mmdd: [{ id: 1, title: 'Proto', releaseDate: '2024-01-03T00:00:00Z' }],
+      mmdd: [
+        {
+          id: 1,
+          title: 'Proto',
+          releaseDate: '2024-01-03T00:00:00Z',
+          teamNm: '',
+          users: ['Proto Maker@protomaker'],
+        },
+      ],
     };
     const buildAnniversaryCandidatesOverride = vi
       .fn<typeof serverModule.buildAnniversaryCandidates>()

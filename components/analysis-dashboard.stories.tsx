@@ -77,6 +77,8 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
         id: prototype.id,
         title: prototype.prototypeNm ?? '',
         releaseDate: prototype.releaseDate,
+        teamNm: prototype.teamNm,
+        users: prototype.users,
       })),
   } as const;
 

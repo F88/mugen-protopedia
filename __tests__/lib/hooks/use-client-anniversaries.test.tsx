@@ -23,8 +23,20 @@ describe('useClientAnniversaries', () => {
         },
       },
       mmdd: [
-        { id: 1, title: 'p1', releaseDate: '2020-01-01T00:00:00.000Z' },
-        { id: 2, title: 'p2', releaseDate: '2020-01-02T00:00:00.000Z' },
+        {
+          id: 1,
+          title: 'p1',
+          releaseDate: '2020-01-01T00:00:00.000Z',
+          teamNm: '',
+          users: ['p1 maker@p1maker'],
+        },
+        {
+          id: 2,
+          title: 'p2',
+          releaseDate: '2020-01-02T00:00:00.000Z',
+          teamNm: '',
+          users: ['p2 maker@p2maker'],
+        },
       ],
     },
   });
