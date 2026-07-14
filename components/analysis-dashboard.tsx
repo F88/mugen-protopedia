@@ -2,7 +2,11 @@ import { useCallback, useState } from 'react';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import {
+  buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 
 import './analysis-dashboard.css';
@@ -259,6 +263,24 @@ function BirthdayPrototypes({
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <span>Born in {releaseYear}</span>
                   </div>
+                  <div className="flex flex-wrap items-baseline gap-x-2 text-xs text-gray-600 dark:text-gray-400">
+                    {prototype.teamNm !== '' ? (
+                      <span className="whitespace-nowrap">
+                        🏛️ {prototype.teamNm}
+                      </span>
+                    ) : null}
+                    {prototype.users.length > 0 ? (
+                      <span>
+                        🥼{' '}
+                        {prototype.users.map((user, idx) => (
+                          <span key={`${user}-${idx}`}>
+                            {idx > 0 ? ' ' : ''}
+                            <MakerName user={user} />
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -281,6 +303,27 @@ function BirthdayPrototypes({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across the app.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-green-600 dark:hover:text-green-400"
+    >
+      {name}
+    </a>
   );
 }
 
@@ -360,6 +403,24 @@ function NewbornPrototypes({
                   </a>
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <span>ID: {prototype.id}</span>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-x-2 text-xs text-gray-600 dark:text-gray-400">
+                    {prototype.teamNm !== '' ? (
+                      <span className="whitespace-nowrap">
+                        🏛️ {prototype.teamNm}
+                      </span>
+                    ) : null}
+                    {prototype.users.length > 0 ? (
+                      <span>
+                        🥼{' '}
+                        {prototype.users.map((user, idx) => (
+                          <span key={`${user}-${idx}`}>
+                            {idx > 0 ? ' ' : ''}
+                            <MakerName user={user} />
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </div>

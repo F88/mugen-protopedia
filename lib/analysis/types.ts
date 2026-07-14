@@ -33,6 +33,10 @@ export type BirthdayPrototype = {
   title: string;
   years: number;
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**
@@ -44,6 +48,10 @@ export type NewbornPrototype = {
   id: number;
   title: string;
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**

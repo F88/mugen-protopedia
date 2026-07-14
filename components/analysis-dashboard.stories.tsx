@@ -192,6 +192,11 @@ const newborns7Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
     id: 2000 + index,
     title: `Fresh Prototype ${index + 1} with an exceptionally detailed and long title`,
     releaseDate: randomTimeTodayISOString(),
+    teamNm: `Fresh Team ${index + 1}`,
+    users: [
+      `Fresh Maker ${index + 1}@freshmaker${index + 1}`,
+      `Fresh Maker ${index + 1}@freshmaker${index + 1}`,
+    ],
   }));
 
 const newborns4Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
@@ -199,6 +204,8 @@ const newborns4Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
     id: 2000 + index,
     title: `Brand New Prototype ${index + 1}`,
     releaseDate: randomTimeTodayISOString(),
+    teamNm: '',
+    users: [`Brand New Maker ${index + 1}@brandnewmaker${index + 1}`],
   }));
 
 const withMockState = (state: MockAnalysisState = {}) => ({
@@ -341,6 +348,10 @@ export const ManyBirthdays: Story = {
               title: `Celebration Prototype ${index + 1} with a very long descriptive title to wrap`,
               years,
               releaseDate: releaseDateForYearsAgo(years),
+              teamNm: '',
+              users: [
+                `Celebration Maker ${index + 1}@celebrationmaker${index + 1}`,
+              ],
             };
           },
         );
@@ -389,6 +400,10 @@ export const BirthdaysAndNewborns: Story = {
               title: `Anniversary Prototype ${index + 1}`,
               years,
               releaseDate: releaseDateForYearsAgo(years),
+              teamNm: '',
+              users: [
+                `Anniversary Maker ${index + 1}@anniversarymaker${index + 1}`,
+              ],
             };
           },
         );
@@ -422,6 +437,10 @@ export const NoBirthdays: Story = {
             id: 3000 + index,
             title: `Only Newborn Prototype ${index + 1}`,
             releaseDate: randomTimeTodayISOString(),
+            teamNm: '',
+            users: [
+              `Only Newborn Maker ${index + 1}@onlynewbornmaker${index + 1}`,
+            ],
           }),
         );
         draft.anniversaries.newbornCount =
@@ -453,6 +472,10 @@ export const NoNewborns: Story = {
               title: `Only Birthday Prototype ${index + 1}`,
               years,
               releaseDate: releaseDateForYearsAgo(years),
+              teamNm: '',
+              users: [
+                `Only Birthday Maker ${index + 1}@onlybirthdaymaker${index + 1}`,
+              ],
             };
           },
         );
@@ -526,6 +549,8 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
         title: faker.commerce.productName(),
         years,
         releaseDate: releaseDateForYearsAgo(years),
+        teamNm: '',
+        users: [`${faker.person.firstName()}@${faker.internet.username()}`],
       };
     },
     { count: 12 },
@@ -546,6 +571,8 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
         id: 6000 + index,
         title: faker.commerce.productName(),
         releaseDate,
+        teamNm: '',
+        users: [`${faker.person.firstName()}@${faker.internet.username()}`],
       };
     },
     { count: 8 },

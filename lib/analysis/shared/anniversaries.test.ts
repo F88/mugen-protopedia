@@ -28,6 +28,8 @@ describe('buildAnniversaries', () => {
         title: 'Birthday',
         years: 24,
         releaseDate: '2000-01-01',
+        teamNm: '',
+        users: [],
       },
     ]);
     expect(result.newbornPrototypes).toEqual([
@@ -35,6 +37,8 @@ describe('buildAnniversaries', () => {
         id: 2,
         title: 'Today',
         releaseDate: '2025-11-28',
+        teamNm: '',
+        users: [],
       },
     ]);
     expect(logger.debug).toHaveBeenCalled();
@@ -44,10 +48,23 @@ describe('buildAnniversaries', () => {
 describe('buildAnniversarySlice', () => {
   it('summarizes counts and keeps raw arrays', () => {
     const birthdayPrototypes = [
-      { id: 1, title: 'b', years: 1, releaseDate: '2000-01-01' },
+      {
+        id: 1,
+        title: 'b',
+        years: 1,
+        releaseDate: '2000-01-01',
+        teamNm: '',
+        users: ['b maker@bmaker'],
+      },
     ];
     const newbornPrototypes = [
-      { id: 2, title: 'n', releaseDate: '2025-11-28' },
+      {
+        id: 2,
+        title: 'n',
+        releaseDate: '2025-11-28',
+        teamNm: '',
+        users: ['n maker@nmaker'],
+      },
     ];
 
     const slice = buildAnniversarySlice(birthdayPrototypes, newbornPrototypes, {
