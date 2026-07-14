@@ -285,6 +285,23 @@ renders is allowed, but must never run on the home render path. See also the
 > functions are thin wrappers that delegate to it, so all analysis-data access is
 > uniform.
 
+**Caching / memoization.** Repository methods recompute per call by default, and
+that is fine: the expensive part (`getAllPrototypes()`) is already snapshot-cached,
+so re-running a builder over the same in-memory dataset is cheap. Add an in-memory
+memo **only** when a surface's build is genuinely expensive _and_ re-requested
+within a fetch window (Hello World is the only one that does today). When you do
+memoize:
+
+- Key on the **dataset generation** (`lastFetchedAt`, handed to builders by the
+  repository's `withPrototypes` wrapper), **not** `data.length`. A same-count
+  content change (an edit, or +1 / -1) advances the generation and must invalidate
+  the memo — a length proxy silently serves stale insights.
+- Also include the **JST calendar day of `now`** when the output is date-relative
+  (creation streaks, anniversary-candidate windows). Otherwise the memo serves
+  yesterday's daily metrics across a midnight rollover. Derive the day via the
+  shared analysis "today" logic (`createLifecycleMomentContext(...).yyyymmdd`), not
+  a raw UTC/local slice — the analysis subsystem's "today" is JST.
+
 ## Key Differences from Main App
 
 | Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |
@@ -333,6 +350,16 @@ renders is allowed, but must never run on the home render path. See also the
     - Use appropriate font and color scheme
     - Cards can also link to external sites (absolute URL) — see
       [Observatory Top Page Cards](#6-observatory-top-page-cards-observatorycard)
+
+6. **Wire the page's analysis (if it is data-heavy):**
+    - Add `app/actions/observatory/<page>-analysis.ts` returning
+      `AnalysisResult<T>`, delegating to a new `AnalysisRepository` method.
+    - Put the page's insight builders under `lib/observatory/<page>/`, with any
+      blocks shared across the page's surfaces in `<page>/blocks/`.
+    - Do **not** extend `AnalysisOverview` or read the home analysis. See
+      [Analysis Data Ownership & the Analysis Repository](#7-analysis-data-ownership--the-analysis-repository)
+      (including the caching / memoization rules) and the `create-observatory-page`
+      skill.
 
 ### Naming Conventions
 

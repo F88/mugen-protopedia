@@ -143,6 +143,12 @@ Instead:
 - **Only reach for `getAnalysisOverview()`** when your page genuinely wants the
   base analysis that the top page already computes — not as a convenient bag to
   extend.
+- **If you memoize a repository build, key on the dataset generation
+  (`lastFetchedAt`), not `data.length`** — a same-count content change must
+  invalidate it. Include the JST day of `now`
+  (`createLifecycleMomentContext(...).yyyymmdd`) when the output is date-relative
+  (streaks, anniversary windows), or it goes stale at midnight. See the
+  "Caching / memoization" note in `docs/observatory/observatory-architecture.md`.
 
 ## Repo conventions (do not skip)
 
