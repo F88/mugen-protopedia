@@ -109,7 +109,7 @@ describe('analyzePrototypesForServer', () => {
       fromISO: '2024-01-14T00:00:00.000Z',
       toISO: '2024-01-16T23:59:59.999Z',
     });
-    expect(result.createTimeDistribution).toEqual({
+    expect(result.releaseTimeDistribution).toEqual({
       dayOfWeek: [],
       hour: [],
       heatmap: [],
@@ -136,25 +136,20 @@ describe('analyzePrototypesForServer', () => {
     };
     const buildTagAnalyticsMock = vi.fn(() => tagAnalyticsResult);
 
-    const teamAnalyticsResult = {
-      teams: {
-        topTeams: [{ team: 'Team', count: 1 }],
-        teamCounts: { Team: 1 },
-      },
-    };
-    const buildUserTeamAnalyticsMock = vi.fn(() => teamAnalyticsResult);
-
     const materialAnalyticsResult = {
       topMaterials: [{ material: 'Paper', count: 1 }],
       materialCounts: { Paper: 1 },
     };
     const buildMaterialAnalyticsMock = vi.fn(() => materialAnalyticsResult);
 
+    const maternityHospitalResult = { topEvents: [], independentRatio: 0 };
+    const buildMaternityHospitalMock = vi.fn(() => maternityHospitalResult);
+
     vi.doMock('../batch', () => ({
       buildCoreSummaries: buildCoreSummariesMock,
       buildTagAnalytics: buildTagAnalyticsMock,
-      buildUserTeamAnalytics: buildUserTeamAnalyticsMock,
       buildMaterialAnalytics: buildMaterialAnalyticsMock,
+      buildMaternityHospital: buildMaternityHospitalMock,
     }));
 
     const timeDistributionsResult = {
@@ -194,29 +189,7 @@ describe('analyzePrototypesForServer', () => {
     };
     const calculateCreationStreakMock = vi.fn(() => creationStreakResult);
 
-    const advancedAnalysisResult = {
-      firstPenguins: [],
-      starAlignments: [],
-      anniversaryEffect: [],
-      earlyAdopters: [],
-      laborOfLove: { longestGestation: [], distribution: {} },
-      maternityHospital: { topEvents: [], independentRatio: 0 },
-      powerOfDeadlines: { spikes: [] },
-      weekendWarrior: {
-        weekendHourlyCounts: [],
-        totalWeekendCount: 0,
-      },
-      holyDay: { topDays: [] },
-      longTermEvolution: {
-        longestMaintenance: [],
-        averageMaintenanceDays: 0,
-        maintenanceRatio: 0,
-      },
-    };
-    const buildAdvancedAnalysisMock = vi.fn(() => advancedAnalysisResult);
-
     vi.doMock('../core', () => ({
-      buildAdvancedAnalysis: buildAdvancedAnalysisMock,
       buildTimeDistributions: buildTimeDistributionsMock,
       buildDateBasedPrototypeInsights: buildDateBasedPrototypeInsightsMock,
       calculateCreationStreak: calculateCreationStreakMock,
@@ -280,9 +253,6 @@ describe('analyzePrototypesForServer', () => {
     expect(buildTagAnalyticsMock).toHaveBeenCalledWith(prototypes, {
       logger: childLogger,
     });
-    expect(buildUserTeamAnalyticsMock).toHaveBeenCalledWith(prototypes, {
-      logger: childLogger,
-    });
     expect(buildMaterialAnalyticsMock).toHaveBeenCalledWith(prototypes, {
       logger: childLogger,
     });
@@ -306,11 +276,9 @@ describe('analyzePrototypesForServer', () => {
         dailyCounts: timeDistributionsResult.releaseDateDistribution.daily,
       },
     );
-    expect(buildAdvancedAnalysisMock).toHaveBeenCalledWith(
-      prototypes,
-      tagAnalyticsResult.topTags,
-      { logger: childLogger },
-    );
+    expect(buildMaternityHospitalMock).toHaveBeenCalledWith(prototypes, {
+      logger: childLogger,
+    });
 
     expect(result.statusDistribution).toBe(
       coreSummariesResult.statusDistribution,
@@ -320,24 +288,18 @@ describe('analyzePrototypesForServer', () => {
     );
     expect(result.averageAgeInDays).toBe(coreSummariesResult.averageAgeInDays);
     expect(result.topTags).toBe(tagAnalyticsResult.topTags);
-    expect(result.topTeams).toBe(teamAnalyticsResult.teams.topTeams);
     expect(result.topMaterials).toBe(materialAnalyticsResult.topMaterials);
     expect(result.anniversaryCandidates).toBe(candidatesResult);
-    expect(result.createDateDistribution).toBe(
-      timeDistributionsResult.createDateDistribution,
-    );
     expect(result.releaseTimeDistribution).toBe(
       timeDistributionsResult.releaseTimeDistribution,
     );
-    expect(result.updateDateDistribution).toBe(
-      timeDistributionsResult.updateDateDistribution,
+    expect(result.updateTimeDistribution).toBe(
+      timeDistributionsResult.updateTimeDistribution,
     );
     expect(result.creationStreak).toBe(creationStreakResult);
-    expect(result.longTermEvolution).toBe(
-      advancedAnalysisResult.longTermEvolution,
-    );
+    expect(result.maternityHospital).toBe(maternityHospitalResult);
     const metrics = result._debugMetrics ?? {};
     expect(metrics.coreSummaries).toBe(0);
-    expect(metrics.advancedAnalysis).toBe(0);
+    expect(metrics.maternityHospital).toBe(0);
   });
 });

@@ -7,13 +7,12 @@
  * allowing WebApp components to retrieve analysis insights without re-computation.
  */
 
-import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
 import { logger as baseLogger } from '@/lib/logger.server';
 import {
   analysisCache,
   type CachedAnalysis,
 } from '@/lib/stores/analysis-cache';
-import { analyzePrototypesForServer } from '@/lib/analysis/entrypoints/server';
+import { analysisRepository } from '@/lib/repositories/analysis-repository';
 import type { ServerPrototypeAnalysis } from '@/lib/analysis/types';
 
 /**
@@ -82,44 +81,6 @@ const serializeCachedAnalysis = (cached: CachedAnalysis) => ({
   key: cached.key,
 });
 
-const pad2 = (value: number) => (value < 10 ? `0${value}` : String(value));
-
-const buildTimezoneSnapshot = (now: Date) => {
-  const tz = (() => {
-    try {
-      return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'unknown';
-    } catch {
-      return 'unknown';
-    }
-  })();
-  const offsetMin = -now.getTimezoneOffset();
-  const sign = offsetMin >= 0 ? '+' : '-';
-  const absMin = Math.abs(offsetMin);
-  const offset = `${sign}${pad2(Math.trunc(absMin / 60))}:${pad2(absMin % 60)}`;
-
-  return {
-    timeZone: tz,
-    offsetMinutes: offsetMin,
-    offset,
-    nowUTC: now.toISOString(),
-    nowLocal: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}T${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}${offset}`,
-    todayLocalYMD: `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`,
-    todayUTCYMD: now.toISOString().slice(0, 10),
-  };
-};
-
-const buildAnalysisSummary = (
-  analysis: ServerPrototypeAnalysis,
-  elapsedMs: number,
-) => ({
-  totalCount: analysis.totalCount,
-  statusKinds: Object.keys(analysis.statusDistribution).length,
-  uniqueTags: analysis.topTags.length,
-  uniqueTeams: analysis.topTeams.length,
-  averageAgeInDays: analysis.averageAgeInDays,
-  elapsedMs,
-});
-
 const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
   overview: {
     totalCount: analysis.totalCount,
@@ -131,27 +92,14 @@ const buildAnalysisDebugSample = (analysis: ServerPrototypeAnalysis) => ({
   rankings: {
     topTags: analysis.topTags,
     topMaterials: analysis.topMaterials,
-    topTeams: analysis.topTeams,
   },
   temporal: {
-    createDateDistribution: analysis.createDateDistribution,
-    createTimeDistribution: analysis.createTimeDistribution,
-    releaseDateDistribution: analysis.releaseDateDistribution,
     releaseTimeDistribution: analysis.releaseTimeDistribution,
-    updateDateDistribution: analysis.updateDateDistribution,
     updateTimeDistribution: analysis.updateTimeDistribution,
     creationStreak: analysis.creationStreak,
   },
   insights: {
-    earlyAdopters: analysis.earlyAdopters,
-    firstPenguins: analysis.firstPenguins,
-    starAlignments: analysis.starAlignments,
-    anniversaryEffect: analysis.anniversaryEffect,
-    laborOfLove: analysis.laborOfLove,
     maternityHospital: analysis.maternityHospital,
-    powerOfDeadlines: analysis.powerOfDeadlines,
-    weekendWarrior: analysis.weekendWarrior,
-    holyDay: analysis.holyDay,
   },
   technical: {
     anniversaryCandidates: analysis.anniversaryCandidates,
@@ -192,130 +140,10 @@ const logAnalysisDebugSample = (
 export async function getLatestAnalysis(options?: {
   forceRecompute?: boolean;
 }): Promise<GetAnalysisResult> {
-  const logger = baseLogger.child({ action: 'getLatestAnalysis' });
-  const startTime = performance.now();
-
-  const forceRecompute = options?.forceRecompute === true;
-  logger.debug(
-    { forceRecompute },
-    'Getting latest analysis (cache + recompute control)',
-  );
-
-  let cached: CachedAnalysis | null = null;
-  let computedDuringCall = false;
-
-  if (!forceRecompute) {
-    cached = analysisCache.getLatest();
-  }
-
-  if (!cached) {
-    const hydrationStart = performance.now();
-    logger.debug(
-      forceRecompute
-        ? 'Force recompute requested, hydrating prototype map'
-        : 'No cached analysis found, attempting to hydrate from prototype map',
-    );
-
-    const hydrateResult = await getAllPrototypes();
-    const hydrationElapsedMs =
-      Math.round((performance.now() - hydrationStart) * 100) / 100;
-
-    if (!hydrateResult.ok) {
-      logger.warn(
-        {
-          status: hydrateResult.status,
-          error: hydrateResult.error,
-          hydrationElapsedMs,
-        },
-        'Failed to hydrate analysis from prototype map',
-      );
-    } else {
-      logger.info(
-        {
-          count: hydrateResult.data.length,
-          hydrationElapsedMs,
-        },
-        'Prototype map hydrated while retrieving latest analysis',
-      );
-
-      if (hydrateResult.data.length > 0) {
-        const analysisStart = performance.now();
-        const analysis = analyzePrototypesForServer(hydrateResult.data, {
-          logger,
-        });
-        const analysisElapsedMs =
-          Math.round((performance.now() - analysisStart) * 100) / 100;
-
-        analysisCache.set(analysis, {
-          limit: hydrateResult.data.length,
-          offset: 0,
-          totalCount: hydrateResult.data.length,
-        });
-
-        logger.info(
-          {
-            analysisTotalCount: analysis.totalCount,
-            analysisElapsedMs,
-          },
-          'Generated analysis during cache hydration',
-        );
-        computedDuringCall = true;
-      }
-    }
-
-    cached = analysisCache.getLatest();
-  }
-
-  if (!cached) {
-    logger.debug('No analysis found in cache after hydration attempt');
-    return {
-      ok: false,
-      error: 'No analysis available in cache',
-    };
-  }
-
-  const elapsedMs = Math.round((performance.now() - startTime) * 100) / 100;
-
-  logger.info(
-    {
-      totalCount: cached.analysis.totalCount,
-      cachedAt: cached.cachedAt,
-      elapsedMs,
-      hasReleaseTimeDistribution: !!cached.analysis.releaseTimeDistribution, // DEBUG
-      hasReleaseDateDistribution: !!cached.analysis.releaseDateDistribution, // DEBUG
-      hasUpdateDateDistribution: !!cached.analysis.updateDateDistribution, // DEBUG
-    },
-    'Latest analysis retrieved from cache',
-  );
-
-  // Emit a summary log even when using cached analysis (to mirror the
-  // analyzePrototypes info line) if we did not compute it during this call.
-  if (!computedDuringCall) {
-    const now = new Date();
-    logger.info(
-      {
-        environment: { runtime: 'server', source: 'cache' },
-        timezone: buildTimezoneSnapshot(now),
-        summary: buildAnalysisSummary(cached.analysis, elapsedMs),
-      },
-      'Prototype analysis completed (timezone + summary)',
-    );
-  }
-
-  // Temporaly disabled (do not remove) because it is too verbose for production logs, but useful for debugging.
-  //
-  // logAnalysisDebugSample(
-  //   logger,
-  //   cached.analysis,
-  //   'Returning latest analysis payload',
-  //   'Failed to build debug sample for latest analysis',
-  // );
-  return {
-    ok: true,
-    data: cached.analysis,
-    cachedAt: cached.cachedAt.toISOString(),
-    params: cached.params,
-  };
+  // Delegates to the Analysis Repository, which owns the home fetch + compute +
+  // cache. Kept as a server action so existing consumers (the dashboard hook)
+  // and the API surface are unchanged.
+  return analysisRepository.getHomeAnalysis(options);
 }
 
 /**

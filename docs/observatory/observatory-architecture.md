@@ -235,6 +235,53 @@ defines `gradient`, `cardBg`, `iconBg`, `iconText`, `hoverText`, `linkText`,
 `textColor`, and `descriptionColor` (with light/dark variants). The `hoverText`
 color must differ from `textColor`, or the hover state has no visible effect.
 
+### 7. Analysis Data Ownership & the Analysis Repository
+
+Observatory pages are data-heavy: each renders analysis computed from the full
+prototype dataset (up to ~10k). To keep the main app home page (`/`) fast, that
+analysis work is deliberately partitioned by **who renders it**, and accessed
+through the **Analysis Repository** (`lib/repositories/analysis-repository.ts`,
+a sibling of `promidas-repository.ts`).
+
+**Ownership rule (do not break this):**
+
+- The **base/home analysis** (`analyzePrototypesForServer` via the repository's
+  `getHomeAnalysis`, cached in `lib/stores/analysis-cache.ts`; `getLatestAnalysis`
+  is a thin action wrapper) is owned by and scoped to the home page `/`. It must
+  contain only the metrics the home dashboard renders
+  (Newborns/Birthdays candidates, basic counts, Prototype Status, Maker's Rhythm,
+  and — pending review — Community Trends). **Do not add Observatory-specific
+  fields to it**; doing so makes every main-page-only visitor pay to compute data
+  they never see.
+- Each **Observatory page builds its own analysis on demand** through an
+  `app/actions/observatory/<page>-analysis.ts` action that delegates to a builder
+  in `lib/observatory/` (or, going forward, to an `AnalysisRepository` method).
+  It shares only the raw dataset via `getAllPrototypes()` (the expensive fetch is
+  already cached) and must **not** read `getLatestAnalysis` or extend
+  `ServerPrototypeAnalysis`.
+- **Reuse is fine when rational.** Data genuinely shared across surfaces should
+  live as a single repository accessor (owned by the repo, not a page), so the
+  first caller computes it and the rest reuse it — no page bears another page's
+  cost, and there is no page-to-page dependency.
+
+**Pattern to follow:** each Observatory action (`app/actions/observatory/*-analysis.ts`)
+is a thin wrapper over an `AnalysisRepository` method. The Alchemist's Table
+(`material-analysis.ts` / `elemental-chronicles-analysis.ts` /
+`circle-of-masters-analysis.ts` → `analysisRepository.get*()` →
+`build-material-insights.ts` / `build-chronicles-insights.ts` /
+`build-circle-insights.ts` / `build-user-insights.ts`) and Hello World
+(`hello-world-analysis.ts` → `analysisRepository.getHelloWorldAnalysis()` →
+`build-hello-world-insights.ts`) both follow this. Independent builders duplicate
+CPU but not the fetch — an acceptable trade that is strongly preferred over
+coupling the home render path. Optional background pre-generation after `/`
+renders is allowed, but must never run on the home render path. See also the
+`create-observatory-page` skill.
+
+> Note: the Analysis Repository owns every analysis surface — the home page
+> (`getHomeAnalysis`), Hello World, and The Alchemist's Table. The `app/actions/*`
+> functions are thin wrappers that delegate to it, so all analysis-data access is
+> uniform.
+
 ## Key Differences from Main App
 
 | Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |

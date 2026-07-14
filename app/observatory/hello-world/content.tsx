@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { getLatestAnalysis } from '@/app/actions/analysis';
+import { getHelloWorldAnalysis } from '@/app/actions/observatory/hello-world-analysis';
 import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 
 import { IconGlobe } from '@/app/observatory/shared/icons';
@@ -26,9 +26,9 @@ import { StarAlignmentSection2 } from './components/star-alignment-section-2';
 import { WeekendWarriorSection } from './components/weekend-warrior-section';
 
 async function HelloWorldDashboard() {
-  // Force recompute to ensure we have the latest analysis logic including Maker's Rhythm
-  // const result = await getLatestAnalysis({ forceRecompute: true });
-  const result = await getLatestAnalysis({ forceRecompute: false });
+  // Hello World builds its own analysis on demand via the Analysis Repository,
+  // independent of the home page's base analysis.
+  const result = await getHelloWorldAnalysis();
 
   if (!result.ok) {
     return (

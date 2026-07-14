@@ -12,12 +12,8 @@
  * lazily at access time without touching the base analysis.
  */
 
-import { getAllPrototypes } from '@/app/actions/prototypes-gateway';
-import {
-  buildMaterialInsights,
-  type MaterialInsights,
-} from '@/lib/observatory/build-material-insights';
-import { logger as baseLogger } from '@/lib/logger.server';
+import { analysisRepository } from '@/lib/repositories/analysis-repository';
+import type { MaterialInsights } from '@/lib/observatory/build-material-insights';
 
 /** Material frequency histogram plus all derived insights for the page. */
 export type MaterialAnalysisData = MaterialInsights;
@@ -42,24 +38,10 @@ export type GetMaterialAnalysisResult =
   GetMaterialAnalysisSuccess | GetMaterialAnalysisFailure;
 
 /**
- * Compute material insights for Observatory material-centric pages.
- *
- * Fetches the shared prototype dataset via {@link getAllPrototypes} and runs
- * {@link buildMaterialInsights} in a SINGLE pass (frequency histogram + yearly /
- * monthly per-material data + all sections). Does not run, or depend on, the
- * base server analysis.
+ * Compute material insights for Observatory material-centric pages, via the
+ * Analysis Repository (which owns the shared fetch + builder composition). Does
+ * not run, or depend on, the base server analysis.
  */
 export async function getMaterialAnalysis(): Promise<GetMaterialAnalysisResult> {
-  const logger = baseLogger.child({ action: 'getMaterialAnalysis' });
-
-  const result = await getAllPrototypes();
-  if (!result.ok) {
-    logger.warn(
-      { status: result.status, error: result.error },
-      '[MATERIAL-ANALYSIS] Failed to load prototypes',
-    );
-    return { ok: false, error: result.error };
-  }
-
-  return { ok: true, data: buildMaterialInsights(result.data, { logger }) };
+  return analysisRepository.getMaterialAnalysis();
 }
