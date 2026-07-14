@@ -13,6 +13,5 @@ export * from './build-maternity-hospital';
 export * from './build-time-distributions';
 export * from './build-tag-analytics';
 export * from './build-material-analytics';
-export * from './build-user-team-analytics';
 export * from './build-core-summaries';
 export * from './collect-unique-release-dates';
