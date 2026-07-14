@@ -102,7 +102,8 @@ describe('buildAdvancedAnalysis', () => {
         id: 1,
         title: 'First Light',
         releaseDate: iso('2023-12-31T15:00:00Z'),
-        user: 'Team One',
+        teamNm: 'Team One',
+        users: ['Alice'],
       },
     });
     expect(result.firstPenguins[1]).toMatchObject({
@@ -132,8 +133,18 @@ describe('buildAdvancedAnalysis', () => {
 
     expect(result.earlyAdopters).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ tag: 'AI', prototypeId: 2 }),
-        expect.objectContaining({ tag: 'Art', prototypeId: 3 }),
+        expect.objectContaining({
+          tag: 'AI',
+          prototypeId: 2,
+          teamNm: 'Team Two',
+          users: ['Bob'],
+        }),
+        expect.objectContaining({
+          tag: 'Art',
+          prototypeId: 3,
+          teamNm: '',
+          users: ['Charlie'],
+        }),
       ]),
     );
 

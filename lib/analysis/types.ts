@@ -219,6 +219,10 @@ export type ServerPrototypeAnalysis = {
     prototypeId: number;
     prototypeTitle: string;
     releaseDate: string;
+    /** Team name, or an empty string when the work has no team. */
+    teamNm: string;
+    /** All makers ("表示名@profileId" elements); always shown in full. */
+    users: readonly string[];
   }>;
 
   /** First Penguin analysis (First release of each year) */
@@ -228,7 +232,10 @@ export type ServerPrototypeAnalysis = {
       id: number;
       title: string;
       releaseDate: string;
-      user: string; // First user name or team name
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     };
   }>;
 
@@ -258,6 +265,10 @@ export type ServerPrototypeAnalysis = {
       durationDays: number;
       createDate: string;
       releaseDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     /** Distribution of gestation periods */
     distribution: Record<string, number>;
@@ -308,6 +319,10 @@ export type ServerPrototypeAnalysis = {
       maintenanceDays: number;
       releaseDate: string;
       updateDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     /** Average maintenance period in days */
     averageMaintenanceDays: number;

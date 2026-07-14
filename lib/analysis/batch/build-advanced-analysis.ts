@@ -30,7 +30,10 @@ export type AdvancedAnalysis = {
       id: number;
       title: string;
       releaseDate: string;
-      user: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     };
   }>;
   /**
@@ -57,6 +60,10 @@ export type AdvancedAnalysis = {
     prototypeId: number;
     prototypeTitle: string;
     releaseDate: string;
+    /** Team name, or an empty string when the work has no team. */
+    teamNm: string;
+    /** All makers ("表示名@profileId" elements); always shown in full. */
+    users: readonly string[];
   }>;
   /**
    * Gestation durations from creation to release and category distribution.
@@ -68,6 +75,10 @@ export type AdvancedAnalysis = {
       durationDays: number;
       createDate: string;
       releaseDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     distribution: Record<string, number>;
   };
@@ -107,6 +118,10 @@ export type AdvancedAnalysis = {
       maintenanceDays: number;
       releaseDate: string;
       updateDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     averageMaintenanceDays: number;
     maintenanceRatio: number;
@@ -216,6 +231,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     durationDays: number;
     createDate: string;
     releaseDate: string;
+    teamNm: string;
+    users: readonly string[];
   }> = [];
   const gestationDistribution: Record<string, number> = {
     'Less than 1 week': 0,
@@ -243,6 +260,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
     maintenanceDays: number;
     releaseDate: string;
     updateDate: string;
+    teamNm: string;
+    users: readonly string[];
   }> = [];
   let totalMaintenanceDays = 0;
   let prototypesWithMaintenance = 0;
@@ -366,6 +385,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       durationDays: diffDays,
       createDate: prototype.createDate,
       releaseDate: prototype.releaseDate,
+      teamNm: prototype.teamNm,
+      users: prototype.users,
     });
 
     if (diffDays < 7) {
@@ -453,6 +474,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
       maintenanceDays: diffDays,
       releaseDate: release.iso,
       updateDate: update.iso,
+      teamNm: prototype.teamNm,
+      users: prototype.users,
     });
   }
 
@@ -546,11 +569,10 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
           id: record.prototype.id,
           title: record.prototype.prototypeNm,
           releaseDate: record.prototype.releaseDate!,
-          user:
-            record.prototype.teamNm ||
-            (record.prototype.users && record.prototype.users.length > 0
-              ? record.prototype.users[0]
-              : 'Unknown Creator'),
+          // Carry team and makers separately so the UI can show the team (when
+          // present) AND every maker — never collapse to a single author.
+          teamNm: record.prototype.teamNm,
+          users: record.prototype.users,
         },
       }));
   }
@@ -591,6 +613,8 @@ function createAdvancedCollectors(topTags: { tag: string; count: number }[]) {
         prototypeId: record.prototype.id,
         prototypeTitle: record.prototype.prototypeNm,
         releaseDate: record.prototype.releaseDate!,
+        teamNm: record.prototype.teamNm,
+        users: record.prototype.users,
       }))
       .sort((a, b) => Date.parse(a.releaseDate) - Date.parse(b.releaseDate));
   }

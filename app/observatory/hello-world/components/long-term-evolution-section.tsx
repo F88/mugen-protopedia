@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { buildUserLink, getUserDisplayName } from '@/lib/utils/prototype-utils';
+
 import { IconTree } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
@@ -12,11 +14,34 @@ type LongTermEvolutionSectionProps = {
       maintenanceDays: number;
       releaseDate: string;
       updateDate: string;
+      teamNm: string;
+      users: readonly string[];
     }>;
     averageMaintenanceDays: number;
     maintenanceRatio: number;
   };
 };
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across Observatory pages.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-emerald-600 dark:hover:text-emerald-400"
+    >
+      {name}
+    </a>
+  );
+}
 
 export function LongTermEvolutionSection({
   longTermEvolution,
@@ -107,6 +132,20 @@ export function LongTermEvolutionSection({
                       </a>
                     </div>
                     <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 space-y-0.5 pl-7 sm:pl-8">
+                      {proto.teamNm !== '' ? (
+                        <div>🏛️ {proto.teamNm}</div>
+                      ) : null}
+                      {proto.users.length > 0 ? (
+                        <div>
+                          🥼{' '}
+                          {proto.users.map((user, idx) => (
+                            <span key={`${user}-${idx}`}>
+                              {idx > 0 ? ', ' : ''}
+                              <MakerName user={user} />
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
                       <div>
                         Released:{' '}
                         {new Date(proto.releaseDate).toLocaleDateString(

@@ -1,5 +1,9 @@
 import { cn } from '@/lib/utils';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import {
+  buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 
 import { IconTelescope } from '../../shared/icons';
 import { helloWorldTheme } from '../theme';
@@ -11,8 +15,31 @@ type EarlyAdoptersSectionProps = {
     prototypeId: number;
     prototypeTitle: string;
     releaseDate: string;
+    teamNm: string;
+    users: readonly string[];
   }[];
 };
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across Observatory pages.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-blue-600 dark:hover:text-blue-400"
+    >
+      {name}
+    </a>
+  );
+}
 
 export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
   const titleClassName = cn(
@@ -79,12 +106,9 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {adopters.slice(0, 6).map((adopter) => (
-          <a
+          <div
             key={adopter.tag}
-            href={buildPrototypeLink(adopter.prototypeId)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block bg-white/80 dark:bg-gray-800/80 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-all"
+            className="bg-white/80 dark:bg-gray-800/80 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -94,11 +118,36 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
                 {new Date(adopter.releaseDate).getFullYear()}
               </span>
             </div>
-            <h3 className={titleClassName}>{adopter.prototypeTitle}</h3>
+            <a
+              href={buildPrototypeLink(adopter.prototypeId)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block"
+            >
+              <h3 className={titleClassName}>{adopter.prototypeTitle}</h3>
+            </a>
+            {/* Maker links live OUTSIDE the prototype anchor to avoid nesting
+                <a> inside <a> (invalid HTML). */}
+            <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              {adopter.teamNm !== '' ? (
+                <span className="block">🏛️ {adopter.teamNm}</span>
+              ) : null}
+              {adopter.users.length > 0 ? (
+                <span className="block">
+                  🥼{' '}
+                  {adopter.users.map((user, idx) => (
+                    <span key={`${user}-${idx}`}>
+                      {idx > 0 ? ', ' : ''}
+                      <MakerName user={user} />
+                    </span>
+                  ))}
+                </span>
+              ) : null}
+            </div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {new Date(adopter.releaseDate).toLocaleDateString()}
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </ObservatorySection>

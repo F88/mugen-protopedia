@@ -1,7 +1,11 @@
 import React from 'react';
 
 import { cn } from '@/lib/utils';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import {
+  buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 
 import { Bar } from '../../components/bar';
 
@@ -18,10 +22,33 @@ type LaborOfLoveSectionProps = {
       durationDays: number;
       createDate: string;
       releaseDate: string;
+      teamNm: string;
+      users: readonly string[];
     }>;
     distribution: Record<string, number>;
   };
 };
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across Observatory pages.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-pink-600 dark:hover:text-pink-400"
+    >
+      {name}
+    </a>
+  );
+}
 
 export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
   const { longestGestation, distribution } = laborOfLove;
@@ -79,19 +106,41 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
           </h3>
           <div className="space-y-3">
             {longestGestation.slice(0, 5).map((item, index) => (
-              <a
+              <div
                 key={item.id}
-                href={buildPrototypeLink(item.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between group hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
+                className="flex items-center justify-between hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   <span className="shrink-0 w-6 h-6 flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 rounded-full text-xs font-bold">
                     {index + 1}
                   </span>
                   <div className="min-w-0">
-                    <div className={titleClassName}>{item.title}</div>
+                    <a
+                      href={buildPrototypeLink(item.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block"
+                    >
+                      <div className={titleClassName}>{item.title}</div>
+                    </a>
+                    {/* Maker links live OUTSIDE the prototype anchor to avoid
+                        nesting <a> inside <a> (invalid HTML). */}
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {item.teamNm !== '' ? (
+                        <span className="block">🏛️ {item.teamNm}</span>
+                      ) : null}
+                      {item.users.length > 0 ? (
+                        <span className="block">
+                          🥼{' '}
+                          {item.users.map((user, idx) => (
+                            <span key={`${user}-${idx}`}>
+                              {idx > 0 ? ', ' : ''}
+                              <MakerName user={user} />
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
+                    </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(item.createDate).toLocaleDateString()} →{' '}
                       {new Date(item.releaseDate).toLocaleDateString()}
@@ -106,7 +155,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                     Days
                   </span>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
