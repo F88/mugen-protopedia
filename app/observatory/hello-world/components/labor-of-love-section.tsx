@@ -108,7 +108,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
             {longestGestation.slice(0, 5).map((item, index) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
+                className="group flex items-center justify-between hover:bg-white/50 dark:hover:bg-white/5 p-2 rounded-lg transition-colors"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   <span className="shrink-0 w-6 h-6 flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 rounded-full text-xs font-bold">
@@ -119,7 +119,7 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                       href={buildPrototypeLink(item.id)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group block"
+                      className="block"
                     >
                       <div className={titleClassName}>{item.title}</div>
                     </a>

@@ -108,7 +108,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
         {adopters.slice(0, 6).map((adopter) => (
           <div
             key={adopter.tag}
-            className="bg-white/80 dark:bg-gray-800/80 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-all"
+            className="group bg-white/80 dark:bg-gray-800/80 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-all"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -122,7 +122,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
               href={buildPrototypeLink(adopter.prototypeId)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block"
+              className="block"
             >
               <h3 className={titleClassName}>{adopter.prototypeTitle}</h3>
             </a>

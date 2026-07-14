@@ -194,8 +194,8 @@ const newborns7Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
     releaseDate: randomTimeTodayISOString(),
     teamNm: `Fresh Team ${index + 1}`,
     users: [
-      `Fresh Maker ${index + 1}@freshmaker${index + 1}`,
-      `Fresh Maker ${index + 1}@freshmaker${index + 1}`,
+      `Fresh Maker ${index + 1} A@freshmaker${index + 1}a`,
+      `Fresh Maker ${index + 1} B@freshmaker${index + 1}b`,
     ],
   }));
 

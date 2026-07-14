@@ -114,7 +114,7 @@ export function LongTermEvolutionSection({
             return (
               <div
                 key={proto.id}
-                className="bg-white/60 dark:bg-black/20 rounded-xl p-3 sm:p-4 border border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-300 dark:hover:border-emerald-600 transition-colors"
+                className="group bg-white/60 dark:bg-black/20 rounded-xl p-3 sm:p-4 border border-emerald-100 dark:border-emerald-800/30 hover:border-emerald-300 dark:hover:border-emerald-600 transition-colors"
               >
                 <div className="flex items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1 min-w-0">
@@ -126,7 +126,7 @@ export function LongTermEvolutionSection({
                         href={`https://protopedia.net/prototype/${proto.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 hover:text-emerald-600 dark:hover:text-emerald-400 hover:underline break-all line-clamp-2"
+                        className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 break-all line-clamp-2"
                       >
                         {proto.title}
                       </a>

@@ -85,7 +85,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
           {prototypes.map((proto) => (
             <div
               key={proto.id}
-              className="bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
+              className="group bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
             >
               <div className="flex justify-between items-start mb-3">
                 <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
@@ -103,7 +103,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
                 href={buildPrototypeLink(proto.id)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block"
+                className="block"
               >
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 line-clamp-2 transition-colors">
                   {proto.title}

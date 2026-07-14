@@ -68,9 +68,10 @@ export type AnniversariesSlice = {
 };
 
 /**
- * Minimal prototype data required for anniversary analysis.
- * Contains only the essential fields needed to determine if a prototype
- * is a birthday or newborn candidate in the user's timezone.
+ * Prototype data for anniversary analysis. Carries the fields needed to decide
+ * whether a prototype is a birthday or newborn candidate in the user's timezone
+ * (`id`, `title`, `releaseDate`), plus `teamNm` and `users` passed through for
+ * display of the team and makers.
  */
 export type AnniversaryCandidatePrototype = {
   /** Prototype ID */
@@ -106,7 +107,7 @@ export type AnniversaryCandidates = {
       toISO: string;
     };
   };
-  /** Minimal prototype data for month-day based anniversary detection */
+  /** Candidate prototypes for month-day based anniversary detection (carrying team/makers for display) */
   mmdd: AnniversaryCandidatePrototype[];
 };
 

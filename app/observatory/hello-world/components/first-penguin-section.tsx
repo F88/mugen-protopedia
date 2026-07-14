@@ -80,7 +80,7 @@ export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
         {penguins.map((penguin) => (
           <div
             key={penguin.year}
-            className="bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-cyan-100 dark:border-cyan-800/30 flex flex-col"
+            className="group bg-white/60 dark:bg-black/20 rounded-2xl p-6 border border-cyan-100 dark:border-cyan-800/30 flex flex-col"
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-2xl font-black text-cyan-600 dark:text-cyan-400">
@@ -94,7 +94,7 @@ export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
               href={buildPrototypeLink(penguin.prototype.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group"
+              className="block"
             >
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-2">
                 {penguin.prototype.title}
