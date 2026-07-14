@@ -9,6 +9,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Internal refactor (no behavior change): route all analysis through a single
+  `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
+  group Observatory insight builders by page under `lib/observatory/<page>/`.
+
 ## [2026.07.14]
 
 ### Changed
