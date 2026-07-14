@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.14]
+
 ### Changed
 
 - ProtoPedia Observatory - Hello World: Now shows the team and every maker for each work instead of a single collapsed author (or none):
