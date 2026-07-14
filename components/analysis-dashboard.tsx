@@ -2,7 +2,11 @@ import { useCallback, useState } from 'react';
 
 import { useClientAnniversaries } from '@/lib/hooks/use-client-anniversaries';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import {
+  buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 import { getPrototypeStatusLabel } from '@/lib/utils/value-to-label';
 
 import './analysis-dashboard.css';
@@ -239,7 +243,7 @@ function BirthdayPrototypes({
           return (
             <div
               key={prototype.id}
-              className="group relative flex items-center justify-between gap-3 rounded-lg border border-blue-100 bg-white p-2.5 shadow-xs transition-all hover:border-blue-300 hover:shadow-md dark:border-blue-900 dark:bg-gray-800/80 dark:hover:border-blue-700"
+              className="group relative flex items-center justify-between gap-3 rounded-lg border border-blue-100 bg-white px-2 py-1 shadow-xs transition-all hover:border-blue-300 hover:shadow-md dark:border-blue-900 dark:bg-gray-800/80 dark:hover:border-blue-700"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xl dark:bg-blue-900/30">
@@ -250,7 +254,7 @@ function BirthdayPrototypes({
                     href={buildPrototypeLink(prototype.id)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400 text-sm"
+                    className="font-semibold text-gray-900 hover:text-blue-600 hover:underline dark:text-gray-100 dark:hover:text-blue-400 text-sm py-1"
                   >
                     {prototype.title}
                   </a>
@@ -258,6 +262,24 @@ function BirthdayPrototypes({
                     <span>ID: {prototype.id}</span>
                     <span className="text-gray-300 dark:text-gray-600">•</span>
                     <span>Born in {releaseYear}</span>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-x-2 text-[10px] text-gray-600 dark:text-gray-400">
+                    {prototype.teamNm !== '' ? (
+                      <span className="whitespace-nowrap">
+                        🏛️ {prototype.teamNm}
+                      </span>
+                    ) : null}
+                    {prototype.users.length > 0 ? (
+                      <span>
+                        🥼{' '}
+                        {prototype.users.map((user, idx) => (
+                          <span key={`${user}-${idx}`}>
+                            {idx > 0 ? ' ' : ''}
+                            <MakerName user={user} />
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -281,6 +303,27 @@ function BirthdayPrototypes({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across the app.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-green-600 dark:hover:text-green-400"
+    >
+      {name}
+    </a>
   );
 }
 
@@ -343,7 +386,7 @@ function NewbornPrototypes({
           return (
             <div
               key={prototype.id}
-              className="group relative flex items-center justify-between gap-3 rounded-lg border border-green-100 bg-white p-2.5 shadow-xs transition-all hover:border-green-300 hover:shadow-md dark:border-green-900 dark:bg-gray-800/80 dark:hover:border-green-700"
+              className="group relative flex items-center justify-between gap-3 rounded-lg border border-green-100 bg-white px-2 py-1 shadow-xs transition-all hover:border-green-300 hover:shadow-md dark:border-green-900 dark:bg-gray-800/80 dark:hover:border-green-700"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-50 text-xl dark:bg-green-900/30">
@@ -354,12 +397,30 @@ function NewbornPrototypes({
                     href={buildPrototypeLink(prototype.id)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-gray-900 hover:text-green-600 hover:underline dark:text-gray-100 dark:hover:text-green-400 text-sm"
+                    className="font-semibold text-gray-900 hover:text-green-600 hover:underline dark:text-gray-100 dark:hover:text-green-400 text-sm py-1"
                   >
                     {prototype.title}
                   </a>
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <span>ID: {prototype.id}</span>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-x-2 text-[10px] text-gray-600 dark:text-gray-400">
+                    {prototype.teamNm !== '' ? (
+                      <span className="whitespace-nowrap">
+                        🏛️ {prototype.teamNm}
+                      </span>
+                    ) : null}
+                    {prototype.users.length > 0 ? (
+                      <span>
+                        🥼{' '}
+                        {prototype.users.map((user, idx) => (
+                          <span key={`${user}-${idx}`}>
+                            {idx > 0 ? ' ' : ''}
+                            <MakerName user={user} />
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </div>

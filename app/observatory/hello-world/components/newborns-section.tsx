@@ -1,5 +1,9 @@
 import { IconSparkles } from '../../shared/icons';
-import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
+import {
+  buildPrototypeLink,
+  buildUserLink,
+  getUserDisplayName,
+} from '@/lib/utils/prototype-utils';
 import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
@@ -8,6 +12,27 @@ type NewbornsSectionProps = {
   count: number;
   prototypes: AnniversaryCandidatePrototype[];
 };
+
+/**
+ * A maker's name linked to their ProtoPedia profile, falling back to plain text
+ * when no profileId can be recovered. Mirrors the alchemists-table `MakerName`
+ * so a person reads the same across Observatory pages.
+ */
+function MakerName({ user }: { user: string }) {
+  const href = buildUserLink(user);
+  const name = getUserDisplayName(user);
+  if (href == null) return <span>{name}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hover:text-sky-600 dark:hover:text-sky-400"
+    >
+      {name}
+    </a>
+  );
+}
 
 export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
   return (
@@ -58,12 +83,9 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {prototypes.map((proto) => (
-            <a
+            <div
               key={proto.id}
-              href={buildPrototypeLink(proto.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
+              className="group bg-white/80 dark:bg-gray-800/80 rounded-xl border border-sky-100 dark:border-sky-800/50 shadow-sm hover:shadow-md hover:border-sky-400 dark:hover:border-sky-500 transition-all duration-200 p-5"
             >
               <div className="flex justify-between items-start mb-3">
                 <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
@@ -77,9 +99,34 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
                   NEW
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 line-clamp-2 transition-colors">
-                {proto.title}
-              </h3>
+              <a
+                href={buildPrototypeLink(proto.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 line-clamp-2 transition-colors">
+                  {proto.title}
+                </h3>
+              </a>
+              {/* Maker links live OUTSIDE the prototype anchor to avoid nesting
+                  <a> inside <a> (invalid HTML). */}
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                {proto.teamNm !== '' ? (
+                  <span className="block">🏛️ {proto.teamNm}</span>
+                ) : null}
+                {proto.users.length > 0 ? (
+                  <span className="block">
+                    🥼{' '}
+                    {proto.users.map((user, idx) => (
+                      <span key={`${user}-${idx}`}>
+                        {idx > 0 ? ', ' : ''}
+                        <MakerName user={user} />
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
+              </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Materialized at{' '}
                 {new Date(proto.releaseDate).toLocaleTimeString('ja-JP', {
@@ -87,7 +134,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
                   minute: '2-digit',
                 })}
               </div>
-            </a>
+            </div>
           ))}
         </div>
       )}

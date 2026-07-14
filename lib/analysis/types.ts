@@ -33,6 +33,10 @@ export type BirthdayPrototype = {
   title: string;
   years: number;
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**
@@ -44,6 +48,10 @@ export type NewbornPrototype = {
   id: number;
   title: string;
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**
@@ -60,9 +68,10 @@ export type AnniversariesSlice = {
 };
 
 /**
- * Minimal prototype data required for anniversary analysis.
- * Contains only the essential fields needed to determine if a prototype
- * is a birthday or newborn candidate in the user's timezone.
+ * Prototype data for anniversary analysis. Carries the fields needed to decide
+ * whether a prototype is a birthday or newborn candidate in the user's timezone
+ * (`id`, `title`, `releaseDate`), plus `teamNm` and `users` passed through for
+ * display of the team and makers.
  */
 export type AnniversaryCandidatePrototype = {
   /** Prototype ID */
@@ -71,6 +80,10 @@ export type AnniversaryCandidatePrototype = {
   title: string;
   /** Release date in ISO 8601 format */
   releaseDate: string;
+  /** Team name, or an empty string when the work has no team. */
+  teamNm: string;
+  /** All makers ("表示名@profileId" elements); always shown in full. */
+  users: readonly string[];
 };
 
 /**
@@ -94,7 +107,7 @@ export type AnniversaryCandidates = {
       toISO: string;
     };
   };
-  /** Minimal prototype data for month-day based anniversary detection */
+  /** Candidate prototypes for month-day based anniversary detection (carrying team/makers for display) */
   mmdd: AnniversaryCandidatePrototype[];
 };
 
@@ -219,6 +232,10 @@ export type ServerPrototypeAnalysis = {
     prototypeId: number;
     prototypeTitle: string;
     releaseDate: string;
+    /** Team name, or an empty string when the work has no team. */
+    teamNm: string;
+    /** All makers ("表示名@profileId" elements); always shown in full. */
+    users: readonly string[];
   }>;
 
   /** First Penguin analysis (First release of each year) */
@@ -228,7 +245,10 @@ export type ServerPrototypeAnalysis = {
       id: number;
       title: string;
       releaseDate: string;
-      user: string; // First user name or team name
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     };
   }>;
 
@@ -258,6 +278,10 @@ export type ServerPrototypeAnalysis = {
       durationDays: number;
       createDate: string;
       releaseDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     /** Distribution of gestation periods */
     distribution: Record<string, number>;
@@ -308,6 +332,10 @@ export type ServerPrototypeAnalysis = {
       maintenanceDays: number;
       releaseDate: string;
       updateDate: string;
+      /** Team name, or an empty string when the work has no team. */
+      teamNm: string;
+      /** All makers ("表示名@profileId" elements); always shown in full. */
+      users: readonly string[];
     }>;
     /** Average maintenance period in days */
     averageMaintenanceDays: number;

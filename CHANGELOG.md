@@ -9,6 +9,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- ProtoPedia Observatory - Hello World: Now shows the team and every maker for each work instead of a single collapsed author (or none):
+    - The Newborn Stars, The First Penguin, The Early Adopters, Long-Term Evolution, and Labor of Love list the team (when present) and all makers, each maker linked to their ProtoPedia profile by display name (not the raw `displayName@profileId` string).
+- Analysis Dashboard: The Birthday and Newborn prototype lists now show the team (when present) and all makers, each maker linked to their ProtoPedia profile by display name. Anniversary candidate data now carries `teamNm` and `users`.
+
 ## [2026.07.07]
 
 ### Changed

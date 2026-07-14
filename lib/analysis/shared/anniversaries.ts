@@ -53,7 +53,7 @@ import {
  *
  * Runs on: **UI (authoritative)**.
  *
- * @param prototypes - Prototype array with minimal required fields (id, title/prototypeNm, releaseDate).
+ * @param prototypes - Prototype array with id, title/prototypeNm, releaseDate, and optional teamNm/users (the latter carried through to the birthday/newborn output).
  * @returns Birthday and newborn arrays reflecting the current runtime TZ.
  */
 export function buildAnniversaries(
@@ -62,6 +62,8 @@ export function buildAnniversaries(
     releaseDate?: string;
     title?: string;
     prototypeNm?: string;
+    teamNm?: string;
+    users?: readonly string[];
   }>,
   options?: {
     logger?: { debug: (payload: unknown, message?: string) => void };
@@ -88,6 +90,8 @@ export function buildAnniversaries(
         title: getTitle(prototype),
         years: age.years,
         releaseDate: prototype.releaseDate,
+        teamNm: prototype.teamNm ?? '',
+        users: prototype.users ?? [],
       };
     });
 
@@ -100,6 +104,8 @@ export function buildAnniversaries(
       id: prototype.id,
       title: getTitle(prototype),
       releaseDate: prototype.releaseDate,
+      teamNm: prototype.teamNm ?? '',
+      users: prototype.users ?? [],
     }));
 
   if (options?.logger) {

@@ -266,7 +266,7 @@ function runAnalysisPipelines(
  * This helper generates:
  * - metadata.windowUTC: Inclusive ISO range [yesterday 00:00, tomorrow 23:59:59.999] in UTC
  * - metadata.computedAt: Current timestamp in UTC
- * - mmdd: Minimal prototype data (id, title, releaseDate only) within the 3-day window
+ * - mmdd: Candidate prototype data (id, title, releaseDate, teamNm, users) within the 3-day window
  *
  * Clients can use this data to perform anniversary analysis without fetching
  * the entire dataset.
@@ -330,6 +330,8 @@ export function buildAnniversaryCandidates(
       id: p.id,
       title: p.prototypeNm,
       releaseDate: p.releaseDate,
+      teamNm: p.teamNm,
+      users: p.users,
     }));
   const metadata = {
     computedAt: referenceDate.toISOString(),
