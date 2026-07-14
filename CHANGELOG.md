@@ -20,6 +20,12 @@ and this project adheres to [CalVer](https://calver.org/).
 - Internal refactor (no behavior change): extract the analysis dashboard's
   details dialog into its own `AnalysisDetailsDialogContent` component.
 
+### Fixed
+
+- Observatory pages no longer land mid-scroll after navigating between them;
+  each opens at the top. Removed the global `scroll-behavior: smooth`, which
+  made the App Router's scroll reset animate instead of jump.
+
 ## [2026.07.14]
 
 ### Changed
