@@ -180,4 +180,4 @@ See [`docs/README.md`](./docs/README.md) for the full documentation index.
 
 MIT © F88. See [`LICENSE`](./LICENSE).
 
-![icon-512x512.png](assets/icons/v2/icon-512x512.png)
+![icon-512x512.png](assets/icons/icon-v3-512x512.png)
