@@ -139,7 +139,8 @@ export const fetchPrototypesViaPromidasNoStore = async (
   });
 
   if (result.ok) {
-    return { ok: true, data: result.data };
+    // No-store path: a fresh upstream fetch, so the generation time is now.
+    return { ok: true, data: result.data, lastFetchedAt: new Date() };
   }
 
   const status =

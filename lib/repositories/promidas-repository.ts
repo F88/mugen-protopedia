@@ -382,7 +382,12 @@ export class PromidasBackedRepository {
         { count: data.length },
         'Returning all prototypes from snapshot',
       );
-      return { ok: true, data: [...data] };
+      // promidas owns the snapshot generation; report its cache time.
+      return {
+        ok: true,
+        data: [...data],
+        lastFetchedAt: this.repo.getStats().cachedAt ?? new Date(),
+      };
     });
   }
 

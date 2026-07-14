@@ -176,7 +176,11 @@ class AnalysisRepository {
    */
   private async withPrototypes<T>(
     action: string,
-    build: (prototypes: PrototypeForMpp[], logger: RepoLogger) => T,
+    build: (
+      prototypes: PrototypeForMpp[],
+      logger: RepoLogger,
+      meta: { lastFetchedAt: Date },
+    ) => T,
   ): Promise<AnalysisResult<T>> {
     const logger = baseLogger.child({ action });
 
@@ -189,7 +193,10 @@ class AnalysisRepository {
       return { ok: false, error: result.error };
     }
 
-    return { ok: true, data: build(result.data, logger) };
+    return {
+      ok: true,
+      data: build(result.data, logger, { lastFetchedAt: result.lastFetchedAt }),
+    };
   }
 
   /**
@@ -204,11 +211,12 @@ class AnalysisRepository {
   ): Promise<AnalysisResult<HelloWorldInsights>> {
     return this.withPrototypes(
       'getHelloWorldAnalysis',
-      (prototypes, logger) => {
-        // Reuse the last computed insights when the dataset is unchanged (proxied
-        // by count). The prototype fetch itself is already snapshot-cached, so this
-        // only avoids repeat CPU within a window.
-        const key = `hello-world:${prototypes.length}`;
+      (prototypes, logger, { lastFetchedAt }) => {
+        // Reuse the last computed insights only while the dataset generation is
+        // unchanged. Key on the fetch generation (`lastFetchedAt`), NOT the count:
+        // a same-count content change (edit, or +1/-1) advances the generation and
+        // must invalidate the memo, which a length proxy would miss.
+        const key = `hello-world:${lastFetchedAt.getTime()}`;
         if (this.helloWorldMemo?.key === key) {
           return this.helloWorldMemo.data;
         }

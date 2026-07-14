@@ -17,10 +17,17 @@ export type FetchPrototypesParams = {
  *
  * @property ok - Discriminator field, always true for success.
  * @property data - Array of normalized prototype objects ready for UI consumption.
+ * @property lastFetchedAt - When this dataset generation was last fetched from
+ *   upstream. For cache-backed reads this is the cache populate time (promidas
+ *   snapshot / map-store snapshot); for raw uncached fetches it is the fetch time.
+ *   A success always has data, so this is always a valid `Date`. Lets callers key
+ *   per-generation memoization on the actual dataset version rather than a proxy
+ *   like `data.length` (which misses same-count content changes).
  */
 export type FetchPrototypesSuccess = {
   ok: true;
   data: PrototypeForMpp[];
+  lastFetchedAt: Date;
 };
 
 /**
