@@ -12,30 +12,13 @@
  * lazily at access time without touching the base analysis.
  */
 
-import { analysisRepository } from '@/lib/repositories/analysis-repository';
+import {
+  analysisRepository,
+  type AnalysisResult,
+} from '@/lib/repositories/analysis-repository';
 import type { MaterialInsights } from '@/lib/observatory/alchemists-table/build-material-insights';
 
-/** Material frequency histogram plus all derived insights for the page. */
-export type MaterialAnalysisData = MaterialInsights;
-
-/**
- * Successful response containing material analytics.
- */
-export interface GetMaterialAnalysisSuccess {
-  ok: true;
-  data: MaterialAnalysisData;
-}
-
-/**
- * Failed response with an error message.
- */
-export interface GetMaterialAnalysisFailure {
-  ok: false;
-  error: string;
-}
-
-export type GetMaterialAnalysisResult =
-  GetMaterialAnalysisSuccess | GetMaterialAnalysisFailure;
+export type GetMaterialAnalysisResult = AnalysisResult<MaterialInsights>;
 
 /**
  * Compute material insights for Observatory material-centric pages, via the

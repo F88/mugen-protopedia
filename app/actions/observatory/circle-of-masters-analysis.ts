@@ -18,23 +18,13 @@
  *   per-material Chronicles is not computed here.
  */
 
-import { analysisRepository } from '@/lib/repositories/analysis-repository';
+import {
+  analysisRepository,
+  type AnalysisResult,
+} from '@/lib/repositories/analysis-repository';
 import type { CircleInsights } from '@/lib/observatory/alchemists-table/build-circle-insights';
 
-/** Successful response containing the seated makers. */
-export interface GetCircleOfMastersAnalysisSuccess {
-  ok: true;
-  data: CircleInsights;
-}
-
-/** Failed response with an error message. */
-export interface GetCircleOfMastersAnalysisFailure {
-  ok: false;
-  error: string;
-}
-
-export type GetCircleOfMastersAnalysisResult =
-  GetCircleOfMastersAnalysisSuccess | GetCircleOfMastersAnalysisFailure;
+export type GetCircleOfMastersAnalysisResult = AnalysisResult<CircleInsights>;
 
 /**
  * Compute the Circle of Masters for The Alchemist's Table, via the Analysis

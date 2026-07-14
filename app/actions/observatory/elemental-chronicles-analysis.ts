@@ -10,23 +10,14 @@
  * without touching (or bloating) the base analysis pipeline.
  */
 
-import { analysisRepository } from '@/lib/repositories/analysis-repository';
+import {
+  analysisRepository,
+  type AnalysisResult,
+} from '@/lib/repositories/analysis-repository';
 import type { ChroniclesInsights } from '@/lib/observatory/alchemists-table/build-chronicles-insights';
 
-/** Successful response containing the per-material Chronicles. */
-export interface GetElementalChroniclesAnalysisSuccess {
-  ok: true;
-  data: ChroniclesInsights;
-}
-
-/** Failed response with an error message. */
-export interface GetElementalChroniclesAnalysisFailure {
-  ok: false;
-  error: string;
-}
-
 export type GetElementalChroniclesAnalysisResult =
-  GetElementalChroniclesAnalysisSuccess | GetElementalChroniclesAnalysisFailure;
+  AnalysisResult<ChroniclesInsights>;
 
 /**
  * Compute the Elemental Chronicles for The Alchemist's Table, via the Analysis
