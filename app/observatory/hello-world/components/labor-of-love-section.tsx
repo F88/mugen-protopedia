@@ -142,8 +142,17 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                       ) : null}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(item.createDate).toLocaleDateString()} →{' '}
-                      {new Date(item.releaseDate).toLocaleDateString()}
+                      {new Date(item.createDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}{' '}
+                      →{' '}
+                      {new Date(item.releaseDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </div>
                   </div>
                 </div>
