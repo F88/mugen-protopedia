@@ -55,8 +55,9 @@ const MS_PER_HOUR = 60 * 60 * 1000;
  * Rolling lookback windows (in hours) for the recent Top Materials / Top Tags
  * rankings, measured back from the analysis reference time and keyed by
  * `releaseDate`. Values are approximate calendar spans: 720h ≈ 1 month
- * (30 days), 8640h ≈ 1 year (30 × 12 = 360 days). Keep entries as multiples of
- * 24 so the UI's `≈ N days` label stays exact.
+ * (30 days), 8640h ≈ 1 year (30 × 12 = 360 days). The UI labels each window
+ * with an approximate human span (days → months → years) via
+ * `formatApproxDuration`.
  */
 const RECENT_LOOKBACK_HOURS = [
   24 * 30 /* 1 month */,

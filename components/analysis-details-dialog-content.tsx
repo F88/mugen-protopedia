@@ -313,6 +313,7 @@ function BirthdayPrototypes({
         <div className="text-center pt-1">
           <button
             type="button"
+            aria-expanded={isExpanded}
             onClick={() => setIsExpanded((prev) => !prev)}
             className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
           >
@@ -579,6 +580,7 @@ function TrendList({
         <div className="text-center pt-1">
           <button
             type="button"
+            aria-expanded={isExpanded}
             onClick={() => setIsExpanded((prev) => !prev)}
             className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
           >
@@ -892,7 +894,7 @@ export function AnalysisDetailsDialogContent({
       <div className="border-t border-gray-200 pt-4 text-center dark:border-gray-700">
         <Link
           href="/observatory"
-          className="group inline-flex items-center gap-2 rounded-full border border-blue-300/60 bg-gradient-to-r from-blue-100 via-indigo-100 to-violet-100 px-5 py-2.5 text-sm font-medium text-indigo-700 shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all hover:border-blue-400 hover:shadow-[0_0_28px_rgba(59,130,246,0.3)] dark:border-sky-400/25 dark:bg-gradient-to-r dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950 dark:text-amber-100 dark:shadow-[0_0_20px_rgba(56,189,248,0.15)] dark:hover:border-amber-200/60 dark:hover:shadow-[0_0_28px_rgba(253,224,71,0.35)]"
+          className="group inline-flex items-center gap-2 rounded-full border border-blue-300/60 bg-linear-to-r from-blue-100 via-indigo-100 to-violet-100 px-5 py-2.5 text-sm font-medium text-indigo-700 shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all hover:border-blue-400 hover:shadow-[0_0_28px_rgba(59,130,246,0.3)] dark:border-sky-400/25 dark:bg-linear-to-r dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950 dark:text-amber-100 dark:shadow-[0_0_20px_rgba(56,189,248,0.15)] dark:hover:border-amber-200/60 dark:hover:shadow-[0_0_28px_rgba(253,224,71,0.35)]"
         >
           <span className="transition-transform group-hover:scale-110">🔭</span>
           <span>

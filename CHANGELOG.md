@@ -22,7 +22,7 @@ and this project adheres to [CalVer](https://calver.org/).
 - Analysis Dashboard: Community Trends now includes recent-window Top Materials
   and Top Tags rankings — rolling "Last 1 month" and "Last 1 year" windows (by
   releaseDate, relative to the analysis time) shown next to the all-time lists,
-  each labelled with its exact hour window plus an approximate span.
+  each labelled with an approximate human span (days / months / years).
 
 ### Changed
 
