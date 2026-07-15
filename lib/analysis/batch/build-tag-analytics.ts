@@ -31,7 +31,7 @@ export function buildTagAnalytics(
   const tagCounts: Record<string, number> = {};
 
   prototypes.forEach((prototype) => {
-    if (prototype.tags && Array.isArray(prototype.tags)) {
+    if (Array.isArray(prototype.tags)) {
       prototype.tags.forEach((tag) => {
         tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
       });
@@ -101,7 +101,7 @@ export function buildTopTagsInRange(
   prototypes.forEach((prototype) => {
     if (!isInRange(prototype)) return;
     matchedCount += 1;
-    if (prototype.tags && Array.isArray(prototype.tags)) {
+    if (Array.isArray(prototype.tags)) {
       prototype.tags.forEach((tag) => {
         tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
       });

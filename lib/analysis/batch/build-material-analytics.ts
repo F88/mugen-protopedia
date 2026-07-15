@@ -41,7 +41,7 @@ export function buildMaterialAnalytics(
     const dateStr = prototype.releaseDate || prototype.createDate;
     const year = dateStr ? new Date(dateStr).getFullYear() : NaN;
 
-    if (prototype.materials && Array.isArray(prototype.materials)) {
+    if (Array.isArray(prototype.materials)) {
       prototype.materials.forEach((material) => {
         // Global aggregation
         materialCounts[material] = (materialCounts[material] ?? 0) + 1;
@@ -136,7 +136,7 @@ export function buildTopMaterialsInRange(
   prototypes.forEach((prototype) => {
     if (!isInRange(prototype)) return;
     matchedCount += 1;
-    if (prototype.materials && Array.isArray(prototype.materials)) {
+    if (Array.isArray(prototype.materials)) {
       prototype.materials.forEach((material) => {
         materialCounts[material] = (materialCounts[material] ?? 0) + 1;
       });
