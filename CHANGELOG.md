@@ -15,11 +15,15 @@ and this project adheres to [CalVer](https://calver.org/).
   styled to match the Observatory's theme-aware sky (light) / space (dark) look.
 - Analysis Dashboard: the Birthday list now shows the first 10 with a toggle to
   reveal the rest (and collapse again), instead of a static overflow count.
+- Analysis Dashboard: the Community Trends lists (Top Events / Top Tags / Top
+  Materials) now show the first 10 with a toggle to reveal up to 30.
 
 ### Changed
 
 - Analysis Dashboard: show Newborn before Birthday in both the summary bar and
   the details dialog.
+- Analysis Dashboard: relabel the Community Trends lists with an "(All Time)"
+  suffix and a leading emoji to clarify they are all-time totals.
 - Internal refactor (no behavior change): route all analysis through a single
   `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
   group Observatory insight builders by page under `lib/observatory/<page>/`.

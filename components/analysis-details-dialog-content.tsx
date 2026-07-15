@@ -470,12 +470,29 @@ function TrendList({
   title,
   items,
   colorTheme = 'indigo',
+  collapsedCount,
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
   colorTheme?: 'indigo' | 'blue' | 'emerald';
+  /**
+   * When set, only the first `collapsedCount` items are shown initially with a
+   * toggle to reveal the rest (and collapse again). When undefined, all items
+   * are always shown.
+   */
+  collapsedCount?: number;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!items || items.length === 0) return null;
+
+  const maxCount = items[0].count;
+  const isCollapsible = collapsedCount != null && items.length > collapsedCount;
+  const visibleItems =
+    isCollapsible && !isExpanded ? items.slice(0, collapsedCount) : items;
+  const hiddenCount = isCollapsible ? items.length - collapsedCount : 0;
+
+  const themeColors = COLOR_CLASS_MAP[colorTheme];
 
   return (
     <div className="space-y-2">
@@ -483,11 +500,9 @@ function TrendList({
         {title}
       </h4>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {items.map(({ label, count }, _, arr) => {
-          const maxCount = arr[0].count;
+        {visibleItems.map(({ label, count }) => {
           const ratio = count / maxCount;
 
-          const themeColors = COLOR_CLASS_MAP[colorTheme];
           let colorClasses = themeColors.low;
           if (ratio > 0.8) colorClasses = themeColors.high;
           else if (ratio > 0.5) colorClasses = themeColors.medium;
@@ -509,6 +524,20 @@ function TrendList({
           );
         })}
       </div>
+
+      {isCollapsible && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {isExpanded
+              ? 'Show less'
+              : `Show ${hiddenCount.toLocaleString()} more`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -655,34 +684,38 @@ export function AnalysisDetailsDialogContent({
           <div className="grid gap-6 md:grid-cols-1">
             {analysis.maternityHospital?.topEvents?.length > 0 && (
               <TrendList
-                title="Top Events"
+                title="🏆 Top Events (All Time)"
                 items={analysis.maternityHospital.topEvents
-                  .slice(0, 20)
+                  .slice(0, 30)
                   .map((e) => ({
                     label: e.event,
                     count: e.count,
                   }))}
                 colorTheme="indigo"
+                collapsedCount={10}
               />
             )}
             {analysis.topTags?.length > 0 && (
               <TrendList
-                title="Top Tags"
-                items={analysis.topTags.slice(0, 20).map((t) => ({
+                title="🏷️ Top Tags (All Time)"
+                items={analysis.topTags.slice(0, 30).map((t) => ({
                   label: t.tag,
                   count: t.count,
                 }))}
                 colorTheme="blue"
+                collapsedCount={10}
               />
             )}
             {analysis.topMaterials?.length > 0 && (
               <TrendList
-                title="Top Materials"
-                items={analysis.topMaterials.slice(0, 20).map((m) => ({
+                title="🧰 Top Materials (All Time)"
+                // title="⚗️ Top Materials (All Time)"
+                items={analysis.topMaterials.slice(0, 30).map((m) => ({
                   label: m.material,
                   count: m.count,
                 }))}
                 colorTheme="emerald"
+                collapsedCount={10}
               />
             )}
           </div>
