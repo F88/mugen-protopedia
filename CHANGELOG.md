@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.15]
+
 ### Added
 
 - Analysis Dashboard: add a link to the Observatory in the details dialog,
