@@ -140,7 +140,7 @@ export function AnalysisDashboard({
   }
 
   const analyzedDate = new Date(analysis.analyzedAt);
-  const formattedDate = analyzedDate.toLocaleString('ja-JP', {
+  const analyzedAt = analyzedDate.toLocaleString('ja-JP', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -249,7 +249,7 @@ export function AnalysisDashboard({
         analysis={analysis}
         anniversaries={effectiveAnniversaries}
         anniversariesLoading={anniversariesLoading}
-        formattedDate={formattedDate}
+        analyzedAt={analyzedAt}
         isDevelopment={isDevelopment}
         onRefresh={refreshBoth}
       />

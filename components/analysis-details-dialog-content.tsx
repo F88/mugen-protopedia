@@ -517,7 +517,7 @@ type AnalysisDetailsDialogContentProps = {
   analysis: AnalysisOverview;
   anniversaries: PrototypeAnalysis['anniversaries'];
   anniversariesLoading: boolean;
-  formattedDate: string;
+  analyzedAt: string;
   isDevelopment: boolean;
   onRefresh: () => void;
 };
@@ -532,7 +532,7 @@ export function AnalysisDetailsDialogContent({
   analysis,
   anniversaries,
   anniversariesLoading,
-  formattedDate,
+  analyzedAt,
   isDevelopment,
   onRefresh,
 }: AnalysisDetailsDialogContentProps) {
@@ -549,7 +549,7 @@ export function AnalysisDetailsDialogContent({
         </Button>
         <DialogTitle className="self-center text-2xl">{title}</DialogTitle>
         <DialogDescription className="self-center text-sm">
-          Last updated: {formattedDate}
+          Last updated: {analyzedAt}
         </DialogDescription>
       </DialogHeader>
 
@@ -768,7 +768,9 @@ export function AnalysisDetailsDialogContent({
           <span className="transition-transform group-hover:scale-110">🔭</span>
           <span>
             Explore the{' '}
-            <span className="text-blue-600 dark:text-amber-200">Observatory</span>
+            <span className="text-blue-600 dark:text-amber-200">
+              Observatory
+            </span>
           </span>
         </Link>
       </div>
