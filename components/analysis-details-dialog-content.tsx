@@ -9,7 +9,9 @@ import { RefreshCw } from 'lucide-react';
 import type { PrototypeAnalysis, AnalysisOverview } from '@/lib/analysis/types';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
 import {
+  buildMaterialLink,
   buildPrototypeLink,
+  buildTagLink,
   buildUserLink,
   getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
@@ -471,6 +473,7 @@ function TrendList({
   items,
   colorTheme = 'indigo',
   collapsedCount,
+  linkBuilder,
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
@@ -481,6 +484,11 @@ function TrendList({
    * are always shown.
    */
   collapsedCount?: number;
+  /**
+   * When provided, each item's label links to the URL this returns. A `null`
+   * return (or omitting the prop) renders the label as plain text.
+   */
+  linkBuilder?: (label: string) => string | null;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -507,14 +515,27 @@ function TrendList({
           if (ratio > 0.8) colorClasses = themeColors.high;
           else if (ratio > 0.5) colorClasses = themeColors.medium;
 
+          const href = linkBuilder?.(label) ?? null;
+
           return (
             <div
               key={label}
               className={`flex items-start justify-between gap-3 rounded border p-2 transition-colors ${colorClasses}`}
             >
-              <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                {label}
-              </span>
+              {href != null ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 hover:underline dark:text-gray-100"
+                >
+                  {label}
+                </a>
+              ) : (
+                <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                  {label}
+                </span>
+              )}
               <span
                 className={`shrink-0 text-sm font-semibold ${themeColors.text}`}
               >
@@ -704,6 +725,7 @@ export function AnalysisDetailsDialogContent({
                 }))}
                 colorTheme="blue"
                 collapsedCount={10}
+                linkBuilder={buildTagLink}
               />
             )}
             {analysis.topMaterials?.length > 0 && (
@@ -716,6 +738,7 @@ export function AnalysisDetailsDialogContent({
                 }))}
                 colorTheme="emerald"
                 collapsedCount={10}
+                linkBuilder={buildMaterialLink}
               />
             )}
           </div>

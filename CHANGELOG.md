@@ -17,6 +17,8 @@ and this project adheres to [CalVer](https://calver.org/).
   reveal the rest (and collapse again), instead of a static overflow count.
 - Analysis Dashboard: the Community Trends lists (Top Events / Top Tags / Top
   Materials) now show the first 10 with a toggle to reveal up to 30.
+- Analysis Dashboard: Top Tags and Top Materials entries now link to their
+  ProtoPedia tag / material pages (Top Events stays plain text).
 
 ### Changed
 
