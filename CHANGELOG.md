@@ -19,8 +19,10 @@ and this project adheres to [CalVer](https://calver.org/).
   Materials) now show the first 10 with a toggle to reveal up to 30.
 - Analysis Dashboard: Top Tags and Top Materials entries now link to their
   ProtoPedia tag / material pages (Top Events stays plain text).
-- Analysis Dashboard: add recent-window Top Materials and Top Tags rankings (by
-  releaseDate) alongside the all-time lists in Community Trends.
+- Analysis Dashboard: Community Trends now includes recent-window Top Materials
+  and Top Tags rankings — rolling "Last 1 month" and "Last 1 year" windows (by
+  releaseDate, relative to the analysis time) shown next to the all-time lists,
+  each labelled with its exact hour window plus an approximate span.
 
 ### Changed
 
@@ -28,6 +30,8 @@ and this project adheres to [CalVer](https://calver.org/).
   the details dialog.
 - Analysis Dashboard: relabel the Community Trends lists with an "(All Time)"
   suffix and a leading emoji to clarify they are all-time totals.
+- Analysis Dashboard: the Community Trends Top Tags and Top Materials lists use
+  a denser multi-column layout.
 - Internal refactor (no behavior change): route all analysis through a single
   `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
   group Observatory insight builders by page under `lib/observatory/<page>/`.
