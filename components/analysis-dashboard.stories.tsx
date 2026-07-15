@@ -82,6 +82,10 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
       prototypesWithAwards,
       topTags,
       topMaterials,
+      recentTopMaterials: [168, 720].map((lookbackHours) => ({
+        lookbackHours,
+        materials: topMaterials,
+      })),
       averageAgeInDays,
       analyzedAt: referenceDate.toISOString(),
       anniversaryCandidates,
@@ -99,6 +103,10 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
     prototypesWithAwards,
     topTags,
     topMaterials,
+    recentTopMaterials: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      materials: topMaterials,
+    })),
     averageAgeInDays,
     analyzedAt: referenceDate.toISOString(),
     anniversaryCandidates,
@@ -662,6 +670,10 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       { count: 10 },
     ),
     topMaterials,
+    recentTopMaterials: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      materials: topMaterials,
+    })),
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
     anniversaries: {
       birthdayCount: birthdays.length,

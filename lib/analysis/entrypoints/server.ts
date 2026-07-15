@@ -11,6 +11,7 @@ import {
 } from '../core';
 import {
   buildMaterialAnalytics,
+  buildTopMaterialsInRange,
   buildTagAnalytics,
   buildCoreSummaries,
   buildMaternityHospital,
@@ -45,6 +46,39 @@ type AnalysisPipelineResult = Pick<
   tagCounts: Record<string, number>;
 };
 
+const MS_PER_HOUR = 60 * 60 * 1000;
+
+/**
+ * Rolling lookback windows (in hours) for `recentTopMaterials`, measured back
+ * from the analysis reference time and keyed by `releaseDate`. Values are
+ * approximate calendar spans: 720h ≈ 1 month (30 days), 8640h ≈ 1 year
+ * (30 × 12 = 360 days). Keep entries as multiples of 24 so the UI's
+ * `≈ N days` label stays exact.
+ */
+const RECENT_MATERIAL_LOOKBACK_HOURS = [
+  24 * 30 /* 1 month */,
+  24 * 30 * 12 /* 1 year */,
+] as const;
+
+/**
+ * Computes the top materials for each configured recent lookback window
+ * ({@link RECENT_MATERIAL_LOOKBACK_HOURS}) relative to `now`.
+ */
+function buildRecentTopMaterials(
+  prototypes: PrototypeForMpp[],
+  now: Date,
+  logger?: MinimalLogger,
+): AnalysisOverview['recentTopMaterials'] {
+  return RECENT_MATERIAL_LOOKBACK_HOURS.map((lookbackHours) => ({
+    lookbackHours,
+    materials: buildTopMaterialsInRange(prototypes, {
+      from: new Date(now.getTime() - lookbackHours * MS_PER_HOUR),
+      to: now,
+      logger,
+    }),
+  }));
+}
+
 function buildEmptyAnalysisOverview(
   prototypes: PrototypeForMpp[],
   now: Date,
@@ -63,6 +97,10 @@ function buildEmptyAnalysisOverview(
     prototypesWithAwards: 0,
     topTags: [],
     topMaterials: [],
+    recentTopMaterials: RECENT_MATERIAL_LOOKBACK_HOURS.map((lookbackHours) => ({
+      lookbackHours,
+      materials: [],
+    })),
     averageAgeInDays: 0,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
@@ -393,6 +431,7 @@ export function buildAnalysisOverview(
     topTags,
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     topMaterials,
+    recentTopMaterials: buildRecentTopMaterials(prototypes, now, logger),
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
     releaseTimeDistribution,

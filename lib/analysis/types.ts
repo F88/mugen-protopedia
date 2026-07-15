@@ -139,6 +139,16 @@ export type AnalysisOverview = {
   topTags: Array<{ tag: string; count: number }>;
   /** Most frequently used materials/tools (top 30) */
   topMaterials: Array<{ material: string; count: number }>;
+  /**
+   * Most frequently used materials/tools within recent rolling windows,
+   * relative to `analyzedAt` and keyed by `releaseDate`. One entry per window
+   * (e.g. last 7 days, last 30 days); complements the all-time `topMaterials`.
+   */
+  recentTopMaterials: Array<{
+    /** Rolling lookback window length in hours: covers releaseDate in [now − lookbackHours, now]. */
+    lookbackHours: number;
+    materials: Array<{ material: string; count: number }>;
+  }>;
   /** Average age of prototypes in days */
   averageAgeInDays: number;
   /** Analysis timestamp */

@@ -36,6 +36,26 @@ const getStatusSegmentWidthClass = (value: number) =>
   `prototype-status-width-${clampPercent(value)}`;
 
 /**
+ * Formats a lookback duration (in hours) as an approximate human span,
+ * escalating the unit as it grows: days below ~1 month (< 32 days), then months
+ * below ~1 year (< 12 months), then years. Assumes 30-day months and 12-month
+ * years, so it is intentionally approximate (pairs with the exact `Xh` shown
+ * alongside it).
+ */
+function formatApproxDuration(hours: number): string {
+  const days = Math.round(hours / 24);
+  if (days < 28) {
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  const months = Math.round(days / 30);
+  if (months < 12) {
+    return `${months} month${months === 1 ? '' : 's'}`;
+  }
+  const years = Math.round(months / 12);
+  return `${years} year${years === 1 ? '' : 's'}`;
+}
+
+/**
  * Component to display a section title
  */
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -474,6 +494,7 @@ function TrendList({
   colorTheme = 'indigo',
   collapsedCount,
   linkBuilder,
+  itemsGridClassName = 'grid grid-cols-1 gap-2 sm:grid-cols-2',
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
@@ -489,6 +510,12 @@ function TrendList({
    * return (or omitting the prop) renders the label as plain text.
    */
   linkBuilder?: (label: string) => string | null;
+  /**
+   * Grid classes for the items container, letting a caller pick a denser
+   * layout (e.g. `grid grid-cols-2 gap-2 sm:grid-cols-4`). Defaults to a
+   * 1-column (2 on `sm`) grid.
+   */
+  itemsGridClassName?: string;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -507,7 +534,7 @@ function TrendList({
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
         {title}
       </h4>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <div className={itemsGridClassName}>
         {visibleItems.map(({ label, count }) => {
           const ratio = count / maxCount;
 
@@ -703,6 +730,7 @@ export function AnalysisDetailsDialogContent({
         <section className="space-y-4">
           <SectionTitle>📈 Community Trends</SectionTitle>
           <div className="grid gap-6 md:grid-cols-1">
+            {/* Top Events */}
             {analysis.maternityHospital?.topEvents?.length > 0 && (
               <TrendList
                 title="🏆 Top Events (All Time)"
@@ -714,8 +742,11 @@ export function AnalysisDetailsDialogContent({
                   }))}
                 colorTheme="indigo"
                 collapsedCount={10}
+                // itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
+
+            {/* Top Tags */}
             {analysis.topTags?.length > 0 && (
               <TrendList
                 title="🏷️ Top Tags (All Time)"
@@ -724,10 +755,31 @@ export function AnalysisDetailsDialogContent({
                   count: t.count,
                 }))}
                 colorTheme="blue"
-                collapsedCount={10}
+                collapsedCount={12}
                 linkBuilder={buildTagLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
+
+            {/* Top Materials  */}
+
+            {analysis.recentTopMaterials.map((window) => (
+              <TrendList
+                key={window.lookbackHours}
+                // `Xh` is the exact window; the span is an approximation.
+                // title={`🧰 Top Materials (Last ${window.lookbackHours}h ≈ ${formatApproxDuration(window.lookbackHours)})`}
+                title={`🧰 Top Materials (Last ${formatApproxDuration(window.lookbackHours)})`}
+                items={window.materials.slice(0, 30).map((m) => ({
+                  label: m.material,
+                  count: m.count,
+                }))}
+                colorTheme="emerald"
+                collapsedCount={12}
+                linkBuilder={buildMaterialLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
+              />
+            ))}
+
             {analysis.topMaterials?.length > 0 && (
               <TrendList
                 title="🧰 Top Materials (All Time)"
@@ -737,8 +789,9 @@ export function AnalysisDetailsDialogContent({
                   count: m.count,
                 }))}
                 colorTheme="emerald"
-                collapsedCount={10}
+                collapsedCount={12}
                 linkBuilder={buildMaterialLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
           </div>
@@ -786,6 +839,7 @@ export function AnalysisDetailsDialogContent({
                   'prototypesWithAwards',
                   'topTags',
                   'topMaterials',
+                  'recentTopMaterials', // Used in Community Trends
                   'averageAgeInDays',
                   'announcedAt',
                   'anniversaryCandidates', // Used for client-side computation

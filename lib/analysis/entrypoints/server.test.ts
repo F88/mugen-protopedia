@@ -142,6 +142,9 @@ describe('buildAnalysisOverview', () => {
     };
     const buildMaterialAnalyticsMock = vi.fn(() => materialAnalyticsResult);
 
+    const recentMaterialsResult = [{ material: 'Recent', count: 1 }];
+    const buildTopMaterialsInRangeMock = vi.fn(() => recentMaterialsResult);
+
     const maternityHospitalResult = { topEvents: [], independentRatio: 0 };
     const buildMaternityHospitalMock = vi.fn(() => maternityHospitalResult);
 
@@ -149,6 +152,7 @@ describe('buildAnalysisOverview', () => {
       buildCoreSummaries: buildCoreSummariesMock,
       buildTagAnalytics: buildTagAnalyticsMock,
       buildMaterialAnalytics: buildMaterialAnalyticsMock,
+      buildTopMaterialsInRange: buildTopMaterialsInRangeMock,
       buildMaternityHospital: buildMaternityHospitalMock,
     }));
 
@@ -289,6 +293,16 @@ describe('buildAnalysisOverview', () => {
     expect(result.averageAgeInDays).toBe(coreSummariesResult.averageAgeInDays);
     expect(result.topTags).toBe(tagAnalyticsResult.topTags);
     expect(result.topMaterials).toBe(materialAnalyticsResult.topMaterials);
+    // Assert structurally so the test survives changes to the configured
+    // lookback windows: one entry per window, each carrying the ranged result.
+    expect(result.recentTopMaterials.length).toBeGreaterThan(0);
+    expect(buildTopMaterialsInRangeMock).toHaveBeenCalledTimes(
+      result.recentTopMaterials.length,
+    );
+    for (const window of result.recentTopMaterials) {
+      expect(typeof window.lookbackHours).toBe('number');
+      expect(window.materials).toBe(recentMaterialsResult);
+    }
     expect(result.anniversaryCandidates).toBe(candidatesResult);
     expect(result.releaseTimeDistribution).toBe(
       timeDistributionsResult.releaseTimeDistribution,
