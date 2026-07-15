@@ -749,7 +749,7 @@ export function AnalysisDetailsDialogContent({
             )}
 
             {/* Top Tags (recent windows, then all-time) */}
-            {analysis.recentTopTags.map((window) => (
+            {analysis.recentTopTags?.map((window) => (
               <TrendList
                 key={window.lookbackHours}
                 // `Xh` is the exact window; the span is an approximation.
@@ -781,7 +781,7 @@ export function AnalysisDetailsDialogContent({
 
             {/* Top Materials  */}
 
-            {analysis.recentTopMaterials.map((window) => (
+            {analysis.recentTopMaterials?.map((window) => (
               <TrendList
                 key={window.lookbackHours}
                 // `Xh` is the exact window; the span is an approximation.
