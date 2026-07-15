@@ -231,7 +231,9 @@ function BirthdayPrototypes({
   }
 
   const collapsedCount = 10;
-  const showCount = isExpanded ? sortedBirthdayPrototypes.length : collapsedCount;
+  const showCount = isExpanded
+    ? sortedBirthdayPrototypes.length
+    : collapsedCount;
   const hiddenCount = birthdayCount - collapsedCount;
 
   return (
@@ -746,7 +748,23 @@ export function AnalysisDetailsDialogContent({
               />
             )}
 
-            {/* Top Tags */}
+            {/* Top Tags (recent windows, then all-time) */}
+            {analysis.recentTopTags.map((window) => (
+              <TrendList
+                key={window.lookbackHours}
+                // `Xh` is the exact window; the span is an approximation.
+                // title={`🏷️ Top Tags (Last ${window.lookbackHours}h ≈ ${formatApproxDuration(window.lookbackHours)})`}
+                title={`🏷️ Top Tags (Last ${formatApproxDuration(window.lookbackHours)})`}
+                items={window.tags.slice(0, 30).map((t) => ({
+                  label: t.tag,
+                  count: t.count,
+                }))}
+                colorTheme="blue"
+                collapsedCount={12}
+                linkBuilder={buildTagLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
+              />
+            ))}
             {analysis.topTags?.length > 0 && (
               <TrendList
                 title="🏷️ Top Tags (All Time)"
@@ -834,19 +852,20 @@ export function AnalysisDetailsDialogContent({
               {Object.keys(analysis).map((key) => {
                 // Explicitly define keys used in the UI to highlight unused ones
                 const USED_KEYS = [
-                  'totalCount',
-                  'statusDistribution',
-                  'prototypesWithAwards',
-                  'topTags',
-                  'topMaterials',
-                  'recentTopMaterials', // Used in Community Trends
-                  'averageAgeInDays',
-                  'announcedAt',
-                  'anniversaryCandidates', // Used for client-side computation
+                  'analyzedAt', // Displayed as "Last updated" in the dialog header
+                  'totalCount', // Used in Overview + summary bar
+                  'prototypesWithAwards', // Used in Overview + summary bar
+                  'averageAgeInDays', // Used in Overview
                   'creationStreak', // Used in Overview
+                  'statusDistribution', // Used in Prototype Status
                   'maternityHospital', // Used in Community Trends
+                  'topTags', // Used in Community Trends
+                  'recentTopTags', // Used in Community Trends
+                  'topMaterials', // Used in Community Trends
+                  'recentTopMaterials', // Used in Community Trends
                   'releaseTimeDistribution', // Used in Maker's Rhythm
                   'updateTimeDistribution', // Used in Maker's Rhythm
+                  'anniversaryCandidates', // Used for client-side computation
                   '_debugMetrics', // Displayed right here
                 ];
                 const isUsed = USED_KEYS.includes(key);

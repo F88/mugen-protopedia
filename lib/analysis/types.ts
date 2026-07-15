@@ -137,6 +137,15 @@ export type AnalysisOverview = {
   prototypesWithAwards: number;
   /** Most common tags (top 30) */
   topTags: Array<{ tag: string; count: number }>;
+  /**
+   * Most common tags within recent rolling windows, relative to `analyzedAt`
+   * and keyed by `releaseDate`. One entry per window; complements the all-time
+   * `topTags`.
+   */
+  recentTopTags: Array<{
+    lookbackHours: number;
+    tags: Array<{ tag: string; count: number }>;
+  }>;
   /** Most frequently used materials/tools (top 30) */
   topMaterials: Array<{ material: string; count: number }>;
   /**

@@ -19,8 +19,8 @@ and this project adheres to [CalVer](https://calver.org/).
   Materials) now show the first 10 with a toggle to reveal up to 30.
 - Analysis Dashboard: Top Tags and Top Materials entries now link to their
   ProtoPedia tag / material pages (Top Events stays plain text).
-- Analysis Dashboard: add recent-window Top Materials rankings (Last 168h / Last
-  720h, by releaseDate) alongside the all-time list in Community Trends.
+- Analysis Dashboard: add recent-window Top Materials and Top Tags rankings (by
+  releaseDate) alongside the all-time lists in Community Trends.
 
 ### Changed
 

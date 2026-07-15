@@ -13,6 +13,7 @@ import {
   buildMaterialAnalytics,
   buildTopMaterialsInRange,
   buildTagAnalytics,
+  buildTopTagsInRange,
   buildCoreSummaries,
   buildMaternityHospital,
 } from '../batch';
@@ -34,7 +35,9 @@ type AnalysisPipelineResult = Pick<
   | 'prototypesWithAwards'
   | 'averageAgeInDays'
   | 'topTags'
+  | 'recentTopTags'
   | 'topMaterials'
+  | 'recentTopMaterials'
   | 'anniversaryCandidates'
   | 'releaseTimeDistribution'
   | 'updateTimeDistribution'
@@ -49,27 +52,46 @@ type AnalysisPipelineResult = Pick<
 const MS_PER_HOUR = 60 * 60 * 1000;
 
 /**
- * Rolling lookback windows (in hours) for `recentTopMaterials`, measured back
- * from the analysis reference time and keyed by `releaseDate`. Values are
- * approximate calendar spans: 720h ≈ 1 month (30 days), 8640h ≈ 1 year
- * (30 × 12 = 360 days). Keep entries as multiples of 24 so the UI's
- * `≈ N days` label stays exact.
+ * Rolling lookback windows (in hours) for the recent Top Materials / Top Tags
+ * rankings, measured back from the analysis reference time and keyed by
+ * `releaseDate`. Values are approximate calendar spans: 720h ≈ 1 month
+ * (30 days), 8640h ≈ 1 year (30 × 12 = 360 days). Keep entries as multiples of
+ * 24 so the UI's `≈ N days` label stays exact.
  */
-const RECENT_MATERIAL_LOOKBACK_HOURS = [
+const RECENT_LOOKBACK_HOURS = [
   24 * 30 /* 1 month */,
   24 * 30 * 12 /* 1 year */,
 ] as const;
 
 /**
+ * Computes the top tags for each configured recent lookback window
+ * ({@link RECENT_LOOKBACK_HOURS}) relative to `now`.
+ */
+function buildRecentTopTags(
+  prototypes: PrototypeForMpp[],
+  now: Date,
+  logger?: MinimalLogger,
+): AnalysisOverview['recentTopTags'] {
+  return RECENT_LOOKBACK_HOURS.map((lookbackHours) => ({
+    lookbackHours,
+    tags: buildTopTagsInRange(prototypes, {
+      from: new Date(now.getTime() - lookbackHours * MS_PER_HOUR),
+      to: now,
+      logger,
+    }),
+  }));
+}
+
+/**
  * Computes the top materials for each configured recent lookback window
- * ({@link RECENT_MATERIAL_LOOKBACK_HOURS}) relative to `now`.
+ * ({@link RECENT_LOOKBACK_HOURS}) relative to `now`.
  */
 function buildRecentTopMaterials(
   prototypes: PrototypeForMpp[],
   now: Date,
   logger?: MinimalLogger,
 ): AnalysisOverview['recentTopMaterials'] {
-  return RECENT_MATERIAL_LOOKBACK_HOURS.map((lookbackHours) => ({
+  return RECENT_LOOKBACK_HOURS.map((lookbackHours) => ({
     lookbackHours,
     materials: buildTopMaterialsInRange(prototypes, {
       from: new Date(now.getTime() - lookbackHours * MS_PER_HOUR),
@@ -96,8 +118,12 @@ function buildEmptyAnalysisOverview(
     statusDistribution: {},
     prototypesWithAwards: 0,
     topTags: [],
+    recentTopTags: RECENT_LOOKBACK_HOURS.map((lookbackHours) => ({
+      lookbackHours,
+      tags: [],
+    })),
     topMaterials: [],
-    recentTopMaterials: RECENT_MATERIAL_LOOKBACK_HOURS.map((lookbackHours) => ({
+    recentTopMaterials: RECENT_LOOKBACK_HOURS.map((lookbackHours) => ({
       lookbackHours,
       materials: [],
     })),
@@ -140,11 +166,19 @@ function runAnalysisPipelines(
   const { topTags, tagCounts } = buildTagAnalytics(prototypes, { logger });
   metrics.topTags = performance.now() - stepStartTags;
 
+  const stepStartRecentTags = performance.now();
+  const recentTopTags = buildRecentTopTags(prototypes, now, logger);
+  metrics.recentTopTags = performance.now() - stepStartRecentTags;
+
   const stepStartMaterials = performance.now();
   const { topMaterials, materialCounts } = buildMaterialAnalytics(prototypes, {
     logger,
   });
   metrics.topMaterials = performance.now() - stepStartMaterials;
+
+  const stepStartRecentMaterials = performance.now();
+  const recentTopMaterials = buildRecentTopMaterials(prototypes, now, logger);
+  metrics.recentTopMaterials = performance.now() - stepStartRecentMaterials;
 
   const stepStartAnniversaries = performance.now();
   const anniversaryCandidates = buildAnniversaryCandidatesFn(
@@ -198,7 +232,9 @@ function runAnalysisPipelines(
     prototypesWithAwards: summaries.prototypesWithAwards,
     averageAgeInDays: summaries.averageAgeInDays,
     topTags,
+    recentTopTags,
     topMaterials,
+    recentTopMaterials,
     anniversaryCandidates,
     releaseTimeDistribution,
     updateTimeDistribution,
@@ -373,7 +409,9 @@ export function buildAnalysisOverview(
     prototypesWithAwards,
     averageAgeInDays,
     topTags,
+    recentTopTags,
     topMaterials,
+    recentTopMaterials,
     anniversaryCandidates,
     releaseTimeDistribution,
     updateTimeDistribution,
@@ -429,9 +467,10 @@ export function buildAnalysisOverview(
     statusDistribution,
     prototypesWithAwards,
     topTags,
+    recentTopTags,
     averageAgeInDays: Math.round(averageAgeInDays * 100) / 100,
     topMaterials,
-    recentTopMaterials: buildRecentTopMaterials(prototypes, now, logger),
+    recentTopMaterials,
     analyzedAt: new Date().toISOString(),
     anniversaryCandidates,
     releaseTimeDistribution,

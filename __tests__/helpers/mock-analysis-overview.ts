@@ -18,6 +18,7 @@ export function createMockAnalysisOverview(
     statusDistribution: {},
     prototypesWithAwards: 0,
     topTags: [],
+    recentTopTags: [],
     topMaterials: [],
     recentTopMaterials: [],
     averageAgeInDays: 0,

@@ -81,6 +81,10 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
       statusDistribution,
       prototypesWithAwards,
       topTags,
+      recentTopTags: [168, 720].map((lookbackHours) => ({
+        lookbackHours,
+        tags: topTags,
+      })),
       topMaterials,
       recentTopMaterials: [168, 720].map((lookbackHours) => ({
         lookbackHours,
@@ -102,6 +106,10 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
     statusDistribution,
     prototypesWithAwards,
     topTags,
+    recentTopTags: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      tags: topTags,
+    })),
     topMaterials,
     recentTopMaterials: [168, 720].map((lookbackHours) => ({
       lookbackHours,
@@ -669,6 +677,7 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       }),
       { count: 10 },
     ),
+    recentTopTags: [],
     topMaterials,
     recentTopMaterials: [168, 720].map((lookbackHours) => ({
       lookbackHours,
