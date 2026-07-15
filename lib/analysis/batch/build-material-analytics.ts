@@ -103,9 +103,9 @@ export function buildMaterialAnalytics(
  * same UI.
  *
  * Date resolution and window semantics follow {@link createDateRangeFilter}:
- * `dateField: 'release'` (default) uses `releaseDate` (falling back to
- * `createDate`); an unbounded window counts every prototype, while a bounded
- * window excludes prototypes with no usable date.
+ * `dateField: 'release'` (default) dates each prototype by `releaseDate` only
+ * (no cross-field fallback); an unbounded window counts every prototype, while
+ * a bounded window excludes prototypes whose selected date is missing.
  *
  * @param prototypes - Prototypes to analyze.
  * @param options - Optional window, ranking limit, date field, and logger.

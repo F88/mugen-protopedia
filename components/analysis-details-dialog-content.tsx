@@ -37,7 +37,7 @@ const getStatusSegmentWidthClass = (value: number) =>
 
 /**
  * Formats a lookback duration (in hours) as an approximate human span,
- * escalating the unit as it grows: days below ~1 month (< 32 days), then months
+ * escalating the unit as it grows: days below ~1 month (< 28 days), then months
  * below ~1 year (< 12 months), then years. Assumes 30-day months and 12-month
  * years, so it is intentionally approximate (pairs with the exact `Xh` shown
  * alongside it).
