@@ -1,5 +1,9 @@
 import './analysis-dashboard.css';
 
+import { useState } from 'react';
+
+import Link from 'next/link';
+
 import { RefreshCw } from 'lucide-react';
 
 import type { PrototypeAnalysis, AnalysisOverview } from '@/lib/analysis/types';
@@ -177,6 +181,7 @@ function BirthdayPrototypes({
   isLoading?: boolean;
 }) {
   const { birthdayCount, birthdayPrototypes } = anniversaries;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const sortedBirthdayPrototypes = [...birthdayPrototypes].sort((a, b) => {
     const aTime = new Date(a.releaseDate).getTime();
@@ -203,7 +208,9 @@ function BirthdayPrototypes({
     );
   }
 
-  const showCount = 10;
+  const collapsedCount = 10;
+  const showCount = isExpanded ? sortedBirthdayPrototypes.length : collapsedCount;
+  const hiddenCount = birthdayCount - collapsedCount;
 
   return (
     <div className="space-y-3">
@@ -278,9 +285,17 @@ function BirthdayPrototypes({
         })}
       </div>
 
-      {birthdayCount > showCount && (
-        <div className="text-center text-xs text-gray-500 pt-1">
-          and {birthdayCount - showCount} more prototypes celebrating today!
+      {hiddenCount > 0 && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {isExpanded
+              ? 'Show less'
+              : `and ${hiddenCount.toLocaleString()} more prototypes celebrating today!`}
+          </button>
         </div>
       )}
     </div>
@@ -574,14 +589,14 @@ export function AnalysisDetailsDialogContent({
         <section className="space-y-4">
           <SectionTitle>📅 Today&apos;s Highlights</SectionTitle>
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-              <BirthdayPrototypes
+            <div className="min-w-0 bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <NewbornPrototypes
                 anniversaries={anniversaries}
                 isLoading={anniversariesLoading}
               />
             </div>
-            <div className="min-w-0 bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-              <NewbornPrototypes
+            <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <BirthdayPrototypes
                 anniversaries={anniversaries}
                 isLoading={anniversariesLoading}
               />
@@ -744,6 +759,19 @@ export function AnalysisDetailsDialogContent({
           </div>
         </div>
       )}
+
+      <div className="border-t border-gray-200 pt-4 text-center dark:border-gray-700">
+        <Link
+          href="/observatory"
+          className="group inline-flex items-center gap-2 rounded-full border border-blue-300/60 bg-gradient-to-r from-blue-100 via-indigo-100 to-violet-100 px-5 py-2.5 text-sm font-medium text-indigo-700 shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all hover:border-blue-400 hover:shadow-[0_0_28px_rgba(59,130,246,0.3)] dark:border-sky-400/25 dark:bg-gradient-to-r dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950 dark:text-amber-100 dark:shadow-[0_0_20px_rgba(56,189,248,0.15)] dark:hover:border-amber-200/60 dark:hover:shadow-[0_0_28px_rgba(253,224,71,0.35)]"
+        >
+          <span className="transition-transform group-hover:scale-110">🔭</span>
+          <span>
+            Explore the{' '}
+            <span className="text-blue-600 dark:text-amber-200">Observatory</span>
+          </span>
+        </Link>
+      </div>
     </DialogContent>
   );
 }

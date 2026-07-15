@@ -9,8 +9,17 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Analysis Dashboard: add a link to the Observatory in the details dialog,
+  styled to match the Observatory's theme-aware sky (light) / space (dark) look.
+- Analysis Dashboard: the Birthday list now shows the first 10 with a toggle to
+  reveal the rest (and collapse again), instead of a static overflow count.
+
 ### Changed
 
+- Analysis Dashboard: show Newborn before Birthday in both the summary bar and
+  the details dialog.
 - Internal refactor (no behavior change): route all analysis through a single
   `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
   group Observatory insight builders by page under `lib/observatory/<page>/`.

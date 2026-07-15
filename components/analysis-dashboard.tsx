@@ -238,10 +238,10 @@ export function AnalysisDashboard({
           🎖️ {analysis.prototypesWithAwards.toLocaleString()}
         </span>
         <span className="text-sm sm:text-base">
-          🎉 {birthdayCount.toLocaleString()}
+          🐣 {newbornCount.toLocaleString()}
         </span>
         <span className="text-sm sm:text-base">
-          🐣 {newbornCount.toLocaleString()}
+          🎉 {birthdayCount.toLocaleString()}
         </span>
       </AnalysisSummary>
 

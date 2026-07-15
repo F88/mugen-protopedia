@@ -341,6 +341,37 @@ export const ManyBirthdays: Story = {
   },
 };
 
+export const BirthdaysWithMoreToggle: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 15 }).map(
+          (_, index) => {
+            const years = 3 + index;
+            return {
+              id: 2000 + index,
+              title: `Overflow Birthday Prototype ${index + 1}`,
+              years,
+              releaseDate: releaseDateForYearsAgo(years),
+              teamNm: '',
+              users: [`Overflow Maker ${index + 1}@overflowmaker${index + 1}`],
+            };
+          },
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'More than 10 birthdays: the first 10 are shown with a "more" toggle to expand the rest and a "Show less" toggle to collapse.',
+      },
+    },
+  },
+};
+
 export const ManyNewborns: Story = {
   render: renderStory,
   parameters: {
