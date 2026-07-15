@@ -40,6 +40,7 @@ export function useMaxPrototypeId(): number {
       let maxId: number | null = null;
       try {
         maxId = await getMaxPrototypeId();
+        logger.debug('Resolved max prototype id:', maxId);
       } catch (error) {
         logger.warn(
           'Failed to resolve max prototype id, using fallback',

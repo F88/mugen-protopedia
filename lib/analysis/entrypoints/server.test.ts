@@ -142,13 +142,21 @@ describe('buildAnalysisOverview', () => {
     };
     const buildMaterialAnalyticsMock = vi.fn(() => materialAnalyticsResult);
 
+    const recentMaterialsResult = [{ material: 'Recent', count: 1 }];
+    const buildTopMaterialsInRangeMock = vi.fn(() => recentMaterialsResult);
+
+    const recentTagsResult = [{ tag: 'RecentTag', count: 1 }];
+    const buildTopTagsInRangeMock = vi.fn(() => recentTagsResult);
+
     const maternityHospitalResult = { topEvents: [], independentRatio: 0 };
     const buildMaternityHospitalMock = vi.fn(() => maternityHospitalResult);
 
     vi.doMock('../batch', () => ({
       buildCoreSummaries: buildCoreSummariesMock,
       buildTagAnalytics: buildTagAnalyticsMock,
+      buildTopTagsInRange: buildTopTagsInRangeMock,
       buildMaterialAnalytics: buildMaterialAnalyticsMock,
+      buildTopMaterialsInRange: buildTopMaterialsInRangeMock,
       buildMaternityHospital: buildMaternityHospitalMock,
     }));
 
@@ -289,6 +297,24 @@ describe('buildAnalysisOverview', () => {
     expect(result.averageAgeInDays).toBe(coreSummariesResult.averageAgeInDays);
     expect(result.topTags).toBe(tagAnalyticsResult.topTags);
     expect(result.topMaterials).toBe(materialAnalyticsResult.topMaterials);
+    // Assert structurally so the test survives changes to the configured
+    // lookback windows: one entry per window, each carrying the ranged result.
+    expect(result.recentTopMaterials.length).toBeGreaterThan(0);
+    expect(buildTopMaterialsInRangeMock).toHaveBeenCalledTimes(
+      result.recentTopMaterials.length,
+    );
+    for (const window of result.recentTopMaterials) {
+      expect(typeof window.lookbackHours).toBe('number');
+      expect(window.materials).toBe(recentMaterialsResult);
+    }
+    expect(result.recentTopTags.length).toBeGreaterThan(0);
+    expect(buildTopTagsInRangeMock).toHaveBeenCalledTimes(
+      result.recentTopTags.length,
+    );
+    for (const window of result.recentTopTags) {
+      expect(typeof window.lookbackHours).toBe('number');
+      expect(window.tags).toBe(recentTagsResult);
+    }
     expect(result.anniversaryCandidates).toBe(candidatesResult);
     expect(result.releaseTimeDistribution).toBe(
       timeDistributionsResult.releaseTimeDistribution,

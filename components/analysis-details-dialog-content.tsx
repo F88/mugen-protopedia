@@ -1,11 +1,17 @@
 import './analysis-dashboard.css';
 
+import { useState } from 'react';
+
+import Link from 'next/link';
+
 import { RefreshCw } from 'lucide-react';
 
 import type { PrototypeAnalysis, AnalysisOverview } from '@/lib/analysis/types';
 import { calculateAge } from '@/lib/utils/anniversary-nerd';
 import {
+  buildMaterialLink,
   buildPrototypeLink,
+  buildTagLink,
   buildUserLink,
   getUserDisplayName,
 } from '@/lib/utils/prototype-utils';
@@ -28,6 +34,26 @@ const clampPercent = (value: number) =>
 
 const getStatusSegmentWidthClass = (value: number) =>
   `prototype-status-width-${clampPercent(value)}`;
+
+/**
+ * Formats a lookback duration (in hours) as an approximate human span,
+ * escalating the unit as it grows: days below ~1 month (< 28 days), then months
+ * below ~1 year (< 12 months), then years. Assumes 30-day months and 12-month
+ * years, so it is intentionally approximate (pairs with the exact `Xh` shown
+ * alongside it).
+ */
+function formatApproxDuration(hours: number): string {
+  const days = Math.round(hours / 24);
+  if (days < 28) {
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  const months = Math.round(days / 30);
+  if (months < 12) {
+    return `${months} month${months === 1 ? '' : 's'}`;
+  }
+  const years = Math.round(months / 12);
+  return `${years} year${years === 1 ? '' : 's'}`;
+}
 
 /**
  * Component to display a section title
@@ -177,6 +203,7 @@ function BirthdayPrototypes({
   isLoading?: boolean;
 }) {
   const { birthdayCount, birthdayPrototypes } = anniversaries;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const sortedBirthdayPrototypes = [...birthdayPrototypes].sort((a, b) => {
     const aTime = new Date(a.releaseDate).getTime();
@@ -203,7 +230,11 @@ function BirthdayPrototypes({
     );
   }
 
-  const showCount = 10;
+  const collapsedCount = 10;
+  const showCount = isExpanded
+    ? sortedBirthdayPrototypes.length
+    : collapsedCount;
+  const hiddenCount = birthdayCount - collapsedCount;
 
   return (
     <div className="space-y-3">
@@ -278,9 +309,18 @@ function BirthdayPrototypes({
         })}
       </div>
 
-      {birthdayCount > showCount && (
-        <div className="text-center text-xs text-gray-500 pt-1">
-          and {birthdayCount - showCount} more prototypes celebrating today!
+      {hiddenCount > 0 && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {isExpanded
+              ? 'Show less'
+              : `and ${hiddenCount.toLocaleString()} more prototypes celebrating today!`}
+          </button>
         </div>
       )}
     </div>
@@ -455,36 +495,77 @@ function TrendList({
   title,
   items,
   colorTheme = 'indigo',
+  collapsedCount,
+  linkBuilder,
+  itemsGridClassName = 'grid grid-cols-1 gap-2 sm:grid-cols-2',
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
   colorTheme?: 'indigo' | 'blue' | 'emerald';
+  /**
+   * When set, only the first `collapsedCount` items are shown initially with a
+   * toggle to reveal the rest (and collapse again). When undefined, all items
+   * are always shown.
+   */
+  collapsedCount?: number;
+  /**
+   * When provided, each item's label links to the URL this returns. A `null`
+   * return (or omitting the prop) renders the label as plain text.
+   */
+  linkBuilder?: (label: string) => string | null;
+  /**
+   * Grid classes for the items container, letting a caller pick a denser
+   * layout (e.g. `grid grid-cols-2 gap-2 sm:grid-cols-4`). Defaults to a
+   * 1-column (2 on `sm`) grid.
+   */
+  itemsGridClassName?: string;
 }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!items || items.length === 0) return null;
+
+  const maxCount = items[0].count;
+  const isCollapsible = collapsedCount != null && items.length > collapsedCount;
+  const visibleItems =
+    isCollapsible && !isExpanded ? items.slice(0, collapsedCount) : items;
+  const hiddenCount = isCollapsible ? items.length - collapsedCount : 0;
+
+  const themeColors = COLOR_CLASS_MAP[colorTheme];
 
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
         {title}
       </h4>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {items.map(({ label, count }, _, arr) => {
-          const maxCount = arr[0].count;
+      <div className={itemsGridClassName}>
+        {visibleItems.map(({ label, count }) => {
           const ratio = count / maxCount;
 
-          const themeColors = COLOR_CLASS_MAP[colorTheme];
           let colorClasses = themeColors.low;
           if (ratio > 0.8) colorClasses = themeColors.high;
           else if (ratio > 0.5) colorClasses = themeColors.medium;
+
+          const href = linkBuilder?.(label) ?? null;
 
           return (
             <div
               key={label}
               className={`flex items-start justify-between gap-3 rounded border p-2 transition-colors ${colorClasses}`}
             >
-              <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
-                {label}
-              </span>
+              {href != null ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 hover:underline dark:text-gray-100"
+                >
+                  {label}
+                </a>
+              ) : (
+                <span className="min-w-0 text-sm font-medium wrap-break-word text-gray-900 dark:text-gray-100">
+                  {label}
+                </span>
+              )}
               <span
                 className={`shrink-0 text-sm font-semibold ${themeColors.text}`}
               >
@@ -494,6 +575,21 @@ function TrendList({
           );
         })}
       </div>
+
+      {isCollapsible && (
+        <div className="text-center pt-1">
+          <button
+            type="button"
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {isExpanded
+              ? 'Show less'
+              : `Show ${hiddenCount.toLocaleString()} more`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -502,7 +598,7 @@ type AnalysisDetailsDialogContentProps = {
   analysis: AnalysisOverview;
   anniversaries: PrototypeAnalysis['anniversaries'];
   anniversariesLoading: boolean;
-  formattedDate: string;
+  analyzedAt: string;
   isDevelopment: boolean;
   onRefresh: () => void;
 };
@@ -517,7 +613,7 @@ export function AnalysisDetailsDialogContent({
   analysis,
   anniversaries,
   anniversariesLoading,
-  formattedDate,
+  analyzedAt,
   isDevelopment,
   onRefresh,
 }: AnalysisDetailsDialogContentProps) {
@@ -534,7 +630,7 @@ export function AnalysisDetailsDialogContent({
         </Button>
         <DialogTitle className="self-center text-2xl">{title}</DialogTitle>
         <DialogDescription className="self-center text-sm">
-          Last updated: {formattedDate}
+          Last updated: {analyzedAt}
         </DialogDescription>
       </DialogHeader>
 
@@ -574,14 +670,14 @@ export function AnalysisDetailsDialogContent({
         <section className="space-y-4">
           <SectionTitle>📅 Today&apos;s Highlights</SectionTitle>
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-              <BirthdayPrototypes
+            <div className="min-w-0 bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+              <NewbornPrototypes
                 anniversaries={anniversaries}
                 isLoading={anniversariesLoading}
               />
             </div>
-            <div className="min-w-0 bg-linear-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-              <NewbornPrototypes
+            <div className="min-w-0 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <BirthdayPrototypes
                 anniversaries={anniversaries}
                 isLoading={anniversariesLoading}
               />
@@ -638,36 +734,84 @@ export function AnalysisDetailsDialogContent({
         <section className="space-y-4">
           <SectionTitle>📈 Community Trends</SectionTitle>
           <div className="grid gap-6 md:grid-cols-1">
+            {/* Top Events */}
             {analysis.maternityHospital?.topEvents?.length > 0 && (
               <TrendList
-                title="Top Events"
+                title="🏆 Top Events (All Time)"
                 items={analysis.maternityHospital.topEvents
-                  .slice(0, 20)
+                  .slice(0, 30)
                   .map((e) => ({
                     label: e.event,
                     count: e.count,
                   }))}
                 colorTheme="indigo"
+                collapsedCount={10}
+                // itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
-            {analysis.topTags?.length > 0 && (
+
+            {/* Top Tags (recent windows, then all-time) */}
+            {analysis.recentTopTags?.map((window) => (
               <TrendList
-                title="Top Tags"
-                items={analysis.topTags.slice(0, 20).map((t) => ({
+                key={window.lookbackHours}
+                // `Xh` is the exact window; the span is an approximation.
+                // title={`🏷️ Top Tags (Last ${window.lookbackHours}h ≈ ${formatApproxDuration(window.lookbackHours)})`}
+                title={`🏷️ Top Tags (Last ${formatApproxDuration(window.lookbackHours)})`}
+                items={window.tags.slice(0, 30).map((t) => ({
                   label: t.tag,
                   count: t.count,
                 }))}
                 colorTheme="blue"
+                collapsedCount={12}
+                linkBuilder={buildTagLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
+              />
+            ))}
+            {analysis.topTags?.length > 0 && (
+              <TrendList
+                title="🏷️ Top Tags (All Time)"
+                items={analysis.topTags.slice(0, 30).map((t) => ({
+                  label: t.tag,
+                  count: t.count,
+                }))}
+                colorTheme="blue"
+                collapsedCount={12}
+                linkBuilder={buildTagLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
-            {analysis.topMaterials?.length > 0 && (
+
+            {/* Top Materials  */}
+
+            {analysis.recentTopMaterials?.map((window) => (
               <TrendList
-                title="Top Materials"
-                items={analysis.topMaterials.slice(0, 20).map((m) => ({
+                key={window.lookbackHours}
+                // `Xh` is the exact window; the span is an approximation.
+                // title={`🧰 Top Materials (Last ${window.lookbackHours}h ≈ ${formatApproxDuration(window.lookbackHours)})`}
+                title={`🧰 Top Materials (Last ${formatApproxDuration(window.lookbackHours)})`}
+                items={window.materials.slice(0, 30).map((m) => ({
                   label: m.material,
                   count: m.count,
                 }))}
                 colorTheme="emerald"
+                collapsedCount={12}
+                linkBuilder={buildMaterialLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
+              />
+            ))}
+
+            {analysis.topMaterials?.length > 0 && (
+              <TrendList
+                title="🧰 Top Materials (All Time)"
+                // title="⚗️ Top Materials (All Time)"
+                items={analysis.topMaterials.slice(0, 30).map((m) => ({
+                  label: m.material,
+                  count: m.count,
+                }))}
+                colorTheme="emerald"
+                collapsedCount={12}
+                linkBuilder={buildMaterialLink}
+                itemsGridClassName="grid grid-cols-2 gap-2 sm:grid-cols-4"
               />
             )}
           </div>
@@ -710,18 +854,20 @@ export function AnalysisDetailsDialogContent({
               {Object.keys(analysis).map((key) => {
                 // Explicitly define keys used in the UI to highlight unused ones
                 const USED_KEYS = [
-                  'totalCount',
-                  'statusDistribution',
-                  'prototypesWithAwards',
-                  'topTags',
-                  'topMaterials',
-                  'averageAgeInDays',
-                  'announcedAt',
-                  'anniversaryCandidates', // Used for client-side computation
+                  'analyzedAt', // Displayed as "Last updated" in the dialog header
+                  'totalCount', // Used in Overview + summary bar
+                  'prototypesWithAwards', // Used in Overview + summary bar
+                  'averageAgeInDays', // Used in Overview
                   'creationStreak', // Used in Overview
+                  'statusDistribution', // Used in Prototype Status
                   'maternityHospital', // Used in Community Trends
+                  'topTags', // Used in Community Trends
+                  'recentTopTags', // Used in Community Trends
+                  'topMaterials', // Used in Community Trends
+                  'recentTopMaterials', // Used in Community Trends
                   'releaseTimeDistribution', // Used in Maker's Rhythm
                   'updateTimeDistribution', // Used in Maker's Rhythm
+                  'anniversaryCandidates', // Used for client-side computation
                   '_debugMetrics', // Displayed right here
                 ];
                 const isUsed = USED_KEYS.includes(key);
@@ -744,6 +890,21 @@ export function AnalysisDetailsDialogContent({
           </div>
         </div>
       )}
+
+      <div className="border-t border-gray-200 pt-4 text-center dark:border-gray-700">
+        <Link
+          href="/observatory"
+          className="group inline-flex items-center gap-2 rounded-full border border-blue-300/60 bg-linear-to-r from-blue-100 via-indigo-100 to-violet-100 px-5 py-2.5 text-sm font-medium text-indigo-700 shadow-[0_0_20px_rgba(59,130,246,0.15)] transition-all hover:border-blue-400 hover:shadow-[0_0_28px_rgba(59,130,246,0.3)] dark:border-sky-400/25 dark:bg-linear-to-r dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950 dark:text-amber-100 dark:shadow-[0_0_20px_rgba(56,189,248,0.15)] dark:hover:border-amber-200/60 dark:hover:shadow-[0_0_28px_rgba(253,224,71,0.35)]"
+        >
+          <span className="transition-transform group-hover:scale-110">🔭</span>
+          <span>
+            Explore the{' '}
+            <span className="text-blue-600 dark:text-amber-200">
+              Observatory
+            </span>
+          </span>
+        </Link>
+      </div>
     </DialogContent>
   );
 }

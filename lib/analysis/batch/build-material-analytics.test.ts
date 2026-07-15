@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import { buildMaterialAnalytics } from './build-material-analytics';
+import {
+  buildMaterialAnalytics,
+  buildTopMaterialsInRange,
+} from './build-material-analytics';
 
 const createPrototype = (
   materials: string[] = [],
@@ -73,5 +76,124 @@ describe('buildMaterialAnalytics', () => {
       { material: 'B', count: 1 },
       { material: 'C', count: 1 },
     ]);
+  });
+});
+
+describe('buildTopMaterialsInRange', () => {
+  it('counts every prototype when no bounds are given (all-time)', () => {
+    const prototypes = [
+      createPrototype(['A', 'B'], '2023-01-01T00:00:00Z'),
+      createPrototype(['A', 'C'], '2024-01-01T00:00:00Z'),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes);
+
+    expect(result).toEqual([
+      { material: 'A', count: 2 },
+      { material: 'B', count: 1 },
+      { material: 'C', count: 1 },
+    ]);
+  });
+
+  it('includes only prototypes whose date is within [from, to] (inclusive)', () => {
+    const prototypes = [
+      createPrototype(['Old'], '2023-01-01T00:00:00Z'),
+      createPrototype(['EdgeFrom'], '2024-06-01T00:00:00Z'),
+      createPrototype(['Inside'], '2024-06-15T00:00:00Z'),
+      createPrototype(['EdgeTo'], '2024-06-30T00:00:00Z'),
+      createPrototype(['Future'], '2024-07-01T00:00:00Z'),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes, {
+      from: new Date('2024-06-01T00:00:00Z'),
+      to: new Date('2024-06-30T00:00:00Z'),
+    });
+
+    expect(result).toEqual([
+      { material: 'EdgeFrom', count: 1 },
+      { material: 'Inside', count: 1 },
+      { material: 'EdgeTo', count: 1 },
+    ]);
+  });
+
+  it('supports an open-ended upper bound (from only): releaseDate >= from', () => {
+    const prototypes = [
+      createPrototype(['Old'], '2023-01-01T00:00:00Z'),
+      createPrototype(['Recent'], '2024-06-15T00:00:00Z'),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes, {
+      from: new Date('2024-01-01T00:00:00Z'),
+    });
+
+    expect(result).toEqual([{ material: 'Recent', count: 1 }]);
+  });
+
+  it('supports an open-ended lower bound (to only): releaseDate <= to (inclusive)', () => {
+    const prototypes = [
+      createPrototype(['Ancient'], '2020-01-01T00:00:00Z'),
+      createPrototype(['EdgeTo'], '2024-06-30T00:00:00Z'),
+      createPrototype(['Future'], '2024-07-01T00:00:00Z'),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes, {
+      to: new Date('2024-06-30T00:00:00Z'),
+    });
+
+    expect(result).toEqual([
+      { material: 'Ancient', count: 1 },
+      { material: 'EdgeTo', count: 1 },
+    ]);
+  });
+
+  it('excludes prototypes with no usable date when bounded', () => {
+    // Wipe both dates so the prototype cannot be placed on the timeline.
+    const noDate = {
+      ...createPrototype(['NoDate'], '2024-06-15T00:00:00Z'),
+      releaseDate: null,
+      createDate: null,
+    } as unknown as PrototypeForMpp;
+
+    const prototypes = [
+      noDate,
+      createPrototype(['Dated'], '2024-06-15T00:00:00Z'),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes, {
+      from: new Date('2024-01-01T00:00:00Z'),
+    });
+
+    expect(result).toEqual([{ material: 'Dated', count: 1 }]);
+  });
+
+  it('excludes a prototype missing the selected date field, without falling back to createDate', () => {
+    // releaseDate is absent but createDate is inside the window. With the
+    // default 'release' field and no fallback, this prototype is NOT a release
+    // in the window and must be excluded.
+    const releaseless = {
+      ...createPrototype(['FromCreate'], '2024-06-15T00:00:00Z'),
+      releaseDate: null,
+      createDate: '2024-06-15T00:00:00Z',
+    } as unknown as PrototypeForMpp;
+
+    const result = buildTopMaterialsInRange([releaseless], {
+      from: new Date('2024-06-01T00:00:00Z'),
+      to: new Date('2024-06-30T00:00:00Z'),
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('respects the limit option', () => {
+    const prototypes = [
+      createPrototype(['A', 'A', 'B', 'C']),
+      createPrototype(['A', 'B']),
+    ];
+
+    const result = buildTopMaterialsInRange(prototypes, { limit: 2 });
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({ material: 'A', count: 3 });
+    expect(result[1]).toEqual({ material: 'B', count: 2 });
   });
 });

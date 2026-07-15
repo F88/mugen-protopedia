@@ -9,8 +9,29 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Analysis Dashboard: add a link to the Observatory in the details dialog,
+  styled to match the Observatory's theme-aware sky (light) / space (dark) look.
+- Analysis Dashboard: the Birthday list now shows the first 10 with a toggle to
+  reveal the rest (and collapse again), instead of a static overflow count.
+- Analysis Dashboard: the Community Trends lists (Top Events / Top Tags / Top
+  Materials) now show the first 10 with a toggle to reveal up to 30.
+- Analysis Dashboard: Top Tags and Top Materials entries now link to their
+  ProtoPedia tag / material pages (Top Events stays plain text).
+- Analysis Dashboard: Community Trends now includes recent-window Top Materials
+  and Top Tags rankings — rolling "Last 1 month" and "Last 1 year" windows (by
+  releaseDate, relative to the analysis time) shown next to the all-time lists,
+  each labelled with an approximate human span (days / months / years).
+
 ### Changed
 
+- Analysis Dashboard: show Newborn before Birthday in both the summary bar and
+  the details dialog.
+- Analysis Dashboard: relabel the Community Trends lists with an "(All Time)"
+  suffix and a leading emoji to clarify they are all-time totals.
+- Analysis Dashboard: the Community Trends Top Tags and Top Materials lists use
+  a denser multi-column layout.
 - Internal refactor (no behavior change): route all analysis through a single
   `AnalysisRepository`, rename the home analysis type to `AnalysisOverview`, and
   group Observatory insight builders by page under `lib/observatory/<page>/`.

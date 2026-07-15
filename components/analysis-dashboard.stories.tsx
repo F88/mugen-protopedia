@@ -81,7 +81,15 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
       statusDistribution,
       prototypesWithAwards,
       topTags,
+      recentTopTags: [168, 720].map((lookbackHours) => ({
+        lookbackHours,
+        tags: topTags,
+      })),
       topMaterials,
+      recentTopMaterials: [168, 720].map((lookbackHours) => ({
+        lookbackHours,
+        materials: topMaterials,
+      })),
       averageAgeInDays,
       analyzedAt: referenceDate.toISOString(),
       anniversaryCandidates,
@@ -98,7 +106,15 @@ function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
     statusDistribution,
     prototypesWithAwards,
     topTags,
+    recentTopTags: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      tags: topTags,
+    })),
     topMaterials,
+    recentTopMaterials: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      materials: topMaterials,
+    })),
     averageAgeInDays,
     analyzedAt: referenceDate.toISOString(),
     anniversaryCandidates,
@@ -336,6 +352,37 @@ export const ManyBirthdays: Story = {
       description: {
         story:
           'Displays multiple birthday entries to verify wrapping and overflow handling.',
+      },
+    },
+  },
+};
+
+export const BirthdaysWithMoreToggle: Story = {
+  render: renderStory,
+  parameters: {
+    mockState: {
+      data: makeAnalysis((draft) => {
+        draft.anniversaries.birthdayPrototypes = Array.from({ length: 15 }).map(
+          (_, index) => {
+            const years = 3 + index;
+            return {
+              id: 2000 + index,
+              title: `Overflow Birthday Prototype ${index + 1}`,
+              years,
+              releaseDate: releaseDateForYearsAgo(years),
+              teamNm: '',
+              users: [`Overflow Maker ${index + 1}@overflowmaker${index + 1}`],
+            };
+          },
+        );
+        draft.anniversaries.birthdayCount =
+          draft.anniversaries.birthdayPrototypes.length;
+      }),
+    },
+    docs: {
+      description: {
+        story:
+          'More than 10 birthdays: the first 10 are shown with a "more" toggle to expand the rest and a "Show less" toggle to collapse.',
       },
     },
   },
@@ -630,7 +677,12 @@ const generateBulkAnalysis = (count: number): PrototypeAnalysis => {
       }),
       { count: 10 },
     ),
+    recentTopTags: [],
     topMaterials,
+    recentTopMaterials: [168, 720].map((lookbackHours) => ({
+      lookbackHours,
+      materials: topMaterials,
+    })),
     averageAgeInDays: faker.number.int({ min: 30, max: 4000 }),
     anniversaries: {
       birthdayCount: birthdays.length,

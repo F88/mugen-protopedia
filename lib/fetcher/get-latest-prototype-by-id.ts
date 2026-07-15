@@ -22,5 +22,6 @@ export const getLatestPrototypeById = async (
     });
     throw new Error(displayMessage);
   }
+  logger.debug('Fetched latest prototype', { prototype: result.data[0] });
   return result.data[0] ?? null;
 };

@@ -18,7 +18,9 @@ export function createMockAnalysisOverview(
     statusDistribution: {},
     prototypesWithAwards: 0,
     topTags: [],
+    recentTopTags: [],
     topMaterials: [],
+    recentTopMaterials: [],
     averageAgeInDays: 0,
     analyzedAt: '2025-01-01T00:00:00.000Z',
     anniversaryCandidates: {
