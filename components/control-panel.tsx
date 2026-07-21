@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/button';
 
 // Shared styles
 // Panel backgrounds are split per panel so MainPanel can be tuned on its own.
-const MAIN_PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+// MainPanel is transparent on narrow (< sm) and the semi-opaque panel on wide.
+const MAIN_PANEL_BG = 'bg-transparent sm:bg-white/60 sm:dark:bg-gray-900/60';
 const SUB_PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
 const PANEL_BORDER = 'border border-slate-200 dark:border-gray-700';
 // Reusable class tokens

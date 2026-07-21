@@ -23,6 +23,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 - Control panel: the RESET and PROTOTYPE buttons now show icon-only on narrow
   screens and reveal their labels at the same locked width on wider screens.
+- Control panel: the main panel background is transparent on narrow screens and
+  keeps the semi-opaque panel on wider screens.
 
 ## [2026.07.15]
 
