@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.21]
+
 ### Added
 
 - Analysis Dashboard: show a CC BY 4.0 data-attribution line in the details
