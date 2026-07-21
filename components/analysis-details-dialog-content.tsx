@@ -634,7 +634,7 @@ export function AnalysisDetailsDialogContent({
         </DialogDescription>
         {/* Data attribution (CC BY 4.0), required because this view displays
           prototype data sourced from ProtoPedia. See issue #215. */}
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+        <p className="self-center text-center text-xs text-gray-500 dark:text-gray-400">
           Data provided by{' '}
           <a
             href="https://protopedia.net/"
