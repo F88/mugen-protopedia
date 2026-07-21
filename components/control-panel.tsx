@@ -22,9 +22,58 @@ const KBD_CLASS =
 const KBD_ROW_CLASS =
   'hidden items-center gap-1 pt-1 text-xs text-muted-foreground sm:flex';
 const MUTED_XS = 'text-xs text-muted-foreground';
+// RESET / PROTOTYPE action buttons: narrow (< sm) shows the icon only at a
+// compact fixed width; wide (>= sm) reveals the label and locks both buttons to
+// the same width so they line up. The responsive rules live here in one place.
+const ACTION_BUTTON_WIDTH = 'w-16 sm:w-36';
 
 function Kbd({ children }: { children: ReactNode }) {
   return <kbd className={KBD_CLASS}>{children}</kbd>;
+}
+
+type ActionButtonProps = {
+  icon: ReactNode;
+  /** Visible text label, revealed only on wide screens (>= sm). */
+  label: string;
+  /** Accessible name, always exposed (kept even when the label is hidden). */
+  ariaLabel: string;
+  variant?: 'default' | 'destructive';
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+  ariaDescribedBy?: string;
+};
+
+/**
+ * A primary control-panel button whose label is shown or hidden by screen size
+ * (icon-only when narrow, icon + label when wide) at a size-dependent width.
+ * The narrow/wide switch is pure CSS (Tailwind `sm:`), so it stays SSR-safe.
+ */
+function ActionButton({
+  icon,
+  label,
+  ariaLabel,
+  variant = 'default',
+  onClick,
+  disabled = false,
+  title,
+  ariaDescribedBy,
+}: ActionButtonProps) {
+  return (
+    <Button
+      variant={variant}
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedBy}
+      className={cn(ACTION_BUTTON_WIDTH, 'gap-2')}
+    >
+      {icon}
+      {/* Narrow: icon only. Wide: reveal the label (same idea as the header). */}
+      <span className="hidden sm:inline">{label}</span>
+    </Button>
+  );
 }
 
 // Main (top) panel
@@ -75,17 +124,15 @@ function MainPanel({
       - Hint ("R") stays centered under the button */}
       <div className="w-full flex flex-col items-start sm:items-end gap-1 justify-self-start">
         <div className="flex flex-col items-center w-fit">
-          <Button
+          <ActionButton
             variant="destructive"
+            icon={<Square className="h-4 w-4" />}
+            label="RESET"
+            ariaLabel="Reset"
             onClick={onClear}
-            className="gap-2"
-            title="Reset (R)"
-            aria-label="Reset"
             disabled={!canClearDisabled}
-          >
-            <Square className="h-4 w-4" />
-            RESET
-          </Button>
+            title="Reset (R)"
+          />
           <span id="kbd-reset-hint" className="sr-only">
             Shortcut: Reset
           </span>
@@ -113,17 +160,15 @@ function MainPanel({
       - Hint ("Enter") stays centered under the button */}
       <div className="w-full flex flex-col items-end sm:items-start gap-1 justify-self-end">
         <div className="flex flex-col items-center w-fit">
-          <Button
+          <ActionButton
+            icon={<BsFillDice3Fill className="h-5 w-5" />}
+            label="PROTOTYPE"
+            ariaLabel="Prototype"
             onClick={onGetRandomPrototype}
-            className="gap-2"
-            title="Prototype"
-            aria-label="Prototype"
-            aria-describedby="kbd-prototype-hint"
             disabled={!canFetchMorePrototypes || !canGetPrototypes}
-          >
-            <BsFillDice3Fill className="h-5 w-5" />
-            PROTOTYPE
-          </Button>
+            title="Prototype"
+            ariaDescribedBy="kbd-prototype-hint"
+          />
           <span id="kbd-prototype-hint" className="sr-only">
             Shortcut: Enter
           </span>

@@ -19,6 +19,11 @@ and this project adheres to [CalVer](https://calver.org/).
   applies the CC BY 4.0 license to registered work information by default
   (English and Japanese).
 
+### Changed
+
+- Control panel: the RESET and PROTOTYPE buttons now show icon-only on narrow
+  screens and reveal their labels at the same locked width on wider screens.
+
 ## [2026.07.15]
 
 ### Added
