@@ -25,10 +25,6 @@ const KBD_CLASS =
 const KBD_ROW_CLASS =
   'hidden items-center gap-1 pt-1 text-xs text-muted-foreground sm:flex';
 const MUTED_XS = 'text-xs text-muted-foreground';
-// RESET / PROTOTYPE action buttons: narrow (< sm) shows the icon only at a
-// compact fixed width; wide (>= sm) reveals the label and locks both buttons to
-// the same width so they line up. The responsive rules live here in one place.
-const ACTION_BUTTON_WIDTH = 'w-16 sm:w-36';
 
 function Kbd({ children }: { children: ReactNode }) {
   return <kbd className={KBD_CLASS}>{children}</kbd>;
@@ -70,10 +66,15 @@ function ActionButton({
       title={title}
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
-      className={cn(ACTION_BUTTON_WIDTH, 'gap-2')}
+      className={cn(
+        // 'w-fit',
+        'w-16 sm:w-36',
+        'gap-2',
+      )}
     >
       {icon}
       {/* Narrow: icon only. Wide: reveal the label (same idea as the header). */}
+      {/* <span>{label}</span> */}
       <span className="hidden sm:inline">{label}</span>
     </Button>
   );
