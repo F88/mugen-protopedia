@@ -11,6 +11,9 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Added
 
+- Analysis Dashboard: show a CC BY 4.0 data-attribution line in the details
+  dialog header (below "Last updated"), crediting ProtoPedia as the data source
+  and linking to both ProtoPedia and the CC BY 4.0 license.
 - README: add a "Data Source & License" section documenting that the app uses
   ProtoPedia data retrieved through the ProtoPedia API (v2), and that ProtoPedia
   applies the CC BY 4.0 license to registered work information by default
