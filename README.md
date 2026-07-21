@@ -176,8 +176,21 @@ See [`docs/README.md`](./docs/README.md) for the full documentation index.
 - Data Fetching Strategy: [`docs/mugen-pp/data-fetching-strategy.md`](./docs/mugen-pp/data-fetching-strategy.md)
 - Analysis Specification: [`docs/analysis.md`](./docs/analysis.md)
 
+![icon-512x512.png](assets/icons/icon-v3-512x512.png)
+
 ## License
 
 MIT © F88. See [`LICENSE`](./LICENSE).
 
-![icon-512x512.png](assets/icons/icon-v3-512x512.png)
+## Data Source & License / データ出典とライセンス
+
+### ProtoPedia Data / ProtoPedia のデータ
+
+This application uses data from [ProtoPedia](https://protopedia.net/), retrieved through the [ProtoPedia API Ver 2.0](https://protopediav2.docs.apiary.io/).
+ProtoPedia applies the [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.en)
+license to registered work information by default.
+
+無限ProtoPediaは、[ProtoPedia](https://protopedia.net/)の作品情報を [ProtoPedia API Ver 2.0](https://protopediav2.docs.apiary.io/) を通じて取得し、利用しています。
+ProtoPediaでは、登録作品情報に [クリエイティブ・コモンズ 表示 4.0 国際(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.ja) ライセンスが標準適用されています。
+
+Reference: [ProtoPedia Help Center](https://protopedia.gitbook.io/helpcenter/info/2022.05.23)
