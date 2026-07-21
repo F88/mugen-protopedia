@@ -14,7 +14,9 @@ import { BsFillDice3Fill } from 'react-icons/bs';
 import { Button } from '@/components/ui/button';
 
 // Shared styles
-const PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+// Panel backgrounds are split per panel so MainPanel can be tuned on its own.
+const MAIN_PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+const SUB_PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
 const PANEL_BORDER = 'border border-slate-200 dark:border-gray-700';
 // Reusable class tokens
 const KBD_CLASS =
@@ -116,7 +118,7 @@ function MainPanel({
 
   return (
     <div
-      className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
+      className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${MAIN_PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
     >
       {/* Reset block (left)
       - Narrow: items-start -> left aligned
@@ -311,7 +313,7 @@ export function ControlPanel({
 
       {/* Collapsible sub panel */}
       <div
-        className={`${PANEL_BG} ${PANEL_BORDER} p-2 px-4 w-fit mx-auto rounded-lg transition-all duration-200`}
+        className={`${SUB_PANEL_BG} ${PANEL_BORDER} p-2 px-4 w-fit mx-auto rounded-lg transition-all duration-200`}
       >
         <Button
           variant="ghost"
