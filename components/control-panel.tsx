@@ -14,7 +14,10 @@ import { BsFillDice3Fill } from 'react-icons/bs';
 import { Button } from '@/components/ui/button';
 
 // Shared styles
-const PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
+// Panel backgrounds are split per panel so MainPanel can be tuned on its own.
+// MainPanel is transparent on narrow (< sm) and the semi-opaque panel on wide.
+const MAIN_PANEL_BG = 'bg-transparent sm:bg-white/60 sm:dark:bg-gray-900/60';
+const SUB_PANEL_BG = 'bg-white/60 dark:bg-gray-900/60';
 const PANEL_BORDER = 'border border-slate-200 dark:border-gray-700';
 // Reusable class tokens
 const KBD_CLASS =
@@ -25,6 +28,56 @@ const MUTED_XS = 'text-xs text-muted-foreground';
 
 function Kbd({ children }: { children: ReactNode }) {
   return <kbd className={KBD_CLASS}>{children}</kbd>;
+}
+
+type ActionButtonProps = {
+  icon: ReactNode;
+  /** Visible text label, revealed only on wide screens (>= sm). */
+  label: string;
+  /** Accessible name, always exposed (kept even when the label is hidden). */
+  ariaLabel: string;
+  variant?: 'default' | 'destructive';
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+  ariaDescribedBy?: string;
+};
+
+/**
+ * A primary control-panel button whose label is shown or hidden by screen size
+ * (icon-only when narrow, icon + label when wide) at a size-dependent width.
+ * The narrow/wide switch is pure CSS (Tailwind `sm:`), so it stays SSR-safe.
+ */
+function ActionButton({
+  icon,
+  label,
+  ariaLabel,
+  variant = 'default',
+  onClick,
+  disabled = false,
+  title,
+  ariaDescribedBy,
+}: ActionButtonProps) {
+  return (
+    <Button
+      variant={variant}
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedBy}
+      className={cn(
+        // 'w-fit',
+        'w-16 sm:w-36',
+        'gap-2',
+      )}
+    >
+      {icon}
+      {/* Narrow: icon only. Wide: reveal the label (same idea as the header). */}
+      {/* <span>{label}</span> */}
+      <span className="hidden sm:inline">{label}</span>
+    </Button>
+  );
 }
 
 // Main (top) panel
@@ -67,7 +120,7 @@ function MainPanel({
 
   return (
     <div
-      className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
+      className={`grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4 w-full sm:w-fit mx-auto ${MAIN_PANEL_BG} p-2 rounded-lg transition-colors duration-200`}
     >
       {/* Reset block (left)
       - Narrow: items-start -> left aligned
@@ -75,17 +128,15 @@ function MainPanel({
       - Hint ("R") stays centered under the button */}
       <div className="w-full flex flex-col items-start sm:items-end gap-1 justify-self-start">
         <div className="flex flex-col items-center w-fit">
-          <Button
+          <ActionButton
             variant="destructive"
+            icon={<Square className="h-4 w-4" />}
+            label="RESET"
+            ariaLabel="Reset"
             onClick={onClear}
-            className="gap-2"
-            title="Reset (R)"
-            aria-label="Reset"
             disabled={!canClearDisabled}
-          >
-            <Square className="h-4 w-4" />
-            RESET
-          </Button>
+            title="Reset (R)"
+          />
           <span id="kbd-reset-hint" className="sr-only">
             Shortcut: Reset
           </span>
@@ -113,17 +164,15 @@ function MainPanel({
       - Hint ("Enter") stays centered under the button */}
       <div className="w-full flex flex-col items-end sm:items-start gap-1 justify-self-end">
         <div className="flex flex-col items-center w-fit">
-          <Button
+          <ActionButton
+            icon={<BsFillDice3Fill className="h-5 w-5" />}
+            label="PROTOTYPE"
+            ariaLabel="Prototype"
             onClick={onGetRandomPrototype}
-            className="gap-2"
-            title="Prototype"
-            aria-label="Prototype"
-            aria-describedby="kbd-prototype-hint"
             disabled={!canFetchMorePrototypes || !canGetPrototypes}
-          >
-            <BsFillDice3Fill className="h-5 w-5" />
-            PROTOTYPE
-          </Button>
+            title="Prototype"
+            ariaDescribedBy="kbd-prototype-hint"
+          />
           <span id="kbd-prototype-hint" className="sr-only">
             Shortcut: Enter
           </span>
@@ -266,7 +315,7 @@ export function ControlPanel({
 
       {/* Collapsible sub panel */}
       <div
-        className={`${PANEL_BG} ${PANEL_BORDER} p-2 px-4 w-fit mx-auto rounded-lg transition-all duration-200`}
+        className={`${SUB_PANEL_BG} ${PANEL_BORDER} p-2 px-4 w-fit mx-auto rounded-lg transition-all duration-200`}
       >
         <Button
           variant="ghost"
