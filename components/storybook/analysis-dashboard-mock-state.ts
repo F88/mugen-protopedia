@@ -115,8 +115,9 @@ export type MockAnalysisState = {
   error?: string | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const refresh = (_opts?: { forceRecompute?: boolean }) => {};
+// No-op refresh; a parameterless function is assignable to the state's
+// `(options?) => void` signature, so no unused-parameter suppression needed.
+const refresh = () => {};
 
 /** A realistic analysis computed from the shared Storybook fixtures. */
 export const sampleAnalysis = analyzePrototypes([

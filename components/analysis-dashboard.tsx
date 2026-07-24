@@ -211,17 +211,25 @@ export function AnalysisDashboard({
         actions={
           <>
             <DialogTrigger asChild>
-              <Button type="button" variant="outline" size="icon-sm">
-                🔍
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                aria-label="Show analysis details"
+                title="Show analysis details"
+              >
+                <span aria-hidden="true">🔍</span>
               </Button>
             </DialogTrigger>
             <Button
               type="button"
               onClick={refreshBoth}
               size="icon-sm"
+              aria-label="Refresh analysis"
+              title="Refresh analysis"
               className="hidden bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 sm:inline-flex"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
             </Button>
           </>
         }
