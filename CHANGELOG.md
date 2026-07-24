@@ -31,6 +31,10 @@ and this project adheres to [CalVer](https://calver.org/).
       with local dev results; they now use the shared JST lifecycle helpers.
     - The Elemental Chronicles displayed UTC-sliced years and lifespan dates;
       they now render via `formatInJst`.
+- The Elemental Chronicles: harden the material lifespan/supernova date list
+  against unparseable upstream timestamps (legacy-import era data) — such
+  works are now excluded like dateless ones instead of corrupting the
+  first/last selection and producing NaN day spans.
 
 ## [2026.07.21]
 
