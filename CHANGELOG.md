@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.24]
+
 ### Changed
 
 - Header: unify the icon buttons (details, refresh, playlist, observatory,
