@@ -375,9 +375,14 @@ export function buildChroniclesInsights(
         : null;
 
     // Supernova (WORKS): how fast N works came to use the material.
+    // Invariant: only parseable timestamps enter workDates. Upstream data has
+    // a legacy-import history and can carry odd date values; an unparseable
+    // string here would corrupt the lexicographic sort (first/last selection),
+    // make lifespan.days NaN, and break lifespan date formatting downstream.
+    // Works without a usable date are treated like dateless ones (excluded).
     const workDates = works[m]
       .map((w) => w.date)
-      .filter((d) => d !== '')
+      .filter((d) => d !== '' && !Number.isNaN(Date.parse(d)))
       .sort();
     const supernova = reachMilestones(workDates, supernovaMilestones);
     const lifespan =

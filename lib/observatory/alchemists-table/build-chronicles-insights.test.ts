@@ -116,3 +116,42 @@ describe('buildPioneerMaterialsByUser', () => {
     );
   });
 });
+
+describe('buildChroniclesInsights - lifespan date invariant', () => {
+  it('excludes unparseable dates so lifespan and its span stay well-formed', () => {
+    const prototypes = [
+      createPrototype({
+        id: 1,
+        materials: ['M'],
+        users: ['alice@1'],
+        createDate: '2020-01-01T00:00:00Z',
+      }),
+      createPrototype({
+        id: 2,
+        materials: ['M'],
+        users: ['bob@2'],
+        createDate: '2021-01-01T00:00:00Z',
+      }),
+      // Odd upstream data (legacy-import era): a timestamp neither promidas
+      // nor JS can parse. It must be treated like a dateless work - excluded
+      // from workDates - or it would corrupt the lexicographic first/last
+      // selection and make lifespan.days NaN.
+      createPrototype({
+        id: 3,
+        materials: ['M'],
+        users: ['carol@3'],
+        createDate: 'broken-timestamp',
+        releaseDate: undefined,
+      }),
+    ];
+
+    const { materials } = buildChroniclesInsights(prototypes);
+    const m = materials.find((c) => c.material === 'M');
+
+    expect(m?.lifespan).toEqual({
+      firstUsed: '2020-01-01T00:00:00Z',
+      lastUsed: '2021-01-01T00:00:00Z',
+      days: 366,
+    });
+  });
+});
