@@ -11,7 +11,7 @@ export const ThemeToggle: React.FC = () => {
   return (
     <Button
       variant="outline"
-      size="sm"
+      size="icon-sm"
       onClick={mounted ? toggleTheme : undefined}
       aria-label="Toggle theme"
       title={
@@ -21,7 +21,7 @@ export const ThemeToggle: React.FC = () => {
             : 'Light'
           : 'Toggle theme'
       }
-      className={`h-9 w-9 p-0 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-opacity duration-200 ${
+      className={`transition-opacity duration-200 ${
         mounted ? 'opacity-100' : 'opacity-50'
       }`}
       disabled={!mounted}

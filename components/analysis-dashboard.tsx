@@ -211,20 +211,15 @@ export function AnalysisDashboard({
         actions={
           <>
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-2 px-2"
-              >
+              <Button type="button" variant="outline" size="icon-sm">
                 🔍
               </Button>
             </DialogTrigger>
             <Button
               type="button"
               onClick={refreshBoth}
-              size="sm"
-              className="hidden gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 sm:inline-flex"
+              size="icon-sm"
+              className="hidden bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 sm:inline-flex"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>

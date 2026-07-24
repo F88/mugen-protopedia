@@ -9,6 +9,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Header: unify the icon buttons (details, refresh, playlist, observatory,
+  theme) to the same 32px square size, and tighten the header padding.
+
 ### Fixed
 
 - Observatory: date/time output is now always JST regardless of the server's
