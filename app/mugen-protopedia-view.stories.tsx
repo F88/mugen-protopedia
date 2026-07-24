@@ -10,7 +10,11 @@ import {
   fullfilledPrototype,
   minimalPrototype,
 } from '../.storybook/prototypes.fixture';
-import { AnalysisDashboardStoryWrapper } from '@/components/storybook/analysis-dashboard-wrapper';
+import { AnalysisDashboard } from '@/components/analysis-dashboard';
+import {
+  buildClientAnniversariesOverride,
+  withMockState,
+} from '@/components/storybook/analysis-dashboard-mock-state';
 
 import { HomeLayout } from './home-layout';
 import { MugenProtoPediaView } from './mugen-protopedia-view';
@@ -18,9 +22,19 @@ import { MugenProtoPediaView } from './mugen-protopedia-view';
 /**
  * Stories for the presentational home view. Because `MugenProtoPediaView` is a
  * "dumb" component (no hooks, no data fetching), every state is reproduced by
- * passing plain props. The analysis dashboard slot is injected via the
- * Storybook wrapper to keep server actions out of the bundle.
+ * passing plain props. The analysis dashboard slot is the REAL presentational
+ * `AnalysisDashboard` fed with mock state (the server-action-importing hook
+ * lives in the container, which stories never render).
  */
+
+const mockAnalysisDashboard = (
+  <AnalysisDashboard
+    defaultExpanded={false}
+    analysisState={withMockState({})}
+    preferClientTimezoneAnniversaries
+    clientAnniversariesOverride={buildClientAnniversariesOverride({})}
+  />
+);
 
 // A null ref is enough here: the refs are attached to DOM nodes but only read
 // by the container's hooks, which are not present in Storybook.
@@ -116,7 +130,7 @@ const meta = {
       inFlightRequests: 0,
       maxConcurrentFetches: 6,
     },
-    analysisDashboard: <AnalysisDashboardStoryWrapper />,
+    analysisDashboard: mockAnalysisDashboard,
     headerHeight: 64,
     shouldShowStickyBanner: false,
     shouldShowDirectLaunchBanner: false,
