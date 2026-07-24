@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import {
   buildPrototypeLink,
   buildUserLink,
@@ -145,7 +146,7 @@ export function EarlyAdoptersSection({ adopters }: EarlyAdoptersSectionProps) {
               ) : null}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {new Date(adopter.releaseDate).toLocaleDateString('en-US', {
+              {formatInJst(adopter.releaseDate, 'en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',

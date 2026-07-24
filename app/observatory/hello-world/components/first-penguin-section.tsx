@@ -1,4 +1,5 @@
 import { IconPenguin } from '../../shared/icons';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import {
   buildPrototypeLink,
   buildUserLink,
@@ -119,10 +120,7 @@ export function FirstPenguinSection({ penguins }: FirstPenguinSectionProps) {
               ) : null}
             </div>
             <div className="text-xs font-mono text-cyan-600/70 dark:text-cyan-400/70">
-              {new Date(penguin.prototype.releaseDate).toLocaleString('ja-JP', {
-                timeZone: 'Asia/Tokyo',
-              })}{' '}
-              (JST)
+              {formatInJst(penguin.prototype.releaseDate, 'ja-JP')} (JST)
             </div>
           </div>
         ))}

@@ -9,6 +9,21 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Observatory: date/time output is now always JST regardless of the server's
+  timezone. In production (UTC servers) Hello World sections showed UTC
+  values, e.g.:
+    - The Star Alignment showed UTC date+time (a regression: the JST designation
+      was lost when v2 replaced v1)
+    - The Newborn Stars "Materialized at" showed UTC time
+    - Date-only lists (Early Adopters, Labor of Love, Long-Term Evolution) could
+      show the previous day for works released 00:00-08:59 JST
+- Introduced `formatInJst` (`lib/observatory/format-jst.ts`) that pins
+  `timeZone: 'Asia/Tokyo'` while keeping each section's locale/format; all
+  Observatory date/time rendering now goes through it (documented in
+  docs/observatory/observatory-architecture.md).
+
 ## [2026.07.21]
 
 ### Added

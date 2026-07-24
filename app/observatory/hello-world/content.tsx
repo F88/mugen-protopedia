@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import { getHelloWorldAnalysis } from '@/app/actions/observatory/hello-world-analysis';
 import type { AnniversaryCandidatePrototype } from '@/lib/analysis/types';
+import { formatInJst } from '@/lib/observatory/format-jst';
 
 import { IconGlobe } from '@/app/observatory/shared/icons';
 
@@ -138,16 +139,21 @@ async function HelloWorldDashboard() {
   // Calculate Longest Streak Period
   let longestStreakPeriod = null;
   if (creationStreak.longestStreakEndDate && creationStreak.longestStreak > 0) {
+    // longestStreakEndDate is a calendar-day string ("YYYY-MM-DD"), parsed as
+    // UTC midnight; subtract days in UTC so the calendar day never shifts with
+    // the server's time zone.
     const endDate = new Date(creationStreak.longestStreakEndDate);
     const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - (creationStreak.longestStreak - 1));
+    startDate.setUTCDate(
+      endDate.getUTCDate() - (creationStreak.longestStreak - 1),
+    );
 
-    const startStr = startDate.toLocaleDateString('en-US', {
+    const startStr = formatInJst(startDate, 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-    const endStr = endDate.toLocaleDateString('en-US', {
+    const endStr = formatInJst(endDate, 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
