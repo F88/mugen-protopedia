@@ -1,4 +1,5 @@
 import { IconStar } from '../../shared/icons';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import { buildPrototypeLink } from '@/lib/utils/prototype-utils';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
@@ -127,7 +128,6 @@ export function StarAlignmentSection2({
         {topAlignments.length > 0 ? (
           topAlignments.map((alignment) => {
             const count = alignment.prototypes.length;
-            const date = new Date(alignment.timestamp);
             const points = getStarCoordinates(count); // Get consistent coordinates
             const filterId = `starGlow-${alignment.timestamp}`;
 
@@ -139,10 +139,18 @@ export function StarAlignmentSection2({
                 {/* Timestamp */}
                 <div className="text-center mb-4">
                   <div className="font-mono text-3xl font-bold text-slate-400 tracking-wider">
-                    {date.toLocaleDateString('en-CA')}
+                    {formatInJst(alignment.timestamp, 'en-CA', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })}
                   </div>
                   <div className="font-mono text-3xl font-extrabold text-yellow-100 tracking-widest drop-shadow-[0_0_15px_rgba(253,224,71,0.3)]">
-                    {date.toLocaleTimeString('en-GB')}
+                    {formatInJst(alignment.timestamp, 'en-GB', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                    })}
                   </div>
                 </div>
 

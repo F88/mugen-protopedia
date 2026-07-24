@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { cn } from '@/lib/utils';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import {
   buildPrototypeLink,
   buildUserLink,
@@ -142,13 +143,13 @@ export function LaborOfLoveSection({ laborOfLove }: LaborOfLoveSectionProps) {
                       ) : null}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(item.createDate).toLocaleDateString('en-US', {
+                      {formatInJst(item.createDate, 'en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',
                       })}{' '}
                       →{' '}
-                      {new Date(item.releaseDate).toLocaleDateString('en-US', {
+                      {formatInJst(item.releaseDate, 'en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric',

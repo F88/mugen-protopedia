@@ -302,6 +302,44 @@ memoize:
   shared analysis "today" logic (`createLifecycleMomentContext(...).yyyymmdd`), not
   a raw UTC/local slice — the analysis subsystem's "today" is JST.
 
+### 8. Timezone Policy: JST Computation AND JST UI Output
+
+Observatory is JST-based end to end, independent of where the code runs.
+This has two halves, and both are mandatory:
+
+**Computation (JST).** Date-relative analysis (streaks, "today", daily
+buckets, anniversary windows) derives its calendar day via the shared
+analysis "today" logic (`createLifecycleMomentContext(...).yyyymmdd`) — the
+analysis subsystem's "today" is JST, never a raw UTC/local slice. Calendar-day
+strings ("YYYY-MM-DD") parse as UTC midnight; when doing day arithmetic on
+them, use the `getUTCDate`/`setUTCDate` family so the day never shifts with
+the runtime's zone.
+
+**UI output (JST).** Observatory pages are server components (often ISR), so
+`toLocaleString` / `toLocaleDateString` / `toLocaleTimeString` without an
+explicit `timeZone` format in the SERVER's zone — UTC in production, the dev
+machine's zone locally. That is exactly how UTC timestamps once leaked into
+production UI (The Star Alignment regression) while looking correct in local
+development. Therefore:
+
+- **Never call `toLocale*` directly in Observatory components.** Route every
+  rendered date/time through `formatInJst` (`lib/observatory/format-jst.ts`),
+  which pins `timeZone: 'Asia/Tokyo'` while leaving locale/format choices to
+  the page (design freedom stays intact).
+- `formatInJst` returns `null` for missing/unparseable input (e.g. a
+  prototype without `releaseDate`) so the section decides the placeholder.
+
+**Contrast — the home page is the opposite.** The main app's analysis
+dashboard (`/`) intentionally renders anniversaries and times in the
+VIEWER's local time zone (client-side recomputation). Do not use
+`formatInJst` there, and do not "fix" Observatory by copying the dashboard's
+local-time formatting. The two policies are both deliberate:
+
+| Surface                        | Timezone basis                    |
+| ------------------------------ | --------------------------------- |
+| Main app dashboard (`/`)       | Viewer's local time zone (client) |
+| Observatory (`/observatory/*`) | JST, fixed (server)               |
+
 ## Key Differences from Main App
 
 | Aspect               | Main App (`/`)                              | Observatory (`/observatory`)                       |
@@ -351,7 +389,11 @@ memoize:
     - Cards can also link to external sites (absolute URL) — see
       [Observatory Top Page Cards](#6-observatory-top-page-cards-observatorycard)
 
-6. **Wire the page's analysis (if it is data-heavy):**
+6. **Render all dates/times in JST via `formatInJst`:**
+    - Never call `toLocale*` directly in Observatory components; see
+      [Timezone Policy](#8-timezone-policy-jst-computation-and-jst-ui-output).
+
+7. **Wire the page's analysis (if it is data-heavy):**
     - Add `app/actions/observatory/<page>-analysis.ts` returning
       `AnalysisResult<T>`, delegating to a new `AnalysisRepository` method.
     - Put the page's insight builders under `lib/observatory/<page>/`, with any

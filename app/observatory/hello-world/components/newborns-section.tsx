@@ -1,4 +1,5 @@
 import { IconSparkles } from '../../shared/icons';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import {
   buildPrototypeLink,
   buildUserLink,
@@ -129,7 +130,7 @@ export function NewbornsSection({ count, prototypes }: NewbornsSectionProps) {
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Materialized at{' '}
-                {new Date(proto.releaseDate).toLocaleTimeString('ja-JP', {
+                {formatInJst(proto.releaseDate, 'ja-JP', {
                   hour: '2-digit',
                   minute: '2-digit',
                 })}

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { formatInJst } from '@/lib/observatory/format-jst';
 import { buildUserLink, getUserDisplayName } from '@/lib/utils/prototype-utils';
 
 import { IconTree } from '../../shared/icons';
@@ -148,17 +149,19 @@ export function LongTermEvolutionSection({
                       ) : null}
                       <div>
                         Released:{' '}
-                        {new Date(proto.releaseDate).toLocaleDateString(
-                          'en-US',
-                          { year: 'numeric', month: 'short', day: 'numeric' },
-                        )}
+                        {formatInJst(proto.releaseDate, 'en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </div>
                       <div>
                         Last Updated:{' '}
-                        {new Date(proto.updateDate).toLocaleDateString(
-                          'en-US',
-                          { year: 'numeric', month: 'short', day: 'numeric' },
-                        )}
+                        {formatInJst(proto.updateDate, 'en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </div>
                     </div>
                   </div>

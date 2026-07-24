@@ -1,4 +1,5 @@
 import { IconDeadline } from '../../shared/icons';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import { helloWorldTheme } from '../theme';
 import { ObservatorySection } from './observatory-section';
 
@@ -23,17 +24,20 @@ export function PowerOfDeadlinesSection({
   };
 
   const renderSpikeChart = (spike: { date: string; count: number }) => {
+    // spike.date is a JST calendar-day string ("YYYY-MM-DD"), parsed as UTC
+    // midnight; do the day arithmetic in UTC so the calendar day never shifts
+    // with the server's time zone.
     const centerDate = new Date(spike.date);
     const days = [];
     for (let i = -5; i <= 1; i++) {
       const d = new Date(centerDate);
-      d.setDate(centerDate.getDate() + i);
+      d.setUTCDate(centerDate.getUTCDate() + i);
       const dateStr = d.toISOString().split('T')[0];
       days.push({
         date: dateStr,
         count: getDailyCount(dateStr),
         isCenter: i === 0,
-        label: d.toLocaleDateString('en-US', {
+        label: formatInJst(d, 'en-US', {
           month: 'short',
           day: 'numeric',
         }),
@@ -132,7 +136,7 @@ export function PowerOfDeadlinesSection({
                 </div>
                 <div className="text-lg text-gray-600 dark:text-gray-300 font-mono">
                   on{' '}
-                  {new Date(topSpike.date).toLocaleDateString('en-US', {
+                  {formatInJst(topSpike.date, 'en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -161,7 +165,7 @@ export function PowerOfDeadlinesSection({
               {spike.count} Releases
             </div>
             <div className="text-xs font-mono text-gray-500 dark:text-gray-400 mb-2">
-              {new Date(spike.date).toLocaleDateString('en-US', {
+              {formatInJst(spike.date, 'en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
