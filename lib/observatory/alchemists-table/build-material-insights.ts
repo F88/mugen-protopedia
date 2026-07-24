@@ -10,6 +10,8 @@
  */
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 
+import { jstYear, jstYearMonth } from './blocks/insights-shared';
+
 type MinimalLogger = {
   debug: (payload: unknown, message?: string) => void;
 };
@@ -172,20 +174,22 @@ function bucketLabel(materialCount: number): string {
 
 const BUCKET_ORDER = ['1-3', '4-5', '6-10', '11-15', '16+'] as const;
 
-/** `YYYY-MM` for a date string (used by The Newfound Element's monthly view). */
-function toYearMonth(dateStr: string): string {
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-}
-
-/** The trailing `count` months (oldest -> newest) ending at the current month. */
+/**
+ * The trailing `count` JST calendar months (oldest -> newest) ending at the
+ * JST month of `now`. Anchors on JST once, then steps with pure year/month
+ * arithmetic so the runtime's time zone never affects the window.
+ */
 function trailingMonths(count: number, now: Date = new Date()): string[] {
+  const anchor = jstYearMonth(now.toISOString());
+  if (anchor == null) return [];
+  const anchorYear = Number(anchor.slice(0, 4));
+  const anchorMonth = Number(anchor.slice(5, 7));
   const months: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
-    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(
-      `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`,
-    );
+    const index = anchorYear * 12 + (anchorMonth - 1) - i;
+    const year = Math.floor(index / 12);
+    const month = (index % 12) + 1;
+    months.push(`${year}-${String(month).padStart(2, '0')}`);
   }
   return months;
 }
@@ -260,16 +264,14 @@ export function buildMaterialInsights(
 
     // Per-material yearly counts (Primordial / Lost Technology) and monthly
     // counts within the trailing-12-months window (The Newfound Element).
+    // Year/month attribution is JST (the Observatory policy) — never the
+    // runtime's local zone, which is UTC in production but JST in local dev.
     const dateStr = prototype.releaseDate || prototype.createDate;
-    const parsed = dateStr != null ? new Date(dateStr) : null;
-    const year =
-      parsed != null && !Number.isNaN(parsed.getTime())
-        ? parsed.getFullYear()
-        : NaN;
-    if (!Number.isNaN(year) && parsed != null && dateStr != null) {
+    const year = dateStr != null ? jstYear(dateStr) : NaN;
+    const ym = dateStr != null ? jstYearMonth(dateStr) : null;
+    if (!Number.isNaN(year) && ym != null && dateStr != null) {
       if (year > latestYear) latestYear = year;
       if (year < earliestYear) earliestYear = year;
-      const ym = `${year}-${String(parsed.getMonth() + 1).padStart(2, '0')}`;
       const inWindow = windowMonthsSet.has(ym);
       for (const material of materials) {
         if (yearlyByMaterial[material] == null) yearlyByMaterial[material] = {};
@@ -395,7 +397,7 @@ export function buildMaterialInsights(
       return {
         material,
         firstDate,
-        firstMonth: toYearMonth(firstDate),
+        firstMonth: jstYearMonth(firstDate) ?? '',
         count,
         series,
       };

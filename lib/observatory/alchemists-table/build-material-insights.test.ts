@@ -148,6 +148,29 @@ describe('buildMaterialInsights - yearly / monthly top materials', () => {
     ]);
   });
 
+  it('attributes year/month by JST, not the runtime zone or UTC', () => {
+    const prototypes = [
+      // 2021-12-31 20:00 UTC = 2022-01-01 05:00 JST -> a 2022 / 2022-01 work.
+      // Under the old runtime-zone attribution this landed in 2021 / 2021-12
+      // whenever the process ran in UTC (production, CI).
+      createPrototype(['Boundary'], '2021-12-31T20:00:00Z'),
+      createPrototype(['Plain'], '2022-01-10T00:00:00Z'),
+    ];
+
+    const { yearlyTopMaterials, monthlyTopMaterials } =
+      buildMaterialInsights(prototypes);
+
+    expect(yearlyTopMaterials['2021']).toBeUndefined();
+    expect(yearlyTopMaterials['2022'].map((m) => m.material).sort()).toEqual([
+      'Boundary',
+      'Plain',
+    ]);
+    expect(monthlyTopMaterials['2021-12']).toBeUndefined();
+    expect(
+      monthlyTopMaterials['2022-01'].map((m) => m.material).sort(),
+    ).toEqual(['Boundary', 'Plain']);
+  });
+
   it('breaks per-period ties by earliest debut date, not material name', () => {
     // Both have count 1 in 2023; "Zeta" debuted before "Alpha".
     const prototypes = [

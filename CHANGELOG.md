@@ -23,6 +23,14 @@ and this project adheres to [CalVer](https://calver.org/).
   `timeZone: 'Asia/Tokyo'` while keeping each section's locale/format; all
   Observatory date/time rendering now goes through it (documented in
   docs/observatory/observatory-architecture.md).
+- The Alchemist's Table: year/month attribution is now JST as well.
+    - Material insights (Primordial / Lost Technology yearly counts, The
+      Newfound Element monthly window, monthly/yearly top materials) bucketed
+      by the server's local zone, so production (UTC) attributed works
+      released 00:00-08:59 JST to the previous day's year/month and disagreed
+      with local dev results; they now use the shared JST lifecycle helpers.
+    - The Elemental Chronicles displayed UTC-sliced years and lifespan dates;
+      they now render via `formatInJst`.
 
 ## [2026.07.21]
 

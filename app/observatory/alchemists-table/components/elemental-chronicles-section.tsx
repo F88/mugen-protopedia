@@ -17,6 +17,7 @@ import type {
   MakerFirst,
   MaterialChronicle,
 } from '@/lib/observatory/alchemists-table/build-chronicles-insights';
+import { formatInJst } from '@/lib/observatory/format-jst';
 import {
   buildMaterialLink,
   buildPrototypeLink,
@@ -31,9 +32,9 @@ import {
   type SectionCopy,
 } from './section-heading';
 
-/** The 4-digit year from an ISO/JST date string. */
+/** The 4-digit JST year from an ISO timestamp ('' when unparseable). */
 function yearOf(date: string): string {
-  return date.slice(0, 4);
+  return formatInJst(date, 'en-CA', { year: 'numeric' }) ?? '';
 }
 
 /** A labelled row inside a card: a fixed-width label plus its value. */
@@ -299,8 +300,18 @@ function NatureCard({ chronicle: c }: { chronicle: MaterialChronicle }) {
             <span className="text-violet-700 dark:text-violet-300">
               used across{' '}
               <span className="font-semibold">{c.lifespan.days} days</span> (
-              {c.lifespan.firstUsed.slice(0, 10)} -{' '}
-              {c.lifespan.lastUsed.slice(0, 10)})
+              {formatInJst(c.lifespan.firstUsed, 'en-CA', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+              })}{' '}
+              -{' '}
+              {formatInJst(c.lifespan.lastUsed, 'en-CA', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+              })}
+              )
             </span>
           )}
 
