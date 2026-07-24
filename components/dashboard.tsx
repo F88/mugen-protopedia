@@ -28,7 +28,7 @@ export const Dashboard = ({
         >
           {/* The unit scales with the count (em), so no per-mode branch. */}
           {prototypeCount.toLocaleString()}
-          <span className="text-[0.85em]">P</span>
+          <span className="text-[0.85em]"> P</span>
         </span>
       </div>
 
