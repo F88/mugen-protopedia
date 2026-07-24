@@ -35,9 +35,12 @@ describe('formatInJst', () => {
   });
 
   it('renders full date+time when no options are given', () => {
-    expect(formatInJst('2017-10-08T01:14:21.000Z', 'ja-JP')).toBe(
-      '2017/10/8 10:14:21',
-    );
+    // Assert stable substrings, not the exact string: the locale's default
+    // date+time layout (separators, spacing) can drift across Node/ICU
+    // versions, but the JST-converted parts themselves must be present.
+    const result = formatInJst('2017-10-08T01:14:21.000Z', 'ja-JP');
+    expect(result).toContain('10:14:21'); // 01:14:21 UTC + 9 h
+    expect(result).toContain('2017');
   });
 
   it('accepts Date instances and epoch millis', () => {

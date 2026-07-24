@@ -158,7 +158,10 @@ async function HelloWorldDashboard() {
       month: 'short',
       day: 'numeric',
     });
-    longestStreakPeriod = `${startStr} - ${endStr}`;
+    // Keep null when formatting fails (per the formatInJst contract) so the
+    // section renders nothing instead of the literal text "null - null".
+    longestStreakPeriod =
+      startStr != null && endStr != null ? `${startStr} - ${endStr}` : null;
   }
 
   return (
