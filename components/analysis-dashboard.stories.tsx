@@ -1,145 +1,16 @@
-import {
-  anniversaryMinimalPrototype,
-  fullfilledPrototype,
-  minimalPrototype,
-} from '@/.storybook/prototypes.fixture';
-import type { PrototypeForMpp } from '@/lib/api/prototypes';
-import {
-  buildTagAnalytics,
-  buildCoreSummaries,
-  buildMaterialAnalytics,
-  buildTimeDistributions,
-  buildDateBasedPrototypeInsights,
-  buildAdvancedAnalysis,
-} from '@/lib/analysis/batch';
-import { calculateCreationStreak } from '@/lib/analysis/core';
-import {
-  buildAnniversaries,
-  buildAnniversarySlice,
-} from '@/lib/analysis/shared/anniversaries';
+import { minimalPrototype } from '@/.storybook/prototypes.fixture';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/nextjs';
 
 import { AnalysisDashboard } from './analysis-dashboard';
-
-// Helper function for Storybook
-function analyzePrototypes(prototypes: PrototypeForMpp[]): PrototypeAnalysis {
-  const referenceDate = new Date();
-  const totalCount = prototypes.length;
-  const {
-    statusDistribution,
-    prototypesWithAwards,
-    averageAgeInDays: rawAverageAgeInDays,
-  } = buildCoreSummaries(prototypes, { referenceDate });
-  const { topTags } = buildTagAnalytics(prototypes);
-  const { topMaterials } = buildMaterialAnalytics(prototypes);
-  const { releaseTimeDistribution, updateTimeDistribution } =
-    buildTimeDistributions(prototypes);
-  const { uniqueReleaseDates } = buildDateBasedPrototypeInsights(prototypes);
-  const creationStreak = calculateCreationStreak(
-    uniqueReleaseDates,
-    referenceDate,
-  );
-  const advancedAnalysis = buildAdvancedAnalysis(prototypes, topTags);
-
-  const averageAgeInDays =
-    totalCount > 0 ? Math.round(rawAverageAgeInDays * 100) / 100 : 0;
-
-  const anniversariesSliceSource = buildAnniversaries(prototypes);
-  const anniversaries = buildAnniversarySlice(
-    anniversariesSliceSource.birthdayPrototypes,
-    anniversariesSliceSource.newbornPrototypes,
-  );
-
-  const oneDayMs = 24 * 60 * 60 * 1000;
-  const anniversaryCandidates = {
-    metadata: {
-      computedAt: referenceDate.toISOString(),
-      windowUTC: {
-        fromISO: new Date(referenceDate.getTime() - oneDayMs).toISOString(),
-        toISO: new Date(referenceDate.getTime() + oneDayMs).toISOString(),
-      },
-    },
-    mmdd: prototypes
-      .filter(
-        (prototype): prototype is typeof prototype & { releaseDate: string } =>
-          prototype.releaseDate != null,
-      )
-      .map((prototype) => ({
-        id: prototype.id,
-        title: prototype.prototypeNm ?? '',
-        releaseDate: prototype.releaseDate,
-        teamNm: prototype.teamNm,
-        users: prototype.users,
-      })),
-  } as const;
-
-  if (totalCount === 0) {
-    return {
-      totalCount,
-      statusDistribution,
-      prototypesWithAwards,
-      topTags,
-      recentTopTags: [168, 720].map((lookbackHours) => ({
-        lookbackHours,
-        tags: topTags,
-      })),
-      topMaterials,
-      recentTopMaterials: [168, 720].map((lookbackHours) => ({
-        lookbackHours,
-        materials: topMaterials,
-      })),
-      averageAgeInDays,
-      analyzedAt: referenceDate.toISOString(),
-      anniversaryCandidates,
-      anniversaries,
-      releaseTimeDistribution,
-      updateTimeDistribution,
-      creationStreak,
-      ...advancedAnalysis,
-    };
-  }
-
-  return {
-    totalCount,
-    statusDistribution,
-    prototypesWithAwards,
-    topTags,
-    recentTopTags: [168, 720].map((lookbackHours) => ({
-      lookbackHours,
-      tags: topTags,
-    })),
-    topMaterials,
-    recentTopMaterials: [168, 720].map((lookbackHours) => ({
-      lookbackHours,
-      materials: topMaterials,
-    })),
-    averageAgeInDays,
-    analyzedAt: referenceDate.toISOString(),
-    anniversaryCandidates,
-    anniversaries,
-    releaseTimeDistribution,
-    updateTimeDistribution,
-    creationStreak,
-    ...advancedAnalysis,
-  };
-}
-
-type MockAnalysisState = {
-  data?: PrototypeAnalysis | null;
-  isLoading?: boolean;
-  error?: string | null;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const refresh = (_opts?: { forceRecompute?: boolean }) => {};
-
-const sampleAnalysis = analyzePrototypes([
-  fullfilledPrototype,
-  minimalPrototype,
-  anniversaryMinimalPrototype,
-]);
+import {
+  analyzePrototypes,
+  buildClientAnniversariesOverride,
+  sampleAnalysis,
+  withMockState,
+  type MockAnalysisState,
+} from './storybook/analysis-dashboard-mock-state';
 
 const cloneAnalysis = (analysis: PrototypeAnalysis): PrototypeAnalysis =>
   JSON.parse(JSON.stringify(analysis)) as PrototypeAnalysis;
@@ -196,25 +67,6 @@ const newborns4Today: PrototypeAnalysis['anniversaries']['newbornPrototypes'] =
     teamNm: '',
     users: [`Brand New Maker ${index + 1}@brandnewmaker${index + 1}`],
   }));
-
-const withMockState = (state: MockAnalysisState = {}) => ({
-  data: state.data !== undefined ? state.data : sampleAnalysis,
-  isLoading: state.isLoading ?? false,
-  error: state.error ?? null,
-  refresh,
-});
-
-// Provide a mock anniversaries override to avoid network calls in Storybook
-const buildClientAnniversariesOverride = (state: MockAnalysisState = {}) => {
-  const data = state.data !== undefined ? state.data : sampleAnalysis;
-  const isLoading = Boolean(state.isLoading);
-  const error = state.error ?? null;
-  return {
-    anniversaries: data ? data.anniversaries : null,
-    isLoading,
-    error,
-  } as const;
-};
 
 const meta = {
   title: 'Components/AnalysisDashboard',

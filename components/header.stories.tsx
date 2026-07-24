@@ -1,7 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { AnalysisDashboardStoryWrapper } from './storybook/analysis-dashboard-wrapper';
 
+import { AnalysisDashboard } from './analysis-dashboard';
 import { Header } from './header';
+import {
+  buildClientAnniversariesOverride,
+  withMockState,
+} from './storybook/analysis-dashboard-mock-state';
+
+// The REAL dashboard in its presentational form, fed with mock state — no
+// visual mirror to keep in sync (the old AnalysisDashboardStoryWrapper drifted
+// from the real component's styling).
+const mockAnalysisDashboard = (
+  <AnalysisDashboard
+    defaultExpanded={false}
+    analysisState={withMockState({})}
+    preferClientTimezoneAnniversaries
+    clientAnniversariesOverride={buildClientAnniversariesOverride({})}
+  />
+);
 
 const meta = {
   title: 'Components/Header',
@@ -26,7 +42,7 @@ const meta = {
       maxConcurrentFetches: 2,
     },
     playMode: 'normal',
-    analysisDashboard: <AnalysisDashboardStoryWrapper />,
+    analysisDashboard: mockAnalysisDashboard,
     showPlayMode: false,
   },
 } satisfies Meta<typeof Header>;
