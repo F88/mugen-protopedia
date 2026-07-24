@@ -38,6 +38,15 @@ export function jstYear(date: string): number {
 }
 
 /**
+ * JST calendar month (`YYYY-MM`) of an ISO date string, or `null`. Same JST
+ * basis as {@link jstYear}: derive month keys from this — never from
+ * `Date#getMonth` (runtime-TZ dependent) or raw ISO string slicing (UTC).
+ */
+export function jstYearMonth(date: string): string | null {
+  return createLifecycleMomentContext(date)?.yyyymmdd.slice(0, 7) ?? null;
+}
+
+/**
  * Take the top `size` items from an ALREADY-sorted list, then keep going while
  * the next item ties the boundary item's value — so "top 5" can return 6+.
  */
