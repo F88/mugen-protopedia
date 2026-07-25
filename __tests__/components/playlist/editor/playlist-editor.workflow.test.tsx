@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PlaylistEditor } from '@/components/playlist/editor/playlist-editor';
 
 /**
@@ -359,6 +359,144 @@ describe('Work flow: playlist URL generation guardrails', () => {
     expect(
       codeBlocks.some((el) => /^https?:\/\//.test(el.textContent ?? '')),
     ).toBe(true);
+  });
+});
+
+describe('Work flow: playlist output card shows both target pages', () => {
+  const queryByTestId = (container: HTMLElement, testId: string) =>
+    container.querySelector(`[data-test-id="${testId}"]`);
+
+  it('shows the playlist page and playback cards when both title and IDs are valid', () => {
+    const { container } = render(<PlaylistEditor />);
+
+    fireEvent.change(screen.getByLabelText('Playlist Title'), {
+      target: { value: 'My Playlist' },
+    });
+    fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
+      target: { value: '1\n2' },
+    });
+
+    // Playlist page (path form) with its page title.
+    const playlistPageUrl = queryByTestId(container, 'playlist-page-url-code');
+    expect(playlistPageUrl).not.toBeNull();
+    expect(playlistPageUrl?.textContent).toContain(
+      '/playlist/My%20Playlist/1%2C2',
+    );
+    expect(
+      queryByTestId(container, 'playlist-page-title-value')?.textContent,
+    ).toContain('My Playlist | Playlist |');
+
+    // Playback page (query form) with its page title. The playback URL
+    // never carries the autoplay parameter.
+    const playbackUrl = queryByTestId(container, 'playback-url-code');
+    expect(playbackUrl).not.toBeNull();
+    expect(playbackUrl?.textContent).toContain('/?id=1%2C2&title=My+Playlist');
+    expect(playbackUrl?.textContent).not.toContain('autoplay');
+    expect(
+      queryByTestId(container, 'playback-title-value')?.textContent,
+    ).toContain('My Playlist (2) |');
+  });
+
+  it('toggles autoplay=true on the playlist page URL only', () => {
+    const { container } = render(<PlaylistEditor />);
+
+    fireEvent.change(screen.getByLabelText('Playlist Title'), {
+      target: { value: 'My Playlist' },
+    });
+    fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
+      target: { value: '1' },
+    });
+
+    // Autoplay defaults to OFF -> no autoplay param anywhere.
+    expect(
+      queryByTestId(container, 'playlist-page-url-code')?.textContent,
+    ).not.toContain('autoplay');
+
+    // Checking the box appends ?autoplay=true to the playlist page URL,
+    // while the playback URL stays untouched.
+    fireEvent.click(screen.getByLabelText('Autoplay'));
+    expect(
+      queryByTestId(container, 'playlist-page-url-code')?.textContent,
+    ).toContain('?autoplay=true');
+    expect(
+      queryByTestId(container, 'playback-url-code')?.textContent,
+    ).not.toContain('autoplay');
+
+    // Unchecking removes it again.
+    fireEvent.click(screen.getByLabelText('Autoplay'));
+    expect(
+      queryByTestId(container, 'playlist-page-url-code')?.textContent,
+    ).not.toContain('autoplay');
+  });
+
+  it('shows a title hint in the playlist page card for an IDs-only playlist', () => {
+    const { container } = render(<PlaylistEditor />);
+
+    fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
+      target: { value: '1' },
+    });
+
+    expect(queryByTestId(container, 'playlist-page-url-code')).toBeNull();
+    // The card stays visible with a hint about setting a title.
+    expect(
+      queryByTestId(container, 'playlist-page-hint')?.textContent,
+    ).toContain('Set a playlist title');
+    expect(
+      queryByTestId(container, 'playback-url-code')?.textContent,
+    ).toContain('/?id=1');
+  });
+
+  it('shows an IDs hint in the playlist page card for a title-only playlist', () => {
+    const { container } = render(<PlaylistEditor />);
+
+    fireEvent.change(screen.getByLabelText('Playlist Title'), {
+      target: { value: 'My Playlist' },
+    });
+
+    expect(queryByTestId(container, 'playlist-page-url-code')).toBeNull();
+    expect(
+      queryByTestId(container, 'playlist-page-hint')?.textContent,
+    ).toContain('Add at least one prototype ID');
+  });
+
+  it('shows Copied! on success and Copy failed on clipboard error', async () => {
+    const writeText = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('denied'));
+    // jsdom has no Clipboard API, so the original descriptor is normally
+    // undefined; restore means deleting the property again.
+    const originalClipboard = Object.getOwnPropertyDescriptor(
+      navigator,
+      'clipboard',
+    );
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    });
+
+    try {
+      render(<PlaylistEditor />);
+
+      fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
+        target: { value: '1' },
+      });
+
+      // IDs-only -> a single Copy button (playback card).
+      const copyButton = screen.getByRole('button', { name: 'Copy' });
+
+      fireEvent.click(copyButton);
+      expect(await screen.findByText('Copied!')).toBeInTheDocument();
+
+      fireEvent.click(copyButton);
+      expect(await screen.findByText('Copy failed')).toBeInTheDocument();
+    } finally {
+      if (originalClipboard) {
+        Object.defineProperty(navigator, 'clipboard', originalClipboard);
+      } else {
+        delete (navigator as { clipboard?: unknown }).clipboard;
+      }
+    }
   });
 });
 

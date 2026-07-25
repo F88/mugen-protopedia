@@ -1,6 +1,6 @@
 // import { logger } from '@/lib/logger.client';
 import { Metadata } from 'next';
-import { APP_TITLE } from '@/lib/config/app-constants';
+import { computePlaylistLandingTitle } from '@/lib/playlist/titles';
 import { Playlist } from './playlist';
 
 type Props = {
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // ignore
   }
 
-  const pageTitle = `${title} | Playlist | ${APP_TITLE}`;
+  const pageTitle = computePlaylistLandingTitle(title);
   const pageDescription = `Playlist: ${title}`;
 
   return {

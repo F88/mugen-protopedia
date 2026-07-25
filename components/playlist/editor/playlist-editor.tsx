@@ -1,7 +1,6 @@
 'use client';
 
 import React, {
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -17,17 +16,19 @@ import type { DirectLaunchParams } from '@/schemas/direct-launch';
 import { APP_URL } from '@/lib/config/app-constants';
 import { computeDocumentTitle } from '@/lib/utils/document-title';
 import {
+  buildPlaylistPath,
   buildPlaylistPathWithPathParams,
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
 } from '@/lib/playlist/playlist-builder';
+import { computePlaylistLandingTitle } from '@/lib/playlist/titles';
 
 import { scrapePageHtml } from '@/app/actions/scrape';
 
 import { ExtractPrototypeUrlsCard } from '@/components/playlist/editor/extract-prototype-urls-card';
-import { PlaylistOutputCard } from '@/components/playlist/editor/playlist-output-card';
-import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
-import { PlaylistTitleCard } from '@/components/playlist/editor/playlist-title-card';
+import { PlaybackCard } from '@/components/playlist/editor/playback-card';
+import { PlaylistPageCard } from '@/components/playlist/editor/playlist-page-card';
+import { PlaylistPreviewCard } from '@/components/playlist/playlist-preview-card';
 import {
   type LastDriver,
   PrototypeInputsCard,
@@ -63,7 +64,6 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     }
     return null;
   });
-  const [copyStatus, setCopyStatus] = useState<'idle' | 'ok' | 'fail'>('idle');
   const [titleError, setTitleError] = useState<string | null>(null);
   const [idsError, setIdsError] = useState<string | null>(null);
   const [urlsError, setUrlsError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
   const [playlistTitleHighlighted, setPlaylistTitleHighlighted] =
     useState(false);
   const [playlistUrlHighlighted, setPlaylistUrlHighlighted] = useState(false);
-  const [shouldAutoplay, setShouldAutoplay] = useState(true);
+  const [shouldAutoplay, setShouldAutoplay] = useState(false);
 
   const { trigger: triggerScrape, isMutating: isFetchingPage } = useSWRMutation(
     ['scrapePageHtml'],
@@ -174,8 +174,30 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     () => APP_URL,
   );
 
-  const playlistUrl = useMemo(() => {
+  // Playback page URL (query form `/?id=...&title=...`) — starts playing
+  // the list immediately. The autoplay parameter belongs to the playlist
+  // page only, so it is never appended here (the main app ignores it).
+  const playbackUrl = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
+      return '';
+    }
+    const path = buildPlaylistPath(effectiveIds, title);
+    if (path.length === 0) {
+      return '';
+    }
+    return `${origin}${path}`;
+  }, [canGeneratePlaylistUrl, effectiveIds, title, origin]);
+
+  // Playlist page URL (path form `/playlist/<title>/<ids>`) — the shareable
+  // landing page with a start button. It exists only when both a title and
+  // at least one ID are present. With autoplay enabled the URL gets
+  // `?autoplay=true`, which makes the page skip itself and redirect
+  // straight to playback.
+  const playlistPageUrl = useMemo(() => {
+    if (!canGeneratePlaylistUrl) {
+      return '';
+    }
+    if (title.trim().length === 0 || effectiveIds.length === 0) {
       return '';
     }
     const path = buildPlaylistPathWithPathParams(
@@ -183,24 +205,28 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
       title,
       shouldAutoplay,
     );
-    if (!path) {
+    if (!path.startsWith('/playlist/')) {
       return '';
     }
     return `${origin}${path}`;
   }, [canGeneratePlaylistUrl, effectiveIds, title, shouldAutoplay, origin]);
 
-  // Flash the highlight when the generated URL changes. Compare against the
-  // previous value during render instead of synchronizing via an effect; the
-  // null initial value preserves the on-mount flash when a URL is present.
-  const [prevPlaylistUrl, setPrevPlaylistUrl] = useState<string | null>(null);
-  if (prevPlaylistUrl !== playlistUrl) {
-    setPrevPlaylistUrl(playlistUrl);
-    if (playlistUrl) {
+  // Flash the highlight when either generated URL changes. Compare against
+  // the previous value during render instead of synchronizing via an effect;
+  // the null initial value preserves the on-mount flash when a URL is present.
+  const urlsSignature = `${playlistPageUrl}\n${playbackUrl}`;
+  const [prevUrlsSignature, setPrevUrlsSignature] = useState<string | null>(
+    null,
+  );
+  if (prevUrlsSignature !== urlsSignature) {
+    setPrevUrlsSignature(urlsSignature);
+    if (playlistPageUrl.length > 0 || playbackUrl.length > 0) {
       setPlaylistUrlHighlighted(true);
     }
   }
 
-  const playlistPageTitle = useMemo(() => {
+  // Playback page title (the main app's document title in playlist mode).
+  const playbackTitle = useMemo(() => {
     if (!canGeneratePlaylistUrl) {
       return '';
     }
@@ -212,33 +238,24 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
     return computeDocumentTitle(playMode);
   }, [canGeneratePlaylistUrl, effectiveIds, title]);
 
+  // Playlist page title. Shares computePlaylistLandingTitle with the
+  // playlist page's generateMetadata, so this preview always matches the
+  // real title tag. Derived from the same condition as playlistPageUrl
+  // (both title and IDs).
+  const playlistPageTitle =
+    playlistPageUrl.length > 0 ? computePlaylistLandingTitle(title) : '';
+
   // Flash the highlight when the page title changes (same render-time
   // comparison pattern as the playlist URL above).
-  const [prevPlaylistPageTitle, setPrevPlaylistPageTitle] = useState<
-    string | null
-  >(null);
-  if (prevPlaylistPageTitle !== playlistPageTitle) {
-    setPrevPlaylistPageTitle(playlistPageTitle);
-    if (playlistPageTitle) {
+  const [prevPlaybackTitle, setPrevPlaybackTitle] = useState<string | null>(
+    null,
+  );
+  if (prevPlaybackTitle !== playbackTitle) {
+    setPrevPlaybackTitle(playbackTitle);
+    if (playbackTitle) {
       setPlaylistTitleHighlighted(true);
     }
   }
-
-  const handleCopy = useCallback(async () => {
-    if (!playlistUrl) return;
-    try {
-      await navigator.clipboard.writeText(playlistUrl);
-      setCopyStatus('ok');
-    } catch {
-      // Swallow clipboard error; status already reflects failure
-      setCopyStatus('fail');
-    }
-    // Reset status after a delay. The catch above swallows all errors, so this
-    // always runs on both the success and failure paths (matching the previous
-    // `finally`), while avoiding try/finally, which the React Compiler cannot
-    // optimize.
-    setTimeout(() => setCopyStatus('idle'), 2500);
-  }, [playlistUrl]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -286,30 +303,30 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         lastDriver={lastDriver}
         setLastDriver={setLastDriver}
       />
-      <PlaylistTitleCard
+      <PlaylistPageCard
         title={title}
         setTitle={setTitle}
         titleError={titleError}
         setTitleError={setTitleError}
         highlighted={titleHighlighted}
-      />
-      <PlaylistOutputCard
-        ids={{ idsError, idsText, effectiveIds }}
-        title={{ title, titleError }}
-        titleOfPlaylistPage={{
-          title: playlistPageTitle,
-          highlighted: playlistTitleHighlighted,
+        page={{ title: playlistPageTitle, url: playlistPageUrl }}
+        pageHighlighted={{
+          title: playlistTitleHighlighted,
+          url: playlistUrlHighlighted,
         }}
-        playlistUrl={{
-          url: playlistUrl,
-          highlighted: playlistUrlHighlighted,
-        }}
-        canGeneratePlaylistUrl={canGeneratePlaylistUrl}
-        copyStatus={copyStatus}
-        hasInputError={hasInputError}
-        onCopy={handleCopy}
         shouldAutoplay={shouldAutoplay}
         setShouldAutoplay={setShouldAutoplay}
+      />
+      <PlaybackCard
+        ids={{ idsError, idsText, effectiveIds }}
+        title={{ title, titleError }}
+        page={{ title: playbackTitle, url: playbackUrl }}
+        highlighted={{
+          title: playlistTitleHighlighted,
+          url: playlistUrlHighlighted,
+        }}
+        canGeneratePlaylistUrl={canGeneratePlaylistUrl}
+        hasInputError={hasInputError}
       />
       <PlaylistPreviewCard effectiveIds={effectiveIds} />
     </div>

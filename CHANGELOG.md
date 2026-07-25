@@ -11,6 +11,17 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Playlist editor: reorganize the output around the two pages a
+  playlist can be shared as, each with its page title, URL and
+  Copy/Open.
+    - "Playlist page" card (formerly "Title of playlist"): the title
+      input plus everything about the landing page
+      (`/playlist/<title>/<ids>`), including the Autoplay checkbox.
+      Shows a hint when the title or IDs are still missing.
+    - "Playback" card: the immediate-playback page
+      (`/?id=...&title=...`).
+    - `?autoplay=true` now applies to the playlist page URL only, and
+      the checkbox defaults to unchecked (was checked).
 - Refactor: consolidate playlist-only modules into `lib/playlist/`
   (moved `playlist-builder`, `url-allowlist`, `protopedia-scraper`;
   no behavior change).
