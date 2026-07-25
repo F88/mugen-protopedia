@@ -12,7 +12,7 @@ import {
   sortLinesNumeric,
   deduplicateIdsOnly,
   buildPlaylistPathWithPathParams,
-} from '@/lib/utils/playlist-builder';
+} from '@/lib/playlist/playlist-builder';
 
 describe('playlist-builder ID utilities', () => {
   describe('isPrototypeUrl', () => {

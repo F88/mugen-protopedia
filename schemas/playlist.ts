@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { isPrototypeUrl } from '@/lib/utils/playlist-builder';
+import { isPrototypeUrl } from '@/lib/playlist/playlist-builder';
 
 export const playlistTitleSchema = z
   .string()

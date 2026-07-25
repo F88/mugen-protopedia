@@ -1,7 +1,7 @@
 'use server';
 
-import { fetchPageHtmlOnServer } from '@/lib/fetcher/protopedia-scraper';
-import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+import { fetchPageHtmlOnServer } from '@/lib/playlist/protopedia-scraper';
+import { isAllowedProtopediaScrapeUrl } from '@/lib/playlist/url-allowlist';
 
 export async function scrapePageHtml(pageUrl: string): Promise<{
   html: string;

@@ -17,7 +17,7 @@ import {
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
   sortLinesNumeric,
-} from '@/lib/utils/playlist-builder';
+} from '@/lib/playlist/playlist-builder';
 
 import {
   prototypeIdTextSchema,
