@@ -13,7 +13,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 - Playlist page (`/playlist/<title>/<ids>`): the background now follows
   the theme (was always black), so the embedded preview list no longer
-  stands out as a white box in light mode.
+  stands out as a white box in light mode. The preview list border now
+  uses the theme's primary color there, echoing the Play button.
+- Playlist editor: the preview list gets the same primary border once
+  the list actually becomes playable (some IDs and no blocking
+  errors); until then it keeps the neutral border.
 
 ### Fixed
 

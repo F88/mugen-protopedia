@@ -69,7 +69,7 @@ export function Playlist({
       </div>
 
       <div className="w-full max-w-xl">
-        <PlaylistPreviewCard effectiveIds={ids} />
+        <PlaylistPreviewCard effectiveIds={ids} className="border-primary!" />
       </div>
     </div>
   );

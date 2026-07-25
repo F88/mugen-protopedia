@@ -6,6 +6,8 @@ import useSWR from 'swr';
 
 import { getPrototypeNames } from '@/app/actions/prototypes-gateway';
 
+import { cn } from '@/lib/utils';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -18,10 +20,13 @@ import {
 
 export type PlaylistPreviewCardProps = {
   effectiveIds: number[];
+  /** Extra classes merged into the Card (e.g. a page-specific border color). */
+  className?: string;
 };
 
 export function PlaylistPreviewCard({
   effectiveIds,
+  className,
 }: PlaylistPreviewCardProps) {
   // Deduplicate and sort so the SWR cache key is canonical: playlists with the
   // same set of ids (regardless of order or duplicates) share one cache entry.
@@ -40,7 +45,7 @@ export function PlaylistPreviewCard({
   );
 
   return (
-    <Card className="w-full py-4 border-4">
+    <Card className={cn('w-full py-4 border-4', className)}>
       <CardHeader>
         <CardTitle>Prototypes in playlist</CardTitle>
       </CardHeader>
