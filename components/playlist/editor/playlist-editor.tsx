@@ -28,7 +28,7 @@ import { scrapePageHtml } from '@/app/actions/scrape';
 import { ExtractPrototypeUrlsCard } from '@/components/playlist/editor/extract-prototype-urls-card';
 import { PlaybackCard } from '@/components/playlist/editor/playback-card';
 import { PlaylistPageCard } from '@/components/playlist/editor/playlist-page-card';
-import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
+import { PlaylistPreviewCard } from '@/components/playlist/playlist-preview-card';
 import {
   type LastDriver,
   PrototypeInputsCard,

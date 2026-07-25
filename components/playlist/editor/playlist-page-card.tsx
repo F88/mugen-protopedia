@@ -63,8 +63,8 @@ export function PlaylistPageCard({
           id="playlist-title-help"
           className="mt-1 text-xs text-muted-foreground"
         >
-          Landing page with a start button. The playlist title becomes part
-          of its URL (up to 300 characters, emoji supported).
+          Landing page with a start button. The playlist title becomes part of
+          its URL (up to 300 characters, emoji supported).
         </p>
       }
       helpText={`This card owns everything about the playlist landing page

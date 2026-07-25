@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock PlaylistPreviewCard to avoid complex dependencies
-vi.mock('@/components/playlist/editor/playlist-preview-card', () => ({
+vi.mock('@/components/playlist/playlist-preview-card', () => ({
   PlaylistPreviewCard: () => (
     <div data-testid="playlist-preview-card">Preview Card</div>
   ),

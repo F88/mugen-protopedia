@@ -5,7 +5,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
-import { PlaylistPreviewCard } from '@/components/playlist/editor/playlist-preview-card';
+import { PlaylistPreviewCard } from '@/components/playlist/playlist-preview-card';
 // import { logger } from '@/lib/logger.client';
 
 export function Playlist({

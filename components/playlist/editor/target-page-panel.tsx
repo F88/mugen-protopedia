@@ -83,11 +83,7 @@ export function TargetPagePanel({
       {children}
 
       <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          onClick={handleCopy}
-          disabled={url.length === 0}
-        >
+        <Button type="button" onClick={handleCopy} disabled={url.length === 0}>
           Copy
         </Button>
         <a
