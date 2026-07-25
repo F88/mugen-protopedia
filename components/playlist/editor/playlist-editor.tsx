@@ -328,7 +328,18 @@ export function PlaylistEditor({ directLaunchParams }: PlaylistEditorProps) {
         canGeneratePlaylistUrl={canGeneratePlaylistUrl}
         hasInputError={hasInputError}
       />
-      <PlaylistPreviewCard effectiveIds={effectiveIds} />
+      <PlaylistPreviewCard
+        effectiveIds={effectiveIds}
+        // Same primary border as on the playlist page. Lit while the list
+        // has contents that will really be played: some IDs and no blocking
+        // errors. Deliberately NOT "playback URL exists" — a title-only
+        // playlist has a URL but an empty list, which should stay neutral.
+        className={
+          canGeneratePlaylistUrl && effectiveIds.length > 0
+            ? 'border-primary!'
+            : undefined
+        }
+      />
     </div>
   );
 }

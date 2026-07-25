@@ -47,7 +47,7 @@ export function Playlist({
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-black p-4 text-white md:p-8">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-background p-4 text-foreground md:p-8">
       <div className="flex flex-col items-center gap-8 text-center">
         <div className="space-y-4">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl max-w-3xl">
@@ -63,13 +63,13 @@ export function Playlist({
           className="h-16 w-16 rounded-full shadow-2xl transition-all hover:scale-105 hover:shadow-primary/25 md:h-24 md:w-24"
           onClick={() => router.push(destination)}
         >
-          <Play className="ml-1 h-8 w-8 fill-current md:h-14 md:w-14" />
+          <Play className="ml-1 size-8 fill-current md:size-14" />
           <span className="sr-only">Start Playlist</span>
         </Button>
       </div>
 
       <div className="w-full max-w-xl">
-        <PlaylistPreviewCard effectiveIds={ids} />
+        <PlaylistPreviewCard effectiveIds={ids} className="border-primary!" />
       </div>
     </div>
   );
