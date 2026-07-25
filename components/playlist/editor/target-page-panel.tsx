@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -28,6 +28,16 @@ export function TargetPagePanel({
   children?: React.ReactNode;
 }) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'ok' | 'fail'>('idle');
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cancel a pending status reset when the panel unmounts.
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current != null) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleCopy = useCallback(async () => {
     if (url.length === 0) return;
@@ -40,8 +50,16 @@ export function TargetPagePanel({
     }
     // Reset status after a delay. The catch above swallows all errors, so
     // this always runs on both the success and failure paths while avoiding
-    // try/finally, which the React Compiler cannot optimize.
-    setTimeout(() => setCopyStatus('idle'), 2500);
+    // try/finally, which the React Compiler cannot optimize. Tracking the
+    // timer restarts the window on a rapid re-copy instead of racing the
+    // previous timer.
+    if (resetTimerRef.current != null) {
+      clearTimeout(resetTimerRef.current);
+    }
+    resetTimerRef.current = setTimeout(() => {
+      resetTimerRef.current = null;
+      setCopyStatus('idle');
+    }, 2500);
   }, [url]);
 
   return (

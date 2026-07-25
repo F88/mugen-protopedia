@@ -464,25 +464,39 @@ describe('Work flow: playlist output card shows both target pages', () => {
       .fn()
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(new Error('denied'));
+    // jsdom has no Clipboard API, so the original descriptor is normally
+    // undefined; restore means deleting the property again.
+    const originalClipboard = Object.getOwnPropertyDescriptor(
+      navigator,
+      'clipboard',
+    );
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText },
       configurable: true,
     });
 
-    render(<PlaylistEditor />);
+    try {
+      render(<PlaylistEditor />);
 
-    fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
-      target: { value: '1' },
-    });
+      fireEvent.change(screen.getByLabelText('Prototype IDs (editable)'), {
+        target: { value: '1' },
+      });
 
-    // IDs-only -> a single Copy button (playback card).
-    const copyButton = screen.getByRole('button', { name: 'Copy' });
+      // IDs-only -> a single Copy button (playback card).
+      const copyButton = screen.getByRole('button', { name: 'Copy' });
 
-    fireEvent.click(copyButton);
-    expect(await screen.findByText('Copied!')).toBeInTheDocument();
+      fireEvent.click(copyButton);
+      expect(await screen.findByText('Copied!')).toBeInTheDocument();
 
-    fireEvent.click(copyButton);
-    expect(await screen.findByText('Copy failed')).toBeInTheDocument();
+      fireEvent.click(copyButton);
+      expect(await screen.findByText('Copy failed')).toBeInTheDocument();
+    } finally {
+      if (originalClipboard) {
+        Object.defineProperty(navigator, 'clipboard', originalClipboard);
+      } else {
+        delete (navigator as { clipboard?: unknown }).clipboard;
+      }
+    }
   });
 });
 
