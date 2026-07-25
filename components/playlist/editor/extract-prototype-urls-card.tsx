@@ -17,8 +17,8 @@ import { logger } from '@/lib/logger.client';
 import {
   extractPageTitle,
   extractPrototypeUrls,
-} from '@/lib/utils/playlist-builder';
-import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+} from '@/lib/playlist/playlist-builder';
+import { isAllowedProtopediaScrapeUrl } from '@/lib/playlist/url-allowlist';
 import { pageUrlSchema, rawContentSchema } from '@/schemas/playlist';
 
 function getInputStatusClasses(options: {

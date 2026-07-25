@@ -20,7 +20,7 @@ import {
   buildPlaylistPathWithPathParams,
   normalizeIdsFromUrls,
   parsePrototypeIdLines,
-} from '@/lib/utils/playlist-builder';
+} from '@/lib/playlist/playlist-builder';
 
 import { scrapePageHtml } from '@/app/actions/scrape';
 

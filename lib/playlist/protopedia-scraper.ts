@@ -1,5 +1,5 @@
 import { constructDisplayMessage } from '@/lib/network-utils';
-import { isAllowedProtopediaScrapeUrl } from '@/lib/utils/url-allowlist';
+import { isAllowedProtopediaScrapeUrl } from '@/lib/playlist/url-allowlist';
 import type { NetworkFailure } from '@/types/prototype-api.types';
 
 /**

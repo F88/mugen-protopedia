@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { scrapePageHtml } from '@/app/actions/scrape';
 import { PROTOPEDIA_SCRAPE_ALLOWED_ORIGINS } from '@/lib/config/app-constants';
-import * as scraper from '@/lib/fetcher/protopedia-scraper';
+import * as scraper from '@/lib/playlist/protopedia-scraper';
 
-vi.mock('@/lib/fetcher/protopedia-scraper', () => ({
+vi.mock('@/lib/playlist/protopedia-scraper', () => ({
   fetchPageHtmlOnServer: vi.fn(),
 }));
 

@@ -9,6 +9,12 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Refactor: consolidate playlist-only modules into `lib/playlist/`
+  (moved `playlist-builder`, `url-allowlist`, `protopedia-scraper`;
+  no behavior change).
+
 ## [2026.07.24]
 
 ### Changed
