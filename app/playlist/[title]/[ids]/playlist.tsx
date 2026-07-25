@@ -63,7 +63,7 @@ export function Playlist({
           className="h-16 w-16 rounded-full shadow-2xl transition-all hover:scale-105 hover:shadow-primary/25 md:h-24 md:w-24"
           onClick={() => router.push(destination)}
         >
-          <Play className="ml-1 h-8 w-8 fill-current md:h-14 md:w-14" />
+          <Play className="ml-1 size-8 fill-current md:size-14" />
           <span className="sr-only">Start Playlist</span>
         </Button>
       </div>

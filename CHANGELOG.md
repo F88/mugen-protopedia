@@ -15,6 +15,13 @@ and this project adheres to [CalVer](https://calver.org/).
   the theme (was always black), so the embedded preview list no longer
   stands out as a white box in light mode.
 
+### Fixed
+
+- Playlist page: the Play icon now renders at its intended size
+  (32px, 56px on md+). It had been forced to 16px since the page was
+  introduced because the Button component's svg sizing rule overrides
+  `h-*`/`w-*` classes (fixed by using `size-*`).
+
 
 - Playlist editor: reorganize the output around the two pages a
   playlist can be shared as, each with its page title, URL and
