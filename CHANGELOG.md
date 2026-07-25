@@ -11,6 +11,11 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ### Changed
 
+- Playlist page (`/playlist/<title>/<ids>`): the background now follows
+  the theme (was always black), so the embedded preview list no longer
+  stands out as a white box in light mode.
+
+
 - Playlist editor: reorganize the output around the two pages a
   playlist can be shared as, each with its page title, URL and
   Copy/Open.

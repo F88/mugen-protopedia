@@ -47,7 +47,7 @@ export function Playlist({
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-black p-4 text-white md:p-8">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-background p-4 text-foreground md:p-8">
       <div className="flex flex-col items-center gap-8 text-center">
         <div className="space-y-4">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl max-w-3xl">
