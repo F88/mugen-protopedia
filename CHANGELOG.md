@@ -9,23 +9,9 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.07.25]
+
 ### Changed
-
-- Playlist page (`/playlist/<title>/<ids>`): the background now follows
-  the theme (was always black), so the embedded preview list no longer
-  stands out as a white box in light mode. The preview list border now
-  uses the theme's primary color there, echoing the Play button.
-- Playlist editor: the preview list gets the same primary border once
-  the list actually becomes playable (some IDs and no blocking
-  errors); until then it keeps the neutral border.
-
-### Fixed
-
-- Playlist page: the Play icon now renders at its intended size
-  (32px, 56px on md+). It had been forced to 16px since the page was
-  introduced because the Button component's svg sizing rule overrides
-  `h-*`/`w-*` classes (fixed by using `size-*`).
-
 
 - Playlist editor: reorganize the output around the two pages a
   playlist can be shared as, each with its page title, URL and
@@ -38,9 +24,23 @@ and this project adheres to [CalVer](https://calver.org/).
       (`/?id=...&title=...`).
     - `?autoplay=true` now applies to the playlist page URL only, and
       the checkbox defaults to unchecked (was checked).
+- Playlist page (`/playlist/<title>/<ids>`): the background now follows
+  the theme (was always black), so the embedded preview list no longer
+  stands out as a white box in light mode. The preview list border now
+  uses the theme's primary color there, echoing the Play button.
+- Playlist editor: the preview list gets the same primary border once
+  the list actually becomes playable (some IDs and no blocking
+  errors); until then it keeps the neutral border.
 - Refactor: consolidate playlist-only modules into `lib/playlist/`
   (moved `playlist-builder`, `url-allowlist`, `protopedia-scraper`;
   no behavior change).
+
+### Fixed
+
+- Playlist page: the Play icon now renders at its intended size
+  (32px, 56px on md+). It had been forced to 16px since the page was
+  introduced because the Button component's svg sizing rule overrides
+  `h-*`/`w-*` classes (fixed by using `size-*`).
 
 ## [2026.07.24]
 
