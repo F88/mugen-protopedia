@@ -9,6 +9,13 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.11.04]
+
+### Fixed
+
+- CI: actually verify formatting (`format:check`) instead of
+  silently auto-fixing it on the runner (#226).
+
 ### Security
 
 - CI: lock GitHub Actions dependencies to verified commits with a
