@@ -9,6 +9,13 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Security
+
+- CI: lock GitHub Actions dependencies to verified commits with a
+  workflow lockfile (`.github/workflows/actions.lock`).
+    - New `verify-lockfile` workflow checks the lockfile on pull
+      requests and pushes to `main`.
+
 ## [2026.07.25]
 
 ### Changed
