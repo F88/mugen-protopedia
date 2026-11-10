@@ -37,7 +37,7 @@ A separate in-memory `analysisCache` keeps track of analysis results, but protot
   `Possible causes: Offline, DNS, CORS, or Server Down.`
   instead of a generic "No internet connection".
 - **API Errors**: Upstream HTTP errors (400, 401, 500, 503) are propagated with their status codes and messages.
-- **Timeout**: Connection timeouts (30s) are reported as 504 Gateway Timeout errors.
+- **Timeout**: Request timeouts, including receiving the response body, are reported as 504 Gateway Timeout errors.
 
 ## Current Behaviour
 

@@ -42,6 +42,7 @@ import {
 import type { PrototypeForMpp } from '@/lib/api/prototypes';
 import { logger as baseLogger } from '@/lib/logger.server';
 import { promidasLogger } from '@/lib/promidas-logger';
+import { getRequestTimeoutMs } from '@/lib/protopedia-request-timeout';
 import type { FetchPrototypesResult } from '@/types/prototype-api.types';
 
 /**
@@ -55,12 +56,12 @@ const repoLogger = baseLogger.child({ module: 'promidas-repository' });
  * (default 600 = 10 minutes, matching the current `prototypeMapStore`).
  * Lower it (e.g. 60) to observe refresh behavior in development.
  */
-const ttlSecondsRaw = Number.parseInt(
-  process.env.PROMIDAS_STORE_TTL_SECONDS ?? '600',
-  10,
-);
+const DEFAULT_STORE_TTL_SECONDS = 600;
+const ttlSeconds = Number(process.env.PROMIDAS_STORE_TTL_SECONDS);
 const STORE_TTL_SECONDS =
-  Number.isFinite(ttlSecondsRaw) && ttlSecondsRaw > 0 ? ttlSecondsRaw : 1800;
+  Number.isInteger(ttlSeconds) && ttlSeconds > 0
+    ? ttlSeconds
+    : DEFAULT_STORE_TTL_SECONDS;
 const STORE_TTL_MS = STORE_TTL_SECONDS * 1_000;
 
 /**
@@ -68,8 +69,6 @@ const STORE_TTL_MS = STORE_TTL_SECONDS * 1_000;
  * cap `LIMIT_DATA_SIZE_BYTES` is 30 MiB (same ceiling as `prototypeMapStore`).
  */
 const STORE_MAX_DATA_SIZE_BYTES = LIMIT_DATA_SIZE_BYTES;
-/** Connection/header timeout; does not cover body download. */
-const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
 /** Canonical snapshot size (matches the current canonical fetch). */
 const CANONICAL_LIMIT = 10_000;
 /**
@@ -79,8 +78,8 @@ const CANONICAL_LIMIT = 10_000;
  *
  * Linked to the TTL: never exceeds it (a short TTL — e.g. 30s in dev — would
  * otherwise be starved of refreshes between expiry and cooldown), but capped at
- * 60s so a transient failure under a long TTL (30min default) still retries
- * within a minute instead of waiting a full cycle.
+ * 60s so a transient failure under a long TTL still retries within a minute
+ * instead of waiting a full cycle.
  */
 const REFRESH_COOLDOWN_MS = Math.min(STORE_TTL_MS, 60_000);
 
@@ -94,39 +93,18 @@ const validToken =
 /**
  * no-store fetch: the canonical response (~24MB) exceeds the Next.js Data Cache
  * per-entry limit (2MB) and cannot be cached there, so we do not try — the
- * PROMIDAS in-memory snapshot is the cache. Adds a connection/header timeout and
- * composes any incoming AbortSignal.
+ * PROMIDAS in-memory snapshot is the cache. `init.signal` must be forwarded
+ * unchanged: the SDK uses it for both `timeoutMs` and caller cancellation.
  *
  * Data Cache for Next.js:
  * https://vercel.com/docs/caching/runtime-cache/data-cache
  */
-const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    CONNECTION_AND_HEADER_TIMEOUT_MS,
-  );
-  const callerSignal = init?.signal;
-  const onCallerAbort = () => controller.abort(callerSignal?.reason);
-  if (callerSignal) {
-    if (callerSignal.aborted) {
-      onCallerAbort();
-    } else {
-      callerSignal.addEventListener('abort', onCallerAbort, { once: true });
-    }
-  }
-  try {
-    return await globalThis.fetch(url, {
-      ...init,
-      signal: controller.signal,
-      cache: 'no-store',
-      next: { revalidate: 0 },
-    });
-  } finally {
-    clearTimeout(timeoutId);
-    callerSignal?.removeEventListener('abort', onCallerAbort);
-  }
-};
+const noStoreFetch: typeof globalThis.fetch = (url, init) =>
+  globalThis.fetch(url, {
+    ...init,
+    cache: 'no-store',
+    next: { revalidate: 0 },
+  });
 
 /**
  * Build the PROMIDAS store / API client / repository config objects for
@@ -155,6 +133,7 @@ export function createPromidasRepositoryConfigs(overrides?: {
     protoPediaApiClientOptions: {
       token: validToken,
       baseUrl,
+      timeoutMs: getRequestTimeoutMs(),
       fetch: noStoreFetch,
       logger: promidasLogger,
     },
@@ -201,7 +180,10 @@ export function buildPromidasRepository(options?: {
 
 const mapFailureStatus = (failure: SnapshotOperationFailure): number => {
   if (failure.origin === 'fetcher') {
-    return failure.status ?? 503;
+    // An unparsable response is a failure with the status 200.
+    return failure.status !== undefined && failure.status >= 400
+      ? failure.status
+      : 503;
   }
   return 500;
 };

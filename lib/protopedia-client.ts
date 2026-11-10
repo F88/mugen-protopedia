@@ -17,29 +17,22 @@
  * - `PROTOPEDIA_API_V2_TOKEN` for authentication (optional).
  * - `PROTOPEDIA_API_V2_BASE_URL` for overriding the upstream base URL.
  * - `PROTOPEDIA_API_V2_LOG_LEVEL` to control SDK log verbosity.
+ * - `PROTOPEDIA_API_V2_TIMEOUT_MS` for overriding the request timeout.
  */
 import {
   createProtoPediaClient,
   ProtoPediaApiError,
 } from 'protopedia-api-v2-client';
 import { logger as baseLogger } from '@/lib/logger.server';
+import { getRequestTimeoutMs } from '@/lib/protopedia-request-timeout';
 
 /**
  * Timeout for a whole request, passed to the SDK as `timeoutMs`.
  *
- * This timeout covers:
- * 1. DNS resolution
- * 2. TCP connection establishment
- * 3. TLS handshake
- * 4. Request transmission
- * 5. Server processing time (TTFB)
- * 6. Receiving response headers
- * 7. Downloading the response body
- *
  * The custom `fetch` functions below must forward `init.signal` unchanged:
  * the SDK uses it for both this timeout and caller cancellation.
  */
-const REQUEST_TIMEOUT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = getRequestTimeoutMs();
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;

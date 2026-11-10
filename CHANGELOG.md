@@ -9,6 +9,20 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `PROTOPEDIA_API_V2_TIMEOUT_MS`: override the ProtoPedia API request
+  timeout (optional, default 30000).
+
+### Changed
+
+- Update `promidas` and `promidas-utils` to 5.0.0, and
+  `protopedia-api-v2-client` to 5.2.0 (#228).
+- ProtoPedia API requests: the timeout now covers the whole response,
+  including the body (was: until the response headers).
+- Error messages no longer start with `TIMEOUT:`, `ABORTED:` or
+  `NETWORK_ERROR:`.
+
 ## [2026.11.04]
 
 ### Fixed
