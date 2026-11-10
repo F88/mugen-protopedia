@@ -1,5 +1,13 @@
 import { http, HttpResponse } from 'msw';
-import { afterAll, beforeAll, describe, it, expect } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  it,
+  expect,
+  vi,
+} from 'vitest';
 
 import { fetchPrototypesNoStore } from '@/app/actions/prototypes-gateway';
 import { server } from '@/mocks/server';
@@ -31,6 +39,10 @@ describe('fetchPrototypesNoStore Integration Test (MSW)', () => {
     } else {
       process.env.USE_PROMIDAS_REPOSITORY = originalFlag;
     }
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('fetches and normalizes prototypes from the snapshot via promidas', async () => {
@@ -97,6 +109,35 @@ describe('fetchPrototypesNoStore Integration Test (MSW)', () => {
     if (result.ok) return; // Type guard
     expect(result.status).toBe(500);
     expect(typeof result.error).toBe('string');
+  });
+
+  it('maps a connection failure to 503 with the code of the error', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(
+      Object.assign(new TypeError('fetch failed'), {
+        cause: { code: 'ECONNREFUSED' },
+      }),
+    );
+
+    const result = await fetchPrototypesNoStore({ prototypeId: 1001 });
+
+    expect(result).toMatchObject({
+      ok: false,
+      status: 503,
+      details: { code: 'ECONNREFUSED' },
+    });
+  });
+
+  it('maps a timeout to 504 without an error code', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(
+      new DOMException('Request timed out', 'TimeoutError'),
+    );
+
+    const result = await fetchPrototypesNoStore({ prototypeId: 1001 });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return; // Type guard
+    expect(result.status).toBe(504);
+    expect(result.details?.code).toBeUndefined();
   });
 
   it('caps limit at the safe maximum on the upstream request', async () => {

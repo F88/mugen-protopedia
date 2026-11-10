@@ -153,7 +153,7 @@ export const fetchPrototypesViaPromidasNoStore = async (
     error: result.error,
     details: {
       statusText: result.details?.res?.statusText,
-      code: result.details?.res?.code,
+      code: result.details.causeCode,
       url: result.details?.req?.url,
     },
   };
