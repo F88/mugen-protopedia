@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { RefObject } from 'react';
 
 import type { PrototypeForMpp as Prototype } from '@/lib/api/prototypes';

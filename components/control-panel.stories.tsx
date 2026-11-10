@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useRef } from 'react';
 
 import { ControlPanel } from './control-panel';

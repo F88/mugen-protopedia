@@ -1,7 +1,7 @@
 import { minimalPrototype } from '@/.storybook/prototypes.fixture';
 import type { PrototypeAnalysis } from '@/lib/analysis/types';
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { AnalysisDashboard } from './analysis-dashboard';
 import {

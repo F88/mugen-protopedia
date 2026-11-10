@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
 import { DirectLaunchResult } from './direct-launch-result';
 import type { ValidationError } from '@/lib/validation/validation';
