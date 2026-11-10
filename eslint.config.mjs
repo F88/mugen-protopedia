@@ -48,7 +48,7 @@ const eslintConfig = defineConfig([
   // version via context.getFilename(), which ESLint 10 removed. Pinning the
   // version explicitly skips that detection path and avoids the crash.
   {
-    settings: { react: { version: '19.2.7' } },
+    settings: { react: { version: '19.3.1' } },
   },
   globalIgnores([
     '.next/**',

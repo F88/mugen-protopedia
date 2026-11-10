@@ -22,6 +22,15 @@ and this project adheres to [CalVer](https://calver.org/).
   including the body (was: until the response headers).
 - Error messages no longer start with `TIMEOUT:`, `ABORTED:` or
   `NETWORK_ERROR:`.
+- Update Next.js to 16.4.6 and React to 19.3.1.
+- Update `he` to 2.0.0, and other dependencies to their latest patch
+  and minor releases.
+
+### Security
+
+- Update `next` and `zod` to fix known vulnerabilities.
+    - `next`: `next/og`, Image Optimization and Server Actions.
+    - `zod`: GHSA-mrhx-c7xc-m3w5.
 
 ## [2026.11.04]
 

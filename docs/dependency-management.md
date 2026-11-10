@@ -71,7 +71,7 @@ verification — never via a patch/minor batch.
 ## ESLint v10 and eslint-config-next
 
 ESLint 10 works in this repo, but **only with a workaround**, because
-`eslint-config-next` (checked with `16.2.9`) bundles plugins that have not yet declared
+`eslint-config-next` (checked with `16.4.6`) bundles plugins that have not yet declared
 ESLint 10 support:
 
 - **`eslint-plugin-react`** (`7.37.5`) — the real blocker. It auto-detects the
@@ -98,7 +98,7 @@ Everything else we use already declares an ESLint peer range that includes v10
 ```js
 // eslint.config.mjs (excerpt)
 {
-  settings: { react: { version: '19.2.7' } },
+  settings: { react: { version: '19.3.1' } },
 }
 ```
 
