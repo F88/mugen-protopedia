@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { PrototypeDynamicSkeletonCard } from './prototype-dynamic-skeleton-card';
 
 const meta = {

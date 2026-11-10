@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Castle, Link2, Users } from 'lucide-react';
 
 import { ValueBadge } from './value-badge';

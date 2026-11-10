@@ -25,6 +25,10 @@ and this project adheres to [CalVer](https://calver.org/).
 - Update Next.js to 16.4.6 and React to 19.3.1.
 - Update `he` to 2.0.0, and other dependencies to their latest patch
   and minor releases.
+- Update development tools: Vitest 5, jsdom 31, jest-dom 7, MSW 3,
+  `@vite-pwa/assets-generator` 2, and `glob` 14.
+    - Remove `node-fetch` from the test setup and the unused
+      `@storybook/nextjs`.
 
 ### Security
 

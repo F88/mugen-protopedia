@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { afterAll, afterEach, beforeAll } from 'vitest';
 import { server } from './mocks/server.js';
-import fetch, { Headers, Request, Response } from 'node-fetch';
 
 // Force runtime to treat all Date parsing/comparisons as UTC for deterministic tests
 process.env.TZ = 'UTC';
@@ -13,12 +12,6 @@ process.env.PROTOPEDIA_API_V2_BASE_URL ||= 'https://api.local.test/v2/api';
 // Disable retry backoff during tests for speed and determinism
 process.env.PROTOTYPE_RETRY_BACKOFF_MS = '0';
 
-// Override global fetch so it goes through Node's http/https stack (MSW-interceptable)
-globalThis.fetch = fetch;
-globalThis.Headers = Headers;
-globalThis.Request = Request;
-globalThis.Response = Response;
-
 // Mock ResizeObserver for Radix UI
 global.ResizeObserver = class ResizeObserver {
   observe() {}
@@ -26,7 +19,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+beforeAll(() => server.listen({ onUnhandledFrame: 'bypass' }));
 
 afterEach(() => server.resetHandlers());
 
