@@ -23,8 +23,8 @@ This document defines the application behavior when launched via URL query param
 
 ## Play Mode Determination
 
-- If the validated `id` list is not empty, the play mode is initialized as `playlist`.
-- If the `id` parameter does not exist or is determined to be empty due to validation failure, the play mode is initialized as `normal`.
+- If the validated `id` list is not empty, or `title` is not blank, the play mode is initialized as `playlist`.
+- Otherwise, including when validation fails, the play mode is initialized as `normal`.
 - For the behavior of play modes themselves, refer to `docs/mugen-pp/play-mode.md`.
 
 ## Reference Implementation

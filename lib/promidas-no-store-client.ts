@@ -17,16 +17,11 @@
 import { ProtopediaApiCustomClient } from 'promidas/fetcher';
 
 import { promidasLogger } from '@/lib/promidas-logger';
+import { getRequestTimeoutMs } from '@/lib/protopedia-request-timeout';
 import type {
   FetchPrototypesParams,
   FetchPrototypesResult,
 } from '@/types/prototype-api.types';
-
-/**
- * Timeout for establishing a connection and receiving response headers.
- * Mirrors the value used by the SDK-based clients; does not cover body download.
- */
-const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
 
 /** Upper bound for `limit`, matching the SDK path's clamp, to guard against
  * accidentally huge upstream responses if this action is reused. */
@@ -44,39 +39,15 @@ const validToken =
 
 /**
  * No-store fetch: bypasses the Next.js Data Cache (`cache: 'no-store'`,
- * `next.revalidate: 0`) with a connection/header timeout.
+ * `next.revalidate: 0`). `init.signal` must be forwarded unchanged: the SDK uses
+ * it for both `timeoutMs` and caller cancellation.
  */
-const noStoreFetch: typeof globalThis.fetch = async (url, init) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    CONNECTION_AND_HEADER_TIMEOUT_MS,
-  );
-
-  // Compose any incoming signal (the SDK passes its own AbortSignal) with our
-  // timeout controller so caller/SDK cancellation still propagates.
-  const callerSignal = init?.signal;
-  const onCallerAbort = () => controller.abort(callerSignal?.reason);
-  if (callerSignal) {
-    if (callerSignal.aborted) {
-      onCallerAbort();
-    } else {
-      callerSignal.addEventListener('abort', onCallerAbort, { once: true });
-    }
-  }
-
-  try {
-    return await globalThis.fetch(url, {
-      ...init,
-      signal: controller.signal,
-      cache: 'no-store',
-      next: { revalidate: 0 },
-    });
-  } finally {
-    clearTimeout(timeoutId);
-    callerSignal?.removeEventListener('abort', onCallerAbort);
-  }
-};
+const noStoreFetch: typeof globalThis.fetch = (url, init) =>
+  globalThis.fetch(url, {
+    ...init,
+    cache: 'no-store',
+    next: { revalidate: 0 },
+  });
 
 /**
  * promidas fetcher client configured for non-cached, server-side use.
@@ -87,6 +58,7 @@ export const promidasNoStoreClient = new ProtopediaApiCustomClient({
   protoPediaApiClientOptions: {
     token: validToken,
     baseUrl,
+    timeoutMs: getRequestTimeoutMs(),
     fetch: noStoreFetch,
   },
   logger: promidasLogger,
@@ -111,9 +83,9 @@ const validatePrototypeId = (prototypeId?: number) => {
  * promidas's Result into the app's {@link FetchPrototypesResult} contract so
  * existing consumers are unchanged.
  *
- * Error status mapping: promidas's `status` is used when present; otherwise a
- * fetcher-level `timeout`/`abort` maps to 504 and other transport failures
- * (network/cors/unknown without a status) map to 503.
+ * Error status mapping: promidas's `status` is used when it is an error status;
+ * otherwise a fetcher-level `timeout`/`abort` maps to 504 and other failures map
+ * to 503, including an unparsable response, which has the status 200.
  */
 export const fetchPrototypesViaPromidasNoStore = async (
   params: FetchPrototypesParams = {},
@@ -143,9 +115,10 @@ export const fetchPrototypesViaPromidasNoStore = async (
     return { ok: true, data: result.data, lastFetchedAt: new Date() };
   }
 
-  const status =
-    result.status ??
-    (result.kind === 'timeout' || result.kind === 'abort' ? 504 : 503);
+  let status = result.kind === 'timeout' || result.kind === 'abort' ? 504 : 503;
+  if (result.status !== undefined && result.status >= 400) {
+    status = result.status;
+  }
 
   return {
     ok: false,
@@ -153,7 +126,7 @@ export const fetchPrototypesViaPromidasNoStore = async (
     error: result.error,
     details: {
       statusText: result.details?.res?.statusText,
-      code: result.details?.res?.code,
+      code: result.details.causeCode,
       url: result.details?.req?.url,
     },
   };

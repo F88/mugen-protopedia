@@ -25,10 +25,6 @@ Policy and constraints for updating npm dependencies in this repository.
   rather than an open range (`>=20`) also stops Vercel from overriding the
   project's Node version and auto-upgrading on new majors.
 
-> Inconsistency to reconcile: `docs/DEVELOPMENT.md` currently states
-> "pnpm (recommended)", but the committed lockfile and CI are npm. Treat npm as
-> authoritative until this is intentionally changed.
-
 ## Update policy
 
 Dependency updates are performed **manually** (Renovate is no longer used; the
@@ -75,7 +71,7 @@ verification — never via a patch/minor batch.
 ## ESLint v10 and eslint-config-next
 
 ESLint 10 works in this repo, but **only with a workaround**, because
-`eslint-config-next` (latest `16.2.9`) bundles plugins that have not yet declared
+`eslint-config-next` (checked with `16.2.9`) bundles plugins that have not yet declared
 ESLint 10 support:
 
 - **`eslint-plugin-react`** (`7.37.5`) — the real blocker. It auto-detects the

@@ -275,7 +275,9 @@ const fetchPrototypesInternal = async (
     );
 
     if (error instanceof ProtoPediaApiError) {
-      const status = error.status ?? 500;
+      // The SDK reports an unparsable 200 response with the HTTP status as is.
+      const status =
+        error.status !== undefined && error.status >= 400 ? error.status : 500;
       logger.debug(
         {
           status,
@@ -293,9 +295,12 @@ const fetchPrototypesInternal = async (
       };
     }
 
-    if (error instanceof DOMException && error.name === 'AbortError') {
+    if (
+      error instanceof DOMException &&
+      (error.name === 'AbortError' || error.name === 'TimeoutError')
+    ) {
       logger.warn(
-        { errorType: 'AbortError' },
+        { errorType: error.name },
         `Returning timeout error response${isNoStore ? ' (no-store)' : ''}`,
       );
       return {

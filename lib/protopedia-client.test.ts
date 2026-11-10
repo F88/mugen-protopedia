@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import { protopediaForceCacheClient } from './protopedia-client';
+import {
+  protopediaForceCacheClient,
+  protopediaNoStoreClient,
+} from './protopedia-client';
 
 describe('protopedia-client', () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>;
@@ -78,31 +81,86 @@ describe('protopedia-client', () => {
         await expect(promise).resolves.toBeDefined();
       });
 
-      it('should not abort if headers are received within timeout, even if processing takes longer', async () => {
+      it('should time out when the response body is not received within timeout', async () => {
         vi.useFakeTimers();
 
-        // Return headers immediately
-        fetchSpy.mockResolvedValue(
-          new Response(JSON.stringify({ results: [] }), { status: 200 }),
-        );
+        // Return headers immediately, then keep the body pending until aborted
+        fetchSpy.mockImplementation((_url: unknown, init: RequestInit) => {
+          const response = new Response(null, { status: 200 });
+          vi.spyOn(response, 'text').mockImplementation(
+            () =>
+              new Promise((_resolve, reject) => {
+                init.signal?.addEventListener('abort', () => {
+                  reject(init.signal?.reason);
+                });
+              }),
+          );
+          return Promise.resolve(response);
+        });
 
         const promise = protopediaForceCacheClient.listPrototypes({
           limit: 1,
         });
+        const assertion = expect(promise).rejects.toMatchObject({
+          name: 'TimeoutError',
+        });
 
-        // Allow microtasks to process the fetch resolution and finally block
-        await Promise.resolve();
-        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(31000);
 
-        // Advance time past timeout
-        vi.advanceTimersByTime(31000);
+        await assertion;
+      });
 
-        // Should resolve because timeout is cleared after headers
-        await expect(promise).resolves.toBeDefined();
+      it('should forward caller cancellation to fetch', async () => {
+        // Mock fetch to hang until the forwarded signal is aborted
+        fetchSpy.mockImplementation((_url: unknown, init: RequestInit) => {
+          return new Promise((_resolve, reject) => {
+            init.signal?.addEventListener('abort', () => {
+              reject(init.signal?.reason);
+            });
+          });
+        });
 
-        const callArgs = fetchSpy.mock.calls[0];
-        const init = callArgs[1];
-        expect(init?.signal?.aborted).toBe(false);
+        const controller = new AbortController();
+        const promise = protopediaForceCacheClient.listPrototypes(
+          { limit: 1 },
+          { signal: controller.signal },
+        );
+
+        controller.abort(new DOMException('Cancelled', 'AbortError'));
+
+        await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
+        const init = fetchSpy.mock.calls[0][1];
+        expect(init.signal.aborted).toBe(true);
+      });
+    });
+  });
+
+  describe('cache options', () => {
+    const mockSuccess = () => {
+      fetchSpy.mockResolvedValue(
+        new Response(JSON.stringify({ results: [] }), { status: 200 }),
+      );
+    };
+
+    it('should use the Next.js Data Cache for protopediaForceCacheClient', async () => {
+      mockSuccess();
+
+      await protopediaForceCacheClient.listPrototypes({ limit: 1 });
+
+      expect(fetchSpy.mock.calls[0][1]).toMatchObject({
+        cache: 'force-cache',
+        next: { revalidate: 60 },
+      });
+    });
+
+    it('should bypass the Next.js Data Cache for protopediaNoStoreClient', async () => {
+      mockSuccess();
+
+      await protopediaNoStoreClient.listPrototypes({ limit: 1 });
+
+      expect(fetchSpy.mock.calls[0][1]).toMatchObject({
+        cache: 'no-store',
+        next: { revalidate: 0 },
       });
     });
   });

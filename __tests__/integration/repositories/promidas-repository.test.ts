@@ -66,6 +66,20 @@ describe('PromidasBackedRepository.getAllPrototypes (MSW)', () => {
     expect(typeof result.error).toBe('string');
     expect(result.error.length).toBeGreaterThan(0);
   });
+
+  it('maps an unparsable successful response to 503', async () => {
+    server.use(
+      http.get(
+        '*/v2/api/prototype/list',
+        () => new HttpResponse('<html>maintenance</html>', { status: 200 }),
+      ),
+    );
+
+    const reader = new PromidasBackedRepository(newRepo());
+    const result = await reader.getAllPrototypes();
+
+    expect(result).toMatchObject({ ok: false, status: 503 });
+  });
 });
 
 describe('PromidasBackedRepository.getPrototypeNames (MSW)', () => {
