@@ -9,6 +9,8 @@ and this project adheres to [CalVer](https://calver.org/).
 
 ## [Unreleased]
 
+## [2026.11.10]
+
 ### Added
 
 - `PROTOPEDIA_API_V2_TIMEOUT_MS`: override the ProtoPedia API request
