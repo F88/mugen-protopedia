@@ -23,43 +23,43 @@ For detailed information on specific topics, see:
 
 ## Requirements
 
-- Node.js 20+
-- Package manager: pnpm (recommended), npm, or yarn
+- Node.js 24.x
+- Package manager: npm
 
 ## Setup
 
 ```bash
 # 1) Install deps
-pnpm install
+npm install
 
 # 2) Configure environment
 cp .env.example .env.local
 # Edit .env.local as needed (see Configuration below)
 
 # 3) Start dev server
-pnpm dev
+npm run dev
 ```
 
 Open <http://localhost:3000>.
 
 ## Scripts
 
-| Script                             | Purpose                           |
-| ---------------------------------- | --------------------------------- |
-| `pnpm dev`                         | Start Next.js dev server          |
-| `pnpm build`                       | Production build                  |
-| `pnpm start`                       | Run built app                     |
-| `pnpm test`                        | Run unit tests with Vitest        |
-| `pnpm test:watch`                  | Watch mode for tests              |
-| `pnpm storybook`                   | Run Storybook locally (port 6006) |
-| `pnpm build-storybook`             | Build static Storybook            |
-| `pnpm lint` / `pnpm lint:fix`      | Lint codebase (ESLint)            |
-| `pnpm format`                      | Format with Prettier              |
-| `pnpm tool:save-sample-prototypes` | Save sample data for development  |
-| `pnpm generate-pwa-assets`         | Regenerate PWA icons (see below)  |
-| `pnpm qa:icons`                    | Validate PWA icons (CI gate)      |
-| `pnpm qa:images`                   | Validate images                   |
-| `pnpm qa:screenshots`              | Validate screenshots              |
+| Script                                | Purpose                           |
+| ------------------------------------- | --------------------------------- |
+| `npm run dev`                         | Start Next.js dev server          |
+| `npm run build`                       | Production build                  |
+| `npm run start`                       | Run built app                     |
+| `npm run test`                        | Run unit tests with Vitest        |
+| `npm run test:watch`                  | Watch mode for tests              |
+| `npm run storybook`                   | Run Storybook locally (port 6006) |
+| `npm run build-storybook`             | Build static Storybook            |
+| `npm run lint` / `npm run lint:fix`   | Lint codebase (ESLint)            |
+| `npm run format`                      | Format with Prettier              |
+| `npm run tool:save-sample-prototypes` | Save sample data for development  |
+| `npm run generate-pwa-assets`         | Regenerate PWA icons (see below)  |
+| `npm run qa:icons`                    | Validate PWA icons (CI gate)      |
+| `npm run qa:images`                   | Validate images                   |
+| `npm run qa:screenshots`              | Validate screenshots              |
 
 ## Configuration (.env)
 
@@ -67,9 +67,10 @@ Adjust values in `.env.local`. For a fully annotated list, see `.env.example`.
 
 | Variable                         | Description                                             |
 | -------------------------------- | ------------------------------------------------------- |
-| `PROTOPEDIA_API_V2_TOKEN`        | Auth token (optional; improves data surface)            |
+| `PROTOPEDIA_API_V2_TOKEN`        | Auth token (required to fetch real data)                |
 | `PROTOPEDIA_API_V2_BASE_URL`     | Override API endpoint                                   |
 | `PROTOPEDIA_API_V2_LOG_LEVEL`    | Client library log level (silent/error/warn/info/debug) |
+| `PROTOPEDIA_API_V2_TIMEOUT_MS`   | Limit for a whole API request (default 30000)           |
 | `PROTOTYPE_PAGE_LIMIT`           | Page size for candidate fetches (default 100)           |
 | `LOG_LEVEL` / `LOG_PRETTY`       | Server logging controls (pino)                          |
 | `RUN_LIVE_API_TESTS`             | Enables live API tests when `1` and a real token is set |
@@ -82,12 +83,12 @@ See [Logging Policy](./logging.md) for details on logging configuration.
 App icons are generated with `@vite-pwa/assets-generator` (minimal-2023 preset),
 configured in `pwa-assets.config.ts`.
 
-- Regenerate: `pnpm generate-pwa-assets`.
+- Regenerate: `npm run generate-pwa-assets`.
 - Source master: `public/icons/icon-1024x1024.png`. It produces six files in
   `public/icons/`: `pwa-64x64.png`, `pwa-192x192.png`, `pwa-512x512.png`,
   `maskable-icon-512x512.png`, `apple-touch-icon-180x180.png`, `favicon.ico`.
 - These filenames are referenced by hand in `app/manifest.ts` and
-  `lib/config/metadata.ts`; keep them in sync. `pnpm qa:icons` validates the
+  `lib/config/metadata.ts`; keep them in sync. `npm run qa:icons` validates the
   output and runs in CI.
 - Do not run `tools/generate-icons.mjs` — it is a deprecated fallback that
   emits the old icon scheme and can overwrite the master image.
@@ -144,7 +145,7 @@ configured in `pwa-assets.config.ts`.
 
 ### Runtime
 
-- Node.js 20+
+- Node.js 24.x
 
 ### Hosting / Deployment
 
@@ -165,9 +166,9 @@ configured in `pwa-assets.config.ts`.
 Recommended loop:
 
 ```bash
-pnpm lint
-pnpm test
-pnpm storybook
+npm run lint
+npm run test
+npm run storybook
 ```
 
 ### Live API Tests (optional)
@@ -177,7 +178,7 @@ Set these to run the opt-in live test:
 ```bash
 export RUN_LIVE_API_TESTS=1
 export PROTOPEDIA_API_V2_TOKEN=your_real_token
-pnpm test
+npm run test
 ```
 
 ## Coding Style
@@ -219,4 +220,4 @@ When in doubt, ask "does this hook import from the data layer?" Yes →
 1. Create a feature branch (`feat/your-topic`).
 2. Follow Conventional Commits (`feat:`, `fix:`, `docs:`...).
 3. Add/update tests/stories when changing behavior/UX.
-4. Ensure `pnpm lint && pnpm test` pass before opening a PR.
+4. Ensure `npm run lint && npm run test` pass before opening a PR.
