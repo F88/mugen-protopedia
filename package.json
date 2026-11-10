@@ -4,7 +4,7 @@
   "version": "2026.11.04",
   "description": "'Mugen ProtoPedia' is a web application that securely connects to the ProtoPedia API (v2) to retrieve and display a single, randomly selected prototype whenever the user requests one.",
   "engines": {
-    "node": "24.x"
+    "node": "26.x"
   },
   "keywords": [
     "ProtoPedia",
@@ -84,7 +84,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@types/he": "^1.2.3",
-    "@types/node": "^24.13.2",
+    "@types/node": "^26.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vite-pwa/assets-generator": "^1.0.2",
