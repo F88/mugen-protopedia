@@ -25,7 +25,7 @@ import {
 import { logger as baseLogger } from '@/lib/logger.server';
 
 /**
- * Timeout for establishing a connection and receiving response headers.
+ * Timeout for a whole request, passed to the SDK as `timeoutMs`.
  *
  * This timeout covers:
  * 1. DNS resolution
@@ -34,12 +34,12 @@ import { logger as baseLogger } from '@/lib/logger.server';
  * 4. Request transmission
  * 5. Server processing time (TTFB)
  * 6. Receiving response headers
+ * 7. Downloading the response body
  *
- * It does NOT cover the time required to download the response body.
- * This ensures we fail fast if the server is unresponsive, while allowing
- * large payloads (e.g., 20MB JSON) to download even if it takes longer than this threshold.
+ * The custom `fetch` functions below must forward `init.signal` unchanged:
+ * the SDK uses it for both this timeout and caller cancellation.
  */
-const CONNECTION_AND_HEADER_TIMEOUT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 const accessToken = process.env.PROTOPEDIA_API_V2_TOKEN;
 const baseUrl = process.env.PROTOPEDIA_API_V2_BASE_URL;
@@ -89,25 +89,15 @@ export { ProtoPediaApiError };
 export const protopediaForceCacheClient = createProtoPediaClient({
   token: validToken,
   baseUrl,
-  fetch: async (url, init) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      CONNECTION_AND_HEADER_TIMEOUT_MS,
-    );
-    try {
-      return await globalThis.fetch(url, {
-        ...init,
-        signal: controller.signal,
-        cache: 'force-cache',
-        next: {
-          revalidate: 60,
-        },
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  },
+  timeoutMs: REQUEST_TIMEOUT_MS,
+  fetch: (url, init) =>
+    globalThis.fetch(url, {
+      ...init,
+      cache: 'force-cache',
+      next: {
+        revalidate: 60,
+      },
+    }),
   // Reduce noisy logs in development; can be overridden via env
   logLevel,
 });
@@ -121,8 +111,8 @@ export const protopediaForceCacheClient = createProtoPediaClient({
  *   prefers the freshest possible data even at the cost of more network
  *   traffic.
  *
- * This client still benefits from connection / header timeouts to avoid
- * hanging requests when the upstream is unresponsive.
+ * This client still applies the request timeout to avoid hanging requests
+ * when the upstream is unresponsive.
  *
  * Backs the legacy (SDK-based) no-store path via
  * `fetchPrototypesViaNoStoreClient`, which `fetchPrototypesNoStore` in
@@ -133,24 +123,14 @@ export const protopediaForceCacheClient = createProtoPediaClient({
 export const protopediaNoStoreClient = createProtoPediaClient({
   token: validToken,
   baseUrl,
-  fetch: async (url, init) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      CONNECTION_AND_HEADER_TIMEOUT_MS,
-    );
-    try {
-      return await globalThis.fetch(url, {
-        ...init,
-        signal: controller.signal,
-        cache: 'no-store',
-        next: {
-          revalidate: 0,
-        },
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  },
+  timeoutMs: REQUEST_TIMEOUT_MS,
+  fetch: (url, init) =>
+    globalThis.fetch(url, {
+      ...init,
+      cache: 'no-store',
+      next: {
+        revalidate: 0,
+      },
+    }),
   logLevel,
 });
