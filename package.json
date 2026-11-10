@@ -96,7 +96,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-storybook": "^10.6.7",
     "glob": "^13.0.6",
-    "jsdom": "^29.1.1",
+    "jsdom": "^31.0.0",
     "lightningcss": "^1.33.0",
     "msw": "^2.14.6",
     "node-fetch": "^3.3.2",
