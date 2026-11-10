@@ -5,7 +5,7 @@ export async function register() {
   ) {
     const { server } = await import('./mocks/server');
     server.listen({
-      onUnhandledRequest: 'bypass',
+      onUnhandledFrame: 'bypass',
     });
     console.log('🔶 Mock server started in development mode');
   } else {
